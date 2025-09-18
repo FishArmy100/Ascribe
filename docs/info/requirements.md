@@ -11,6 +11,7 @@
   - Note Editor
   - Daily Readings
   - Cloud Sync
+  - Platforms
   - Help Page?
   - Info Page (For modules ie: Bibles)?
 
