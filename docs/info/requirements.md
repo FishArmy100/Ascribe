@@ -1,20 +1,5 @@
 # Ascribe Requirements
-
-- List:
-  - General Layout
-  - Bible
-  - Searching
-  - Audio Player
-  - Settings
-  - Notebook Editor
-  - Highlight Editor
-  - Note Editor
-  - Daily Readings
-  - Cloud Sync
-  - Platforms
-  - Page History
-  - Help Page?
-  - Info Page (For modules ie: Bibles)?
+Approximately all of the requirements for the Ascribe Bible Study application version 1.0, though may be up for change as of 0/19/2025
 
 ## Table of Contents:
 - [Ascribe Requirements](#ascribe-requirements)
@@ -24,6 +9,7 @@
     - [Core Components](#core-components)
     - [Header](#header)
     - [Body](#body)
+    - [Context Menus](#context-menus)
   - [Bible](#bible)
     - [Versions](#versions)
     - [Interface](#interface)
@@ -38,14 +24,13 @@
   - [Settings Page](#settings-page)
   - [Notebook Page](#notebook-page)
     - [Layout](#layout-1)
-    - [Notebooks Display](#notebooks-display)
   - [Notebook Editor Page](#notebook-editor-page)
+    - [Create Notebook Modal](#create-notebook-modal)
     - [Notebook Editor](#notebook-editor)
+    - [Note Editor](#note-editor)
     - [Highlight Editor](#highlight-editor)
-    - [Highlights Display](#highlights-display)
-  - [Note Editor](#note-editor)
-    - [Side Pages](#side-pages)
-    - [Editor](#editor)
+  - [Side Note Editor](#side-note-editor)
+    - [Device Differences](#device-differences)
   - [Daily Readings Page](#daily-readings-page)
   - [Cloud Sync](#cloud-sync)
   - [Platforms](#platforms)
@@ -53,10 +38,12 @@
     - [Medium Screen](#medium-screen)
     - [Small Screen](#small-screen)
   - [Page History](#page-history)
+  - [Highlight Picker](#highlight-picker)
+  - [Word Picker](#word-picker)
+  - [HTMLText Editor](#htmltext-editor)
   - [Help Page?](#help-page)
     - [Layout](#layout-2)
     - [Sections](#sections)
-  - [Info Page?](#info-page)
 
 <!-- ======================================================================================================== -->
 
@@ -109,10 +96,12 @@ The header comprises a sticky top bar with buttons, dropdowns, and sometimes a s
   - [ ] Notebooks Page
     - [ ] Back Button
     - [ ] New Notebook
+    - [ ] Upload `biblio_json` module
     - [ ] **Misc Dropdown**
-  - [ ] Highlight Editor Page
+  - [ ] Notebook Editor Page
     - [ ] Back Button
     - [ ] New Highlight Button
+    - [ ] New Note Button
     - [ ] **Misc Dropdown**
   - [ ] Help Page?
     - [ ] Back Button
@@ -135,6 +124,15 @@ The header comprises a sticky top bar with buttons, dropdowns, and sometimes a s
 The body is formed of two primary categories: single and split view. Split view is used exclusively(???) for note editing and is not available in mobile, as it would not fit properly on the view screen. If required, it would switch between the two different views
 
 It also contains a footer with the text: "&copy; Ascribe (year)"
+
+### Context Menus
+- [ ] Main
+  - [ ] For pages:
+    - [ ] Bible page
+    - [ ] Search page
+  - [ ] Actions
+    - [ ] New highlight
+    - [ ] New notebook
 
 <!-- ======================================================================================================== -->
 
@@ -288,6 +286,7 @@ Similar to the old version, with behavior, however with improved looks
     - [ ] Current chapter that the user is on
   - [ ] Daily Readings
     - [ ] Select which daily readings
+    - [ ] Will automatically be set to the current date when selected
 - [ ] Repeat
   - [ ] Once
   - [ ] Number
@@ -324,45 +323,172 @@ Similar to the old version, with behavior, however with improved looks
 
 <!-- ======================================================================================================== -->
 ## Notebook Page
+The notebook page has two different components. One is the main display, which shows all of the notebooks that have been created, and also `biblio_json` modules, as well as an individual notebook editor (see [Notebook Editor Page](#notebook-editor-page)), which allows the user to see all of the notebook entries, and search through them
 
 ### Layout
-
-### Notebooks Display
+- [ ] Displays a list of notebooks with some basic data about them
+  - [ ] Info
+    - [ ] Name
+    - [ ] Description
+      - [ ] Brief HTML encoded description
+      - [ ] Expand/Reduce size if long
+    - [ ] Highlight colors?
+      - [ ] List of all the highlights inside the 
+    - [ ] Count of notes?
+    - [ ] Word count?
+  - [ ] Actions
+    - [ ] Edit
+      - [ ] Opens the [Notebook Editor Page](#notebook-editor-page)
+      - [ ] Disabled if is a builtin module, or an uploaded non note module
+    - [ ] Delete
+      - [ ] With confirm menu
+      - [ ] Possibly cache deleted notebooks, for retrieval?
+      - [ ] Disabled if is a builtin module
+    - [ ] Clone?
+    - [ ] Download
+- [ ] Page Actions: (see [Header](#header))
+  - [ ] Upload `biblio_json` module
+  - [ ] New notebook
 
 
 <!-- ======================================================================================================== -->
 ## Notebook Editor Page
+Is the editor page when clicking on the Edit notebook button on the [Notebook Page](#notebook-page). Displays sections for the highlights and notes separately, with togglable sections like with the search page. Also enables searching though notes using a search bar.
+
+### Create Notebook Modal
+- [ ] Name
+  - [ ] Shows error if invalid
+- [ ] [HTMLText Editor](#htmltext-editor) for the description
+- [ ] Options
+  - [ ] Create notebook
+  - [ ] Cancel
 
 ### Notebook Editor
+- [ ] Groups
+  - [ ] Highlight Group
+  - [ ] Note Group
+- [ ] Displays
+  - [ ] Highlight Display
+    - [ ] Color bar
+    - [ ] Title
+    - [ ] Priority
+    - [ ] Expandable description if long
+  - [ ] Note Display
+    - [ ] Title (if found)
+    - [ ] Expandable note body
+    - [ ] References
+  - [ ] Both:
+    - [ ] Edit button
+      - [ ] Opens corresponding editor as a popup modal
+    - [ ] Delete
+      - [ ] Opens a confirm menu
+      - [ ] Caches deleted data?
+    - [ ] Move to different notebook
+      - [ ] Opens confirm menu?
+      - [ ] Shows display for selecting notebook
+
+### Note Editor
+- [ ] Data
+  - [ ] Optional title
+    - [ ] Displays error if invalid
+  - [ ] [HTMLText Editor](#htmltext-editor) for the body
+  - [ ] Optional verse links, which on the side page, would be automatically added
+- [ ] Layout
+  - [ ] Similar to the highlight editor that is currently in use, without the color or priority options
+  - [ ] References are shown with location and words, with the ability to delete them
 
 ### Highlight Editor
-
-### Highlights Display
+- [ ] Data
+  - [ ] Title
+    - [ ] Displays error if invalid
+  - [ ] Color
+  - [ ] Display Priority
+  - [ ] [HTMLText Editor](#htmltext-editor) for the body
+- [ ] Layout
+  - [ ] Similar to the current highlight editor, though general improved visuals
 
 
 <!-- ======================================================================================================== -->
-## Note Editor
+## Side Note Editor
+Specifically used when in the Bible or search page, and want to create a note. Can highlight a segment of text with the cursor, then the [Highlight Picker](#highlight-picker) will appear, allowing the user to create a note for that section. The user can also right click, and create a blank note with no attached references.
 
-### Side Pages
+- [ ] Divider
+  - [ ] Resizable and will collapse if less than x% size of the page
+- [ ] Buttons
+  - [ ] Collapse left
+  - [ ] Collapse right
+  - [ ] Swap sides?
+    - [ ] Should save preferred location
+  - [ ] Close editor
+  - [ ] Open in Note Editor view (in notebook)
+- [ ] Editor
+  - [ ] Can edit optional title
+    - [ ] Error message if invalid title
+  - [ ] [HTMLText Editor](#htmltext-editor) for the main body
+  - [ ] References
+    - [ ] Displayed with verse location and words (shortened if too long)
+    - [ ] Can be added by highlighting area
+    - [ ] Can be deleted by button
 
-### Editor
+### Device Differences
+Smaller devices will not be able to see the side note editor, and will instead toggle between the editor, and the Bible or search page they are currently on. This would take the place of the collapse buttons.
 
 <!-- ======================================================================================================== -->
 ## Daily Readings Page
-
+Similar to the old one, but preferably a better layout
+- [ ] Calendar selector
+  - [ ] Shows current month as the calendar
+  - [ ] Can select month as a dropdown
+  - [ ] Can select year as a scrollable dropdown
+  - [ ] Will automatically display what the current date is
+    - [ ] Also reset to current date button
+  - [ ] When clicked off, will display what the current date is, if visible
+- [ ] Readings section
+  - [ ] Displays name of currently selected reading plan
+    - [ ] Preference saved across sessions
+    - [ ] Can switch what reading plan is selected
+  - [ ] Scripture Segments
+    - [ ] Portioned (ie: Robert Roberts): Displays each chapter/section of the reading in its portions
+    - [ ] Un-portioned: Displays as normal list of all section
+    - [ ] Each reference is clickable, and will go to that section
+    - [ ] All readings are broken into there individual chapters
 
 <!-- ======================================================================================================== -->
 ## Cloud Sync
+Allows the user to sign into their google account, and sync across device application instances with Google Drive. Possibly enable one drive in the future.
 
+- [ ] Signin interface
+  - [ ] Main interface application side is in the [Settings Page](#search-page)
+  - [ ] Will redirect to web browser
+    - [ ] When signed in successfully, will display a you signed in page in the web browser
+    - [ ] When error occurs, will display an error page in the web browser
+- [ ] Sync
+  - [ ] Sync button is located in the [Header](#header) section
+  - [ ] When clicked: User cannot interact and a syncing overlay will be displayed
 
 <!-- ======================================================================================================== -->
 ## Platforms
+Different platforms will display different layouts, depending on there size. All platforms of the same size should look the same however
 
 ### Large Screen
+Ie: Macs, PC's, Linux, etc
+
+No Change
 
 ### Medium Screen
+Ie: IPads, Tablets, etc
+
+No Change?
 
 ### Small Screen
+Ie: IPhones, Android, Pixels, etc
+
+- [ ] Side editors will be swapped out for togglable sections (see [Device Differences](#device-differences))
+- [ ] The [Audio Player](#audio-player) will automatically be docked to the bottom of the screen
+  - [ ] Cannot be moved
+  - [ ] Layout will be changed to make more sense for the device
+- [ ] Locked in vertical mode (like Blue Letter Bible)
+
 
 <!-- ======================================================================================================== -->
 ## Page History
@@ -379,11 +505,92 @@ Similar to the old version, with behavior, however with improved looks
   - [ ] Located in top bar (see [Header](#header))
 
 <!-- ======================================================================================================== -->
-## Help Page?
+## Highlight Picker
+When highlighting a section of text in either the Bible page or the search page, will open so the user can either highlight a passage, or create a note at that location. Pretty much the same as the current implementation, however a change to the create note option.
 
-### Layout
-
-### Sections
+- [ ] Highlights
+  - [ ] Recents
+    - [ ] Stores up to x number of recent highlights
+    - [ ] Saved across sessions
+    - [ ] When highlight deleted, cleared
+  - [ ] Highlight area 
+    - [ ] Shows all available highlights
+    - [ ] Shows option for creating a new highlight
+  - [ ] Erase area
+    - [ ] Not displayed if no highlights present
+    - [ ] Dropdown displaying all erasable highlights
+    - [ ] Erase all option
+      - [ ] Has confirm if limit surpassed?
+- [ ] Create Note
+  - [ ] Allows the user to create a note at that location
+  - [ ] User selects what notebook to create with
+  - [ ] Can create with recent (saved to device, like highlights)
+  - [ ] Can search through notebooks
+- [ ] Append to note
+  - [ ] Appends the section to the currently editing note
+  - [ ] Only appears if the user is editing a note: ie, the side editor is opened
 
 <!-- ======================================================================================================== -->
-## Info Page?
+## Word Picker
+User can click on a word to look into it more. this is similar to how [seethebible](seethebible.com) does it, but with either a sidebar option, or a popup modal.
+
+- [ ] Sidebar
+  - [ ] Is not displayed if the side editor is active (ie: editing a note)
+  - [ ] Cannot be displayed on small screen devices
+  - [ ] Displays the word
+  - [ ] Display highlights
+    - [ ] Automatically collapsed, only show name and color
+    - [ ] Can be expanded
+      - [ ] Description
+      - [ ] Priority
+      - [ ] Notebook
+    - [ ] Can click edit (opens highlight editor)
+  - [ ] Displays notes
+    - [ ] Collapsible if large
+    - [ ] Shows title if exists
+    - [ ] References can be displayed
+    - [ ] Has edit button
+  - [ ] Resalable to percentage of the screen, either direction
+    - [ ] Has a minimum size
+  - [ ] Is scrollable
+- [ ] Popup Modal
+  - [ ] Movable around the screen
+  - [ ] Contains same information as sidebar
+  - [ ] Can be resized
+  - [ ] Is scrollable
+
+<!-- ======================================================================================================== -->
+## HTMLText Editor
+Is A WYSIWYG editor for the `biblio_json` HTML text format, used for notes and highlights
+
+- [ ] Buttons
+  - [ ] Format
+    - [ ] Bold
+    - [ ] Italics
+    - [ ] Underlined
+    - [ ] Strike-through
+    - [ ] Code (monospace)
+  - [ ] Lists
+    - [ ] Bullet
+    - [ ] Numbered
+    - [ ] Indent
+    - [ ] Unindent
+  - [ ] Headers (H1-H6)
+  - [ ] Actions
+    - [ ] Undo
+    - [ ] Redo
+- [ ] Keybinds
+  - [ ] For all formats as normal
+  - [ ] For all lists as normal
+  - [ ] Ctrl+Z/Ctrl+Y
+
+
+<!-- ======================================================================================================== -->
+## Help Page?
+TBD
+
+### Layout
+TBD
+
+### Sections
+TBD
