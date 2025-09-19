@@ -12,12 +12,14 @@
   - Daily Readings
   - Cloud Sync
   - Platforms
+  - Page History
   - Help Page?
   - Info Page (For modules ie: Bibles)?
 
 ## Table of Contents:
 - [Ascribe Requirements](#ascribe-requirements)
   - [Table of Contents:](#table-of-contents)
+  - [General](#general)
   - [General Layout](#general-layout)
     - [Core Components](#core-components)
     - [Header](#header)
@@ -26,8 +28,42 @@
     - [Versions](#versions)
     - [Interface](#interface)
   - [Searching](#searching)
+    - [Advanced Search Settings](#advanced-search-settings)
     - [Search Syntax](#search-syntax)
     - [Search Page](#search-page)
+  - [Audio Player](#audio-player)
+    - [General](#general-1)
+    - [Layout](#layout)
+    - [Behavior](#behavior)
+  - [Settings Page](#settings-page)
+  - [Notebook Page](#notebook-page)
+    - [Layout](#layout-1)
+    - [Notebooks Display](#notebooks-display)
+  - [Notebook Editor Page](#notebook-editor-page)
+    - [Notebook Editor](#notebook-editor)
+    - [Highlight Editor](#highlight-editor)
+    - [Highlights Display](#highlights-display)
+  - [Note Editor](#note-editor)
+    - [Side Pages](#side-pages)
+    - [Editor](#editor)
+  - [Daily Readings Page](#daily-readings-page)
+  - [Cloud Sync](#cloud-sync)
+  - [Platforms](#platforms)
+    - [Large Screen](#large-screen)
+    - [Medium Screen](#medium-screen)
+    - [Small Screen](#small-screen)
+  - [Page History](#page-history)
+  - [Help Page?](#help-page)
+    - [Layout](#layout-2)
+    - [Sections](#sections)
+  - [Info Page?](#info-page)
+
+<!-- ======================================================================================================== -->
+
+## General
+- [ ] Multiple windows? 
+  - [ ] At least, should support multiple instances of the application running at the same time
+
 
 <!-- ======================================================================================================== -->
 
@@ -148,6 +184,10 @@ Core section of Ascribe, renders as a full page or partial page depending on if 
 <!-- ======================================================================================================== -->
 
 ## Searching
+When searching, will either send the user to a search results page, if they are searching for a section of words or to the Bible page, if the searched value is a verse/Bible section
+
+### Advanced Search Settings
+A small dropdown on the search bar, that makes it a bit easier for the user to enter in search criteria
 
 ### Search Syntax
 The search syntax should cover all major use cases, and the more esoteric ones as well, that the typical Bible study student should come across
@@ -160,6 +200,9 @@ The search syntax should cover all major use cases, and the more esoteric ones a
       - [ ] Words wrapped in `"`
     - [ ] Exact Words
     - [ ] Approximate Phrase
+    - [ ] Search in Notebooks
+      - [ ] Limit to specific notebook
+      - [ ] Titles or inner text?
   - [ ] Strong's Number
     - [ ] Basic Strong's number syntax: `[HG]\d+`
   - [ ] Regular Expression?
@@ -168,11 +211,179 @@ The search syntax should cover all major use cases, and the more esoteric ones a
       - [ ] In book chapter range `s_prefix? s_book s_chapter? "-" e_prefix? e_book e_chapter?`
       - [ ] In chapter verse range `prefix? book chapter ":"? start_verse?("-" verse)?`
       - [ ] Any verse range `ranges_prefix? s_book s_chapter? (":"? e_verse)? "-" e_prefix? e_book e_chapter? (":"? e_verse)?`
-    - [ ] Section search syntax: `"$" range "|" search_term`
+    - [ ] Section search syntax: `"$" range "|" search_term` (possibly change in the futures)
 - [ ] General Algorithm
   - [ ] The algorithm will attempt to find all verses that match the search criteria
-  - [ ] Possible multi-verse search???
+  - [ ] Possible multi-verse search (???)
   - [ ] It will look inside the Current bible version (not the parallel one)
 
 
 ### Search Page
+The search page is pretty much the same as the old version, though just improving on general looks and layout. *For future*: Need to put a setting somewhere for how many verse results are displayed at any given time. Should be a dropdown, and not custom
+
+- [ ] Search Results
+  - [ ] Bible Verse
+    - [ ] Displays the verse, with all rendering steps that Bible uses
+    - [ ] Displays a reference tag
+      - [ ] When clicked, goes to the reference
+  - [ ] Note in notebook
+    - [ ] Displays a small section of text from inside the notebook, around the searched term
+    - [ ] Displays a reference tag that allows the user to Go to the thing
+- [ ] Layout
+  - [ ] Is a scrollable content area, similar to the Bible page
+  - [ ] Title
+    - [ ] Indicates how many verses were found
+    - [ ] Displays a basic error message if something went wrong
+  - [ ] Results
+    - [ ] An vertical list of results
+  - [ ] Section selector
+    - [ ] Results divided into sections of x
+    - [ ] Switch between results sections
+
+
+<!-- ======================================================================================================== -->
+## Audio Player
+Similar to the old version, with behavior, however with improved looks
+
+### General
+- [ ] Generates on backend from biblical text
+- [ ] Audio version is based on what the current Bible version is selected
+- [ ] Audio player toggle located in the top bar on specific pages (see [Header](#header))
+
+### Layout
+- [ ] Modes
+  - [ ] Pop out window
+  - [ ] Docked
+    - [ ] Bottom of screen
+- [ ] Primary Section
+  - [ ] How long the current chapter is
+    - [ ] Possibly change if the section is timed?
+    - [ ] Slider indicator
+    - [ ] Timer indicator
+  - [ ] Play pause button
+    - [ ] Shows loading symbol if is generating the audio
+    - [ ] Shows Pause if is playing
+    - [ ] Shows playing if is paused
+  - [ ] Various buttons
+    - [ ] Rewind
+    - [ ] Fast Forward
+    - [ ] Restart
+- [ ] Secondary section
+  - [ ] Behavior settings
+    - [ ] Dependent on what behavior is selected
+    - [ ] Main behavior dropdown
+    - [ ] Rest of the settings dependent on the behavior
+  - [ ] Volume slider
+  - [ ] Playback speed slider
+  - [ ] Display queue button
+  - [ ] Voice selection dropdown
+    - [ ] Limited based on the version of the Bible selected? (by language)
+
+### Behavior
+- [ ] Selection
+  - [ ] Section
+    - [ ] Start chapter
+    - [ ] End chapter
+  - [ ] Chapter
+    - [ ] Current chapter that the user is on
+  - [ ] Daily Readings
+    - [ ] Select which daily readings
+- [ ] Repeat
+  - [ ] Once
+  - [ ] Number
+    - [ ] Have a dropdown for how many times to repeat
+  - [ ] Timed
+    - [ ] Should have a dropdown for the amount of time
+    - [ ] Should display how much time remaining
+  - [ ] Infinite
+
+<!-- ======================================================================================================== -->
+## Settings Page
+- [ ] Sound Effects
+  - [ ] Volume
+    - [ ] Slider
+    - [ ] Reset/Mute button
+  - [ ] Enable/Disable
+    - [ ] Page turning
+    - [ ] Button clicking
+- [ ] Display
+  - [ ] Font selection
+  - [ ] UI scale slider
+    - [ ] Slider
+    - [ ] Reset button
+- [ ] Cloud
+  - [ ] States
+    - [ ] Cloud Sync Enabled
+      - [ ] Signin
+    - [ ] Cloud Sync Disabled
+      - [ ] Switch Accounts
+      - [ ] Signout
+- [ ] Advanced
+  - [ ] Clear search history (see [Page History](#page-history))
+  - [ ] Open save location
+
+<!-- ======================================================================================================== -->
+## Notebook Page
+
+### Layout
+
+### Notebooks Display
+
+
+<!-- ======================================================================================================== -->
+## Notebook Editor Page
+
+### Notebook Editor
+
+### Highlight Editor
+
+### Highlights Display
+
+
+<!-- ======================================================================================================== -->
+## Note Editor
+
+### Side Pages
+
+### Editor
+
+<!-- ======================================================================================================== -->
+## Daily Readings Page
+
+
+<!-- ======================================================================================================== -->
+## Cloud Sync
+
+
+<!-- ======================================================================================================== -->
+## Platforms
+
+### Large Screen
+
+### Medium Screen
+
+### Small Screen
+
+<!-- ======================================================================================================== -->
+## Page History
+- [ ] Stores the navigation history of the user
+  - [ ] Only count specific pages
+    - [ ] Search pages
+    - [ ] Bible pages
+  - [ ] Can clear history (see [Settings](#settings-page))
+- [ ] Can navigate between history pages
+  - [ ] Previous
+    - [ ] If no previous states, disabled
+  - [ ] Next
+    - [ ] If no next pages, disabled
+  - [ ] Located in top bar (see [Header](#header))
+
+<!-- ======================================================================================================== -->
+## Help Page?
+
+### Layout
+
+### Sections
+
+<!-- ======================================================================================================== -->
+## Info Page?
