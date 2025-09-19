@@ -1,3 +1,5 @@
+pub mod commands;
+pub mod core;
 
 #[tauri::command]
 fn greet(name: &str) -> String {
