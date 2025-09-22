@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Tooltip } from "@mui/material";
+import { Button, Tooltip, useTheme } from "@mui/material";
 import { use_settings } from "./SettingsContext";
 
 export type ImageButtonProps = {
@@ -18,7 +18,9 @@ export default function ImageButton({
     onClick,
 }: ImageButtonProps): React.ReactElement
 {
-    let { settings } = use_settings();
+    const { settings } = use_settings();
+    const theme = useTheme();
+
     const TEST_SIZE = 48;
     return (
         <Tooltip title={tooltip}>
@@ -26,12 +28,17 @@ export default function ImageButton({
                 disabled={disabled}
                 onClick={onClick}
                 sx={{
+                    backgroundColor: active ? theme.palette.secondary.main : theme.palette.primary.main,
+                    borderRadius: `${3 * settings.ui_scale}px`,
+                    borderWidth: `${2 * settings.ui_scale}px`,
+                    borderColor: theme.palette.grey[700],
+                    borderStyle: "solid",
                     width: `${TEST_SIZE * (settings?.ui_scale ?? 1) }px`,
                     height: `${TEST_SIZE * (settings?.ui_scale ?? 1)}px`,
-                    padding: `0px`,
                     minWidth: `${TEST_SIZE * (settings?.ui_scale ?? 1)}px`,
                     minHeight: `${TEST_SIZE * (settings?.ui_scale ?? 1)}px`,
                     cursor: disabled ? "not-allowed" : "pointer",
+                    padding: `${5 * settings.ui_scale}px`,
 
                     "&.Mui-disabled": {
                         cursor: "not-allowed",

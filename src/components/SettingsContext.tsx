@@ -1,6 +1,6 @@
 import { listen } from "@tauri-apps/api/event";
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { type AppSettings, get_backend_settings, set_backend_settings, SETTINGS_CHANGED_EVENT_NAME } from "../interop/settings";
+import { type AppSettings, AppSettingsChangedEvent, get_backend_settings, set_backend_settings, SETTINGS_CHANGED_EVENT_NAME } from "../interop/settings";
 
 const DEFAULT_APP_SETTINGS: AppSettings = {
     ui_scale: 1,
@@ -24,8 +24,8 @@ export function AppSettingsProvider({ children }: SettingsProviderProps): React.
     useEffect(() => {
         get_backend_settings().then(set_settings_state);
 
-        const unlisten = listen<AppSettings>(SETTINGS_CHANGED_EVENT_NAME, event => {
-            set_backend_settings(event.payload);
+        const unlisten = listen<AppSettingsChangedEvent>(SETTINGS_CHANGED_EVENT_NAME, event => {
+            set_settings_state(event.payload.new);
         });
 
         return () => {
@@ -42,7 +42,7 @@ export function AppSettingsProvider({ children }: SettingsProviderProps): React.
     };
 
       return (
-        <AppSettingsContext.Provider value={{ settings: DEFAULT_APP_SETTINGS, set_settings }}>
+        <AppSettingsContext.Provider value={{ settings: settings ?? DEFAULT_APP_SETTINGS, set_settings }}>
             {children}
         </AppSettingsContext.Provider>
     );

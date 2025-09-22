@@ -8,6 +8,7 @@ use crate::core::app::AppState;
 pub const SETTINGS_CHANGED_EVENT_NAME: &str = "settings-changed";
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub struct SettingsChangedEvent 
 {
     pub old: AppSettings,
