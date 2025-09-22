@@ -1,15 +1,18 @@
+use std::sync::Mutex;
+
+use crate::core::{app::AppState, settings::{self, AppSettings}};
+
 pub mod commands;
 pub mod core;
-
-#[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
-}
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .manage(Mutex::new(AppState {
+            settings: AppSettings::default(),
+        }))
         .setup(|app| {
+            
             #[cfg(debug_assertions)] 
 			{
 				let log_plugin = tauri_plugin_log::Builder::default()
@@ -30,7 +33,9 @@ pub fn run() {
             Ok(())
         })
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![greet])
+        .invoke_handler(tauri::generate_handler![
+            settings::run_settings_command
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

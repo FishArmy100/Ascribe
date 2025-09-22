@@ -3,6 +3,8 @@ use std::sync::{Arc, Mutex};
 use serde::{Deserialize, Serialize};
 use tauri::{Emitter, State};
 
+use crate::core::app::AppState;
+
 pub const SETTINGS_CHANGED_EVENT_NAME: &str = "settings-changed";
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -14,6 +16,7 @@ pub struct SettingsChangedEvent
 
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub struct AppSettings
 {
     pub ui_scale: f32,
@@ -32,7 +35,7 @@ impl Default for AppSettings
 
 #[tauri::command(rename_all = "snake_case")]
 pub fn run_settings_command(
-    state: State<'_, Mutex<AppSettings>>, 
+    state: State<'_, Mutex<AppState>>, 
     app_handle: tauri::AppHandle,
 
     command: &str, 
@@ -42,16 +45,16 @@ pub fn run_settings_command(
     match command 
     {
         "get" => {
-            Some(state.lock().unwrap().clone())
+            Some(state.lock().unwrap().settings.clone())
         },
         "set" => {
-            let mut settings = state.lock().unwrap();
-            let old = settings.clone();
-            *settings = value.unwrap();
+            let mut state = state.lock().unwrap();
+            let old = state.settings.clone();
+            state.settings = value.unwrap();
 
             app_handle.emit(SETTINGS_CHANGED_EVENT_NAME, SettingsChangedEvent {
                 old: old,
-                new: settings.clone(),
+                new: state.settings.clone(),
             }).unwrap();
             None
         },

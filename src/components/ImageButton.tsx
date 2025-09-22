@@ -1,12 +1,13 @@
 import React from "react";
 import { Button, Tooltip } from "@mui/material";
+import { use_settings } from "./SettingsContext";
 
 export type ImageButtonProps = {
     image: string,
     tooltip: string,
     disabled?: boolean,
     active?: boolean,
-    onClick: () => void,
+    onClick?: () => void,
 }
 
 export default function ImageButton({
@@ -17,6 +18,7 @@ export default function ImageButton({
     onClick,
 }: ImageButtonProps): React.ReactElement
 {
+    let { settings } = use_settings();
     const TEST_SIZE = 48;
     return (
         <Tooltip title={tooltip}>
@@ -24,11 +26,11 @@ export default function ImageButton({
                 disabled={disabled}
                 onClick={onClick}
                 sx={{
-                    width: `${TEST_SIZE}px`,
-                    height: `${TEST_SIZE}px`,
+                    width: `${TEST_SIZE * (settings?.ui_scale ?? 1) }px`,
+                    height: `${TEST_SIZE * (settings?.ui_scale ?? 1)}px`,
                     padding: `0px`,
-                    minWidth: `${TEST_SIZE}px`,
-                    minHeight: `${TEST_SIZE}px`,
+                    minWidth: `${TEST_SIZE * (settings?.ui_scale ?? 1)}px`,
+                    minHeight: `${TEST_SIZE * (settings?.ui_scale ?? 1)}px`,
                     cursor: disabled ? "not-allowed" : "pointer",
 
                     "&.Mui-disabled": {

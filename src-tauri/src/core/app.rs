@@ -1,7 +1,7 @@
 use super::settings::AppSettings;
 
 
-pub struct AppData
+pub struct AppState
 {
     pub settings: AppSettings,
 }

@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import * as images from "./assets"
-import { invoke } from "@tauri-apps/api/core";
-import { Box, Container, Typography } from "@mui/material";
+import { Box, Container, Typography, Slider } from "@mui/material";
 import ImageButton from "./components/ImageButton";
-
-import { ascribe_logo } from "./assets";
+import { use_settings } from "./components/SettingsContext";
 
 export default function App(): React.ReactElement
 {
+	let { set_settings } = use_settings();
+
 	return (
 		<Box
 			sx={{
@@ -19,9 +19,16 @@ export default function App(): React.ReactElement
 				justifyContent: "center",
 			}}
 		>
-			<ImageButton image={images.ascribe_logo} tooltip="Ascribe!" onClick={() => {
+			<ImageButton image={images.alarm_clock} tooltip="Ascribe!" onClick={() => {
 				console.log("Button clicked!")
-			}} disabled></ImageButton>
+			}}></ImageButton>
+			
+			<Slider 
+				max={2}
+				min={0.5}
+				onChange={(_, v) => set_settings({ ui_scale: v })}
+			/>
+
 		</Box>
 	)
 }
