@@ -1,6 +1,14 @@
 import React from "react";
 import { Button, Tooltip, useTheme } from "@mui/material";
 import { use_settings } from "./SettingsContext";
+import { AppSettings } from "../interop/settings";
+
+const BUTTON_SIZE = 32;
+
+export function get_button_size(settings: AppSettings): number
+{
+    return BUTTON_SIZE * settings.ui_scale;
+}
 
 export type ImageButtonProps = {
     image: string,
@@ -20,23 +28,21 @@ export default function ImageButton({
 {
     const { settings } = use_settings();
     const theme = useTheme();
-
-    const TEST_SIZE = 48;
     return (
         <Tooltip title={tooltip}>
             <Button
                 disabled={disabled}
                 onClick={onClick}
                 sx={{
-                    backgroundColor: active ? theme.palette.secondary.main : theme.palette.primary.main,
+                    backgroundColor: active ? theme.palette.secondary.main : theme.palette.primary.light,
                     borderRadius: `${3 * settings.ui_scale}px`,
-                    borderWidth: `${2 * settings.ui_scale}px`,
+                    borderWidth: `${1}px`,
                     borderColor: theme.palette.grey[700],
                     borderStyle: "solid",
-                    width: `${TEST_SIZE * (settings?.ui_scale ?? 1) }px`,
-                    height: `${TEST_SIZE * (settings?.ui_scale ?? 1)}px`,
-                    minWidth: `${TEST_SIZE * (settings?.ui_scale ?? 1)}px`,
-                    minHeight: `${TEST_SIZE * (settings?.ui_scale ?? 1)}px`,
+                    width: `${BUTTON_SIZE * (settings?.ui_scale ?? 1) }px`,
+                    height: `${BUTTON_SIZE * (settings?.ui_scale ?? 1)}px`,
+                    minWidth: `${BUTTON_SIZE * (settings?.ui_scale ?? 1)}px`,
+                    minHeight: `${BUTTON_SIZE * (settings?.ui_scale ?? 1)}px`,
                     cursor: disabled ? "not-allowed" : "pointer",
                     padding: `${5 * settings.ui_scale}px`,
 

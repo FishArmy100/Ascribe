@@ -1,47 +1,41 @@
 import React, { useState } from "react";
 import * as images from "./assets"
-import { Box, Container, Typography, Slider, Stack } from "@mui/material";
+import { Box, Container, Typography, Slider, Stack, useTheme, AppBar, Toolbar } from "@mui/material";
 import ImageButton from "./components/ImageButton";
 import { use_settings } from "./components/SettingsContext";
+import TopBar from "./components/TopBar";
+import TopBarSpacer from "./components/TopBarSpacer";
 
 export default function App(): React.ReactElement
 {
-	let { set_settings } = use_settings();
+	const theme = useTheme();
+	const { set_settings } = use_settings();
+
+	const [ button_state, set_button_state ] = useState(false);
 
 	return (
-		<Box
-			sx={{
-				width: "100%",
-				height: "100%",
-				boxSizing: "border-box",
-				display: "flex",
-				alignItems: "center",
-				justifyContent: "center",
-			}}
-		>
-			<Stack
-				sx={{
-					display: "flex",
-					alignItems: "center",
-					justifyContent: "center",
-				}}
-			>
-				<Container>
-					<ImageButton image={images.alarm_clock} tooltip="Ascribe!" onClick={() => {
-						console.log("Button clicked!")
-					}} active></ImageButton>
-				</Container>
-				<Container>
-					<Slider 
-						max={2}
-						min={0.5}
-						step={0.1}
-						defaultValue={1}
-						onChange={(_, v) => set_settings({ ui_scale: v as number })}
-					/>
-				</Container>
-			</Stack>
+		<Box sx={{ flexGrow: 1 }}>
+			<TopBar>
+				<ImageButton 
+					image={images.alarm_clock}
+					tooltip="Alarm clock"
+					onClick={() => {
+						set_button_state(!button_state)
+					}}
+					active={button_state}
+				/>
+			</TopBar>
 
+			<TopBarSpacer/>
+
+			<Box sx={{ p: 2 }}>
+				{Array.from({ length: 40 }, (_, i) => (
+					<Typography key={i} component="p">
+						Content {i + 1}
+					</Typography>
+				))}
+			</Box>
 		</Box>
+
 	)
 }
