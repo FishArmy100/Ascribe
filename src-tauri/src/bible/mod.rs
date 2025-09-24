@@ -1,7 +1,7 @@
 use std::{sync::{Arc, RwLock}, thread::spawn};
 
 use biblio_json::{self, Package};
-use tauri::{Manager, utils::platform::resource_dir};
+use tauri::{Manager, State, utils::platform::resource_dir};
 
 pub const BIBLE_PACKAGE_INITIALIZED_EVENT_NAME: &str = "bible-package-initialized";
 pub const BIBLE_PACKAGE_PATH: &str = "resources/biblio-json-pkg";
@@ -38,4 +38,10 @@ impl BiblePackage
 
         bible_package
     }
+}
+
+#[tauri::command(rename_all = "snake_case")]
+pub fn run_bible_command(package: State<'_, >)
+{
+
 }
