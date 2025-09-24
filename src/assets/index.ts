@@ -89,3 +89,4 @@ export { default as clear } from './images/light-circle-xmark.svg';
 export { default as do_not_enter } from './images/light-do-not-enter.svg';
 export { default as google_drive } from './images/brands-google-drive.svg';
 export { default as cloud_upload } from './images/light-cloud-arrow-up.svg';
+export { default as vertical_dots } from './images/light-ellipsis-vertical.svg';

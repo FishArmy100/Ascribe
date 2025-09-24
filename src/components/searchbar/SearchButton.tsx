@@ -1,47 +1,31 @@
 import React from "react";
 import { Button, Tooltip, useTheme } from "@mui/material";
-import { use_settings } from "./SettingsContext";
-import { AppSettings } from "../interop/settings";
+import { use_settings } from "../SettingsContext";
+import { get_button_border_radius, get_button_size } from "../ImageButton";
+import * as images from "../../assets";
 
-const BUTTON_SIZE = 32;
-const BUTTON_BORDER_RADIUS = 5;
 
-export function get_button_size(settings: AppSettings): number
-{
-    return BUTTON_SIZE * settings.ui_scale;
+const SEARCH_BUTTON_TOOLTIP = "Search"
+
+export type SearchButtonProps = {
+    on_click?: (event: React.MouseEvent<HTMLButtonElement>) => void,
 }
 
-export function get_button_border_radius(settings: AppSettings): number
-{
-    return BUTTON_BORDER_RADIUS * settings.ui_scale;
-}
-
-export type ImageButtonProps = {
-    image: string,
-    tooltip: string,
-    disabled?: boolean,
-    active?: boolean,
-    onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void,
-}
-
-export default function ImageButton({
-    image,
-    tooltip,
-    disabled,
-    active,
-    onClick,
-}: ImageButtonProps): React.ReactElement
+export default function SearchButton({
+    on_click: onClick,
+}: SearchButtonProps): React.ReactElement
 {
     const { settings } = use_settings();
     const theme = useTheme();
     const button_size = get_button_size(settings);
+    const border_size = `${get_button_border_radius(settings)}px`;
 
     return (
         <Tooltip 
             disableInteractive
             followCursor
             placement="bottom-start"
-            title={tooltip}
+            title={SEARCH_BUTTON_TOOLTIP}
             enterDelay={500}
             disableHoverListener={false}
             slotProps={{
@@ -58,11 +42,10 @@ export default function ImageButton({
             }}
         >
             <Button
-                disabled={disabled}
                 onClick={onClick}
                 sx={{
-                    backgroundColor: active ? theme.palette.secondary.main : theme.palette.primary.light,
-                    borderRadius: `${5 * settings.ui_scale}px`,
+                    backgroundColor: theme.palette.primary.light,
+                    borderRadius: `0px ${border_size} ${border_size} 0px`,
                     borderWidth: `${1}px`,
                     borderColor: theme.palette.grey[700],
                     borderStyle: "solid",
@@ -70,7 +53,6 @@ export default function ImageButton({
                     height: `${button_size}px`,
                     minWidth: `${button_size}px`,
                     minHeight: `${button_size}px`,
-                    cursor: disabled ? "not-allowed" : "pointer",
                     padding: `${5 * settings.ui_scale}px`,
 
                     "&.Mui-disabled": {
@@ -81,7 +63,7 @@ export default function ImageButton({
 
             >
                 <img 
-                    src={image} 
+                    src={images.magnifying_glass} 
                     alt="" 
                     style={{
                         width: "100%",
@@ -89,8 +71,6 @@ export default function ImageButton({
                         objectFit: "cover",
                         borderRadius: "inherit",
                         boxSizing: "border-box",
-                        opacity: disabled ? 0.5 : 1,
-                        filter: disabled ? "grayscale(100%)" : "none"
                     }}
                 />
             </Button>

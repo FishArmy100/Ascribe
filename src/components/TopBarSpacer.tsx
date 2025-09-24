@@ -1,14 +1,15 @@
-import { Toolbar } from "@mui/material";
+import { Toolbar, useTheme } from "@mui/material";
 import React from "react";
 import { use_settings } from "./SettingsContext";
-import { get_top_bar_size } from "./TopBar";
+import { use_top_bar_size } from "./TopBar";
 
 
 export default function TopBarSpacer(): React.ReactElement
 {
+    const theme = useTheme();
     const { settings } = use_settings();
 
     return <Toolbar sx={{
-        minHeight: get_top_bar_size(settings)
+        minHeight: use_top_bar_size(settings, theme)
     }} />
 }

@@ -5,6 +5,8 @@ import ImageButton from "./components/ImageButton";
 import { use_settings } from "./components/SettingsContext";
 import TopBar from "./components/TopBar";
 import TopBarSpacer from "./components/TopBarSpacer";
+import ImageDropdown from "./components/ImageDropdown";
+import SearchBar from "./components/searchbar/SearchBar";
 
 export default function App(): React.ReactElement
 {
@@ -12,6 +14,8 @@ export default function App(): React.ReactElement
 	const { set_settings } = use_settings();
 
 	const [ button_state, set_button_state ] = useState(false);
+	const [selected_value, set_selected_value] = useState("a");
+
 
 	return (
 		<Box sx={{ flexGrow: 1 }}>
@@ -23,6 +27,24 @@ export default function App(): React.ReactElement
 						set_button_state(!button_state)
 					}}
 					active={button_state}
+				/>
+				<SearchBar on_search={() => {
+					return {
+						is_error: true,
+						error_message: null,
+					}
+				}}/>
+				<ImageDropdown 
+					image={images.unordered_list}
+					tooltip="Menu"
+					on_select={(v) => {
+						console.log(`Selected option: ${v}`);
+					}}
+					options={[
+						{ image: images.gear_complex, tooltip: "Settings", value: 0 },
+						{ image: images.note_plus, tooltip: "Notes", value: 1 },
+						{ image: images.info, tooltip: "Help", value: 2 },
+					]}
 				/>
 			</TopBar>
 
