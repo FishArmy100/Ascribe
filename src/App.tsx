@@ -19,7 +19,9 @@ export default function App(): React.ReactElement
 
 	return (
 		<Box sx={{ flexGrow: 1 }}>
-			<TopBar>
+			<TopBar
+				right_aligned={1}
+			>
 				<ImageButton 
 					image={images.alarm_clock}
 					tooltip="Alarm clock"
