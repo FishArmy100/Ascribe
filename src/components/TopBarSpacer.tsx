@@ -1,6 +1,6 @@
 import { Toolbar, useTheme } from "@mui/material";
 import React from "react";
-import { use_settings } from "./SettingsContext";
+import { use_settings } from "./contexts/SettingsContext";
 import { use_top_bar_size } from "./TopBar";
 
 

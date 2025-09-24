@@ -221,27 +221,23 @@ export function pretty_print_book(book: OsisBook): string
     }
 }
 
-
-export class ChapterId
-{
-    public constructor(public book: OsisBook, public chapter: number) {}
-
-    toString(): string 
-    {
-        return `${pretty_print_book(this.book)} ${this.chapter}`
-    }
+export type ChapterId = {
+    book: OsisBook,
+    chapter: number,
 }
 
-export class VerseId
+export function pretty_print_chapter(id: ChapterId): string 
 {
-    public constructor(
-        public book: OsisBook, 
-        public chapter: number,
-        public verse: number,
-    ) {}
+    return `${pretty_print_book(id.book)} ${id.chapter}`;
+}
 
-    toString(): string 
-    {
-        return `${pretty_print_book(this.book)} ${this.chapter}:${this.verse}`
-    }
+export type VerseId = {
+    book: OsisBook,
+    chapter: number,
+    verse: number,
+}
+
+export function pretty_print_verse(id: VerseId): string 
+{
+    return `${pretty_print_book(id.book)} ${id.chapter}:${id.verse}`;
 }

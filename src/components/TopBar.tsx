@@ -1,7 +1,7 @@
 import { AppBar, Box, Stack, Theme, Toolbar, useMediaQuery, useTheme } from "@mui/material"
 import React from "react"
 import { AppSettings } from "../interop/settings"
-import { use_settings } from "./SettingsContext"
+import { use_settings } from "./contexts/SettingsContext"
 import { get_button_size } from "./ImageButton"
 
 export function use_top_bar_size(settings: AppSettings, theme: Theme): number 

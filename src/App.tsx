@@ -2,11 +2,12 @@ import React, { useState } from "react";
 import * as images from "./assets"
 import { Box, Container, Typography, Slider, Stack, useTheme, AppBar, Toolbar } from "@mui/material";
 import ImageButton from "./components/ImageButton";
-import { use_settings } from "./components/SettingsContext";
+import { use_settings } from "./components/contexts/SettingsContext";
 import TopBar from "./components/TopBar";
 import TopBarSpacer from "./components/TopBarSpacer";
 import ImageDropdown from "./components/ImageDropdown";
 import SearchBar from "./components/searchbar/SearchBar";
+import LoadingScreen from "./pages/LoadingScreen";
 
 export default function App(): React.ReactElement
 {
@@ -16,6 +17,8 @@ export default function App(): React.ReactElement
 	const [ button_state, set_button_state ] = useState(false);
 	const [selected_value, set_selected_value] = useState("a");
 
+
+	return <LoadingScreen/>
 
 	return (
 		<Box sx={{ flexGrow: 1 }}>

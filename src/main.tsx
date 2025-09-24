@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
-import { AppSettingsProvider } from "./components/SettingsContext";
+import { AppSettingsProvider } from "./components/contexts/SettingsContext";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import theme from "./theme";
 

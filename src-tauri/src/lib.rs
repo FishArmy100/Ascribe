@@ -4,6 +4,7 @@ use crate::core::{app::AppState, settings::{self, AppSettings}};
 
 pub mod commands;
 pub mod core;
+pub mod bible;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {

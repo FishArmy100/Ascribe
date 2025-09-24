@@ -1,0 +1,6 @@
+name = "The Ascribe Bible Package"
+authors = [ "Nate Craver" ]
+license = "MIT"
+
+[module_paths]
+bibles = "/bibles/*"

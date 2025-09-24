@@ -25,4 +25,5 @@ serde_json = "1"
 log = "0.4.28"
 tauri-plugin-log = "2.7.0"
 itertools = "0.14.0"
+biblio_json = { git = "https://github.com/FishArmy100/biblio_json" }
 

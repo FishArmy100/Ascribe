@@ -1,6 +1,6 @@
 import React from "react";
 import { Button, Tooltip, useTheme } from "@mui/material";
-import { use_settings } from "../SettingsContext";
+import { use_settings } from "../contexts/SettingsContext";
 import { get_button_border_radius, get_button_size } from "../ImageButton";
 import * as images from "../../assets";
 
