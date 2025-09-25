@@ -1,7 +1,7 @@
 import { Box, Paper, Stack } from "@mui/material"
 import React, { useState } from "react"
 import ImageButton from "./ImageButton"
-import { use_settings } from "./contexts/SettingsContext"
+import { use_settings } from "./providers/SettingsProvider"
 
 export type ImageDropdownOption<T> = {
     image: string,

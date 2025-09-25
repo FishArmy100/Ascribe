@@ -2,7 +2,7 @@ import { Alert, Box, Button, Collapse, Stack, TextField, useTheme } from "@mui/m
 import React, { useState } from "react";
 import * as images from "../../assets"
 import { get_button_size } from "../ImageButton";
-import { use_settings } from "../contexts/SettingsContext";
+import { use_settings } from "../providers/SettingsProvider";
 import SearchButton from "./SearchButton";
 import SearchMoreButton from "./SearchMoreButton";
 

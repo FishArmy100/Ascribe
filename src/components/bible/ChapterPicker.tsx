@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { ChapterId } from "../../interop/bible";
 import * as images from "../../assets";
-import { use_settings } from "../contexts/SettingsContext";
+import { use_settings } from "../providers/SettingsProvider";
 import { Box, Paper, Stack } from "@mui/material";
 import ImageButton from "../ImageButton";
 

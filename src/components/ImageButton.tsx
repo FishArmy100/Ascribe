@@ -1,6 +1,6 @@
 import React from "react";
 import { Button, Tooltip, useTheme } from "@mui/material";
-import { use_settings } from "./contexts/SettingsContext";
+import { use_settings } from "./providers/SettingsProvider";
 import { AppSettings } from "../interop/settings";
 
 const BUTTON_SIZE = 32;

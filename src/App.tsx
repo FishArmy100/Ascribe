@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import * as images from "./assets"
 import { Box, Container, Typography, Slider, Stack, useTheme, AppBar, Toolbar } from "@mui/material";
 import ImageButton from "./components/ImageButton";
-import { use_settings } from "./components/contexts/SettingsContext";
+import { use_settings } from "./components/providers/SettingsProvider";
 import TopBar from "./components/TopBar";
 import TopBarSpacer from "./components/TopBarSpacer";
 import ImageDropdown from "./components/ImageDropdown";
