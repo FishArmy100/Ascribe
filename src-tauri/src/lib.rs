@@ -1,6 +1,8 @@
 use std::sync::Mutex;
 
-use crate::core::{app::AppState, settings::{self, AppSettings}};
+use tauri::Manager;
+
+use crate::{bible::BiblioJsonPackageHandle, core::{app::AppState, settings::{self, AppSettings}}};
 
 pub mod core;
 pub mod bible;
@@ -8,9 +10,6 @@ pub mod bible;
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
-        .manage(Mutex::new(AppState {
-            settings: AppSettings::default(),
-        }))
         .setup(|app| {
             
             #[cfg(debug_assertions)] 
@@ -29,6 +28,11 @@ pub fn run() {
                 let window = app.get_webview_window("main").unwrap();
                 window.open_devtools();
             }
+
+            app.manage(BiblioJsonPackageHandle::init(app.handle().clone()));
+            app.manage(Mutex::new(AppState {
+                settings: AppSettings::default(),
+            }));
 
             Ok(())
         })

@@ -3,14 +3,14 @@ use std::{sync::{Arc, RwLock}, thread::spawn};
 use biblio_json::{self, Package, modules::{Module, bible::{BibleModule, BookInfo}}};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
-use tauri::{Manager, State, utils::platform::resource_dir};
+use tauri::{Emitter, Manager, State, utils::platform::resource_dir};
 
-pub const BIBLE_PACKAGE_INITIALIZED_EVENT_NAME: &str = "bible-package-initialized";
+pub const BIBLIO_JSON_PACKAGE_INIILIZED_EVENT_NAME: &str = "bible-package-initialized";
 pub const BIBLE_PACKAGE_PATH: &str = "resources/biblio-json-pkg";
 
-pub struct BiblePackage(Arc<RwLock<Option<Package>>>);
+pub struct BiblioJsonPackageHandle(Arc<RwLock<Option<Package>>>);
 
-impl BiblePackage
+impl BiblioJsonPackageHandle
 {
     pub fn visit<R>(&self, f: impl Fn(&Package) -> R) -> R 
     {
@@ -24,7 +24,7 @@ impl BiblePackage
         self.0.read().unwrap().is_some()
     }
 
-    pub fn init(app_handle: &tauri::AppHandle) -> Self 
+    pub fn init(app_handle: tauri::AppHandle) -> Self 
     {
         let path = resource_dir(app_handle.package_info(), &app_handle.env())
             .unwrap()
@@ -35,7 +35,8 @@ impl BiblePackage
 
         spawn(move || {
             let package = Package::load(path.to_str().unwrap()).unwrap();
-            *package_ref.try_write().unwrap() = Some(package)
+            *package_ref.try_write().unwrap() = Some(package);
+            app_handle.emit(BIBLIO_JSON_PACKAGE_INIILIZED_EVENT_NAME, ())
         });
 
         bible_package
@@ -57,7 +58,7 @@ pub enum BibleCommand
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn run_bible_command(package: State<'_, BiblePackage>, command: BibleCommand) -> Option<String>
+pub fn run_bible_command(package: State<'_, BiblioJsonPackageHandle>, command: BibleCommand) -> Option<String>
 {
     match command
     {

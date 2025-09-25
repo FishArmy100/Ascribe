@@ -41,7 +41,7 @@ export function AppSettingsProvider({ children }: SettingsProviderProps): React.
         return await set_backend_settings(s)
     };
 
-      return (
+    return (
         <AppSettingsContext.Provider value={{ settings: settings ?? DEFAULT_APP_SETTINGS, set_settings }}>
             {children}
         </AppSettingsContext.Provider>
@@ -51,6 +51,6 @@ export function AppSettingsProvider({ children }: SettingsProviderProps): React.
 export function use_settings(): AppSettingsContextType
 {
     const ctx = useContext(AppSettingsContext);
-    if (!ctx) throw new Error("useSettings must be used inside of AppSettingsProvider")
+    if (!ctx) throw new Error("use_settings must be used inside of AppSettingsProvider")
     return ctx;
 }
