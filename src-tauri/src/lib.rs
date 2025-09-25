@@ -2,7 +2,6 @@ use std::sync::Mutex;
 
 use crate::core::{app::AppState, settings::{self, AppSettings}};
 
-pub mod commands;
 pub mod core;
 pub mod bible;
 
