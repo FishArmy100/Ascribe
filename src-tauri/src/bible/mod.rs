@@ -1,6 +1,8 @@
 use std::{sync::{Arc, RwLock}, thread::spawn};
 
-use biblio_json::{self, Package};
+use biblio_json::{self, Package, modules::{Module, bible::{BibleModule, BookInfo}}};
+use itertools::Itertools;
+use serde::{Deserialize, Serialize};
 use tauri::{Manager, State, utils::platform::resource_dir};
 
 pub const BIBLE_PACKAGE_INITIALIZED_EVENT_NAME: &str = "bible-package-initialized";
@@ -10,14 +12,14 @@ pub struct BiblePackage(Arc<RwLock<Option<Package>>>);
 
 impl BiblePackage
 {
-    pub fn visit<R>(self, f: impl Fn(&Package) -> R) -> R 
+    pub fn visit<R>(&self, f: impl Fn(&Package) -> R) -> R 
     {
         let binding = self.0.try_read().unwrap();
         let package = binding.as_ref().unwrap();
         f(package)
     }
 
-    pub fn is_initialized(self) -> bool
+    pub fn is_initialized(&self) -> bool
     {
         self.0.read().unwrap().is_some()
     }
@@ -40,8 +42,34 @@ impl BiblePackage
     }
 }
 
-#[tauri::command(rename_all = "snake_case")]
-pub fn run_bible_command(package: State<'_, >)
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct BibleInfo 
 {
+    pub name: String,
+    pub books: Vec<BookInfo>,
+}
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case", tag = "type")]
+pub enum BibleCommand 
+{
+    FetchBibleInfos,
+}
+
+#[tauri::command(rename_all = "snake_case")]
+pub fn run_bible_command(package: State<'_, BiblePackage>, command: BibleCommand) -> Option<String>
+{
+    match command
+    {
+        BibleCommand::FetchBibleInfos => {
+            let bibles = package.visit(|p| {
+                p.modules.values().filter_map(Module::as_bible).map(|bible| BibleInfo {
+                    name: bible.config.name.clone(),
+                    books: bible.source.book_infos.clone()
+                }).collect_vec()
+            });
+
+            Some(serde_json::to_string(&bibles).unwrap())
+        },
+    }
 }
