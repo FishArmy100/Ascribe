@@ -1,5 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { OsisBook, pretty_print_book } from "./book";
+import { listen, UnlistenFn } from "@tauri-apps/api/event";
 export * from "./book";
 
 
@@ -26,7 +27,7 @@ export function pretty_print_verse(id: VerseId): string
 }
 
 export type BookInfo = {
-    name: String,
+    name: string,
     osis_book: OsisBook,
     index: number,
     chapters: number[],
@@ -56,5 +57,38 @@ export async function get_backend_biblio_json_package_initialized(): Promise<boo
         }
     }).then(s => {
         return JSON.parse(s) as boolean;
+    })
+}
+
+export async function get_backend_bible_version(): Promise<string>
+{
+    return await invoke<string>("run_bible_command", {
+        command: {
+            type: "get_bible_version"
+        }
+    }).then(s => {
+        return JSON.parse(s) as string;
+    })
+}
+
+export async function set_backend_bible_version(version: string): Promise<void>
+{
+    return await invoke("run_bible_command", {
+        command: {
+            type: "set_bible_version",
+            version,
+        }
+    })
+}
+
+export type BibleVersionChangedEvent = {
+    old: string,
+    new: string,
+}
+
+export function listen_bible_version_changed(listener: (e: BibleVersionChangedEvent) => void): Promise<UnlistenFn>
+{
+    return listen<BibleVersionChangedEvent>("bible-version-changed", e => {
+        listener(e.payload)
     })
 }

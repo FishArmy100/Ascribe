@@ -1,11 +1,14 @@
-use std::{sync::{Arc, RwLock}, thread::spawn};
+use std::{sync::{Arc, Mutex, RwLock}, thread::spawn};
 
 use biblio_json::{self, Package, modules::{Module, bible::{BibleModule, BookInfo}}};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use tauri::{Emitter, Manager, State, utils::platform::resource_dir};
 
+use crate::core::app::AppState;
+
 pub const BIBLIO_JSON_PACKAGE_INITIALIZED_EVENT_NAME: &str = "bible-package-initialized";
+pub const BIBLE_VERSION_CHANGED_EVENT_NAME: &str = "bible-version-changed";
 pub const BIBLE_PACKAGE_PATH: &str = "resources/biblio-json-pkg";
 
 pub struct BiblioJsonPackageHandle(Arc<RwLock<Option<Package>>>);
@@ -55,16 +58,28 @@ pub struct BibleInfo
     pub books: Vec<BookInfo>,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct BibleVersionChangedEvent
+{
+    pub old: String,
+    pub new: String
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case", tag = "type")]
 pub enum BibleCommand 
 {
     FetchBibleInfos,
     IsInitialized,
+    GetBibleVersion,
+    SetBibleVersion
+    {
+        version: String,
+    }
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn run_bible_command(package: State<'_, BiblioJsonPackageHandle>, command: BibleCommand) -> Option<String>
+pub fn run_bible_command(app_handle: tauri::AppHandle, app_state: State<'_, Mutex<AppState>>, package: State<'_, BiblioJsonPackageHandle>, command: BibleCommand) -> Option<String>
 {
     match command
     {
@@ -80,6 +95,21 @@ pub fn run_bible_command(package: State<'_, BiblioJsonPackageHandle>, command: B
         },
         BibleCommand::IsInitialized => {
             Some(serde_json::to_string(&package.is_initialized()).unwrap())
+        },
+        BibleCommand::GetBibleVersion => {
+            let state = app_state.lock().unwrap();
+            Some(serde_json::to_string(&state.bible_version).unwrap())
+        },
+        BibleCommand::SetBibleVersion { version } => {
+            let mut state = app_state.lock().unwrap();
+            let old = state.bible_version.clone();
+            state.bible_version = version;
+
+            app_handle.emit(BIBLE_VERSION_CHANGED_EVENT_NAME, BibleVersionChangedEvent {
+                old: old,
+                new: state.bible_version.clone(),
+            }).unwrap();
+            None
         }
     }
 }

@@ -32,6 +32,7 @@ pub fn run() {
             app.manage(BiblioJsonPackageHandle::init(app.handle().clone()));
             app.manage(Mutex::new(AppState {
                 settings: AppSettings::default(),
+                bible_version: "KJV".into(),
             }));
 
             Ok(())

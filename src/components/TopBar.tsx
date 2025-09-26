@@ -38,9 +38,6 @@ export default function TopBar({
             : child
     });
 
-    console.log(react_children.length)
-    console.log(right_aligned)
-
     if (right_aligned > react_children.length)
     {
         throw new Error("Right aligned count cannot be greater than the child count")
