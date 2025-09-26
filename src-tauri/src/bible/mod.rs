@@ -5,7 +5,7 @@ use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use tauri::{Emitter, Manager, State, utils::platform::resource_dir};
 
-pub const BIBLIO_JSON_PACKAGE_INIILIZED_EVENT_NAME: &str = "bible-package-initialized";
+pub const BIBLIO_JSON_PACKAGE_INITIALIZED_EVENT_NAME: &str = "bible-package-initialized";
 pub const BIBLE_PACKAGE_PATH: &str = "resources/biblio-json-pkg";
 
 pub struct BiblioJsonPackageHandle(Arc<RwLock<Option<Package>>>);
@@ -34,9 +34,14 @@ impl BiblioJsonPackageHandle
         let package_ref = bible_package.0.clone();
 
         spawn(move || {
-            let package = Package::load(path.to_str().unwrap()).unwrap();
+            let s = path.to_string_lossy();
+            let path = s.strip_prefix(r"\\?\")
+                .unwrap_or(&s)
+                .to_string();
+
+            let package = Package::load(&path).unwrap();
             *package_ref.try_write().unwrap() = Some(package);
-            app_handle.emit(BIBLIO_JSON_PACKAGE_INIILIZED_EVENT_NAME, ())
+            app_handle.emit(BIBLIO_JSON_PACKAGE_INITIALIZED_EVENT_NAME, ())
         });
 
         bible_package
@@ -55,6 +60,7 @@ pub struct BibleInfo
 pub enum BibleCommand 
 {
     FetchBibleInfos,
+    IsInitialized,
 }
 
 #[tauri::command(rename_all = "snake_case")]
@@ -72,5 +78,8 @@ pub fn run_bible_command(package: State<'_, BiblioJsonPackageHandle>, command: B
 
             Some(serde_json::to_string(&bibles).unwrap())
         },
+        BibleCommand::IsInitialized => {
+            Some(serde_json::to_string(&package.is_initialized()).unwrap())
+        }
     }
 }

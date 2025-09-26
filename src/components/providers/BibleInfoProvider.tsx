@@ -1,10 +1,12 @@
 import React, { createContext, useContext, useEffect, useState } from "react"
-import { BibleInfo, get_backend_bible_infos } from "../../interop/bible"
+import { BibleInfo, get_backend_bible_infos, get_backend_biblio_json_package_initialized as get_is_backend_biblio_json_package_initialized } from "../../interop/bible"
+import { listen } from "@tauri-apps/api/event";
 
 type BibleInfoMap = { [name: string]: BibleInfo };
 
 type BibleInfoContextType = {
-    bible_infos: BibleInfoMap
+    bible_infos: BibleInfoMap,
+    is_loaded: boolean,
 }
 
 const BibleInfoContext = createContext<BibleInfoContextType | null>(null);
@@ -17,21 +19,35 @@ export function BibleInfoProvider({
     children,
 }: BibleInfoProviderProps): React.ReactElement
 {
-    const [bible_infos, set_bible_infos] = useState<BibleInfoMap | null>(null);
+    const [bible_infos, set_bible_infos] = useState<BibleInfoMap>({});
+    const [is_loaded, set_is_loaded] = useState<boolean>(false);
+
+    async function fetch_bible_infos() 
+    {
+        const infos = await get_backend_bible_infos();
+        const map: BibleInfoMap = {};
+        infos.forEach((i) => (map[i.name] = i));
+        set_bible_infos(map);
+        set_is_loaded(true);
+    }
 
     useEffect(() => {
-        get_backend_bible_infos().then(infos => {
-            let bible_infos: BibleInfoMap = {};
-            infos.forEach(i => {
-                bible_infos[i.name] = i;
-            });
-
-            set_bible_infos(bible_infos);
-        });
-    }, [bible_infos]);
+        (async () => {
+            const alreadyReady = await get_is_backend_biblio_json_package_initialized();
+            if (alreadyReady) 
+            {
+                await fetch_bible_infos();
+            } 
+            else 
+            {
+                const unlisten = await listen("bible-package-initialized", fetch_bible_infos);
+                return () => unlisten();
+            }
+        })();
+    }, []);
 
     return (
-        <BibleInfoContext.Provider value={ bible_infos ? { bible_infos: bible_infos } : null }>
+        <BibleInfoContext.Provider value={{bible_infos, is_loaded}}>
             {children}
         </BibleInfoContext.Provider>
     )   

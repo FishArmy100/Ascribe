@@ -47,3 +47,14 @@ export async function get_backend_bible_infos(): Promise<BibleInfo[]>
         return JSON.parse(s) as BibleInfo[];
     })
 }
+
+export async function get_backend_biblio_json_package_initialized(): Promise<boolean>
+{
+    return await invoke<string>("run_bible_command", {
+        command: {
+            type: "is_initialized"
+        }
+    }).then(s => {
+        return JSON.parse(s) as boolean;
+    })
+}
