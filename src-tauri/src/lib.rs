@@ -2,7 +2,7 @@ use std::sync::Mutex;
 
 use tauri::Manager;
 
-use crate::{bible::BiblioJsonPackageHandle, core::{app::AppState, settings::{self, AppSettings}}};
+use crate::{bible::{BibleVersionState, BiblioJsonPackageHandle}, core::{app::AppState, settings::{self, AppSettings}}};
 
 pub mod core;
 pub mod bible;
@@ -32,7 +32,7 @@ pub fn run() {
             app.manage(BiblioJsonPackageHandle::init(app.handle().clone()));
             app.manage(Mutex::new(AppState {
                 settings: AppSettings::default(),
-                bible_version: "KJV".into(),
+                bible_version_state: BibleVersionState::default(),
             }));
 
             Ok(())

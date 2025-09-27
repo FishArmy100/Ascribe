@@ -4,27 +4,19 @@ import * as images from "../../assets";
 import { use_settings } from "../providers/SettingsProvider";
 import { Box, Collapse, ListItemButton, ListItemText, Paper, Grid, Typography, useTheme, Button } from "@mui/material";
 import ImageButton from "../ImageButton";
-import { use_bible_info } from "../providers/BibleInfoProvider";
-import { use_bible_version } from "../providers/BibleVersionProvider";
+import { use_bible_infos } from "../providers/BibleInfoProvider";
+import { use_bible_version_state } from "../providers/BibleVersionProvider";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import * as utils from "../../utils";
 import { use_top_bar_padding } from "../TopBar";
 import { AppSettings } from "../../interop/settings";
-import { Theme } from "@mui/material/styles";
 
 const GRID_ITEM_SIZE: number = 30;
-const GRID_ITEM_COUNT_X: number = 5;
+const GRID_ITEM_COUNT_X: number = 6;
 function get_grid_width(padding: number, settings: AppSettings): number
 {
-    const itemSize = GRID_ITEM_SIZE * settings.ui_scale;
-    const itemPadding = padding / 2; // This matches your actual grid padding
-    const containerPadding = padding / 2; // Grid container padding
-    
-    // Width = (items * item_size) + (items * item_padding * 2) + (container_padding * 2)
-    return (itemSize * GRID_ITEM_COUNT_X) + 
-           (itemPadding * 2 * GRID_ITEM_COUNT_X) + 
-           (containerPadding * 2);
+    return (GRID_ITEM_SIZE * settings.ui_scale * GRID_ITEM_COUNT_X) + (padding * (GRID_ITEM_COUNT_X + 1));
 }
 
 export type ChapterPickerProps = {
@@ -37,13 +29,13 @@ export default function ChapterPicker({
 {
     const { settings } = use_settings();
     const [is_open, set_open] = useState(false);
-    const { bible_infos } = use_bible_info();
-    const { bible_version } = use_bible_version();
+    const { bible_infos } = use_bible_infos();
+    const { bible_version_state } = use_bible_version_state();
     const [expanded_book, set_expanded_book] = useState<OsisBook | null>(null);
     const theme = useTheme();
     const padding = use_top_bar_padding(settings, theme);
 
-    const bible_info = bible_infos[bible_version];
+    const bible_info = bible_infos[bible_version_state.bible_version];
 
     const options = bible_info.books.map(b => { return {
         id: b.osis_book,
@@ -102,7 +94,7 @@ export default function ChapterPicker({
                         background: "transparent",
                     },
                     "&::-webkit-scrollbar-thumb": {
-                        backgroundColor: theme.palette.action.hover,
+                        backgroundColor: theme.palette.action.active,
                         borderRadius: "4px",
                     }
                 }}

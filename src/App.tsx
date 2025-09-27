@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { use_bible_info } from "./components/providers/BibleInfoProvider";
-import { Box, Typography } from "@mui/material";
+import { use_bible_infos } from "./components/providers/BibleInfoProvider";
+import { Box, Divider, Typography } from "@mui/material";
 import TopBar from "./components/TopBar";
 import ImageButton from "./components/ImageButton";
 import SearchBar from "./components/searchbar/SearchBar";
@@ -9,27 +9,21 @@ import ImageDropdown from "./components/ImageDropdown";
 import TopBarSpacer from "./components/TopBarSpacer";
 import ChapterPicker from "./components/bible/ChapterPicker";
 import { pretty_print_chapter } from "./interop/bible";
+import VersionSelector from "./components/bible/VersionSelector";
 
 export default function App(): React.ReactElement
 {
-	const { bible_infos } = use_bible_info();
-	const [button_state, set_button_state] = useState(false);
-
 	return (
 		<Box sx={{ flexGrow: 1 }}>
 			<TopBar
 				right_aligned={1}
 			>
-				
+				<VersionSelector/>
 				<ChapterPicker on_select={(c) => console.log(`Selected: ${pretty_print_chapter(c)}`)}/>
-				<ImageButton 
-					image={images.alarm_clock}
-					tooltip="Alarm clock"
-					onClick={() => {
-						set_button_state(!button_state)
-					}}
-					active={button_state}
-				/>
+				<Divider 
+						orientation="vertical" 
+						flexItem 
+					/>
 				<SearchBar on_search={() => {
 					return {
 						is_error: true,

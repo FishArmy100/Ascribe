@@ -1,12 +1,12 @@
 import React from "react";
 import { AppSettingsProvider } from "./SettingsProvider";
 import { BibleInfoProvider } from "./BibleInfoProvider";
-import { BibleVersionProvider } from "./BibleVersionProvider";
+import { BibleVersionStateProvider } from "./BibleVersionProvider";
 
 const PROVIDER_NODES: ((children: React.ReactNode) => React.ReactNode)[] = [
     (c) => <AppSettingsProvider>{c}</AppSettingsProvider>,
     (c) => <BibleInfoProvider>{c}</BibleInfoProvider>,
-    (c) => <BibleVersionProvider>{c}</BibleVersionProvider>
+    (c) => <BibleVersionStateProvider>{c}</BibleVersionStateProvider>
 ];
 
 export default function AppProviders({ 

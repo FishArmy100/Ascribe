@@ -60,30 +60,36 @@ export async function get_backend_biblio_json_package_initialized(): Promise<boo
     })
 }
 
-export async function get_backend_bible_version(): Promise<string>
+export type BibleVersionState = {
+    bible_version: string,
+    parallel_version: string,
+    parallel_enabled: boolean,
+}
+
+export async function get_backend_bible_version_state(): Promise<BibleVersionState>
 {
     return await invoke<string>("run_bible_command", {
         command: {
-            type: "get_bible_version"
+            type: "get_bible_version_state"
         }
     }).then(s => {
-        return JSON.parse(s) as string;
+        return JSON.parse(s) as BibleVersionState;
     })
 }
 
-export async function set_backend_bible_version(version: string): Promise<void>
+export async function set_backend_bible_version_state(version_state: BibleVersionState): Promise<void>
 {
     return await invoke("run_bible_command", {
         command: {
-            type: "set_bible_version",
-            version,
+            type: "set_bible_version_state",
+            version_state,
         }
     })
 }
 
 export type BibleVersionChangedEvent = {
-    old: string,
-    new: string,
+    old: BibleVersionState,
+    new: BibleVersionState,
 }
 
 export function listen_bible_version_changed(listener: (e: BibleVersionChangedEvent) => void): Promise<UnlistenFn>

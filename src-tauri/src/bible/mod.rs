@@ -59,10 +59,30 @@ pub struct BibleInfo
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct BibleVersionState
+{
+    pub bible_version: String,
+    pub parallel_version: String,
+    pub parallel_enabled: bool,
+}
+
+impl Default for BibleVersionState
+{
+    fn default() -> Self 
+    {
+        Self { 
+            bible_version: "KJV".into(), 
+            parallel_version: "KJV".into(), 
+            parallel_enabled: false, 
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct BibleVersionChangedEvent
 {
-    pub old: String,
-    pub new: String
+    pub old: BibleVersionState,
+    pub new: BibleVersionState,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -71,10 +91,10 @@ pub enum BibleCommand
 {
     FetchBibleInfos,
     IsInitialized,
-    GetBibleVersion,
-    SetBibleVersion
+    GetBibleVersionState,
+    SetBibleVersionState
     {
-        version: String,
+        version_state: BibleVersionState,
     }
 }
 
@@ -96,18 +116,18 @@ pub fn run_bible_command(app_handle: tauri::AppHandle, app_state: State<'_, Mute
         BibleCommand::IsInitialized => {
             Some(serde_json::to_string(&package.is_initialized()).unwrap())
         },
-        BibleCommand::GetBibleVersion => {
+        BibleCommand::GetBibleVersionState => {
             let state = app_state.lock().unwrap();
-            Some(serde_json::to_string(&state.bible_version).unwrap())
+            Some(serde_json::to_string(&state.bible_version_state).unwrap())
         },
-        BibleCommand::SetBibleVersion { version } => {
+        BibleCommand::SetBibleVersionState { version_state } => {
             let mut state = app_state.lock().unwrap();
-            let old = state.bible_version.clone();
-            state.bible_version = version;
+            let old = state.bible_version_state.clone();
+            state.bible_version_state = version_state;
 
             app_handle.emit(BIBLE_VERSION_CHANGED_EVENT_NAME, BibleVersionChangedEvent {
                 old: old,
-                new: state.bible_version.clone(),
+                new: state.bible_version_state.clone(),
             }).unwrap();
             None
         }

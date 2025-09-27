@@ -53,7 +53,7 @@ export function BibleInfoProvider({
     )   
 }
 
-export function use_bible_info(): BibleInfoContextType
+export function use_bible_infos(): BibleInfoContextType
 {
     const ctx = useContext(BibleInfoContext);
     if (!ctx) throw new Error("use_bible_info muse be used inside of BibleInfoContext");

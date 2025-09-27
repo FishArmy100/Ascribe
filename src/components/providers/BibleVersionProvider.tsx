@@ -1,27 +1,31 @@
 import { listen } from "@tauri-apps/api/event";
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { type AppSettings, AppSettingsChangedEvent, get_backend_settings, set_backend_settings, SETTINGS_CHANGED_EVENT_NAME } from "../../interop/settings";
 import * as bible from "../../interop/bible";
+import { type BibleVersionState } from "../../interop/bible";
 
-const DEFAULT_BIBLE_VERSION = "KJV";
+const DEFAULT_BIBLE_VERSION: BibleVersionState = {
+    bible_version: "KJV",
+    parallel_version: "KJV",
+    parallel_enabled: false,
+};
 
-type CurrentVersionContextType = {
-    bible_version: string,
-    set_bible_version: (s: string) => Promise<void>
+type BibleVersionStateContextType = {
+    bible_version_state: BibleVersionState,
+    set_bible_version_state: (s: BibleVersionState) => Promise<void>
 }
 
-const CurrentVersionContext = createContext<CurrentVersionContextType | undefined>(undefined);
+const BibleVersionStateContext = createContext<BibleVersionStateContextType | undefined>(undefined);
 
-export type SettingsProviderProps = {
+export type BibleVersionProviderProps = {
     children: React.ReactNode,
 }
 
-export function BibleVersionProvider({ children }: SettingsProviderProps): React.ReactElement
+export function BibleVersionStateProvider({ children }: BibleVersionProviderProps): React.ReactElement
 {
-    const [bible_version, set_bible_version] = useState<string>(DEFAULT_BIBLE_VERSION);
+    const [bible_version_state, set_bible_version] = useState<BibleVersionState>(DEFAULT_BIBLE_VERSION);
 
     useEffect(() => {
-        bible.get_backend_bible_version().then(set_bible_version);
+        bible.get_backend_bible_version_state().then(set_bible_version);
 
         const unlisten = bible.listen_bible_version_changed(e => {
             set_bible_version(e.new)
@@ -33,24 +37,24 @@ export function BibleVersionProvider({ children }: SettingsProviderProps): React
     }, []);
 
     useEffect(() => {
-        localStorage.setItem("bible-version", JSON.stringify(bible_version));
-    }, [bible_version]);
+        localStorage.setItem("bible-version", JSON.stringify(bible_version_state));
+    }, [bible_version_state]);
 
     return (
-        <CurrentVersionContext.Provider 
+        <BibleVersionStateContext.Provider 
             value={{ 
-                bible_version: bible_version, 
-                set_bible_version: bible.set_backend_bible_version 
+                bible_version_state: bible_version_state, 
+                set_bible_version_state: bible.set_backend_bible_version_state 
             }}
         >
             {children}
-        </CurrentVersionContext.Provider>
+        </BibleVersionStateContext.Provider>
     );
 }
 
-export function use_bible_version(): CurrentVersionContextType
+export function use_bible_version_state(): BibleVersionStateContextType
 {
-    const ctx = useContext(CurrentVersionContext);
+    const ctx = useContext(BibleVersionStateContext);
     if (!ctx) throw new Error("use_bible_version must be used inside of BibleVersionProvider")
     return ctx;
 }
