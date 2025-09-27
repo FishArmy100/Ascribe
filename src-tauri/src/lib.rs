@@ -6,6 +6,7 @@ use crate::{bible::{BibleVersionState, BiblioJsonPackageHandle}, core::{app::App
 
 pub mod core;
 pub mod bible;
+pub mod search_parsing;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -40,7 +41,8 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
             settings::run_settings_command,
-            bible::run_bible_command,
+            bible::bible_command::run_bible_command,
+            search_parsing::test_search,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -7,7 +7,7 @@ import SearchButton from "./SearchButton";
 import SearchMoreButton from "./SearchMoreButton";
 
 export type SearchBarProps = {
-    on_search: (term: string) => { is_error: boolean, error_message: string | null },
+    on_search: (term: string) => Promise<{ is_error: boolean, error_message: string | null }>,
 }
 
 export default function SearchBar({
@@ -78,22 +78,24 @@ export default function SearchBar({
                     onKeyDown={(e) => {
                         if (e.key === "Enter")
                         {
-                            let result = on_search(search_value);
-                            if (result.is_error)
-                            {
-                                set_error_text(result.error_message ?? "Error when searching")
-                            }
+                            on_search(search_value).then(r => {
+                                if (r.is_error)
+                                {
+                                    set_error_text(r.error_message ?? "Error when searching")
+                                }
+                            });
                         }
                     }}
                     error={error_text !== null}
                 />
                 <SearchButton
                     on_click={() => {
-                        let result = on_search(search_value);
-                        if (result.is_error)
-                        {
-                            set_error_text(result.error_message ?? "Error when searching")
-                        }
+                        on_search(search_value).then(r => {
+                            if (r.is_error)
+                            {
+                                set_error_text(r.error_message ?? "Error when searching")
+                            }
+                        });
                     }}
                 />
             </Stack>

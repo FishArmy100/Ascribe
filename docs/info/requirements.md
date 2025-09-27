@@ -208,8 +208,8 @@ The search syntax should cover all major use cases, and the more esoteric ones a
     - [ ] Section syntax definition:
       - [ ] In book chapter range `s_prefix? s_book s_chapter? "-" e_prefix? e_book e_chapter?`
       - [ ] In chapter verse range `prefix? book chapter ":"? start_verse?("-" verse)?`
-      - [ ] Any verse range `ranges_prefix? s_book s_chapter? (":"? e_verse)? "-" e_prefix? e_book e_chapter? (":"? e_verse)?`
-    - [ ] Section search syntax: `"$" range "|" search_term` (possibly change in the futures)
+      - [ ] Any verse range `ranges_prefix? s_book s_chapter? (":" e_verse)? "-" e_prefix? e_book e_chapter? (":" e_verse)?`
+    - [ ] Section search syntax: `"|" range (";" range)* "|" search_term` (possibly change in the future)
 - [ ] General Algorithm
   - [ ] The algorithm will attempt to find all verses that match the search criteria
   - [ ] Possible multi-verse search (???)

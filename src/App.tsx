@@ -10,6 +10,7 @@ import TopBarSpacer from "./components/TopBarSpacer";
 import ChapterPicker from "./components/bible/ChapterPicker";
 import { pretty_print_chapter } from "./interop/bible";
 import VersionSelector from "./components/bible/VersionSelector";
+import { invoke } from "@tauri-apps/api/core";
 
 export default function App(): React.ReactElement
 {
@@ -24,10 +25,14 @@ export default function App(): React.ReactElement
 						orientation="vertical" 
 						flexItem 
 					/>
-				<SearchBar on_search={() => {
+				<SearchBar on_search={async (term) => {
+					let error = await invoke<string | null>("test_search", {
+						input_str: term
+					});
+
 					return {
-						is_error: true,
-						error_message: null,
+						is_error: error !== null,
+						error_message: error
 					}
 				}}/>
 				<ImageDropdown 
