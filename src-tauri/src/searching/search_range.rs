@@ -9,8 +9,8 @@ use crate::{bible::book::resolve_book_name, core::utils::load_capture, searching
 lazy_static::lazy_static!
 {
     static ref RANGE_SEGMENT_REGEX: Regex = Regex::new(
-            r"\s*(?<prefix>\d+)?\s*(?<name>[a-zA-Z](?:.*?[a-zA-Z])?)\s*(?:(?<chapter>\d+)[:\s|]*)?(?<verse>\d+)?"
-        ).unwrap();
+        r"^\s*(?<prefix>\d+)?\s*(?<name>[a-zA-Z][a-zA-Z\s]+?)(?:\s+(?<chapter>\d+)(?:\s*[:.]\s*(?<verse>\d+))?)?$"
+    ).unwrap();
 }
 
 
@@ -39,7 +39,7 @@ impl SearchRanges
 {
     pub fn parse(ranges: &str, bible: &BibleModule) -> Result<Self, SearchParseError>
     {
-        let range_strings = ranges[1..ranges.len() - 2].split(";").collect_vec();
+        let range_strings = ranges.trim_matches('$').split(";").collect_vec();
 
         let v = range_strings.iter().map(|r| {
             Self::parse_range(r, bible)
@@ -52,7 +52,7 @@ impl SearchRanges
 
     fn parse_range(range: &str, bible: &BibleModule) -> Result<RefId, SearchParseError>
     {
-        let segments = range.split("-").collect_vec();
+        let segments = range.trim().split("-").collect_vec();
 
         match segments[..]
         {
@@ -71,7 +71,7 @@ impl SearchRanges
 
     fn parse_range_segment(segment: &str, bible: &BibleModule) -> Result<Atom, SearchParseError>
     {
-        let parsed_search = RANGE_SEGMENT_REGEX.captures(segment).and_then(|captures| {
+        let parsed_search = RANGE_SEGMENT_REGEX.captures(segment.trim()).and_then(|captures| {
             let prefix: Option<u32> = load_capture(&captures, "prefix");
 
             let name = captures.name("name").unwrap().as_str().to_ascii_lowercase();

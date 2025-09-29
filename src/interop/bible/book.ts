@@ -135,14 +135,14 @@ export const OSIS_BOOKS: OsisBook[] = [
     "Rev",
 ]
 
-export function is_old_testement(book: OsisBook): boolean
+export function is_old_testament(book: OsisBook): boolean
 {
     return OSIS_BOOKS.indexOf(book) < 39;
 }
 
-export function is_new_testement(book: OsisBook): boolean
+export function is_new_testament(book: OsisBook): boolean
 {
-    return !is_old_testement(book);
+    return !is_old_testament(book);
 }
 
 export function pretty_print_book(book: OsisBook): string 

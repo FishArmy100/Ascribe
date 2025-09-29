@@ -7,37 +7,6 @@ use regex::Regex;
 
 lazy_static::lazy_static!
 {
-    static ref ALTS_MAP: HashMap<&'static str, &'static str> = {
-        let map = HashMap::from([
-            ("nm", "numbers"),
-            ("dt", "deuteronomy"),
-            ("jsh", "joshua"),
-            ("jdg", "judges"),
-            ("jdgs", "judges"),
-            ("sm", "samuel"),
-            ("jb", "job"),
-            ("pss", "psalm"),
-            ("psalms", "psalm"),
-            ("prv", "proverbs"),
-            ("sg", "song of solomon"),
-            ("ss", "song of solomon"),
-            ("sos", "song of solomon"),
-            ("jl", "joel"),
-            ("obd", "obadiah"),
-            ("hb", "habakkuk"),
-            ("hg", "haggai"),
-            ("ml", "malachi"),
-            ("mt", "matthew"),
-            ("mk", "mark"),
-            ("lk", "luke"),
-            ("jn", "john"),
-            ("jas", "james"),
-            ("php", "philippians"),
-            ("phm", "philemon"),
-        ]);
-        map
-    };
-
     static ref BOOK_NAME_REGEX: Regex = Regex::new("^(?P<prefix>\\d+\\s+)?(?P<book>[a-zA-Z\\s]*[a-zA-Z])$").unwrap();
 }
 
@@ -72,15 +41,21 @@ pub fn resolve_book_name(name: &str, module: &BibleModule) -> Result<OsisBook, R
 
     let name = captures.name("book").unwrap().as_str().to_ascii_lowercase().to_owned();
 
-
-    let book_name = name.to_ascii_lowercase();
-
-    let books = &module.source.book_infos;
-    let book_name = match ALTS_MAP.get(book_name.as_str()) {
-        Some(s) => &s,
-        None => book_name.as_str(),
+    let full_name = if let Some(prefix) = prefix 
+    { 
+        format!("{} {}", prefix, name) 
+    } 
+    else 
+    { 
+        name.clone()
     };
 
+    if let Some(osis) = module.config.book_aliases.get(&full_name)
+    {
+        return Ok(*osis)
+    }
+
+    let books = &module.source.book_infos;
     let possible_books = books
         .iter()
         .map(|b| {
@@ -94,7 +69,7 @@ pub fn resolve_book_name(name: &str, module: &BibleModule) -> Result<OsisBook, R
                 osis: b.osis_book,
             }
         })
-        .filter(|b| b.name.starts_with(book_name) && b.prefix == prefix)
+        .filter(|b| b.name.starts_with(&name) && b.prefix == prefix)
         .collect_vec();
 
     if possible_books.len() == 0 
