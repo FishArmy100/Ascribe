@@ -34,9 +34,13 @@ export default function SearchBar({
                 <TextField
                     variant="outlined"
                     sx={{
-                        width: "100px",
+                        width: "120px",
+                        transition: "width 0.3s ease-in-out",
                         borderRadius: 0,
                         backgroundColor: theme.palette.background.paper,
+                        "&:focus-within": {
+                            width: "240px",
+                        },
                         "& .MuiInputBase-root": {
                             height: `${button_size}px`,
                         },
