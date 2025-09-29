@@ -31,6 +31,7 @@ export type BookInfo = {
     osis_book: OsisBook,
     index: number,
     chapters: number[],
+    abbreviation: string,
 }
 
 export type BibleInfo = {

@@ -54,9 +54,6 @@ export default function ChapterPicker({
     }
 
     const dropdown_width = get_grid_width(padding, settings);
-    console.log('Calculated width:', dropdown_width);
-    console.log('Padding:', padding);
-    console.log('Item size:', GRID_ITEM_SIZE * settings.ui_scale);
 
     return (
         <Box
