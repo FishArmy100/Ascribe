@@ -3,8 +3,6 @@ import { OsisBook, pretty_print_book } from "./book";
 import { listen, UnlistenFn } from "@tauri-apps/api/event";
 export * from "./book";
 
-
-
 export type ChapterId = {
     book: OsisBook,
     chapter: number,

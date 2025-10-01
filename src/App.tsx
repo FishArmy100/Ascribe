@@ -1,8 +1,6 @@
-import React, { useState } from "react";
-import { use_bible_infos } from "./components/providers/BibleInfoProvider";
+import React from "react";
 import { Box, Divider, Typography } from "@mui/material";
 import TopBar from "./components/TopBar";
-import ImageButton from "./components/ImageButton";
 import SearchBar from "./components/searchbar/SearchBar";
 import * as images from "./assets";
 import ImageDropdown from "./components/ImageDropdown";
