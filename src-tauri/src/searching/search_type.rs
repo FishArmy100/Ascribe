@@ -1,6 +1,6 @@
 use std::num::NonZeroU32;
 
-use biblio_json::{core::{Atom, OsisBook, RefId}, modules::bible::BibleModule};
+use biblio_json::{core::{Atom, OsisBook, RefId, RefIdInner}, modules::bible::BibleModule};
 
 use crate::{bible::book::resolve_book_name, core::utils::load_capture, searching::{SEARCH_REGEX, SearchParseError, search_phrase::SearchPhrase}};
 
@@ -119,24 +119,35 @@ impl SearchType
         match search
         {
             SearchType::Chapter { book, chapter } => {
-                let id = RefId::Single(Atom::Chapter { book: *book, chapter: *chapter });
+                let id = RefId { 
+                    bible: Some(bible.config.name.clone()), 
+                    id: RefIdInner::Single(Atom::Chapter { book: *book, chapter: *chapter }) 
+                };
+
                 if !bible.source.id_exists(&id)
                 {
                     return Err(SearchParseError::InvalidChapter { book: *book, chapter: chapter.get() })
                 }
             },
             SearchType::Verse { book, chapter, verse } => {
-                let id = RefId::Single(Atom::Verse { book: *book, chapter: *chapter, verse: *verse });
+                let id = RefId { 
+                    bible: Some(bible.config.name.clone()), 
+                    id: RefIdInner::Single(Atom::Verse { book: *book, chapter: *chapter, verse: *verse }) 
+                };
                 if !bible.source.id_exists(&id)
                 {
                     return Err(SearchParseError::InvalidVerse { book: *book, chapter: chapter.get(), verse: verse.get() })
                 }
             },
             SearchType::VerseRange { book, chapter, verse_start, verse_end } => {
-                let id = RefId::Range { 
-                    from: Atom::Verse { book: *book, chapter: *chapter, verse: *verse_start }, 
-                    to: Atom::Verse { book: *book, chapter: *chapter, verse: *verse_end } 
+                let id = RefId { 
+                    bible: Some(bible.config.name.clone()), 
+                    id: RefIdInner::Range { 
+                        from: Atom::Verse { book: *book, chapter: *chapter, verse: *verse_start }, 
+                        to: Atom::Verse { book: *book, chapter: *chapter, verse: *verse_end } 
+                    } 
                 };
+                
 
                 if !bible.source.id_exists(&id)
                 {

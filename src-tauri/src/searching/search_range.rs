@@ -1,6 +1,6 @@
 use std::{num::NonZeroU32, ops::Deref};
 
-use biblio_json::{core::{Atom, RefId}, modules::bible::BibleModule};
+use biblio_json::{core::{Atom, RefId, RefIdInner}, modules::bible::BibleModule};
 use itertools::Itertools;
 use regex::Regex;
 
@@ -59,11 +59,18 @@ impl SearchRanges
             [a, b] => {
                 let a = Self::parse_range_segment(a, bible)?;
                 let b = Self::parse_range_segment(b, bible)?;
-                Ok(RefId::Range { from: a, to: b })
+                Ok(RefId { 
+                    bible: Some(bible.config.name.clone()), 
+                    id: RefIdInner::Range { from: a, to: b } 
+                })
             },
             [a] => {
                 let a = Self::parse_range_segment(a, bible)?;
-                Ok(RefId::Single(a))
+                
+                Ok(RefId { 
+                    bible: Some(bible.config.name.clone()), 
+                    id: RefIdInner::Single(a)
+                })
             },
             _ => return Err(SearchParseError::InvalidRangeDef(range.to_owned()))
         }
@@ -139,7 +146,7 @@ impl SearchRanges
                 return Some(SearchParseError::InvalidRange(s.to_string()));
             }
             
-            if let RefId::Range { from, to } = r 
+            if let RefIdInner::Range { from, to } = r.id
             {
                 if from.book() != to.book()
                 {
