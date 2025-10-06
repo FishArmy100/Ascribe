@@ -41,3 +41,31 @@ impl From<VerseId> for VerseIdJson
         }
     }
 }
+
+impl From<VerseIdJson> for VerseId
+{
+    fn from(value: VerseIdJson) -> Self 
+    {
+        Self {
+            book: value.book,
+            chapter: value.chapter,
+            verse: value.verse,
+        }
+    }
+}
+
+impl From<&VerseId> for VerseIdJson
+{
+    fn from(value: &VerseId) -> Self 
+    {
+        value.clone().into()
+    }
+}
+
+impl From<&VerseIdJson> for VerseId
+{
+    fn from(value: &VerseIdJson) -> Self 
+    {
+        value.clone().into()
+    }
+}

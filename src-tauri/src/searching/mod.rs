@@ -6,9 +6,9 @@ use std::sync::Mutex;
 
 use biblio_json::{core::OsisBook, modules::bible::BibleModule};
 use regex::Regex;
-use tauri::State;
+use tauri::{AppHandle, State};
 
-use crate::{bible::{BiblioJsonPackageHandle, book::ResolveBookNameError}, core::app::AppState, searching::{search_range::SearchRanges, search_type::SearchType}};
+use crate::{bible::{BiblioJsonPackageHandle, book::ResolveBookNameError, repr::ChapterIdJson}, core::{app::AppState, view_history::{ViewHistoryEntry, update_view_history}}, searching::{search_range::SearchRanges, search_type::SearchType}};
 
 lazy_static::lazy_static!
 {
@@ -103,6 +103,72 @@ impl Search
             ranges,
         })
     }
+}
+
+#[tauri::command(rename_all = "snake_case")]
+pub fn push_search_to_view_history(
+    input_str: &str, 
+    biblio_json: State<'_, BiblioJsonPackageHandle>, 
+    app_state: State<'_, Mutex<AppState>>,
+    handle: AppHandle,
+) -> Option<String>
+{
+    let mut app_state = app_state.lock().unwrap();
+    let current_bible = app_state.bible_version_state.bible_version.clone();
+    
+    let bible_module = biblio_json.visit(|p| {
+        p.get_mod(&current_bible)
+            .unwrap()
+            .as_bible()
+            .unwrap()
+            .clone()
+    });
+
+    let parsed = match Search::parse(input_str, &bible_module) {
+        Ok(ok) => ok,
+        Err(e) => return Some(e.to_string(&bible_module))
+    };
+
+    if parsed.ranges.len() > 0
+    {
+        return Some(format!("Search ranges are not supported yet!"));
+    }
+
+    match parsed.search_type
+    {
+        SearchType::Chapter { book, chapter } => {
+            update_view_history(&mut app_state.view_history, &handle, |vh| {
+                vh.push_entry(ViewHistoryEntry::Chapter { chapter: ChapterIdJson {
+                    book,
+                    chapter,
+                }})
+            });
+        },
+        SearchType::Verse { book, chapter, verse } => {
+            app_state.view_history.push_entry(ViewHistoryEntry::Verse { 
+                chapter: ChapterIdJson {
+                    book,
+                    chapter,
+                }, 
+                start: verse, 
+                end: None 
+            });
+        },
+        SearchType::VerseRange { book, chapter, verse_start, verse_end } => {
+            app_state.view_history.push_entry(ViewHistoryEntry::Verse { 
+                chapter: ChapterIdJson {
+                    book,
+                    chapter,
+                }, 
+                start: verse_start, 
+                end: Some(verse_end)
+            });
+        },
+        SearchType::Phrases(_) => return Some(format!("Search phrases not supported yet!")),
+    }
+
+    println!("Searched: \n{:#?}", parsed);
+    None
 }
 
 #[tauri::command(rename_all = "snake_case")]

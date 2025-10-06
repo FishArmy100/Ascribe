@@ -1,6 +1,7 @@
-pub mod bible_command;
+pub mod bible_cmd;
 pub mod book;
 pub mod repr;
+pub mod render;
 
 use std::{sync::{Arc, Mutex, RwLock}, thread::spawn};
 

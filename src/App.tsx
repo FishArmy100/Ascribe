@@ -9,9 +9,13 @@ import ChapterPicker from "./components/bible/ChapterPicker";
 import { pretty_print_chapter } from "./interop/bible";
 import VersionSelector from "./components/bible/VersionSelector";
 import { invoke } from "@tauri-apps/api/core";
+import BiblePage from "./pages/BiblePage";
 
 export default function App(): React.ReactElement
 {	
+
+	return <BiblePage/>;
+
 	return (
 		<Box sx={{ flexGrow: 1 }}>
 			<TopBar

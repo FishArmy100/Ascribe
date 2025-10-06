@@ -66,7 +66,7 @@ export default function ChapterPicker({
                 image={images.books}
                 tooltip="Select chapter"
                 active={is_open}
-                onClick={() => {
+                on_click={() => {
                     set_open(!is_open)
                 }}
             />
@@ -152,41 +152,41 @@ function BookSelection({
             {is_expanded ? <ExpandLess/> : <ExpandMore/>}
         </ListItemButton>
         <Collapse in={is_expanded} timeout="auto" unmountOnExit>
-        <Grid container sx={{ padding: `${padding / 2}px` }}>  {/* container grid */}
-            {utils.range_array(0, chapter_count).map(i => i + 1).map(chapter => (
-                <Grid key={chapter} size={12 / GRID_ITEM_COUNT_X} sx={{ padding: `${padding / 2}px` }}>  {/* each item */}
-                    <Button
-                        onClick={() => on_select({ chapter, book: id })}
-                        sx={{
-                            width: GRID_ITEM_SIZE * settings.ui_scale,
-                            maxWidth: GRID_ITEM_SIZE * settings.ui_scale,
-                            minWidth: GRID_ITEM_SIZE * settings.ui_scale,
-                            height: GRID_ITEM_SIZE * settings.ui_scale,
-                            maxHeight: GRID_ITEM_SIZE * settings.ui_scale,
-                            minHeight: GRID_ITEM_SIZE * settings.ui_scale,
-                            textAlign: "center",
-                            cursor: "pointer",
-                            borderRadius: 2,
-                            transition: "0.3s",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            boxSizing: "border-box",
-                            borderStyle: "solid",
-                            borderWidth: "1px",
-                            borderColor: theme.palette.grey[500],
-                        }}
-                    >
-                        <Typography 
-                            variant="body2"
-                            textAlign="center"
+            <Grid container sx={{ padding: `${padding / 2}px` }}>  {/* container grid */}
+                {utils.range_array(0, chapter_count).map(i => i + 1).map(chapter => (
+                    <Grid key={chapter} size={12 / GRID_ITEM_COUNT_X} sx={{ padding: `${padding / 2}px` }}>  {/* each item */}
+                        <Button
+                            onClick={() => on_select({ chapter, book: id })}
+                            sx={{
+                                width: GRID_ITEM_SIZE * settings.ui_scale,
+                                maxWidth: GRID_ITEM_SIZE * settings.ui_scale,
+                                minWidth: GRID_ITEM_SIZE * settings.ui_scale,
+                                height: GRID_ITEM_SIZE * settings.ui_scale,
+                                maxHeight: GRID_ITEM_SIZE * settings.ui_scale,
+                                minHeight: GRID_ITEM_SIZE * settings.ui_scale,
+                                textAlign: "center",
+                                cursor: "pointer",
+                                borderRadius: 2,
+                                transition: "0.3s",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                boxSizing: "border-box",
+                                borderStyle: "solid",
+                                borderWidth: "1px",
+                                borderColor: theme.palette.grey[500],
+                            }}
                         >
-                            {chapter}
-                        </Typography>
-                    </Button>
-                </Grid>
-            ))}
-        </Grid>
+                            <Typography 
+                                variant="body2"
+                                textAlign="center"
+                            >
+                                {chapter}
+                            </Typography>
+                        </Button>
+                    </Grid>
+                ))}
+            </Grid>
         </Collapse>
     </React.Fragment>
 }

@@ -37,6 +37,20 @@ export type BibleInfo = {
     books: BookInfo[],
 }
 
+export function increment_chapter(bible: BibleInfo, chapter: ChapterId): ChapterId
+{
+    let book_index = bible.books.findIndex(b => b.osis_book === chapter.book);
+    if (book_index < 0) book_index = 0;
+
+    let book = bible.books[book_index];
+    if (book.chapters.length < )
+}
+
+export function get_verse_ids(bible: BibleInfo, chapter: ChapterId, end: number): VerseId[]
+{
+
+}
+
 export async function get_backend_bible_infos(): Promise<BibleInfo[]>
 {
     return await invoke<string>("run_bible_command", {

@@ -42,8 +42,9 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
             settings::run_settings_command,
-            bible::bible_command::run_bible_command,
+            bible::bible_cmd::run_bible_command,
             searching::test_search,
+            searching::push_search_to_view_history,
             view_history::run_view_history_command,
         ])
         .run(tauri::generate_context!())

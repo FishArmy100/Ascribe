@@ -5,7 +5,7 @@ use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use tauri::{Emitter, State};
 
-use crate::{bible::{BIBLE_VERSION_CHANGED_EVENT_NAME, BibleInfo, BibleVersionChangedEvent, BibleVersionState, BiblioJsonPackageHandle}, core::app::AppState};
+use crate::{bible::{BIBLE_VERSION_CHANGED_EVENT_NAME, BibleInfo, BibleVersionChangedEvent, BibleVersionState, BiblioJsonPackageHandle, render::fetch_verse_render_data, repr::VerseIdJson}, core::app::AppState};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case", tag = "type")]
@@ -17,11 +17,20 @@ pub enum BibleCommand
     SetBibleVersionState
     {
         version_state: BibleVersionState,
+    },
+    FetchVerseRenderData
+    {
+        verses: Vec<VerseIdJson>
     }
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn run_bible_command(app_handle: tauri::AppHandle, app_state: State<'_, Mutex<AppState>>, package: State<'_, BiblioJsonPackageHandle>, command: BibleCommand) -> Option<String>
+pub fn run_bible_command(
+    app_handle: tauri::AppHandle, 
+    app_state: State<'_, Mutex<AppState>>, 
+    package: State<'_, BiblioJsonPackageHandle>, 
+    command: BibleCommand
+) -> Option<String>
 {
     match command
     {
@@ -52,6 +61,17 @@ pub fn run_bible_command(app_handle: tauri::AppHandle, app_state: State<'_, Mute
                 new: state.bible_version_state.clone(),
             }).unwrap();
             None
+        },
+        BibleCommand::FetchVerseRenderData { verses } => {
+            let state = app_state.lock().unwrap();
+            let verses = verses.iter().map(|v| v.into()).collect_vec();
+            let bible = &state.bible_version_state.bible_version;
+
+            let response = package.visit(|p| {
+                fetch_verse_render_data(p, &verses, bible);
+            });
+
+            Some(serde_json::to_string(&response).unwrap())
         }
     }
 }

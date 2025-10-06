@@ -39,7 +39,7 @@ export default function ImageDropdown<T>({
                 image={image}
                 tooltip={tooltip}
                 active={is_open}
-                onClick={() => {
+                on_click={() => {
                     set_open(!is_open)
                 }}
             />
@@ -66,7 +66,7 @@ export default function ImageDropdown<T>({
                                 key={i}
                                 image={o.image}
                                 tooltip={o.tooltip}
-                                onClick={() => {
+                                on_click={() => {
                                     set_open(false);
                                     on_select(o.value);
                                 }}

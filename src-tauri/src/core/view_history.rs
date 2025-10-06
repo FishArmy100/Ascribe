@@ -89,7 +89,7 @@ pub enum ViewHistoryEntry
     },
     Verse
     {
-        chapter: ChapterId,
+        chapter: ChapterIdJson,
         start: NonZeroU32,
         end: Option<NonZeroU32>,
     }
@@ -144,56 +144,36 @@ pub fn run_view_history_command(app_handle: AppHandle, app_state: State<'_, Mute
         ViewHistoryCommand::Push { entry } => {
             let mut binding = app_state.lock().unwrap();
 
-            let old = ViewHistoryInfo::from_history(&binding.view_history);
-            binding.view_history.push_entry(entry);
-            let new = ViewHistoryInfo::from_history(&binding.view_history);
-
-            app_handle.emit(VIEW_HISTORY_CHANGED_EVENT_NAME, ViewHistoryChangedEvent {
-                old,
-                new,
-            }).unwrap();
+            update_view_history(&mut binding.view_history, &app_handle, move |vh| {
+                vh.push_entry(entry);
+            });
 
             None
         },
         ViewHistoryCommand::Clear => {
             let mut binding = app_state.lock().unwrap();
 
-            let old = ViewHistoryInfo::from_history(&binding.view_history);
-            binding.view_history.clear();
-            let new = ViewHistoryInfo::from_history(&binding.view_history);
-
-            app_handle.emit(VIEW_HISTORY_CHANGED_EVENT_NAME, ViewHistoryChangedEvent {
-                old,
-                new,
-            }).unwrap();
+            update_view_history(&mut binding.view_history, &app_handle, |vh| {
+                vh.clear();
+            });
 
             None
         },
         ViewHistoryCommand::Retreat => {
             let mut binding = app_state.lock().unwrap();
 
-            let old = ViewHistoryInfo::from_history(&binding.view_history);
-            binding.view_history.retreat();
-            let new = ViewHistoryInfo::from_history(&binding.view_history);
-
-            app_handle.emit(VIEW_HISTORY_CHANGED_EVENT_NAME, ViewHistoryChangedEvent {
-                old,
-                new,
-            }).unwrap();
+            update_view_history(&mut binding.view_history, &app_handle, |vh| {
+                vh.retreat();
+            });
 
             None
         },
         ViewHistoryCommand::Advance => {
             let mut binding = app_state.lock().unwrap();
 
-            let old = ViewHistoryInfo::from_history(&binding.view_history);
-            binding.view_history.advance();
-            let new = ViewHistoryInfo::from_history(&binding.view_history);
-
-            app_handle.emit(VIEW_HISTORY_CHANGED_EVENT_NAME, ViewHistoryChangedEvent {
-                old,
-                new,
-            }).unwrap();
+            update_view_history(&mut binding.view_history, &app_handle, |vh| {
+                vh.advance();
+            });
 
             None
         },
@@ -203,4 +183,16 @@ pub fn run_view_history_command(app_handle: AppHandle, app_state: State<'_, Mute
             Some(serde_json::to_string(&info).unwrap())
         },
     }
+}
+
+pub fn update_view_history(view_history: &mut ViewHistory, app_handle: &AppHandle, f: impl FnOnce(&mut ViewHistory))
+{
+    let old = ViewHistoryInfo::from_history(&view_history);
+    f(view_history);
+    let new = ViewHistoryInfo::from_history(&view_history);
+
+    app_handle.emit(VIEW_HISTORY_CHANGED_EVENT_NAME, ViewHistoryChangedEvent {
+        old,
+        new,
+    }).unwrap();
 }

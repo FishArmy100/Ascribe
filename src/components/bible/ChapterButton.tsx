@@ -1,40 +1,38 @@
 import React from "react";
 import { Button, Tooltip, useTheme } from "@mui/material";
-import { use_settings } from "./providers/SettingsProvider";
-import { AppSettings } from "../interop/settings";
+import { use_settings } from "../providers/SettingsProvider";
+import { AppSettings } from "../../interop/settings";
+import { get_button_size } from "../ImageButton";
+import * as images from "../../assets";
+import { use_view_history } from "../providers/ViewHistoryProvider";
+import { use_bible_infos } from "../providers/BibleInfoProvider";
 
-const BUTTON_SIZE = 32;
-const BUTTON_BORDER_RADIUS = 5;
-
-export function get_button_size(settings: AppSettings): number
-{
-    return BUTTON_SIZE * settings.ui_scale;
+export type ChapterButtonProps = {
+    type: 'next' | 'previous'
 }
 
-export function get_button_border_radius(settings: AppSettings): number
-{
-    return BUTTON_BORDER_RADIUS * settings.ui_scale;
-}
-
-export type ImageButtonProps = {
-    image: string,
-    tooltip: string,
-    disabled?: boolean,
-    active?: boolean,
-    on_click?: (event: React.MouseEvent<HTMLButtonElement>) => void,
-}
-
-export default function ImageButton({
-    image,
-    tooltip,
-    disabled,
-    active,
-    on_click,
-}: ImageButtonProps): React.ReactElement
+export default function ChapterButton({
+    type
+}: ChapterButtonProps): React.ReactElement
 {
     const { settings } = use_settings();
     const theme = useTheme();
-    const button_size = get_button_size(settings);
+    const button_width = get_button_size(settings);
+    const view_history = use_view_history();
+    const { bible_infos } = use_bible_infos();
+
+    const tooltip = type === "next" ? 
+        "To the next chapter" : 
+        "To the previous chapter";
+
+    const image = type === "next" ? 
+        images.arrow_right :
+        images.arrow_left;
+
+    function on_click()
+    {
+
+    }
 
     return (
         <Tooltip 
@@ -59,19 +57,18 @@ export default function ImageButton({
         >
             <span>
                 <Button
-                    disabled={disabled}
                     onClick={on_click}
                     sx={{
-                        backgroundColor: active ? theme.palette.secondary.main : theme.palette.primary.light,
+                        backgroundColor: theme.palette.primary.light,
                         borderRadius: `${5 * settings.ui_scale}px`,
                         borderWidth: `${0}px`,
                         borderColor: theme.palette.grey[700],
                         borderStyle: "solid",
-                        width: `${button_size}px`,
-                        height: `${button_size}px`,
-                        minWidth: `${button_size}px`,
-                        minHeight: `${button_size}px`,
-                        cursor: disabled ? "not-allowed" : "pointer",
+                        width: `${button_width}px`,
+                        height: `${button_width * 4}px`,
+                        minWidth: `${button_width}px`,
+                        minHeight: `${button_width * 4}px`,
+                        cursor: "pointer",
                         padding: `${5 * settings.ui_scale}px`,
                         "&.Mui-disabled": {
                             cursor: "not-allowed",
@@ -88,8 +85,6 @@ export default function ImageButton({
                             objectFit: "cover",
                             borderRadius: "inherit",
                             boxSizing: "border-box",
-                            opacity: disabled ? 0.5 : 1,
-                            filter: disabled ? "grayscale(100%)" : "none"
                         }}
                     />
                 </Button>
