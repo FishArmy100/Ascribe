@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { ViewHistoryEntry, ViewHistoryInfo } from "../../interop/view_history";
 import * as view_history from "../../interop/view_history";
 
@@ -63,4 +63,11 @@ export function ViewHistoryProvider({
             {children}
         </ViewHistoryContext.Provider>
     )
+}
+
+export function use_view_history(): ViewHistoryContextType
+{
+    const ctx = useContext(ViewHistoryContext);
+    if (!ctx) throw new Error("use_view_history muse be used inside of ViewHistoryContext");
+    return ctx;
 }

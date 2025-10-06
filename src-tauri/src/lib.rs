@@ -2,7 +2,7 @@ use std::sync::Mutex;
 
 use tauri::Manager;
 
-use crate::{bible::{BibleVersionState, BiblioJsonPackageHandle}, core::{app::AppState, settings::{self, AppSettings}, view_history::ViewHistory}};
+use crate::{bible::{BibleVersionState, BiblioJsonPackageHandle}, core::{app::AppState, settings::{self, AppSettings}, view_history::{self, ViewHistory}}};
 
 pub mod core;
 pub mod bible;
@@ -44,6 +44,7 @@ pub fn run() {
             settings::run_settings_command,
             bible::bible_command::run_bible_command,
             searching::test_search,
+            view_history::run_view_history_command,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
