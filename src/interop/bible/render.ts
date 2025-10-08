@@ -2,9 +2,9 @@ import { invoke } from "@tauri-apps/api/core"
 import { VerseId } from "."
 
 export type WordRenderData = {
-    begin_punc: string,
+    begin_punc: string | null,
     word: string,
-    end_punc: string,
+    end_punc: string | null,
     red: boolean,
     italics: boolean,
 }
@@ -15,12 +15,13 @@ export type VerseRenderData = {
     failed: boolean,
 }
 
-export async function fetch_backend_verse_render_data(verses: VerseId[]): Promise<VerseRenderData[]>
+export async function fetch_backend_verse_render_data(verses: VerseId[], bible: string,): Promise<VerseRenderData[]>
 {
     return await invoke<string>("run_bible_command", {
         command: {
             type: "fetch_verse_render_data",
-            verses: verses,
+            verses,
+            bible,
         }
     }).then(r => {
         return JSON.parse(r) as VerseRenderData[];

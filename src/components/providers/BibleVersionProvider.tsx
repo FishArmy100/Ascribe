@@ -1,12 +1,10 @@
-import { listen } from "@tauri-apps/api/event";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import * as bible from "../../interop/bible";
 import { type BibleVersionState } from "../../interop/bible";
 
 const DEFAULT_BIBLE_VERSION: BibleVersionState = {
     bible_version: "KJV",
-    parallel_version: "KJV",
-    parallel_enabled: false,
+    parallel_version: null,
 };
 
 type BibleVersionStateContextType = {

@@ -1,6 +1,5 @@
-import { Alert, Box, Button, Collapse, Stack, TextField, useTheme } from "@mui/material";
+import { Alert, Box, Collapse, Stack, TextField, useTheme } from "@mui/material";
 import React, { useState } from "react";
-import * as images from "../../assets"
 import { get_button_size } from "../ImageButton";
 import { use_settings } from "../providers/SettingsProvider";
 import SearchButton from "./SearchButton";
@@ -8,17 +7,24 @@ import SearchMoreButton from "./SearchMoreButton";
 
 export type SearchBarProps = {
     on_search: (term: string) => Promise<{ is_error: boolean, error_message: string | null }>,
+    value: string,
 }
 
 export default function SearchBar({
-    on_search
+    on_search,
+    value
 }: SearchBarProps): React.ReactElement
 {
     const theme = useTheme();
     const { settings } = use_settings();
     const button_size = get_button_size(settings);
 
-    const [search_value, set_search_value] = useState("");
+    const [search_value, set_search_value] = useState(value);
+
+    React.useEffect(() => {
+        set_search_value(value);
+    }, [value]);
+
     const [error_text, set_error_text] = useState<string | null>(null);
 
     const error_popup_width = 300 * settings.ui_scale;
@@ -33,11 +39,15 @@ export default function SearchBar({
                 <SearchMoreButton/>
                 <TextField
                     variant="outlined"
+                    value={search_value}
                     sx={{
                         width: "120px",
                         transition: "width 0.3s ease-in-out",
                         borderRadius: 0,
                         backgroundColor: theme.palette.background.paper,
+                        input: (theme) => ({
+                            ...theme.typography.body2
+                        }),
                         "&:focus-within": {
                             width: "240px",
                         },
@@ -71,7 +81,6 @@ export default function SearchBar({
                             },
                         }
                     }}
-                    value={search_value}
                     onChange={e => {
                         set_search_value(e.target.value);
                         if (error_text)

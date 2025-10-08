@@ -20,7 +20,8 @@ pub enum BibleCommand
     },
     FetchVerseRenderData
     {
-        verses: Vec<VerseIdJson>
+        verses: Vec<VerseIdJson>,
+        bible: String,
     }
 }
 
@@ -62,13 +63,11 @@ pub fn run_bible_command(
             }).unwrap();
             None
         },
-        BibleCommand::FetchVerseRenderData { verses } => {
-            let state = app_state.lock().unwrap();
+        BibleCommand::FetchVerseRenderData { verses, bible } => {
             let verses = verses.iter().map(|v| v.into()).collect_vec();
-            let bible = &state.bible_version_state.bible_version;
 
             let response = package.visit(|p| {
-                fetch_verse_render_data(p, &verses, bible);
+                fetch_verse_render_data(p, &verses, &bible)
             });
 
             Some(serde_json::to_string(&response).unwrap())

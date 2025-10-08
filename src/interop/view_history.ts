@@ -8,7 +8,7 @@ export type ViewHistoryEntry = |{
     chapter: ChapterId,
 } |{
     type: 'verse',
-    verse: ChapterId,
+    chapter: ChapterId,
     start: number,
     end: number | null,
 };
@@ -63,10 +63,12 @@ export async function retreat_backend_view_history(): Promise<void>
 
 export async function get_backend_view_history_info(): Promise<ViewHistoryInfo>
 {
-    return await invoke('run_view_history_command', {
+    return await invoke<string>('run_view_history_command', {
         command: {
             type: 'get_info',
         }
+    }).then(view_history_info => {
+        return JSON.parse(view_history_info);
     });
 }
 

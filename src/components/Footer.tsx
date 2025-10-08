@@ -1,4 +1,4 @@
-import { Box, Container, Typography, useTheme } from "@mui/material";
+import { Box, Typography, useTheme } from "@mui/material";
 
 
 export default function Footer(): React.ReactElement
@@ -14,7 +14,11 @@ export default function Footer(): React.ReactElement
                 mt: "auto",
             }}
         >
-            <Typography textAlign="center" variant="body2">
+            <Typography 
+                textAlign="center" 
+                variant="body2" 
+                fontStyle="italic"
+            >
                 Ascribe &copy; 2025
             </Typography>
         </Box>

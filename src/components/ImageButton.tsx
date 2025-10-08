@@ -2,6 +2,8 @@ import React from "react";
 import { Button, Tooltip, useTheme } from "@mui/material";
 import { use_settings } from "./providers/SettingsProvider";
 import { AppSettings } from "../interop/settings";
+import { SxProps } from "@mui/material/styles";
+import { Theme } from "@mui/material/styles";
 
 const BUTTON_SIZE = 32;
 const BUTTON_BORDER_RADIUS = 5;
@@ -22,6 +24,7 @@ export type ImageButtonProps = {
     disabled?: boolean,
     active?: boolean,
     on_click?: (event: React.MouseEvent<HTMLButtonElement>) => void,
+    sx?: SxProps<Theme>,
 }
 
 export default function ImageButton({
@@ -30,6 +33,7 @@ export default function ImageButton({
     disabled,
     active,
     on_click,
+    sx,
 }: ImageButtonProps): React.ReactElement
 {
     const { settings } = use_settings();
@@ -76,16 +80,19 @@ export default function ImageButton({
                         "&.Mui-disabled": {
                             cursor: "not-allowed",
                             pointerEvents: "auto"
-                        }
+                        },
+                        ...sx,
                     }}
                 >
                     <img
                         src={image}
                         alt=""
                         style={{
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "cover",
+                            maxWidth: "100%",
+                            maxHeight: "100%",
+                            width: "auto",
+                            height: "auto",
+                            objectFit: "contain",
                             borderRadius: "inherit",
                             boxSizing: "border-box",
                             opacity: disabled ? 0.5 : 1,

@@ -65,8 +65,7 @@ pub struct BibleInfo
 pub struct BibleVersionState
 {
     pub bible_version: String,
-    pub parallel_version: String,
-    pub parallel_enabled: bool,
+    pub parallel_version: Option<String>,
 }
 
 impl Default for BibleVersionState
@@ -75,8 +74,7 @@ impl Default for BibleVersionState
     {
         Self { 
             bible_version: "KJV".into(), 
-            parallel_version: "KJV".into(), 
-            parallel_enabled: false, 
+            parallel_version: None,
         }
     }
 }

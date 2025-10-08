@@ -46,6 +46,9 @@ export function ViewHistoryProvider({
     }, [])
 
     const get_current = (): ViewHistoryInfo => current ?? DEFAULT_VIEW_HISTORY_INFO;
+
+    console.log(JSON.stringify(get_current()))
+    
     const advance = async () => {
         return view_history.advance_backend_view_history();
     }
