@@ -6,21 +6,21 @@ import { use_settings } from "../../components/providers/SettingsProvider";
 import * as bible from "../../interop/bible";
 import { ViewHistoryEntry } from "../../interop/view_history";
 import { VerseRenderData } from "../../interop/bible/render";
-import { TopBar, use_top_bar_padding, VersionSelector, ChapterPicker, SearchBar, ImageDropdown, TopBarSpacer, ImageButton, get_button_size, Footer } from "../../components";
+import { TopBar, use_top_bar_padding, VersionSelector, ChapterPicker, SearchBar, ImageDropdown, TopBarSpacer, ImageButton, Footer } from "../../components";
 import BibleVerse from "../../components/bible/BibleVerse";
 import { push_search_to_view_history } from "../../interop/searching";
 import ChapterContent from "./ChapterContent";
 import BiblePageToolbar from "./BiblePageToolbar";
+import { BUTTON_SIZE } from "../../components/core/ImageButton";
 
 
 export default function BiblePage(): React.ReactElement
 {
-	const { settings } = use_settings();
-	const button_width = get_button_size(settings) * 0.75;
+	const button_width = BUTTON_SIZE * 0.75;
 	const button_height = button_width * 7;
 	const theme = useTheme();
 	
-	const button_spacing = use_top_bar_padding(settings, theme);
+	const button_spacing = use_top_bar_padding(theme);
 	const button_space = button_width * 2 + button_spacing * 4;
 	const view_history = use_view_history();
 	const selected_bibles = bible.use_selected_bibles();
@@ -91,12 +91,12 @@ export default function BiblePage(): React.ReactElement
 				tooltip="To previous chapter"
 				sx={{
 					position: "fixed",
-					top: `calc(50% - ${button_height / 2}px)`,
-					left: `${button_spacing}px`,
-					minHeight: `${button_height}px`,
-					height: `${button_height}px`,
-					minWidth: `${button_width}px`,
-					width: `${button_width}px`,
+					top: (theme) => `calc(50% - ${theme.spacing(button_height / 2)})`,
+					left: theme.spacing(button_spacing),
+					minHeight: (theme) => theme.spacing(button_height),
+					height: (theme) => theme.spacing(button_height),
+					minWidth: (theme) => theme.spacing(button_width),
+					width: (theme) => theme.spacing(button_width),
 				}}
 				on_click={() => on_chapter_button_click("previous")}
 			/>
@@ -104,7 +104,7 @@ export default function BiblePage(): React.ReactElement
 			<Box
 				sx={{
 					mt: 5,
-					mb: `calc(100vh - (14 * ${theme.spacing()}))`,
+					mb: `calc(100vh - (${theme.spacing(14)}))`,
 					display: "flex",
 					justifyContent: "center",
 					width: "100%",
@@ -126,8 +126,8 @@ export default function BiblePage(): React.ReactElement
 							thickness={4}
 							sx={{
 								position: "fixed",
-								left: "calc(50vw - 30px)",
-								top: "calc(50vh - 30px)"
+								left: (theme) => `calc(50vw - ${theme.spacing(4)})`,
+								top: (theme) => `calc(50vh - ${theme.spacing(4)})`
 							}}
 						/>
 				}
@@ -137,12 +137,12 @@ export default function BiblePage(): React.ReactElement
 				tooltip="To next chapter"
 				sx={{
 					position: "fixed",
-					top: `calc(50% - ${button_height / 2}px)`,
-					right: `${button_spacing}px`,
-					minHeight: `${button_height}px`,
-					height: `${button_height}px`,
-					minWidth: `${button_width}px`,
-					width: `${button_width}px`,
+					top: (theme) => `calc(50% - ${theme.spacing(button_height / 2)})`,
+					right: (theme) => theme.spacing(button_spacing),
+					minHeight: (theme) => theme.spacing(button_height),
+					height: (theme) => theme.spacing(button_height),
+					minWidth: (theme) => theme.spacing(button_width),
+					width: (theme) => theme.spacing(button_width),
 				}}
 				on_click={() => on_chapter_button_click("next")}
 			/>

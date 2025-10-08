@@ -3,7 +3,7 @@ import { ChapterId, OsisBook } from "../../interop/bible";
 import * as images from "../../assets";
 import { use_settings } from "../providers/SettingsProvider";
 import { Box, Collapse, ListItemButton, ListItemText, Paper, Grid, Typography, useTheme, Button } from "@mui/material";
-import ImageButton from "../ImageButton";
+import ImageButton from "../core/ImageButton";
 import { use_bible_infos } from "../providers/BibleInfoProvider";
 import { use_bible_version_state } from "../providers/BibleVersionProvider";
 import ExpandLess from "@mui/icons-material/ExpandLess";
@@ -12,7 +12,7 @@ import * as utils from "../../utils";
 import { use_top_bar_padding } from "../TopBar";
 import { AppSettings } from "../../interop/settings";
 
-const GRID_ITEM_SIZE: number = 30;
+const GRID_ITEM_SIZE: number = 4;
 const GRID_ITEM_COUNT_X: number = 6;
 function get_grid_width(padding: number, settings: AppSettings): number
 {
@@ -33,7 +33,7 @@ export default function ChapterPicker({
     const { bible_version_state } = use_bible_version_state();
     const [expanded_book, set_expanded_book] = useState<OsisBook | null>(null);
     const theme = useTheme();
-    const padding = use_top_bar_padding(settings, theme);
+    const padding = use_top_bar_padding(theme);
 
     const bible_info = bible_infos[bible_version_state.bible_version];
 
@@ -79,20 +79,20 @@ export default function ChapterPicker({
                     pointerEvents: is_open ? "all" : "none",
                     transition: "opacity 0.2s ease, visibility 0.2s ease",
                     overflowY: "auto",
-                    maxHeight: `${300 * settings.ui_scale}px`,
-                    maxWidth: `${dropdown_width}px`,
-                    width: `${dropdown_width}px`,
+                    maxHeight: (theme) => theme.spacing(300 / 8),
+                    maxWidth: (theme) => theme.spacing(dropdown_width),
+                    width: (theme) => theme.spacing(dropdown_width),
 
                     scrollbarGutter: "stable", // Reserves space for scrollbar
                     "&::-webkit-scrollbar": {
-                        width: "8px",
+                        width: (theme) => theme.spacing(1),
                     },
                     "&::-webkit-scrollbar-track": {
                         background: "transparent",
                     },
                     "&::-webkit-scrollbar-thumb": {
                         backgroundColor: theme.palette.action.active,
-                        borderRadius: "4px",
+                        borderRadius: (theme) => theme.spacing(1 / 2),
                     }
                 }}
                 className="dropdown-content"
@@ -143,7 +143,7 @@ function BookSelection({
 {
     const { settings } = use_settings();
     const theme = useTheme();
-    const padding = use_top_bar_padding(settings, theme);
+    const padding = use_top_bar_padding(theme);
     const is_expanded = expanded_id === id;
 
     return <React.Fragment key={id}>
@@ -152,9 +152,9 @@ function BookSelection({
             {is_expanded ? <ExpandLess/> : <ExpandMore/>}
         </ListItemButton>
         <Collapse in={is_expanded} timeout="auto" unmountOnExit>
-            <Grid container sx={{ padding: `${padding / 2}px` }}>  {/* container grid */}
+            <Grid container sx={{ padding: padding / 2 }}>  {/* container grid */}
                 {utils.range_array(0, chapter_count).map(i => i + 1).map(chapter => (
-                    <Grid key={chapter} size={12 / GRID_ITEM_COUNT_X} sx={{ padding: `${padding / 2}px` }}>  {/* each item */}
+                    <Grid key={chapter} size={12 / GRID_ITEM_COUNT_X} sx={{ padding: padding / 2 }}>  {/* each item */}
                         <Button
                             onClick={() => on_select({ chapter, book: id })}
                             sx={{
@@ -173,7 +173,7 @@ function BookSelection({
                                 justifyContent: "center",
                                 boxSizing: "border-box",
                                 borderStyle: "solid",
-                                borderWidth: "1px",
+                                borderWidth: (theme) => theme.spacing(1 / 8),
                                 borderColor: theme.palette.grey[500],
                             }}
                         >

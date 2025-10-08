@@ -18,7 +18,8 @@
     "@tauri-apps/plugin-opener": "^2",
     "npm": "^11.6.0",
     "react": "^19.1.0",
-    "react-dom": "^19.1.1"
+    "react-dom": "^19.1.1",
+    "react-window": "^2.2.0"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2",

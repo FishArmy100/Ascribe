@@ -1,7 +1,9 @@
-import { Box, Paper, Stack } from "@mui/material"
+import { Box, Paper, Stack, useTheme } from "@mui/material"
 import React, { useState } from "react"
 import ImageButton from "./ImageButton"
-import { use_settings } from "./providers/SettingsProvider"
+import { use_settings } from "../providers/SettingsProvider"
+
+export const DROPDOWN_PADDING = 0.4;
 
 export type ImageDropdownOption<T> = {
     image: string,
@@ -23,10 +25,7 @@ export default function ImageDropdown<T>({
     on_select,
 }: ImageDropdownProps<T>): React.ReactElement
 {
-    const { settings } = use_settings();
     const [is_open, set_open] = useState(false);
-
-    const dropdown_padding = 3 * settings.ui_scale;
 
     return (
         <Box
@@ -46,9 +45,9 @@ export default function ImageDropdown<T>({
             <Paper
                 sx={{
                     position: "absolute",
-                    top: `100% + ${dropdown_padding}px`,
-                    left: `-${dropdown_padding}px`,
-                    padding: `${dropdown_padding}px`,
+                    top: (theme) => `calc(100% - ${theme.spacing(DROPDOWN_PADDING)})`,
+                    left: -DROPDOWN_PADDING,
+                    padding: DROPDOWN_PADDING,
                     visibility: is_open ? "visible" : "hidden",
                     opacity: is_open ? 1 : 0,
                     pointerEvents: is_open ? "all" : "none",
@@ -58,7 +57,7 @@ export default function ImageDropdown<T>({
             >
                 <Stack 
                     direction="column"
-                    gap={`${dropdown_padding}px`}
+                    gap={(theme) => theme.spacing(DROPDOWN_PADDING)}
                 >
                     {options.map((o, i) => {
                         return (

@@ -1,8 +1,9 @@
 import React from "react";
-import { Button, Tooltip, useTheme } from "@mui/material";
+import { Button, useTheme } from "@mui/material";
 import { use_settings } from "../providers/SettingsProvider";
-import { get_button_border_radius, get_button_size } from "../ImageButton";
 import * as images from "../../assets";
+import { BUTTON_BORDER_RADIUS, BUTTON_PADDING, BUTTON_SIZE } from "../core/ImageButton";
+import Tooltip from "../core/Tooltip";
 
 
 const SEARCH_BUTTON_TOOLTIP = "Search"
@@ -17,43 +18,28 @@ export default function SearchButton({
 {
     const { settings } = use_settings();
     const theme = useTheme();
-    const button_size = get_button_size(settings);
-    const border_size = `${get_button_border_radius(settings)}px`;
 
     return (
-        <Tooltip 
-            disableInteractive
-            followCursor
-            placement="bottom-start"
-            title={SEARCH_BUTTON_TOOLTIP}
-            enterDelay={500}
-            disableHoverListener={false}
-            slotProps={{
-                popper: {
-                    modifiers: [
-                        {
-                            name: "offset",
-                            options: {
-                                offset: [8, 8], // x, y distance from the anchor
-                            },
-                        },
-                    ],
-                },
-            }}
+        <Tooltip
+            tooltip={SEARCH_BUTTON_TOOLTIP}
         >
             <Button
                 onClick={onClick}
                 sx={{
                     backgroundColor: theme.palette.primary.light,
-                    borderRadius: `0px ${border_size} ${border_size} 0px`,
-                    borderWidth: `${1}px`,
+                    
+                    borderTopRightRadius: (theme) => theme.spacing(BUTTON_BORDER_RADIUS),
+                    borderBottomRightRadius: (theme) => theme.spacing(BUTTON_BORDER_RADIUS),
+                    borderTopLeftRadius: 0,
+                    borderBottomLeftRadius: 0,
+                    borderWidth: (theme) => theme.spacing(1 / 8),
                     borderColor: theme.palette.grey[700],
                     borderStyle: "solid",
-                    width: `${button_size}px`,
-                    height: `${button_size}px`,
-                    minWidth: `${button_size}px`,
-                    minHeight: `${button_size}px`,
-                    padding: `${5 * settings.ui_scale}px`,
+                    width: (theme) => theme.spacing(BUTTON_SIZE),
+                    height: (theme) => theme.spacing(BUTTON_SIZE),
+                    minWidth: (theme) => theme.spacing(BUTTON_SIZE),
+                    minHeight: (theme) => theme.spacing(BUTTON_SIZE),
+                    padding: (theme) => theme.spacing(BUTTON_PADDING),
 
                     "&.Mui-disabled": {
                         cursor: "not-allowed",

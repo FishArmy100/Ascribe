@@ -1,9 +1,9 @@
 import { Alert, Box, Collapse, Stack, TextField, useTheme } from "@mui/material";
 import React, { useState } from "react";
-import { get_button_size } from "../ImageButton";
 import { use_settings } from "../providers/SettingsProvider";
 import SearchButton from "./SearchButton";
 import SearchMoreButton from "./SearchMoreButton";
+import { BUTTON_SIZE } from "../core/ImageButton";
 
 export type SearchBarProps = {
     on_search: (term: string) => Promise<{ is_error: boolean, error_message: string | null }>,
@@ -17,7 +17,6 @@ export default function SearchBar({
 {
     const theme = useTheme();
     const { settings } = use_settings();
-    const button_size = get_button_size(settings);
 
     const [search_value, set_search_value] = useState(value);
 
@@ -26,8 +25,6 @@ export default function SearchBar({
     }, [value]);
 
     const [error_text, set_error_text] = useState<string | null>(null);
-
-    const error_popup_width = 300 * settings.ui_scale;
 
     return (
         <Box
@@ -41,7 +38,7 @@ export default function SearchBar({
                     variant="outlined"
                     value={search_value}
                     sx={{
-                        width: "120px",
+                        width: (theme) => theme.spacing(15),
                         transition: "width 0.3s ease-in-out",
                         borderRadius: 0,
                         backgroundColor: theme.palette.background.paper,
@@ -49,35 +46,35 @@ export default function SearchBar({
                             ...theme.typography.body2
                         }),
                         "&:focus-within": {
-                            width: "240px",
+                            width: (theme) => theme.spacing(30),
                         },
                         "& .MuiInputBase-root": {
-                            height: `${button_size}px`,
+                            height: (theme) => theme.spacing(BUTTON_SIZE),
                         },
                         "& .MuiInputBase-input": {
-                            padding: "0 8px", // vertical padding 0, horizontal padding 8px
+                            padding: (theme) => `0 ${theme.spacing(1)}`, // vertical padding 0, horizontal padding 8px
                             height: "100%",   // make input fill container height
                             boxSizing: "border-box",
                         },
                         "& .MuiFormHelperText-root": {
-                            marginTop: "4px", // optional, keep helper text below input
+                            marginTop: (theme) => theme.spacing(1 / 2), // optional, keep helper text below input
                         },
                         "& .MuiOutlinedInput-root": {
                             borderRadius: 0,
                             "& fieldset": {
                                 borderColor: theme.palette.grey[500],
                                 borderRadius: 0,
-                                borderWidth: "1px",
+                                borderWidth: (theme) => theme.spacing(1 / 8),
                             },
                             "&:hover fieldset": {
                                 borderColor: theme.palette.grey[400],
                                 borderRadius: 0,
-                                borderWidth: "1px",
+                                borderWidth: (theme) => theme.spacing(1 / 8),
                             },
                             "&.Mui-focused fieldset": {
                                 borderColor: theme.palette.grey[700],
                                 borderRadius: 0,
-                                borderWidth: "1px",
+                                borderWidth: (theme) => theme.spacing(1 / 8),
                             },
                         }
                     }}
@@ -117,7 +114,7 @@ export default function SearchBar({
                 top: "100%",
                 left: "0",
                 zIndex: theme.zIndex.tooltip,
-                width: `${error_popup_width}px`
+                width: (theme) => theme.spacing(35),
             }}>
                 <Collapse in={error_text !== null}>
                     <Alert

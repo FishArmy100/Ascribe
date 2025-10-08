@@ -2,19 +2,18 @@ import { AppBar, Box, Stack, Theme, Toolbar, useMediaQuery, useTheme } from "@mu
 import React from "react"
 import { AppSettings } from "../interop/settings"
 import { use_settings } from "./providers/SettingsProvider"
-import { get_button_size } from "./ImageButton"
+import { BUTTON_SIZE } from "./core/ImageButton";
 
-export function use_top_bar_size(settings: AppSettings, theme: Theme): number 
+export function use_top_bar_size(theme: Theme): number 
 {
     const isXs = useMediaQuery(theme.breakpoints.only("xs"));
-    return isXs ? 50 * settings.ui_scale : 40 * settings.ui_scale;
+    return 5
 }
 
-export function use_top_bar_padding(settings: AppSettings, theme: Theme): number 
+export function use_top_bar_padding(theme: Theme): number 
 {
-    const bar_size = use_top_bar_size(settings, theme);
-    const button_size = get_button_size(settings);
-    return (bar_size - button_size) / 2;
+    const bar_size = use_top_bar_size(theme);;
+    return (bar_size - BUTTON_SIZE) / 2;
 }
 
 export type TopBarProps = {
@@ -27,10 +26,9 @@ export default function TopBar({
     right_aligned = 0,
 }: TopBarProps): React.ReactElement
 {
-    const { settings } = use_settings();
     const theme = useTheme();
-    const bar_size = use_top_bar_size(settings, theme);
-    const padding = use_top_bar_padding(settings, theme);
+    const bar_size = use_top_bar_size(theme);
+    const padding = use_top_bar_padding(theme);
 
     const react_children = React.Children.toArray(children).map((child, index) => {
         return React.isValidElement(child)
@@ -52,14 +50,14 @@ export default function TopBar({
             <Toolbar 
                 variant="dense"
                 sx={{
-                    minHeight: bar_size,
-                    px: `${padding}px`,
-                    py: `${padding}px`
+                    minHeight: (theme) => theme.spacing(bar_size),
+                    px: padding,
+                    py: padding
                 }}
                 disableGutters
             >
                 <Stack
-                    gap={`${padding}px`}
+                    gap={padding}
                     direction={"row"}
                     sx={{ width: "100%", boxSizing: "border-box" }}
                 >
