@@ -43,24 +43,31 @@ export default function ChapterContent({
             <Divider/>
 
             {parallel_verses ? (
-                <Box sx={{ display: 'flex', p: 2, gap: 2 }}>
-                    <Box sx={{ flex: 1 }}>
-                        <Typography variant="h6" textAlign="center" mb={1}>
-                            {bible_info.name}
-                        </Typography>
-                        {verses.map((v, i) => (
-                            <BibleVerse key={i} render_data={v} verse_label={(i + 1).toString()} />
-                        ))}
-                    </Box>
-                    <Divider orientation="vertical" flexItem />
-                    <Box sx={{ flex: 1 }}>
-                        <Typography variant="h6" textAlign="center" mb={1}>
-                            {parallel_bible_info?.name}
-                        </Typography>
-                        {parallel_verses.map((v, i) => (
-                            <BibleVerse key={i} render_data={v} verse_label={(i + 1).toString()} />
-                        ))}
-                    </Box>
+                <Box sx={{ p: 2 }}>
+                    <Grid container spacing={2}>
+                        <Grid size={6} sx={{ borderRight: 1, borderColor: 'divider', pr: 2 }}>
+                            <Typography variant="h6" textAlign="center">
+                                {bible_info.name}
+                            </Typography>
+                        </Grid>
+                        <Grid size={6} sx={{ pl: 2 }}>
+                            <Typography variant="h6" textAlign="center">
+                                {parallel_bible_info?.name}
+                            </Typography>
+                        </Grid>
+                    </Grid>
+
+                    {verses.map((v, i) => (
+                        <Grid container spacing={2} key={i}>
+                            <Grid size={6} sx={{ borderRight: 1, borderColor: 'divider', pr: 2 }}>
+                                <BibleVerse render_data={v} verse_label={(i + 1).toString()} />
+                            </Grid>
+
+                            <Grid size={6} sx={{ pl: 2 }}>
+                                <BibleVerse render_data={parallel_verses[i]} verse_label={(i + 1).toString()} />
+                            </Grid>
+                        </Grid>
+                    ))}
                 </Box>
             ) : (
                 <Box sx={{ p: 2 }}>
