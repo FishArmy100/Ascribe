@@ -18,6 +18,25 @@ export default function BibleVerse({
     verse_label
 }: BibleVerseProps): React.ReactElement
 {
+    let verse_content;
+    if (render_data.words.length > 0)
+    {
+        verse_content = (
+            <Box component="span" sx={{ flex: 1 }}>
+                {render_data.words.map((w, i) => (
+                    <React.Fragment key={i}>
+                        <BibleWord render_data={w} />
+                        {i < render_data.words.length - 1 && " "}
+                    </React.Fragment>
+                ))}
+            </Box>
+        )
+    }
+    else
+    {
+        verse_content = <em>[Verse omitted]</em>;
+    }
+
     return (
         <Typography
             component="div"
@@ -48,14 +67,7 @@ export default function BibleVerse({
             }
 
             {/* Verse text */}
-            <Box component="span" sx={{ flex: 1 }}>
-                {render_data.words.map((w, i) => (
-                    <React.Fragment key={i}>
-                        <BibleWord render_data={w} />
-                        {i < render_data.words.length - 1 && " "}
-                    </React.Fragment>
-                ))}
-            </Box>
+            {verse_content}
         </Typography>
     );
 }

@@ -1,9 +1,10 @@
-import { Box, Button, Checkbox, Divider, FormControlLabel, Paper, Stack, Tooltip, Typography, useTheme } from "@mui/material";
+import { Box, Button, Checkbox, Divider, FormControlLabel, Paper, Stack, Typography, useTheme } from "@mui/material";
 import React, { useState } from "react";
 import { use_settings } from "../providers/SettingsProvider";
 import { use_bible_version_state } from "../providers/BibleVersionProvider";
 import { use_bible_infos } from "../providers/BibleInfoProvider";
 import { BUTTON_SIZE } from "../core/ImageButton";
+import Tooltip from "../core/Tooltip";
 
 
 export default function VersionSelector(): React.ReactElement
@@ -23,24 +24,7 @@ export default function VersionSelector(): React.ReactElement
     return (
         <Box className="dropdown-button">
             <Tooltip
-                disableInteractive
-                followCursor
-                placement="bottom-start"
-                title="Select bible version"
-                enterDelay={500}
-                disableHoverListener={false}
-                slotProps={{
-                    popper: {
-                        modifiers: [
-                            {
-                                name: "offset",
-                                options: {
-                                    offset: [8, 8], // x, y distance from the anchor
-                                },
-                            },
-                        ],
-                    },
-                }}
+                tooltip="Select bible version"
             >
                 <Button
                     sx={{
@@ -89,22 +73,26 @@ export default function VersionSelector(): React.ReactElement
                         width: "100%"
                     }}
                 >
-                    <FormControlLabel
-                        label="Parallel"
-                        control={
-                            <Checkbox
-                                checked={parallel_enabled}
-                                onChange={e =>
-                                    set_bible_version_state({
-                                    bible_version,
-                                    parallel_version,
-                                    parallel_enabled: e.target.checked
-                                    })
-                                }
-                            />
-                        }
-                        labelPlacement="start"
-                    />
+                    <Tooltip
+                        tooltip={parallel_enabled ? "Disable parallel version" : "Enable parallel version"}
+                    >
+                        <FormControlLabel
+                            label="Parallel"
+                            control={
+                                <Checkbox
+                                    checked={parallel_enabled}
+                                    onChange={e =>
+                                        set_bible_version_state({
+                                        bible_version,
+                                        parallel_version,
+                                        parallel_enabled: e.target.checked
+                                        })
+                                    }
+                                />
+                            }
+                            labelPlacement="start"
+                        />
+                    </Tooltip>
                 </Box>
                 <Divider/>
                 <Stack
@@ -128,36 +116,40 @@ export default function VersionSelector(): React.ReactElement
                         {bible_versions.map((v, i) => {
                             let is_selected = bible_version === v;
                             return (
-                                <Button
-                                    onClick={() => {
-                                        set_is_open(false);
-                                        set_bible_version_state({
-                                            bible_version: v,
-                                            parallel_version,
-                                            parallel_enabled,
-                                        });
-                                    }}
+                                <Tooltip
+                                    tooltip={`Select ${v}`}
                                     key={i}
-                                    sx={{
-                                        width: (theme) => theme.spacing(BUTTON_SIZE * 2),
-                                        height: (theme) => theme.spacing(BUTTON_SIZE),
-                                        minWidth: (theme) => theme.spacing(BUTTON_SIZE),
-                                        minHeight: (theme) => theme.spacing(BUTTON_SIZE),
-                                        padding: 0,
-                                        borderStyle: "solid",
-                                        borderWidth: (theme) => theme.spacing(1 / 8),
-                                        borderColor: theme.palette.grey[500],
-                                        backgroundColor: is_selected ? theme.palette.primary.main : undefined,
-                                        color: is_selected ? theme.palette.primary.contrastText : theme.palette.primary.main,
-                                    }}
                                 >
-                                    <Typography
-                                        variant="body1"
-                                        textAlign="center"
+                                    <Button
+                                        onClick={() => {
+                                            set_is_open(false);
+                                            set_bible_version_state({
+                                                bible_version: v,
+                                                parallel_version,
+                                                parallel_enabled,
+                                            });
+                                        }}
+                                        sx={{
+                                            width: (theme) => theme.spacing(BUTTON_SIZE * 2),
+                                            height: (theme) => theme.spacing(BUTTON_SIZE),
+                                            minWidth: (theme) => theme.spacing(BUTTON_SIZE),
+                                            minHeight: (theme) => theme.spacing(BUTTON_SIZE),
+                                            padding: 0,
+                                            borderStyle: "solid",
+                                            borderWidth: (theme) => theme.spacing(1 / 8),
+                                            borderColor: theme.palette.grey[500],
+                                            backgroundColor: is_selected ? theme.palette.primary.main : undefined,
+                                            color: is_selected ? theme.palette.primary.contrastText : theme.palette.primary.main,
+                                        }}
                                     >
-                                        {v}
-                                    </Typography>
-                                </Button>
+                                        <Typography
+                                            variant="body1"
+                                            textAlign="center"
+                                        >
+                                            {v}
+                                        </Typography>
+                                    </Button>
+                                </Tooltip>
                             )
                         })}
                     </Stack>
@@ -178,38 +170,53 @@ export default function VersionSelector(): React.ReactElement
                                 background_color = theme.palette.action.disabledBackground
                             }
 
+                            let text_color: string | undefined = theme.palette.primary.main;
+                            if (is_selected)
+                            {
+                                text_color = theme.palette.primary.contrastText;
+                            }
+
+                            if (!parallel_enabled)
+                            {
+                                text_color = undefined;
+                            }
+
                             return (
-                                <Button
-                                    onClick={() => {
-                                        set_is_open(false);
-                                        set_bible_version_state({
-                                            bible_version,
-                                            parallel_version: v,
-                                            parallel_enabled,
-                                        });
-                                    }}
+                                <Tooltip
+                                    tooltip={`Select ${v}`}
                                     key={i}
-                                    sx={{
-                                        width: (theme) => theme.spacing(BUTTON_SIZE * 2),
-                                        height: (theme) => theme.spacing(BUTTON_SIZE),
-                                        minWidth: (theme) => theme.spacing(BUTTON_SIZE),
-                                        minHeight: (theme) => theme.spacing(BUTTON_SIZE),
-                                        padding: 0,
-                                        borderStyle: "solid",
-                                        borderWidth: (theme) => theme.spacing(1 / 8),
-                                        borderColor: theme.palette.grey[500],
-                                        backgroundColor: background_color,
-                                        color: is_selected ? theme.palette.primary.contrastText : theme.palette.primary.main,
-                                        cursor: parallel_enabled ? undefined : "not-allowed"
-                                    }}
                                 >
-                                    <Typography
-                                        variant="body1"
-                                        textAlign="center"
+                                    <Button
+                                        onClick={() => {
+                                            set_is_open(false);
+                                            set_bible_version_state({
+                                                bible_version,
+                                                parallel_version: v,
+                                                parallel_enabled,
+                                            });
+                                        }}
+                                        sx={{
+                                            width: (theme) => theme.spacing(BUTTON_SIZE * 2),
+                                            height: (theme) => theme.spacing(BUTTON_SIZE),
+                                            minWidth: (theme) => theme.spacing(BUTTON_SIZE),
+                                            minHeight: (theme) => theme.spacing(BUTTON_SIZE),
+                                            padding: 0,
+                                            borderStyle: "solid",
+                                            borderWidth: (theme) => theme.spacing(1 / 8),
+                                            borderColor: theme.palette.grey[500],
+                                            backgroundColor: background_color,
+                                            color: text_color,
+                                            cursor: parallel_enabled ? undefined : "not-allowed"
+                                        }}
                                     >
-                                        {v}
-                                    </Typography>
-                                </Button>
+                                        <Typography
+                                            variant="body1"
+                                            textAlign="center"
+                                        >
+                                            {v}
+                                        </Typography>
+                                    </Button>
+                                </Tooltip>
                             )
                         })}
                     </Stack>

@@ -46,7 +46,7 @@ export default function ImageDropdown<T>({
                 sx={{
                     position: "absolute",
                     top: (theme) => `calc(100% - ${theme.spacing(DROPDOWN_PADDING)})`,
-                    left: -DROPDOWN_PADDING,
+                    left: (theme) => theme.spacing(-DROPDOWN_PADDING),
                     padding: DROPDOWN_PADDING,
                     visibility: is_open ? "visible" : "hidden",
                     opacity: is_open ? 1 : 0,
