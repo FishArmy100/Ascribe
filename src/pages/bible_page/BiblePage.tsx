@@ -1,14 +1,10 @@
-import { Box, CircularProgress, Divider, Paper, Typography, useTheme } from "@mui/material";
+import { Box, CircularProgress, useTheme } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import * as images from "../../assets"
 import { use_view_history } from "../../components/providers/ViewHistoryProvider";
-import { use_settings } from "../../components/providers/SettingsProvider";
 import * as bible from "../../interop/bible";
-import { ViewHistoryEntry } from "../../interop/view_history";
 import { VerseRenderData } from "../../interop/bible/render";
-import { TopBar, use_top_bar_padding, VersionSelector, ChapterPicker, SearchBar, ImageDropdown, TopBarSpacer, ImageButton, Footer } from "../../components";
-import BibleVerse from "../../components/bible/BibleVerse";
-import { push_search_to_view_history } from "../../interop/searching";
+import { use_top_bar_padding, TopBarSpacer, ImageButton, Footer } from "../../components";
 import ChapterContent from "./ChapterContent";
 import BiblePageToolbar from "./BiblePageToolbar";
 import { BUTTON_SIZE } from "../../components/core/ImageButton";

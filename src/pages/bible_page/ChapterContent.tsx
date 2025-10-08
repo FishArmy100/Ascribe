@@ -34,7 +34,7 @@ export default function ChapterContent({
         <Paper
             sx={{
                 borderRadius: 2,
-                padding: 2,
+                padding: 4,
                 width: (theme) => `calc(100% - ${theme.spacing(button_space)})`,
                 minWidth: (theme) => `calc(100% - ${theme.spacing(button_space)})`,
             }}
@@ -95,7 +95,10 @@ function RowComponent({
     return (
         <div style={style}>
             {parallel_verses ? (
-                <Grid container spacing={2}>
+                <Grid 
+                    container 
+                    spacing={2}
+                >
                     <Grid size={6} sx={{ borderRight: 1, borderColor: "divider", pr: 2 }}>
                         <BibleVerse
                             render_data={v}
