@@ -4,7 +4,8 @@ import { type BibleVersionState } from "../../interop/bible";
 
 const DEFAULT_BIBLE_VERSION: BibleVersionState = {
     bible_version: "KJV",
-    parallel_version: null,
+    parallel_version: "KJV",
+    parallel_enabled: false,
 };
 
 type BibleVersionStateContextType = {

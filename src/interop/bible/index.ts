@@ -147,7 +147,7 @@ export function use_selected_bibles(): SelectedVersions
     const { bible_version_state } = use_bible_version_state();
 
     const bible_version = bible_infos[bible_version_state.bible_version];
-    const parallel_version = bible_version_state.parallel_version ? bible_infos[bible_version_state.parallel_version] : null;
+    const parallel_version = bible_version_state.parallel_enabled ? bible_infos[bible_version_state.parallel_version] : null;
 
     return {
         bible: bible_version,
@@ -179,7 +179,8 @@ export async function get_backend_biblio_json_package_initialized(): Promise<boo
 
 export type BibleVersionState = {
     bible_version: string,
-    parallel_version: string | null,
+    parallel_version: string,
+    parallel_enabled: boolean,
 }
 
 export async function get_backend_bible_version_state(): Promise<BibleVersionState>
