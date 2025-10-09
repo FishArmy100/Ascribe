@@ -166,8 +166,6 @@ pub fn push_search_to_view_history(
         },
         SearchType::Phrases(_) => return Some(format!("Search phrases not supported yet!")),
     }
-
-    println!("Searched: \n{:#?}", parsed);
     None
 }
 

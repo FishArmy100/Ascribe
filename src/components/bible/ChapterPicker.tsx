@@ -148,7 +148,14 @@ function BookSelection({
 
     return <React.Fragment key={id}>
         <ListItemButton onClick={() => handle_book_click(id)}>
-            <ListItemText primary={name}/>
+            <ListItemText 
+                primary={name}
+                sx={{
+                    '& .MuiTypography-root': {
+                        ...theme.typography.body2, // apply body2 typography
+                    }
+                }}
+            />
             {is_expanded ? <ExpandLess/> : <ExpandMore/>}
         </ListItemButton>
         <Collapse in={is_expanded} timeout="auto" unmountOnExit>
@@ -158,15 +165,15 @@ function BookSelection({
                         <Button
                             onClick={() => on_select({ chapter, book: id })}
                             sx={{
-                                width: GRID_ITEM_SIZE * settings.ui_scale,
-                                maxWidth: GRID_ITEM_SIZE * settings.ui_scale,
-                                minWidth: GRID_ITEM_SIZE * settings.ui_scale,
-                                height: GRID_ITEM_SIZE * settings.ui_scale,
-                                maxHeight: GRID_ITEM_SIZE * settings.ui_scale,
-                                minHeight: GRID_ITEM_SIZE * settings.ui_scale,
+                                width: (theme) => theme.spacing(GRID_ITEM_SIZE),
+                                maxWidth: (theme) => theme.spacing(GRID_ITEM_SIZE),
+                                minWidth: (theme) => theme.spacing(GRID_ITEM_SIZE),
+                                height: (theme) => theme.spacing(GRID_ITEM_SIZE),
+                                maxHeight: (theme) => theme.spacing(GRID_ITEM_SIZE),
+                                minHeight: (theme) => theme.spacing(GRID_ITEM_SIZE),
                                 textAlign: "center",
                                 cursor: "pointer",
-                                borderRadius: 2,
+                                borderRadius: (theme) => theme.spacing(1),
                                 transition: "0.3s",
                                 display: "flex",
                                 alignItems: "center",
