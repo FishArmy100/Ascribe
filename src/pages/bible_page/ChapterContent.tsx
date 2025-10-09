@@ -1,6 +1,6 @@
 import { VerseRenderData } from "../../interop/bible/render";
 import * as bible from "../../interop/bible";
-import { Box, Divider, Paper, Typography } from "@mui/material";
+import { Divider, Paper, Typography } from "@mui/material";
 import { Grid } from "@mui/material";
 import BibleVerse from "../../components/bible/BibleVerse";
 
@@ -13,6 +13,7 @@ type ChapterContentProps = {
     bible_info: bible.BibleInfo,
     parallel_verses?: VerseRenderData[] | null,
     parallel_bible_info?: bible.BibleInfo | null,
+    selected_range: { start: number, end: number } | null
 }
 
 export default function ChapterContent({
@@ -22,6 +23,7 @@ export default function ChapterContent({
     bible_info,
     parallel_verses,
     parallel_bible_info,
+    selected_range
 }: ChapterContentProps): React.ReactElement {
     const book_name = bible.get_book_info(bible_info, chapter.book).name;
     const chapter_name = `${book_name} ${chapter.chapter}`;

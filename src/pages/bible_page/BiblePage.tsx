@@ -21,8 +21,19 @@ export default function BiblePage(): React.ReactElement
 	const view_history = use_view_history();
 	const selected_bibles = bible.use_selected_bibles();
 
-	const current_chapter = view_history.get_current().current.chapter;
+	const current_view = view_history.get_current().current;
+	const current_chapter = current_view.chapter;
 	const bible_name = selected_bibles.bible.name;
+
+	let current_verses = null;
+
+	if (current_view.type === "verse")
+	{
+		current_verses = {
+			start: current_view.start,
+			end: current_view.end ?? current_view.start,
+		};
+	}
 
 	const [verses, set_verses] = useState<VerseRenderData[] | null>(null);
 	const [parallel_verses, set_parallel_verses] = useState<VerseRenderData[] | null>(null);
@@ -115,6 +126,7 @@ export default function BiblePage(): React.ReactElement
 							bible_info={selected_bibles.bible}
 							parallel_bible_info={selected_bibles.parallel}
 							parallel_verses={parallel_verses}
+							selected_range={current_verses}
 						/>
 						:
 						<CircularProgress 
