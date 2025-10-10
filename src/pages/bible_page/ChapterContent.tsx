@@ -5,7 +5,8 @@ import { Grid } from "@mui/material";
 import { useEffect, useState, useMemo, useCallback } from "react";
 import React from "react";
 import BibleVerseRaw from "../../components/bible/BibleVerse";
-import { Theme } from "@mui/material/styles";
+import { SxProps, Theme } from "@mui/material/styles";
+import { SystemStyleObject } from "@mui/system";
 
 type ChapterContentProps = {
     verses: VerseRenderData[],
@@ -118,14 +119,15 @@ const RowComponent = React.memo(function RowComponent({
     }, [index, show_focused_verses, focused_range]);
 
     const rounded_top = useMemo(() => {
-        if (!focused_range) return false;
-        return !(index > 0 && index >= focused_range.start && index - 1 >= focused_range.start);
-    }, [index, focused_range]);
+        if (!focused_range || !show_focused_verses || index === 0) return true;
+
+        return !(index > (focused_range.start - 1) && index <= (focused_range.end - 1))
+    }, [index, focused_range, show_focused_verses]);
 
     const rounded_bottom = useMemo(() => {
-        if (!focused_range) return false;
-        return !(index + 1 < (verses?.length ?? 0) && index + 2 <= focused_range.end);
-    }, [index, focused_range, verses?.length]);
+        if (!focused_range || !show_focused_verses || index === verses.length - 1) return true;
+        return !(index >= (focused_range.start - 1) && index < (focused_range.end - 1))
+    }, [index, focused_range, verses.length]);
 
     const handle_click = useCallback(() => {
         if (is_focused && show_focused_verses) {
@@ -133,25 +135,37 @@ const RowComponent = React.memo(function RowComponent({
         }
     }, [is_focused, show_focused_verses, set_show_focused_verses]);
 
-    const verse_box_style = useCallback((theme: Theme) => ({
+    const verse_box_style = useCallback((theme: Theme): SystemStyleObject<Theme> => ({
         padding: 1,
         borderTopLeftRadius: theme.spacing(rounded_top ? 1 : 0),
         borderTopRightRadius: theme.spacing(rounded_top ? 1 : 0),
         borderBottomLeftRadius: theme.spacing(rounded_bottom ? 1 : 0),
         borderBottomRightRadius: theme.spacing(rounded_bottom ? 1 : 0),
-        backgroundColor: is_focused ? theme.palette.action.selected : undefined
+        transition: "background-color 0.2s ease",
+        backgroundColor: is_focused ? theme.palette.action.selected : undefined,
+        display: "flex",
+        flexDirection: "column",
+
+        "&:hover": {
+            backgroundColor: theme.palette.action.hover,
+        },
     }), [rounded_top, rounded_bottom, is_focused]);
 
     return (
         <div>
             {parallel_verses ? (
-                <Grid container spacing={2}>
+                <Grid 
+                    container 
+                    spacing={2}
+                    alignItems="stretch"
+                >
                     <Grid
                         size={6}
                         sx={{
                             borderRight: 1,
                             borderColor: "divider",
-                            pr: 2
+                            pr: 2,
+                            display: "flex",
                         }}
                     >
                         <Box onClick={handle_click} sx={verse_box_style}>
@@ -161,7 +175,13 @@ const RowComponent = React.memo(function RowComponent({
                             />
                         </Box>
                     </Grid>
-                    <Grid size={6} sx={{ pl: 2 }}>
+                    <Grid 
+                        size={6} 
+                        sx={{ 
+                            pl: 2,
+                            display: "flex",
+                        }}
+                    >
                         {pv && (
                             <Box onClick={handle_click} sx={verse_box_style}>
                                 <BibleVerse
