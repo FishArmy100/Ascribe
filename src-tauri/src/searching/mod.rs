@@ -145,23 +145,27 @@ pub fn push_search_to_view_history(
             });
         },
         SearchType::Verse { book, chapter, verse } => {
-            app_state.view_history.push_entry(ViewHistoryEntry::Verse { 
-                chapter: ChapterIdJson {
-                    book,
-                    chapter,
-                }, 
-                start: verse, 
-                end: None 
+            update_view_history(&mut app_state.view_history, &handle, |vh| {
+                vh.push_entry(ViewHistoryEntry::Verse { 
+                    chapter: ChapterIdJson {
+                        book,
+                        chapter,
+                    }, 
+                    start: verse, 
+                    end: None 
+                });
             });
         },
         SearchType::VerseRange { book, chapter, verse_start, verse_end } => {
-            app_state.view_history.push_entry(ViewHistoryEntry::Verse { 
-                chapter: ChapterIdJson {
-                    book,
-                    chapter,
-                }, 
-                start: verse_start, 
-                end: Some(verse_end)
+            update_view_history(&mut app_state.view_history, &handle, |vh| {
+                vh.push_entry(ViewHistoryEntry::Verse { 
+                    chapter: ChapterIdJson {
+                        book,
+                        chapter,
+                    }, 
+                    start: verse_start, 
+                    end: Some(verse_end)
+                });
             });
         },
         SearchType::Phrases(_) => return Some(format!("Search phrases not supported yet!")),

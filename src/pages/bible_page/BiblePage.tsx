@@ -126,7 +126,7 @@ export default function BiblePage(): React.ReactElement
 							bible_info={selected_bibles.bible}
 							parallel_bible_info={selected_bibles.parallel}
 							parallel_verses={parallel_verses}
-							selected_range={current_verses}
+							focused_range={current_verses}
 						/>
 						:
 						<CircularProgress 

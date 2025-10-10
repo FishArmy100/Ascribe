@@ -65,14 +65,15 @@ export function increment_chapter(bible: BibleInfo, chapter: ChapterId): Chapter
     }
 
     let book = bible.books[book_index];
-    if (chapter.chapter <= book.chapters.length)
+    
+    if (chapter.chapter < book.chapters.length)
     {
         return {
             book: chapter.book,
             chapter: chapter.chapter + 1
         }
     }
-    else if (book_index < bible.books.length)
+    else if (book_index + 1 < bible.books.length)
     {
         return {
             book: bible.books[book_index + 1].osis_book,

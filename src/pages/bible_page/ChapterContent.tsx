@@ -1,10 +1,10 @@
 import { VerseRenderData } from "../../interop/bible/render";
 import * as bible from "../../interop/bible";
-import { Divider, Paper, Typography } from "@mui/material";
+import { Box, Divider, Paper, Typography } from "@mui/material";
 import { Grid } from "@mui/material";
-import BibleVerse from "../../components/bible/BibleVerse";
-
-import { List, RowComponentProps, useDynamicRowHeight } from "react-window";
+import { useEffect, useState, useMemo, useCallback } from "react";
+import React from "react";
+import BibleVerseRaw from "../../components/bible/BibleVerse";
 
 type ChapterContentProps = {
     verses: VerseRenderData[],
@@ -13,8 +13,11 @@ type ChapterContentProps = {
     bible_info: bible.BibleInfo,
     parallel_verses?: VerseRenderData[] | null,
     parallel_bible_info?: bible.BibleInfo | null,
-    selected_range: { start: number, end: number } | null
-}
+    focused_range: { start: number, end: number } | null
+};
+
+// Memoized version of BibleVerse (to prevent re-rendering heavy components)
+const BibleVerse = React.memo(BibleVerseRaw);
 
 export default function ChapterContent({
     verses,
@@ -23,14 +26,19 @@ export default function ChapterContent({
     bible_info,
     parallel_verses,
     parallel_bible_info,
-    selected_range
+    focused_range
 }: ChapterContentProps): React.ReactElement {
     const book_name = bible.get_book_info(bible_info, chapter.book).name;
     const chapter_name = `${book_name} ${chapter.chapter}`;
+    const [show_focused_verses, set_show_focused_verses] = useState(true);
 
-    const row_height = useDynamicRowHeight({
-        defaultRowHeight: 100,
-    })
+    useEffect(() => {
+        set_show_focused_verses(true);
+    }, [chapter, bible_info.name, parallel_bible_info?.name, focused_range]);
+
+    // Memoize verse arrays so they don't cause re-renders on shallow changes
+    const memoVerses = useMemo(() => verses, [verses]);
+    const memoParallelVerses = useMemo(() => parallel_verses, [parallel_verses]);
 
     return (
         <Paper
@@ -49,79 +57,140 @@ export default function ChapterContent({
             >
                 {chapter_name}
             </Typography>
-            <Divider sx={{ mb: 2 }}/>
+            <Divider sx={{ mb: 2 }} />
 
-            {parallel_verses && (
-                <Grid 
-                    container 
-                    spacing={2} 
+            {memoParallelVerses && (
+                <Grid
+                    container
+                    spacing={2}
                     sx={{ mb: 0 }}
                 >
                     <Grid size={6} sx={{ borderRight: 1, borderColor: "divider", pr: 2 }}>
                         <Typography variant="h6" textAlign="center">
-                        {bible_info.name}
+                            {bible_info.name}
                         </Typography>
                     </Grid>
                     <Grid size={6} sx={{ pl: 2 }}>
                         <Typography variant="h6" textAlign="center">
-                        {parallel_bible_info?.name}
+                            {parallel_bible_info?.name}
                         </Typography>
                     </Grid>
                 </Grid>
             )}
 
-            <List
-                rowCount={verses.length}
-                rowHeight={row_height}
-                rowProps={{ verses, parallel_verses }}
-                rowComponent={RowComponent}
-                overscanCount={5}
-            />
+            {memoVerses.map((_, index) => (
+                <RowComponent
+                    key={`${bible_info.name}-${chapter.book}-${chapter.chapter}-${index}`}
+                    index={index}
+                    verses={memoVerses}
+                    parallel_verses={memoParallelVerses}
+                    focused_range={focused_range}
+                    show_focused_verses={show_focused_verses}
+                    set_show_focused_verses={set_show_focused_verses}
+                />
+            ))}
         </Paper>
     );
 }
 
-function RowComponent({
+const RowComponent = React.memo(function RowComponent({
     index,
     verses,
     parallel_verses,
-    style,
-}: RowComponentProps<{
+    focused_range,
+    show_focused_verses,
+    set_show_focused_verses,
+}: {
+    index: number,
     verses: VerseRenderData[],
-    parallel_verses?: VerseRenderData[] | null
-}>): React.ReactElement
-{
+    parallel_verses?: VerseRenderData[] | null,
+    focused_range: { start: number, end: number } | null,
+    show_focused_verses: boolean,
+    set_show_focused_verses: (v: boolean) => void,
+}): React.ReactElement {
     const v = verses[index];
     const pv = parallel_verses?.[index];
 
+    const is_focused = useMemo(() => {
+        if (!show_focused_verses || !focused_range) return false;
+        return index + 1 >= focused_range.start && index + 1 <= focused_range.end;
+    }, [index, show_focused_verses, focused_range]);
+
+    const rounded_top = useMemo(() => {
+        if (!focused_range) return false;
+        return !(index > 0 && index >= focused_range.start && index - 1 >= focused_range.start);
+    }, [index, focused_range]);
+
+    const rounded_bottom = useMemo(() => {
+        if (!focused_range) return false;
+        return !(index + 1 < (verses?.length ?? 0) && index + 2 <= focused_range.end);
+    }, [index, focused_range, verses?.length]);
+
+    const handle_click = useCallback(() => {
+        if (is_focused && show_focused_verses) {
+            set_show_focused_verses(false);
+        }
+    }, [is_focused, show_focused_verses, set_show_focused_verses]);
+
+    const verseBoxStyle = useCallback((theme: any) => ({
+        padding: 1,
+        borderTopLeftRadius: theme.spacing(rounded_top ? 1 : 0),
+        borderTopRightRadius: theme.spacing(rounded_top ? 1 : 0),
+        borderBottomLeftRadius: theme.spacing(rounded_bottom ? 1 : 0),
+        borderBottomRightRadius: theme.spacing(rounded_bottom ? 1 : 0),
+        backgroundColor: is_focused ? theme.palette.action.selected : undefined
+    }), [rounded_top, rounded_bottom, is_focused]);
+
     return (
-        <div style={style}>
+        <div>
             {parallel_verses ? (
-                <Grid 
-                    container 
-                    spacing={2}
-                >
-                    <Grid size={6} sx={{ borderRight: 1, borderColor: "divider", pr: 2 }}>
-                        <BibleVerse
-                            render_data={v}
-                            verse_label={(index + 1).toString()}
-                        />
+                <Grid container spacing={2}>
+                    <Grid
+                        size={6}
+                        sx={{
+                            borderRight: 1,
+                            borderColor: "divider",
+                            pr: 2
+                        }}
+                    >
+                        <Box onClick={handle_click} sx={verseBoxStyle}>
+                            <BibleVerse
+                                render_data={v}
+                                verse_label={(index + 1).toString()}
+                            />
+                        </Box>
                     </Grid>
                     <Grid size={6} sx={{ pl: 2 }}>
                         {pv && (
-                            <BibleVerse
-                                render_data={pv}
-                                verse_label={(index + 1).toString()}
-                            />
+                            <Box onClick={handle_click} sx={verseBoxStyle}>
+                                <BibleVerse
+                                    render_data={pv}
+                                    verse_label={(index + 1).toString()}
+                                />
+                            </Box>
                         )}
                     </Grid>
                 </Grid>
             ) : (
-                <BibleVerse
-                    render_data={v}
-                    verse_label={(index + 1).toString()}
-                />
+                <Box onClick={handle_click} sx={verseBoxStyle}>
+                    <BibleVerse
+                        render_data={v}
+                        verse_label={(index + 1).toString()}
+                    />
+                </Box>
             )}
         </div>
     );
-}
+}, (prev, next) => {
+    // Custom memoization to prevent unnecessary re-renders
+    const same_focus =
+        prev.show_focused_verses === next.show_focused_verses &&
+        prev.focused_range?.start === next.focused_range?.start &&
+        prev.focused_range?.end === next.focused_range?.end;
+
+    const same_content =
+        prev.verses[prev.index] === next.verses[next.index] &&
+        prev.parallel_verses?.[prev.index] === next.parallel_verses?.[next.index];
+
+    return same_focus && same_content;
+});
