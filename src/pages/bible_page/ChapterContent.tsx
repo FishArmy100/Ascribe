@@ -5,6 +5,7 @@ import { Grid } from "@mui/material";
 import { useEffect, useState, useMemo, useCallback } from "react";
 import React from "react";
 import BibleVerseRaw from "../../components/bible/BibleVerse";
+import { Theme } from "@mui/material/styles";
 
 type ChapterContentProps = {
     verses: VerseRenderData[],
@@ -37,8 +38,8 @@ export default function ChapterContent({
     }, [chapter, bible_info.name, parallel_bible_info?.name, focused_range]);
 
     // Memoize verse arrays so they don't cause re-renders on shallow changes
-    const memoVerses = useMemo(() => verses, [verses]);
-    const memoParallelVerses = useMemo(() => parallel_verses, [parallel_verses]);
+    const memo_verses = useMemo(() => verses, [verses]);
+    const memo_parallel_verses = useMemo(() => parallel_verses, [parallel_verses]);
 
     return (
         <Paper
@@ -59,7 +60,7 @@ export default function ChapterContent({
             </Typography>
             <Divider sx={{ mb: 2 }} />
 
-            {memoParallelVerses && (
+            {memo_parallel_verses && (
                 <Grid
                     container
                     spacing={2}
@@ -78,12 +79,12 @@ export default function ChapterContent({
                 </Grid>
             )}
 
-            {memoVerses.map((_, index) => (
+            {memo_verses.map((_, index) => (
                 <RowComponent
                     key={`${bible_info.name}-${chapter.book}-${chapter.chapter}-${index}`}
                     index={index}
-                    verses={memoVerses}
-                    parallel_verses={memoParallelVerses}
+                    verses={memo_verses}
+                    parallel_verses={memo_parallel_verses}
                     focused_range={focused_range}
                     show_focused_verses={show_focused_verses}
                     set_show_focused_verses={set_show_focused_verses}
@@ -132,7 +133,7 @@ const RowComponent = React.memo(function RowComponent({
         }
     }, [is_focused, show_focused_verses, set_show_focused_verses]);
 
-    const verseBoxStyle = useCallback((theme: any) => ({
+    const verse_box_style = useCallback((theme: Theme) => ({
         padding: 1,
         borderTopLeftRadius: theme.spacing(rounded_top ? 1 : 0),
         borderTopRightRadius: theme.spacing(rounded_top ? 1 : 0),
@@ -153,7 +154,7 @@ const RowComponent = React.memo(function RowComponent({
                             pr: 2
                         }}
                     >
-                        <Box onClick={handle_click} sx={verseBoxStyle}>
+                        <Box onClick={handle_click} sx={verse_box_style}>
                             <BibleVerse
                                 render_data={v}
                                 verse_label={(index + 1).toString()}
@@ -162,7 +163,7 @@ const RowComponent = React.memo(function RowComponent({
                     </Grid>
                     <Grid size={6} sx={{ pl: 2 }}>
                         {pv && (
-                            <Box onClick={handle_click} sx={verseBoxStyle}>
+                            <Box onClick={handle_click} sx={verse_box_style}>
                                 <BibleVerse
                                     render_data={pv}
                                     verse_label={(index + 1).toString()}
@@ -172,7 +173,7 @@ const RowComponent = React.memo(function RowComponent({
                     </Grid>
                 </Grid>
             ) : (
-                <Box onClick={handle_click} sx={verseBoxStyle}>
+                <Box onClick={handle_click} sx={verse_box_style}>
                     <BibleVerse
                         render_data={v}
                         verse_label={(index + 1).toString()}
