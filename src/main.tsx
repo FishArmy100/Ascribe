@@ -5,7 +5,7 @@ import { CssBaseline, ThemeProvider } from "@mui/material";
 import theme from "./theme";
 import AppProviders from "./components/providers/AppProviders";
 import AppInitializer from "./components/AppInitializer";
-import TestPage from "./test/TestPage";
+
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
 	<React.StrictMode>
@@ -19,9 +19,3 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
 		</AppProviders>
 	</React.StrictMode>,
 );
-
-// ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-// 	<React.StrictMode>
-// 		<TestPage></TestPage>
-// 	</React.StrictMode>,
-// );

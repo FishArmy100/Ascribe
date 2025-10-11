@@ -109,115 +109,120 @@ export default function ChapterContent({
 }
 
 type RowComponentProps = {
-  index: number;
-  verses: VerseRenderData[];
-  parallel_verses?: VerseRenderData[] | null;
-  focused_range: { start: number; end: number } | null;
-  show_focused_verses: boolean;
-  set_show_focused_verses: (v: boolean) => void;
+	index: number;
+	verses: VerseRenderData[];
+	parallel_verses?: VerseRenderData[] | null;
+	focused_range: { start: number; end: number } | null;
+	show_focused_verses: boolean;
+	set_show_focused_verses: (v: boolean) => void;
 };
 
 // --- forwardRef so parent can attach a ref ---
-const RowComponentBase = forwardRef<HTMLDivElement, RowComponentProps>(
-  (
+const RowComponentBase = forwardRef<HTMLDivElement, RowComponentProps>((
     {
-      index,
-      verses,
-      parallel_verses,
-      focused_range,
-      show_focused_verses,
-      set_show_focused_verses,
+		index,
+		verses,
+		parallel_verses,
+		focused_range,
+		show_focused_verses,
+		set_show_focused_verses,
     },
     ref
-  ) => {
-    const v = verses[index];
-    const pv = parallel_verses?.[index];
+	) => {
+		const v = verses[index];
+		const pv = parallel_verses?.[index];
 
-    const is_focused = useMemo(() => {
-      if (!show_focused_verses || !focused_range) return false;
-      return index + 1 >= focused_range.start && index + 1 <= focused_range.end;
-    }, [index, show_focused_verses, focused_range]);
+		const is_focused = useMemo(() => {
+			if (!show_focused_verses || !focused_range) 
+				return false;
+			return index + 1 >= focused_range.start && index + 1 <= focused_range.end;
+		}, [index, show_focused_verses, focused_range]);
 
-    const rounded_top = useMemo(() => {
-      if (!focused_range || !show_focused_verses || index === 0) return true;
-      return !(index > focused_range.start - 1 && index <= focused_range.end - 1);
-    }, [index, focused_range, show_focused_verses]);
+		const rounded_top = useMemo(() => {
+			if (!focused_range || !show_focused_verses || index === 0) 
+				return true;
+			return !(index > focused_range.start - 1 && index <= focused_range.end - 1);
+		}, [index, focused_range, show_focused_verses]);
 
-    const rounded_bottom = useMemo(() => {
-      if (!focused_range || !show_focused_verses || index === verses.length - 1) return true;
-      return !(index >= focused_range.start - 1 && index < focused_range.end - 1);
-    }, [index, focused_range, verses.length]);
+		const rounded_bottom = useMemo(() => {
+			if (!focused_range || !show_focused_verses || index === verses.length - 1) 
+				return true;
+			return !(index >= focused_range.start - 1 && index < focused_range.end - 1);
+		}, [index, focused_range, verses.length]);
 
-    const handle_click = useCallback(() => {
-      if (is_focused && show_focused_verses) {
-        set_show_focused_verses(false);
-      }
-    }, [is_focused, show_focused_verses, set_show_focused_verses]);
+		const handle_click = useCallback(() => {
+			if (is_focused && show_focused_verses) 
+			{
+				set_show_focused_verses(false);
+			}
+		}, [is_focused, show_focused_verses, set_show_focused_verses]);
 
-    const verse_box_style = useCallback(
-      (theme: Theme): SystemStyleObject<Theme> => ({
-        padding: 1,
-        borderTopLeftRadius: theme.spacing(rounded_top ? 1 : 0),
-        borderTopRightRadius: theme.spacing(rounded_top ? 1 : 0),
-        borderBottomLeftRadius: theme.spacing(rounded_bottom ? 1 : 0),
-        borderBottomRightRadius: theme.spacing(rounded_bottom ? 1 : 0),
-        transition: "background-color 0.2s ease",
-        backgroundColor: is_focused ? theme.palette.action.selected : undefined,
-        display: "flex",
-        flexDirection: "column",
-        "&:hover": {
-          backgroundColor: theme.palette.action.hover,
-        },
-      }),
-      [rounded_top, rounded_bottom, is_focused]
-    );
+		const verse_box_style = useCallback(
+			(theme: Theme): SystemStyleObject<Theme> => ({
+				padding: 1,
+				borderTopLeftRadius: theme.spacing(rounded_top ? 1 : 0),
+				borderTopRightRadius: theme.spacing(rounded_top ? 1 : 0),
+				borderBottomLeftRadius: theme.spacing(rounded_bottom ? 1 : 0),
+				borderBottomRightRadius: theme.spacing(rounded_bottom ? 1 : 0),
+				transition: "background-color 0.2s ease",
+				backgroundColor: is_focused ? theme.palette.action.selected : undefined,
 
-    return (
-      <div ref={ref}>
-        {parallel_verses ? (
-          <Grid container spacing={2} alignItems="stretch">
-            <Grid
-              size={6}
-              sx={{
-                borderRight: 1,
-                borderColor: "divider",
-                pr: 2,
-                display: "flex",
-              }}
-            >
-              <Box onClick={handle_click} sx={verse_box_style}>
-                <BibleVerse render_data={v} verse_label={(index + 1).toString()} />
-              </Box>
-            </Grid>
-            <Grid size={6} sx={{ pl: 2, display: "flex" }}>
-              {pv && (
-                <Box onClick={handle_click} sx={verse_box_style}>
-                  <BibleVerse render_data={pv} verse_label={(index + 1).toString()} />
-                </Box>
-              )}
-            </Grid>
-          </Grid>
-        ) : (
-          <Box onClick={handle_click} sx={verse_box_style}>
-            <BibleVerse render_data={v} verse_label={(index + 1).toString()} />
-          </Box>
-        )}
-      </div>
-    );
-  }
+				display: "flex",
+				flexDirection: "column",
+
+				"&:hover": {
+					backgroundColor: theme.palette.action.hover,
+				},
+			}),
+			[rounded_top, rounded_bottom, is_focused]
+		);
+
+		return (
+			<div ref={ref}>
+				{parallel_verses ? (
+				<Grid container spacing={2} alignItems="stretch">
+					<Grid
+						size={6}
+						sx={{
+							borderRight: 1,
+							borderColor: "divider",
+							pr: 2,
+							display: "flex",
+						}}
+					>
+						<Box onClick={handle_click} sx={verse_box_style}>
+							<BibleVerse render_data={v} verse_label={(index + 1).toString()} />
+						</Box>
+					</Grid>
+					<Grid size={6} sx={{ pl: 2, display: "flex" }}>
+						{pv && (
+							<Box onClick={handle_click} sx={verse_box_style}>
+							<BibleVerse render_data={pv} verse_label={(index + 1).toString()} />
+							</Box>
+						)}
+					</Grid>
+				</Grid>
+				) : (
+				<Box onClick={handle_click} sx={verse_box_style}>
+					<BibleVerse render_data={v} verse_label={(index + 1).toString()} />
+				</Box>
+				)}
+			</div>
+		);
+	}
 );
 
 // --- wrap with React.memo after forwardRef ---
 export const RowComponent = React.memo(RowComponentBase, (prev, next) => {
-  const same_focus =
-    prev.show_focused_verses === next.show_focused_verses &&
-    prev.focused_range?.start === next.focused_range?.start &&
-    prev.focused_range?.end === next.focused_range?.end;
+	const same_focus =
+		prev.show_focused_verses === next.show_focused_verses &&
+		prev.focused_range?.start === next.focused_range?.start &&
+		prev.focused_range?.end === next.focused_range?.end;
 
-  const same_content =
-    prev.verses[prev.index] === next.verses[next.index] &&
-    prev.parallel_verses?.[prev.index] === next.parallel_verses?.[next.index];
+	const same_content =
+		prev.verses[prev.index] === next.verses[next.index] &&
+		prev.parallel_verses?.[prev.index] === next.parallel_verses?.[next.index];
 
-  return same_focus && same_content;
+	return same_focus && same_content;
 });
 

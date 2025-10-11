@@ -1,0 +1,48 @@
+name = "Scroll Mapper Cross References"
+
+description = """
+
+<h1>Bible Cross Reference Data Description</h1>
+
+<p>The <b>Bible Cross Reference Dataset</b> contains approximately <b>340,000</b> connections between passages across the Old and New Testaments. Each cross reference links two or more verses that share a related <i>theme</i>, <i>phrase</i>, <i>event</i>, or <i>person</i>.</p>
+
+<h2>Structure of the Data</h2>
+<ul>
+  <li>Each record includes a <b>source verse</b> and one or more <b>target verses</b> that relate conceptually or linguistically.</li>
+  <li>Cross references are identified by <u>book</u>, <u>chapter</u>, and <u>verse</u> identifiers, following the standard Protestant canon.</li>
+  <li>Connections are directional but can be treated as <i>bidirectional</i> for most analysis and visualization purposes.</li>
+  <li>The dataset is stored as text-based references and may be represented in formats such as <i>CSV</i>, <i>JSON</i>, or <i>relational tables</i>.</li>
+</ul>
+
+<h2>Data Sources</h2>
+<ul>
+  <li>The majority of references originate from the <b>Treasury of Scripture Knowledge (TSK)</b>, a public-domain compilation of cross references.</li>
+  <li>Additional seeding and verification data were incorporated from projects like the <i>Topical Bible</i> and <i>Twitter Bible Search</i>.</li>
+</ul>
+
+<h2>Intended Use</h2>
+<p>This dataset is designed for use in <b>biblical study tools</b>, <b>search engines</b>, and <b>visualization projects</b>. It enables analysis of scriptural relationships, thematic continuity, and textual linkage across the biblical canon.</p>
+
+<h2>Example Applications</h2>
+<ul>
+  <li>Building interactive tools to explore how verses reference or echo each other.</li>
+  <li>Generating network visualizations of inter-book relationships.</li>
+  <li>Supporting topical or thematic searches in Bible study software.</li>
+</ul>
+
+<h2>Data Scope</h2>
+<p>The dataset includes cross references for both <b>Old Testament</b> and <b>New Testament</b> passages. Each verse may have multiple outgoing or incoming links, depending on how frequently it is referenced by others.</p>
+
+<h2>Licensing and Attribution</h2>
+<ul>
+  <li>The dataset is available under a <b>Creative Commons Attribution License</b>, allowing reuse with proper citation.</li>
+  <li>Scripture quotations are from the <b>English Standard Version (ESV)</b>, ©2001 Crossway Bibles, unless otherwise noted.</li>
+</ul>
+
+<h2>Summary</h2>
+<p>In essence, this dataset provides a <b>structured network of scriptural relationships</b>, allowing researchers, developers, and theologians to trace how the Bible interprets and reinforces itself through interconnected verses.</p>
+
+
+"""
+
+data_source = "https://github.com/scrollmapper/bible_databases/tree/master"
