@@ -1,0 +1,65 @@
+name = "Standard Strongs Definitions"
+
+description = """
+
+<h1><b>Strong's Concordance Definitions</b></h1>
+
+<h2><i>The definitive guide to biblical words and their meanings</i></h2>
+
+<p>
+    <b>Overview:</b><br/>
+    Strong’s Concordance provides a comprehensive index of every word in the King James Bible, linking each English word to its original Hebrew or Greek root. This reference is indispensable for students, pastors, translators, and anyone seeking a deeper understanding of Scripture.
+</p>
+
+<h3><u>Features</u></h3>
+<ul>
+    <li><b>Numbered entries:</b> Each original-language word is assigned a unique Strong's number for easy reference.</li>
+    <li><b>Definitions:</b> Concise meanings derived from Hebrew or Greek.</li>
+    <li><b>Root words:</b> Shows the origin of each term in its original language.</li>
+    <li><b>Scriptural usage:</b> Lists where the word occurs in the Bible.</li>
+    <li><b>Cross-references:</b> Connects related words and alternate forms.</li>
+</ul>
+
+<h3><u>How to Use</u></h3>
+<p>
+    Look up any English word in the King James Bible to find its Strong’s number, then consult the entry for the original-language root, definition, and biblical occurrences. This helps reveal nuances in meaning that are lost in translation.
+</p>
+
+<h3><u>Sample Entries</u></h3>
+<p>
+    <b>AGAPE</b> — <i>Love, especially divine love</i>.<br/>
+    Greek Strong’s number: <b>G26</b>.<br/>
+    Occurs in passages such as John 3:16 and 1 Corinthians 13.
+</p>
+
+<p>
+    <b>YHWH</b> — <i>The proper name of God, often rendered “LORD”</i>.<br/>
+    Hebrew Strong’s number: <b>H3068</b>.<br/>
+    Appears throughout the Old Testament.
+</p>
+
+<h3><u>Who Will Benefit</u></h3>
+<ul>
+    <li><b>Students:</b> Exploring the original language behind biblical texts.</li>
+    <li><b>Pastors:</b> Preparing sermons with precise word meanings.</li>
+    <li><b>Translators:</b> Ensuring accurate rendering of biblical terms.</li>
+    <li><b>General readers:</b> Deepening their understanding of Scripture.</li>
+</ul>
+
+<h3><u>Key Strengths</u></h3>
+<ul>
+    <li>Comprehensive indexing of every word in the King James Bible.</li>
+    <li>Clear definitions linked to original Hebrew and Greek.</li>
+    <li>Numbered system allows quick cross-referencing and study.</li>
+</ul>
+
+<p>
+    <i>Strong’s Concordance Definitions opens the door to the original languages of the Bible, revealing deeper insight and clarity for every reader.</i><br/><br/>
+</p>
+
+
+"""
+
+license = "Public Domain"
+data_source = "Extracted from the SWORD project's StrongsGreek and StrongsHebrew concordances"
+language = "en"

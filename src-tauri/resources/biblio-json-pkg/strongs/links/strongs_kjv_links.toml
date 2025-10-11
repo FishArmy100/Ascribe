@@ -1,0 +1,5 @@
+name = "Standard Strongs King James Links"
+license = "Public Domain"
+data_source = "Extracted from the SWORD project's StrongsGreek and StrongsHebrew concordances"
+language = "en"
+bible = "KJV"
