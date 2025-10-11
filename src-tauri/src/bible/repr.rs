@@ -1,7 +1,63 @@
 use std::num::NonZeroU32;
 
-use biblio_json::core::{OsisBook, VerseId, chapter_id::ChapterId};
+use biblio_json::core::{OsisBook, StrongsNumber, StrongsLang, VerseId, chapter_id::ChapterId};
 use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum StrongsLanguageJson
+{
+    Hebrew,
+    Greek,
+}
+
+impl From<StrongsLang> for StrongsLanguageJson
+{
+    fn from(value: StrongsLang) -> Self 
+    {
+        match value
+        {
+            StrongsLang::Hebrew => Self::Hebrew,
+            StrongsLang::Greek => Self::Greek,
+        }
+    }
+}
+
+impl From<&StrongsLang> for StrongsLanguageJson
+{
+    fn from(value: &StrongsLang) -> Self 
+    {
+        (*value).into()
+    }
+}
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub struct StrongsNumberJson
+{
+    pub number: u32,
+    pub language: StrongsLanguageJson,
+}
+
+impl From<StrongsNumber> for StrongsNumberJson
+{
+    fn from(value: StrongsNumber) -> Self 
+    {
+        Self 
+        {
+            number: value.number,
+            language: value.lang.into(),
+        }
+    }
+}
+
+impl From<&StrongsNumber> for StrongsNumberJson
+{
+    fn from(value: &StrongsNumber) -> Self 
+    {
+        value.clone().into()
+    }
+}
 
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
