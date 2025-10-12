@@ -98,6 +98,7 @@ dependencies = [
  "itertools",
  "lazy_static",
  "log",
+ "rayon",
  "regex",
  "serde",
  "serde_json",

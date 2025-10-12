@@ -28,4 +28,5 @@ itertools = "0.14.0"
 biblio_json = { git = "https://github.com/FishArmy100/biblio_json", branch = "ascribe" }
 regex = "1.11.3"
 lazy_static = "1.5.0"
+rayon = "1.11.0"
 

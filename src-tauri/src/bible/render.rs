@@ -1,5 +1,8 @@
+use std::time::SystemTime;
+
 use biblio_json::{Package, VerseFetchResponse, core::{VerseId, WordRange}};
 use itertools::Itertools;
+use rayon::iter::{IndexedParallelIterator, IntoParallelRefIterator, ParallelIterator};
 use serde::{Deserialize, Serialize};
 
 use crate::bible::repr::{StrongsNumberJson, VerseIdJson};
@@ -28,7 +31,7 @@ pub struct WordRenderData
 
 pub fn fetch_verse_render_data(package: &Package, verses: &Vec<VerseId>, bible: &str) -> Vec<VerseRenderData>
 {
-    verses.iter().map(|v| match package.fetch(*v, bible) {
+    verses.par_iter().map(|v| match package.fetch(*v, bible) {
         Some(s) => VerseRenderData {
             id: v.clone().into(),
             words: collect_word_render_data(s, package),
@@ -39,7 +42,7 @@ pub fn fetch_verse_render_data(package: &Package, verses: &Vec<VerseId>, bible: 
             words: vec![], 
             failed: true 
         }
-    }).collect_vec()
+    }).collect::<Vec<_>>()
 }
 
 fn collect_word_render_data(s: VerseFetchResponse, package: &Package) -> Vec<WordRenderData> 

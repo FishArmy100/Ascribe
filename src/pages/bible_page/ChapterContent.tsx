@@ -80,12 +80,12 @@ export default function ChapterContent({
                     sx={{ mb: 0 }}
                 >
                     <Grid size={6} sx={{ borderRight: 1, borderColor: "divider", pr: 2 }}>
-                        <Typography variant="h6" textAlign="center">
+                        <Typography variant="h6" textAlign="center" fontWeight="bold">
                             {bible_info.name}
                         </Typography>
                     </Grid>
                     <Grid size={6} sx={{ pl: 2 }}>
-                        <Typography variant="h6" textAlign="center">
+                        <Typography variant="h6" textAlign="center" fontWeight="bold">
                             {parallel_bible_info?.name}
                         </Typography>
                     </Grid>

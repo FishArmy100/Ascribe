@@ -29,7 +29,17 @@ export default function BibleWord({
     {
         const joined_spans = render_data.strongs.map((s, i) => (
             <React.Fragment key={i}>
-                <span>{format_strongs(s)}</span>
+                <Box
+                    component="span"
+                    sx={{
+                        cursor: "pointer",
+                        "&:hover": {
+                            textDecoration: "underline",
+                        }
+                    }}
+                >
+                    {format_strongs(s)}
+                </Box>
                 {i < render_data.strongs.length - 1 && <span>;</span>}
             </React.Fragment>
         ))
@@ -38,17 +48,14 @@ export default function BibleWord({
             <span style={{ position: "relative", display: "inline-block" }}>
                 {word}
                 <Box
-                    component="span"
+                    component="sup"
                     sx={{
-                        position: "absolute",
-                        top: "-0.6em",
-                        right: "-0.2em",
-                        fontSize: "0.65rem",
+                        fontSize: "0.65em",
                         color: "text.secondary",
-                        lineHeight: 1,
+                        ml: "0.15em",
                     }}
                 >
-                    {joined_spans}
+                    [{joined_spans}]
                 </Box>
             </span>
         )
