@@ -1,6 +1,6 @@
 import { invoke } from "@tauri-apps/api/core"
 import { VerseId } from "."
-import { StrongsLang } from "./strongs"
+import { StrongsNumber } from "./strongs"
 
 export type WordRenderData = {
     begin_punc: string | null,
@@ -8,7 +8,7 @@ export type WordRenderData = {
     end_punc: string | null,
     red: boolean,
     italics: boolean,
-    strongs: StrongsLang[],
+    strongs: StrongsNumber[],
     highlight_color: string | null,
     has_data: boolean,
     index: number,
