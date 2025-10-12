@@ -62,14 +62,15 @@ pub struct BibleInfo
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct BibleVersionState
+pub struct BibleDisplaySettings
 {
     pub bible_version: String,
     pub parallel_version: String,
     pub parallel_enabled: bool,
+    pub show_strongs: bool,
 }
 
-impl Default for BibleVersionState
+impl Default for BibleDisplaySettings
 {
     fn default() -> Self 
     {
@@ -77,6 +78,7 @@ impl Default for BibleVersionState
             bible_version: "KJV".into(), 
             parallel_version: "KJV".into(), 
             parallel_enabled: false,
+            show_strongs: false,
         }
     }
 }
@@ -84,6 +86,6 @@ impl Default for BibleVersionState
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct BibleVersionChangedEvent
 {
-    pub old: BibleVersionState,
-    pub new: BibleVersionState,
+    pub old: BibleDisplaySettings,
+    pub new: BibleDisplaySettings,
 }

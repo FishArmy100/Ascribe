@@ -3,7 +3,7 @@ import { OsisBook, pretty_print_book } from "./book";
 import { listen, UnlistenFn } from "@tauri-apps/api/event";
 import { use_bible_infos } from "../../components/providers/BibleInfoProvider";
 import * as utils from "../../utils"
-import { use_bible_version_state } from "../../components/providers/BibleVersionProvider";
+import { use_bible_display_settings } from "../../components/providers/BibleDisplaySettingsProvider";
 
 export * from "./book";
 export { fetch_backend_verse_render_data } from "./render";
@@ -145,7 +145,7 @@ export type SelectedVersions = {
 export function use_selected_bibles(): SelectedVersions
 {
     const { bible_infos } = use_bible_infos();
-    const { bible_version_state } = use_bible_version_state();
+    const { bible_version_state } = use_bible_display_settings();
 
     const bible_version = bible_infos[bible_version_state.bible_version];
     const parallel_version = bible_version_state.parallel_enabled ? bible_infos[bible_version_state.parallel_version] : null;
@@ -178,39 +178,40 @@ export async function get_backend_biblio_json_package_initialized(): Promise<boo
     })
 }
 
-export type BibleVersionState = {
+export type BibleDisplaySettings = {
     bible_version: string,
     parallel_version: string,
     parallel_enabled: boolean,
+    show_strongs: boolean,
 }
 
-export async function get_backend_bible_version_state(): Promise<BibleVersionState>
+export async function get_backend_bible_display_settings(): Promise<BibleDisplaySettings>
 {
     return await invoke<string>("run_bible_command", {
         command: {
-            type: "get_bible_version_state"
+            type: "get_bible_display_settings"
         }
     }).then(s => {
-        return JSON.parse(s) as BibleVersionState;
+        return JSON.parse(s) as BibleDisplaySettings;
     })
 }
 
-export async function set_backend_bible_version_state(version_state: BibleVersionState): Promise<void>
+export async function set_backend_bible_display_settings(version_state: BibleDisplaySettings): Promise<void>
 {
     return await invoke("run_bible_command", {
         command: {
-            type: "set_bible_version_state",
+            type: "set_bible_display_settings",
             version_state,
         }
     })
 }
 
 export type BibleVersionChangedEvent = {
-    old: BibleVersionState,
-    new: BibleVersionState,
+    old: BibleDisplaySettings,
+    new: BibleDisplaySettings,
 }
 
-export function listen_bible_version_changed(listener: (e: BibleVersionChangedEvent) => void): Promise<UnlistenFn>
+export function listen_bible_display_settings_changed(listener: (e: BibleVersionChangedEvent) => void): Promise<UnlistenFn>
 {
     return listen<BibleVersionChangedEvent>("bible-version-changed", e => {
         listener(e.payload)

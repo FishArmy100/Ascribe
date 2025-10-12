@@ -15,7 +15,8 @@ type ChapterContentProps = {
     bible_info: bible.BibleInfo,
     parallel_verses?: VerseRenderData[] | null,
     parallel_bible_info?: bible.BibleInfo | null,
-    focused_range: { start: number, end: number } | null
+    focused_range: { start: number, end: number } | null,
+	show_strongs: boolean,
 };
 
 // Memoized version of BibleVerse (to prevent re-rendering heavy components)
@@ -28,7 +29,8 @@ export default function ChapterContent({
     bible_info,
     parallel_verses,
     parallel_bible_info,
-    focused_range
+    focused_range,
+	show_strongs,
 }: ChapterContentProps): React.ReactElement {
     const book_name = bible.get_book_info(bible_info, chapter.book).name;
     const chapter_name = `${book_name} ${chapter.chapter}`;
@@ -102,6 +104,7 @@ export default function ChapterContent({
                     focused_range={focused_range}
                     show_focused_verses={show_focused_verses}
                     set_show_focused_verses={set_show_focused_verses}
+					show_strongs={show_strongs}
                 />
             ))}
         </Paper>
@@ -109,12 +112,13 @@ export default function ChapterContent({
 }
 
 type RowComponentProps = {
-	index: number;
-	verses: VerseRenderData[];
-	parallel_verses?: VerseRenderData[] | null;
-	focused_range: { start: number; end: number } | null;
-	show_focused_verses: boolean;
-	set_show_focused_verses: (v: boolean) => void;
+	index: number,
+	verses: VerseRenderData[],
+	parallel_verses?: VerseRenderData[] | null,
+	focused_range: { start: number; end: number } | null,
+	show_focused_verses: boolean,
+	set_show_focused_verses: (v: boolean) => void,
+	show_strongs: boolean,
 };
 
 // --- forwardRef so parent can attach a ref ---
@@ -126,6 +130,7 @@ const RowComponentBase = forwardRef<HTMLDivElement, RowComponentProps>((
 		focused_range,
 		show_focused_verses,
 		set_show_focused_verses,
+		show_strongs,
     },
     ref
 	) => {
@@ -191,20 +196,20 @@ const RowComponentBase = forwardRef<HTMLDivElement, RowComponentProps>((
 						}}
 					>
 						<Box onClick={handle_click} sx={verse_box_style}>
-							<BibleVerse render_data={v} verse_label={(index + 1).toString()} />
+							<BibleVerse render_data={v} verse_label={(index + 1).toString()} show_strongs={show_strongs} />
 						</Box>
 					</Grid>
 					<Grid size={6} sx={{ pl: 2, display: "flex" }}>
 						{pv && (
 							<Box onClick={handle_click} sx={verse_box_style}>
-							<BibleVerse render_data={pv} verse_label={(index + 1).toString()} />
+							<BibleVerse render_data={pv} verse_label={(index + 1).toString()} show_strongs={show_strongs} />
 							</Box>
 						)}
 					</Grid>
 				</Grid>
 				) : (
 				<Box onClick={handle_click} sx={verse_box_style}>
-					<BibleVerse render_data={v} verse_label={(index + 1).toString()} />
+					<BibleVerse render_data={v} verse_label={(index + 1).toString()} show_strongs={show_strongs} />
 				</Box>
 				)}
 			</div>
@@ -223,6 +228,6 @@ export const RowComponent = React.memo(RowComponentBase, (prev, next) => {
 		prev.verses[prev.index] === next.verses[next.index] &&
 		prev.parallel_verses?.[prev.index] === next.parallel_verses?.[next.index];
 
-	return same_focus && same_content;
+	return same_focus && same_content && prev.show_strongs == next.show_strongs;
 });
 

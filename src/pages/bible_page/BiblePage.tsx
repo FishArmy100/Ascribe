@@ -8,18 +8,19 @@ import { use_top_bar_padding, TopBarSpacer, ImageButton, Footer } from "../../co
 import ChapterContent from "./ChapterContent";
 import BiblePageToolbar from "./BiblePageToolbar";
 import { BUTTON_SIZE } from "../../components/core/ImageButton";
+import { use_bible_display_settings } from "../../components/providers/BibleDisplaySettingsProvider";
 
 
 export default function BiblePage(): React.ReactElement
 {
 	const button_width = BUTTON_SIZE * 0.75;
-	const button_height = button_width * 7;
 	const theme = useTheme();
 	
 	const button_spacing = use_top_bar_padding(theme);
 	const button_space = button_width * 2 + button_spacing * 4;
 	const view_history = use_view_history();
 	const selected_bibles = bible.use_selected_bibles();
+	const { show_strongs } = use_bible_display_settings().bible_version_state;
 
 	const current_view = view_history.get_current().current;
 	const current_chapter = current_view.chapter;
@@ -98,10 +99,10 @@ export default function BiblePage(): React.ReactElement
 				tooltip="To previous chapter"
 				sx={{
 					position: "fixed",
-					top: (theme) => `calc(50% - ${theme.spacing(button_height / 2)})`,
+					top: `calc(50% - 30vh / 2)`,
 					left: theme.spacing(button_spacing),
-					minHeight: (theme) => theme.spacing(button_height),
-					height: (theme) => theme.spacing(button_height),
+					minHeight: "30vh",
+					height: "30vh",
 					minWidth: (theme) => theme.spacing(button_width),
 					width: (theme) => theme.spacing(button_width),
 				}}
@@ -127,6 +128,7 @@ export default function BiblePage(): React.ReactElement
 							parallel_bible_info={selected_bibles.parallel}
 							parallel_verses={parallel_verses}
 							focused_range={current_verses}
+							show_strongs={show_strongs}
 						/>
 						:
 						<CircularProgress 
@@ -145,10 +147,10 @@ export default function BiblePage(): React.ReactElement
 				tooltip="To next chapter"
 				sx={{
 					position: "fixed",
-					top: (theme) => `calc(50% - ${theme.spacing(button_height / 2)})`,
-					right: (theme) => theme.spacing(button_spacing),
-					minHeight: (theme) => theme.spacing(button_height),
-					height: (theme) => theme.spacing(button_height),
+					top: `calc(50% - 30vh / 2)`,
+					right: theme.spacing(button_spacing),
+					minHeight: "30vh",
+					height: "30vh",
 					minWidth: (theme) => theme.spacing(button_width),
 					width: (theme) => theme.spacing(button_width),
 				}}

@@ -5,7 +5,7 @@ use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use tauri::{Emitter, State};
 
-use crate::{bible::{BIBLE_VERSION_CHANGED_EVENT_NAME, BibleInfo, BibleVersionChangedEvent, BibleVersionState, BiblioJsonPackageHandle, render::fetch_verse_render_data, repr::VerseIdJson}, core::app::AppState};
+use crate::{bible::{BIBLE_VERSION_CHANGED_EVENT_NAME, BibleInfo, BibleVersionChangedEvent, BibleDisplaySettings, BiblioJsonPackageHandle, render::fetch_verse_render_data, repr::VerseIdJson}, core::app::AppState};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case", tag = "type")]
@@ -13,10 +13,10 @@ pub enum BibleCommand
 {
     FetchBibleInfos,
     IsInitialized,
-    GetBibleVersionState,
-    SetBibleVersionState
+    GetBibleDisplaySettings,
+    SetBibleDisplaySettings
     {
-        version_state: BibleVersionState,
+        version_state: BibleDisplaySettings,
     },
     FetchVerseRenderData
     {
@@ -48,11 +48,11 @@ pub fn run_bible_command(
         BibleCommand::IsInitialized => {
             Some(serde_json::to_string(&package.is_initialized()).unwrap())
         },
-        BibleCommand::GetBibleVersionState => {
+        BibleCommand::GetBibleDisplaySettings => {
             let state = app_state.lock().unwrap();
             Some(serde_json::to_string(&state.bible_version_state).unwrap())
         },
-        BibleCommand::SetBibleVersionState { version_state } => {
+        BibleCommand::SetBibleDisplaySettings { version_state } => {
             let mut state = app_state.lock().unwrap();
             let old = state.bible_version_state.clone();
             state.bible_version_state = version_state;

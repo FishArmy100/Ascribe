@@ -10,12 +10,14 @@ export type BibleVerseProps = {
     render_data: VerseRenderData,
     sx?: SxProps<Theme>,
     verse_label?: string,
+    show_strongs?: boolean,
 }
 
 export default function BibleVerse({
     render_data,
     sx,
-    verse_label
+    verse_label,
+    show_strongs,
 }: BibleVerseProps): React.ReactElement
 {
     let verse_content;
@@ -25,7 +27,7 @@ export default function BibleVerse({
             <Box component="span" sx={{ flex: 1 }}>
                 {render_data.words.map((w, i) => (
                     <React.Fragment key={i}>
-                        <BibleWord render_data={w} />
+                        <BibleWord render_data={w} show_strongs={show_strongs ?? false}/>
                         {i < render_data.words.length - 1 && " "}
                     </React.Fragment>
                 ))}

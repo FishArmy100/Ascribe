@@ -5,7 +5,7 @@ import { use_settings } from "../providers/SettingsProvider";
 import { Box, Collapse, ListItemButton, ListItemText, Paper, Grid, Typography, useTheme, Button } from "@mui/material";
 import ImageButton from "../core/ImageButton";
 import { use_bible_infos } from "../providers/BibleInfoProvider";
-import { use_bible_version_state } from "../providers/BibleVersionProvider";
+import { use_bible_display_settings } from "../providers/BibleDisplaySettingsProvider";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import * as utils from "../../utils";
@@ -30,7 +30,7 @@ export default function ChapterPicker({
     const { settings } = use_settings();
     const [is_open, set_open] = useState(false);
     const { bible_infos } = use_bible_infos();
-    const { bible_version_state } = use_bible_version_state();
+    const { bible_version_state } = use_bible_display_settings();
     const [expanded_book, set_expanded_book] = useState<OsisBook | null>(null);
     const theme = useTheme();
     const padding = use_top_bar_padding(theme);

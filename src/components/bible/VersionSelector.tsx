@@ -1,9 +1,9 @@
 import { Box, Button, Checkbox, Divider, FormControlLabel, Paper, Stack, Typography, useTheme } from "@mui/material";
 import React, { useState } from "react";
 import { use_settings } from "../providers/SettingsProvider";
-import { use_bible_version_state } from "../providers/BibleVersionProvider";
+import { use_bible_display_settings } from "../providers/BibleDisplaySettingsProvider";
 import { use_bible_infos } from "../providers/BibleInfoProvider";
-import { BUTTON_SIZE } from "../core/ImageButton";
+import { BUTTON_PADDING, BUTTON_SIZE } from "../core/ImageButton";
 import Tooltip from "../core/Tooltip";
 
 
@@ -12,14 +12,14 @@ export default function VersionSelector(): React.ReactElement
     const { settings } = use_settings();
     const theme = useTheme();
     
-    const { bible_version_state, set_bible_version_state } = use_bible_version_state();
-    const { bible_version, parallel_version, parallel_enabled } = bible_version_state;
+    const { bible_version_state, set_bible_version_state } = use_bible_display_settings();
+    const { bible_version, parallel_version, parallel_enabled, show_strongs } = bible_version_state;
 
     const { bible_infos } = use_bible_infos();
     const [ is_open, set_is_open ] = useState(false);
 
     let bible_versions = Object.values(bible_infos).map(b => b.name).sort();
-    const dropdown_padding = 3 / 8;
+    const dropdown_padding = 1;
 
     return (
         <Box className="dropdown-button">
@@ -58,13 +58,14 @@ export default function VersionSelector(): React.ReactElement
             <Paper
                 sx={{
                     position: "absolute",
-                    top: (theme) => `calc(100% - ${theme.spacing(dropdown_padding)})`,
+                    top: (theme) => `calc(100% - ${theme.spacing(BUTTON_PADDING)})`,
                     left: dropdown_padding,
                     padding: dropdown_padding,
                     visibility: is_open ? "visible" : "hidden",
                     opacity: is_open ? 1 : 0,
                     pointerEvents: is_open ? "all" : "none",
-                    transition: "opacity 0.2s ease, visibility 0.2s ease"
+                    transition: "opacity 0.2s ease, visibility 0.2s ease",
+                    boxSizing: "border-box",
                 }}
                 className="dropdown-content"
             >
@@ -83,9 +84,10 @@ export default function VersionSelector(): React.ReactElement
                                     checked={parallel_enabled}
                                     onChange={e =>
                                         set_bible_version_state({
-                                        bible_version,
-                                        parallel_version,
-                                        parallel_enabled: e.target.checked
+                                            bible_version,
+                                            parallel_version,
+                                            parallel_enabled: e.target.checked,
+                                            show_strongs,
                                         })
                                     }
                                 />
@@ -108,6 +110,7 @@ export default function VersionSelector(): React.ReactElement
                     }
                     gap={dropdown_padding}
                     mt={dropdown_padding}
+                    mb={dropdown_padding}
                 >
                     <Stack
                         direction="column"
@@ -127,6 +130,7 @@ export default function VersionSelector(): React.ReactElement
                                                 bible_version: v,
                                                 parallel_version,
                                                 parallel_enabled,
+                                                show_strongs,
                                             });
                                         }}
                                         sx={{
@@ -193,6 +197,7 @@ export default function VersionSelector(): React.ReactElement
                                                 bible_version,
                                                 parallel_version: v,
                                                 parallel_enabled,
+                                                show_strongs,
                                             });
                                         }}
                                         sx={{
@@ -221,6 +226,34 @@ export default function VersionSelector(): React.ReactElement
                         })}
                     </Stack>
                 </Stack>
+                <Divider/>
+                <Box
+                    sx={{
+                        width: "100%"
+                    }}
+                >
+                    <Tooltip
+                        tooltip={show_strongs ? "Disable Strongs numbers" : "Enable Strongs numbers"}
+                    >
+                        <FormControlLabel
+                            label="Strongs"
+                            control={
+                                <Checkbox
+                                    checked={show_strongs}
+                                    onChange={e =>
+                                        set_bible_version_state({
+                                            bible_version,
+                                            parallel_version,
+                                            parallel_enabled,
+                                            show_strongs: e.target.checked,
+                                        })
+                                    }
+                                />
+                            }
+                            labelPlacement="start"
+                        />
+                    </Tooltip>
+                </Box>
             </Paper>
             <style>
                 {`

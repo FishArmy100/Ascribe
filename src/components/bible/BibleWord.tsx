@@ -5,10 +5,12 @@ import { format_strongs } from "../../interop/bible/strongs";
 
 export type BibleWordProps = {
     render_data: WordRenderData,
+    show_strongs: boolean,
 }
 
 export default function BibleWord({
     render_data,
+    show_strongs,
 }: BibleWordProps): React.ReactElement
 {
     const begin_punc = render_data.begin_punc ?? "";
@@ -25,7 +27,7 @@ export default function BibleWord({
         </span>
     );
 
-    if (render_data.strongs.length > 0)
+    if (show_strongs && render_data.strongs.length > 0)
     {
         const joined_spans = render_data.strongs.map((s, i) => (
             <React.Fragment key={i}>
