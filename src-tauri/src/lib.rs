@@ -7,6 +7,7 @@ use crate::{bible::{BibleDisplaySettings, BiblioJsonPackageHandle}, core::{app::
 pub mod core;
 pub mod bible;
 pub mod searching;
+pub mod repr;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {

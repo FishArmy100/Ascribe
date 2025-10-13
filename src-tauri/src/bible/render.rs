@@ -5,7 +5,7 @@ use itertools::Itertools;
 use rayon::iter::{IndexedParallelIterator, IntoParallelRefIterator, ParallelIterator};
 use serde::{Deserialize, Serialize};
 
-use crate::bible::repr::{StrongsNumberJson, VerseIdJson};
+use crate::repr::{StrongsNumberJson, VerseIdJson};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VerseRenderData

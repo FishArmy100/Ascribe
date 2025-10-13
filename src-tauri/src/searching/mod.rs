@@ -8,7 +8,7 @@ use biblio_json::{core::OsisBook, modules::bible::BibleModule};
 use regex::Regex;
 use tauri::{AppHandle, State};
 
-use crate::{bible::{BiblioJsonPackageHandle, book::ResolveBookNameError, repr::ChapterIdJson}, core::{app::AppState, view_history::{ViewHistoryEntry, update_view_history}}, searching::{search_range::SearchRanges, search_type::SearchType}};
+use crate::{bible::{BiblioJsonPackageHandle, book::ResolveBookNameError}, repr::ChapterIdJson, core::{app::AppState, view_history::{ViewHistoryEntry, update_view_history}}, searching::{search_range::SearchRanges, search_type::SearchType}};
 
 lazy_static::lazy_static!
 {
