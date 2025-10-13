@@ -1,11 +1,11 @@
-use std::sync::Mutex;
+use std::{collections::HashMap, sync::Mutex};
 
-use biblio_json::modules::Module;
+use biblio_json::{core::{StrongsLang, StrongsNumber}, modules::{Module, strongs::StrongsDefEntry}};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use tauri::{Emitter, State};
 
-use crate::{bible::{BIBLE_VERSION_CHANGED_EVENT_NAME, BibleInfo, BibleVersionChangedEvent, BibleDisplaySettings, BiblioJsonPackageHandle, render::fetch_verse_render_data, repr::VerseIdJson}, core::app::AppState};
+use crate::{bible::{BIBLE_VERSION_CHANGED_EVENT_NAME, BibleDisplaySettings, BibleInfo, BibleVersionChangedEvent, BiblioJsonPackageHandle, render::fetch_verse_render_data, repr::{StrongsLanguageJson, StrongsNumberJson, VerseIdJson}}, core::app::AppState};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case", tag = "type")]
@@ -22,6 +22,10 @@ pub enum BibleCommand
     {
         verses: Vec<VerseIdJson>,
         bible: String,
+    },
+    FetchStrongsDefs 
+    {
+        strongs: StrongsNumberJson,
     }
 }
 
@@ -68,6 +72,25 @@ pub fn run_bible_command(
 
             let response = package.visit(|p| {
                 fetch_verse_render_data(p, &verses, &bible)
+            });
+
+            Some(serde_json::to_string(&response).unwrap())
+        },
+        BibleCommand::FetchStrongsDefs { strongs } => {
+            let strongs = StrongsNumber {
+                lang: match strongs.language {
+                    StrongsLanguageJson::Hebrew => StrongsLang::Hebrew,
+                    StrongsLanguageJson::Greek => StrongsLang::Greek,
+                },
+                number: strongs.number,
+            };
+
+            let response = package.visit(|p| {
+                p.modules.values()
+                    .filter_map(|m| m.as_strongs_defs())
+                    .filter_map(|defs| defs.get_def(&strongs)
+                        .map(|d| (defs.config.name.clone(), d.clone())))
+                    .collect::<HashMap<_, _>>()
             });
 
             Some(serde_json::to_string(&response).unwrap())

@@ -5,8 +5,9 @@ import { ViewHistoryEntry } from "../../interop/view_history";
 import { push_search_to_view_history } from "../../interop/searching";
 import * as bible from "../../interop/bible"
 import * as images from "../../assets";
+import React from "react";
 
-export default function BiblePageToolbar(): React.ReactElement
+export const BiblePageToolbar = React.memo(function BiblePageToolbar(): React.ReactElement
 {
     const view_history = use_view_history();
 	const { bible: selected_bible } = bible.use_selected_bibles()
@@ -66,7 +67,7 @@ export default function BiblePageToolbar(): React.ReactElement
 				/>
 			</TopBar>
     )
-}
+})
 
 function get_placeholder_text(entry: ViewHistoryEntry, bible_info: bible.BibleInfo): string 
 {

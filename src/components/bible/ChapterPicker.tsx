@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { ChapterId, OsisBook } from "../../interop/bible";
 import * as images from "../../assets";
 import { use_settings } from "../providers/SettingsProvider";
@@ -12,21 +12,18 @@ import * as utils from "../../utils";
 import { use_top_bar_padding } from "../TopBar";
 import { AppSettings } from "../../interop/settings";
 
-const GRID_ITEM_SIZE: number = 4;
-const GRID_ITEM_COUNT_X: number = 6;
-function get_grid_width(padding: number, settings: AppSettings): number
-{
+const GRID_ITEM_SIZE = 4;
+const GRID_ITEM_COUNT_X = 6;
+
+function get_grid_width(padding: number, settings: AppSettings): number {
     return (GRID_ITEM_SIZE * settings.ui_scale * GRID_ITEM_COUNT_X) + (padding * (GRID_ITEM_COUNT_X + 1));
 }
 
 export type ChapterPickerProps = {
-    on_select: (chapter: ChapterId) => void,
-}
+    on_select: (chapter: ChapterId) => void;
+};
 
-export default function ChapterPicker({
-    on_select
-}: ChapterPickerProps): React.ReactElement
-{
+export default function ChapterPicker({ on_select }: ChapterPickerProps): React.ReactElement {
     const { settings } = use_settings();
     const [is_open, set_open] = useState(false);
     const { bible_infos } = use_bible_infos();
@@ -37,43 +34,36 @@ export default function ChapterPicker({
 
     const bible_info = bible_infos[bible_version_state.bible_version];
 
-    const options = bible_info.books.map(b => { return {
+    const options = useMemo(() => bible_info.books.map(b => ({
         id: b.osis_book,
         name: b.name,
         count: b.chapters.length,
-    }});
+    })), [bible_info.name]);
 
-    const handle_book_click = (id: OsisBook) => {
-        set_expanded_book(expanded_book === id ? null : id);
-    }
+    const handle_book_click = useCallback((id: OsisBook) => {
+        set_expanded_book(prev => (prev === id ? null : id));
+    }, []);
 
-    let inner_on_select = (chapter: ChapterId) => {
+    const inner_on_select = useCallback((chapter: ChapterId) => {
         set_open(false);
         set_expanded_book(null);
         on_select(chapter);
-    }
+    }, [on_select]);
 
     const dropdown_width = get_grid_width(padding, settings);
 
     return (
-        <Box
-            sx={{
-                position: "relative"
-            }}
-            className="dropdown-button"
-        >
+        <Box sx={{ position: "relative" }} className="dropdown-button">
             <ImageButton
                 image={images.books}
                 tooltip="Select chapter"
                 active={is_open}
-                on_click={() => {
-                    set_open(!is_open)
-                }}
+                on_click={() => set_open(!is_open)}
             />
             <Paper
                 sx={{
                     position: "absolute",
-                    top: `100%`,
+                    top: "100%",
                     visibility: is_open ? "visible" : "hidden",
                     opacity: is_open ? 1 : 0,
                     pointerEvents: is_open ? "all" : "none",
@@ -82,8 +72,7 @@ export default function ChapterPicker({
                     maxHeight: (theme) => theme.spacing(300 / 8),
                     maxWidth: (theme) => theme.spacing(dropdown_width),
                     width: (theme) => theme.spacing(dropdown_width),
-
-                    scrollbarGutter: "stable", // Reserves space for scrollbar
+                    scrollbarGutter: "stable",
                     "&::-webkit-scrollbar": {
                         width: (theme) => theme.spacing(1),
                     },
@@ -99,101 +88,97 @@ export default function ChapterPicker({
             >
                 {options.map(o => (
                     <BookSelection
+                        key={o.id}
                         id={o.id}
                         name={o.name}
                         chapter_count={o.count}
                         expanded_id={expanded_book}
                         on_select={inner_on_select}
                         handle_book_click={handle_book_click}
-                        key={o.id}
                     />
-                    
                 ))}
             </Paper>
-            <style>
-                {`
-                    .dropdown-button:hover .dropdown-content {
-                        opacity: 1;
-                        visibility: visible;
-                        pointer-events: auto;
-                    }
-                `}
-            </style>
         </Box>
-    )
+    );
 }
 
 type BookSelectionProps = {
-    id: OsisBook,
-    name: string,
-    chapter_count: number,
-    expanded_id: OsisBook | null,
-    on_select: (chapter: ChapterId) => void,
-    handle_book_click: (id: OsisBook) => void,
-}
+    id: OsisBook;
+    name: string;
+    chapter_count: number;
+    expanded_id: OsisBook | null;
+    on_select: (chapter: ChapterId) => void;
+    handle_book_click: (id: OsisBook) => void;
+};
 
-function BookSelection({
+const BookSelection = React.memo(function BookSelection({
     id,
     name,
     chapter_count,
     expanded_id,
     on_select,
     handle_book_click,
-}: BookSelectionProps): React.ReactElement
+}: BookSelectionProps): React.ReactElement 
 {
-    const { settings } = use_settings();
     const theme = useTheme();
     const padding = use_top_bar_padding(theme);
     const is_expanded = expanded_id === id;
 
-    return <React.Fragment key={id}>
-        <ListItemButton onClick={() => handle_book_click(id)}>
-            <ListItemText 
-                primary={name}
-                sx={{
-                    '& .MuiTypography-root': {
-                        ...theme.typography.body2, // apply body2 typography
-                    }
-                }}
-            />
-            {is_expanded ? <ExpandLess/> : <ExpandMore/>}
-        </ListItemButton>
-        <Collapse in={is_expanded} timeout="auto" unmountOnExit>
-            <Grid container sx={{ padding: padding / 2 }}>  {/* container grid */}
-                {utils.range_array(0, chapter_count).map(i => i + 1).map(chapter => (
-                    <Grid key={chapter} size={12 / GRID_ITEM_COUNT_X} sx={{ padding: padding / 2 }}>  {/* each item */}
-                        <Button
-                            onClick={() => on_select({ chapter, book: id })}
-                            sx={{
-                                width: (theme) => theme.spacing(GRID_ITEM_SIZE),
-                                maxWidth: (theme) => theme.spacing(GRID_ITEM_SIZE),
-                                minWidth: (theme) => theme.spacing(GRID_ITEM_SIZE),
-                                height: (theme) => theme.spacing(GRID_ITEM_SIZE),
-                                maxHeight: (theme) => theme.spacing(GRID_ITEM_SIZE),
-                                minHeight: (theme) => theme.spacing(GRID_ITEM_SIZE),
-                                textAlign: "center",
-                                cursor: "pointer",
-                                borderRadius: (theme) => theme.spacing(1),
-                                transition: "0.3s",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                boxSizing: "border-box",
-                                borderStyle: "solid",
-                                borderWidth: (theme) => theme.spacing(1 / 8),
-                                borderColor: theme.palette.grey[500],
-                            }}
-                        >
-                            <Typography 
-                                variant="body2"
-                                textAlign="center"
+    const chapters = useMemo(
+        () => utils.range_array(0, chapter_count).map(i => i + 1),
+        [chapter_count]
+    );
+
+    const button_sx = useMemo(() => ({
+        width: (theme: any) => theme.spacing(GRID_ITEM_SIZE),
+        maxWidth: (theme: any) => theme.spacing(GRID_ITEM_SIZE),
+        minWidth: (theme: any) => theme.spacing(GRID_ITEM_SIZE),
+        height: (theme: any) => theme.spacing(GRID_ITEM_SIZE),
+        maxHeight: (theme: any) => theme.spacing(GRID_ITEM_SIZE),
+        minHeight: (theme: any) => theme.spacing(GRID_ITEM_SIZE),
+        textAlign: "center",
+        cursor: "pointer",
+        borderRadius: (theme: any) => theme.spacing(1),
+        transition: "0.3s",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        boxSizing: "border-box",
+        borderStyle: "solid",
+        borderWidth: (theme: any) => theme.spacing(1 / 8),
+        borderColor: theme.palette.grey[500],
+    }), [theme]);
+
+    return (
+        <>
+            <ListItemButton onClick={() => handle_book_click(id)}>
+                <ListItemText
+                    primary={name}
+                    sx={{
+                        "& .MuiTypography-root": {
+                            ...theme.typography.body2,
+                        }
+                    }}
+                />
+                {is_expanded ? <ExpandLess /> : <ExpandMore />}
+            </ListItemButton>
+
+            <Collapse in={is_expanded} timeout="auto" unmountOnExit>
+                <Grid container sx={{ padding: padding / 2 }}>
+                    {chapters.map(chapter => (
+                        <Grid key={chapter} size={12 / GRID_ITEM_COUNT_X} sx={{ padding: padding / 2 }}>
+                            <Button
+                                onClick={() => on_select({ chapter, book: id })}
+                                sx={button_sx}
                             >
-                                {chapter}
-                            </Typography>
-                        </Button>
-                    </Grid>
-                ))}
-            </Grid>
-        </Collapse>
-    </React.Fragment>
-}
+                                <Typography variant="body2" textAlign="center">
+                                    {chapter}
+                                </Typography>
+                            </Button>
+                        </Grid>
+                    ))}
+                </Grid>
+            </Collapse>
+        </>
+    );
+});

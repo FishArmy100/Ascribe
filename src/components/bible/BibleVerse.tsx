@@ -3,11 +3,12 @@ import { VerseRenderData } from "../../interop/bible/render"
 import { SxProps } from "@mui/material/styles"
 import { Theme } from "@mui/material/styles"
 import { Box, Typography } from "@mui/material"
-import BibleWord from "./BibleWord"
+import BibleWord, { StrongsClickedCallback } from "./BibleWord"
 
 
 export type BibleVerseProps = {
     render_data: VerseRenderData,
+    on_strongs_clicked?: StrongsClickedCallback,
     sx?: SxProps<Theme>,
     verse_label?: string,
     show_strongs?: boolean,
@@ -18,6 +19,7 @@ export default function BibleVerse({
     sx,
     verse_label,
     show_strongs,
+    on_strongs_clicked,
 }: BibleVerseProps): React.ReactElement
 {
     let verse_content;
@@ -27,7 +29,7 @@ export default function BibleVerse({
             <Box component="span" sx={{ flex: 1 }}>
                 {render_data.words.map((w, i) => (
                     <React.Fragment key={i}>
-                        <BibleWord render_data={w} show_strongs={show_strongs ?? false}/>
+                        <BibleWord render_data={w} show_strongs={show_strongs ?? false} on_strongs_clicked={on_strongs_clicked}/>
                         {i < render_data.words.length - 1 && " "}
                     </React.Fragment>
                 ))}

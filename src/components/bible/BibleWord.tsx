@@ -1,16 +1,20 @@
 import React from "react"
 import { WordRenderData } from "../../interop/bible/render"
 import { Box } from "@mui/material";
-import { format_strongs } from "../../interop/bible/strongs";
+import { format_strongs, StrongsNumber } from "../../interop/bible/strongs";
+
+export type StrongsClickedCallback = (el: HTMLElement, strongs: StrongsNumber) => void;
 
 export type BibleWordProps = {
     render_data: WordRenderData,
     show_strongs: boolean,
+    on_strongs_clicked?: StrongsClickedCallback,
 }
 
 export default function BibleWord({
     render_data,
     show_strongs,
+    on_strongs_clicked,
 }: BibleWordProps): React.ReactElement
 {
     const begin_punc = render_data.begin_punc ?? "";
@@ -39,6 +43,7 @@ export default function BibleWord({
                             textDecoration: "underline",
                         }
                     }}
+                    onClick={(e) => on_strongs_clicked && on_strongs_clicked(e.currentTarget, s)}
                 >
                     {format_strongs(s)}
                 </Box>
