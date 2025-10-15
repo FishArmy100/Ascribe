@@ -1,238 +1,249 @@
-use biblio_json::html_text::{HtmlText, ast::{AssetIdName, Block, HRefSrc, Inline}};
+use biblio_json::html_text::{HtmlText, ast::{AssetIdName, HRefSrc, Node}};
 use serde::{Deserialize, Serialize};
 
 use crate::repr::{StrongsNumberJson, ref_id::RefIdJson};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct HtmlTextJson(pub Vec<BlockJson>);
+#[serde(rename_all = "snake_case")]
+pub struct HtmlTextJson
+{
+    pub nodes: Vec<NodeJson>
+}
+
+// Conversion implementations between HtmlTextJson and biblio_json::html_text::HtmlText
 
 impl From<HtmlText> for HtmlTextJson 
 {
-    fn from(src: HtmlText) -> Self 
+    fn from(html: HtmlText) -> Self 
     {
-        HtmlTextJson(src.iter().map(BlockJson::from).collect())
+        HtmlTextJson {
+            nodes: html.nodes.into_iter().map(NodeJson::from).collect(),
+        }
     }
 }
 
 impl From<&HtmlText> for HtmlTextJson 
 {
-    fn from(src: &HtmlText) -> Self 
+    fn from(html: &HtmlText) -> Self 
     {
-        HtmlTextJson(src.iter().map(BlockJson::from).collect())
+        HtmlTextJson {
+            nodes: html.nodes.iter().map(NodeJson::from).collect(),
+        }
+    }
+}
+
+impl From<HtmlTextJson> for HtmlText 
+{
+    fn from(json: HtmlTextJson) -> Self 
+    {
+        HtmlText {
+            nodes: json.nodes.into_iter().map(Node::from).collect(),
+        }
+    }
+}
+
+impl From<&HtmlTextJson> for HtmlText 
+{
+    fn from(json: &HtmlTextJson) -> Self 
+    {
+        HtmlText {
+            nodes: json.nodes.iter().map(Node::from).collect(),
+        }
     }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case", tag = "type")]
-pub enum BlockJson
+pub enum NodeJson
 {
-    Paragraph { content: Vec<InlineJson> },
-    Heading { level: u8, content: Vec<InlineJson> },
-    List { ordered: bool, items: Vec<Vec<BlockJson>> },
+    // Block-level elements
+    Paragraph { content: Vec<NodeJson> },
+    Heading { level: u8, content: Vec<NodeJson> },
+    List { ordered: bool, items: Vec<NodeJson> },
+    ListItem { content: Vec<NodeJson> },
     HorizontalRule,
-}
-
-// From Block to BlockJson
-impl From<Block> for BlockJson 
-{
-    fn from(src: Block) -> Self 
-    {
-        match src 
-        {
-            Block::Paragraph(inlines) => BlockJson::Paragraph {
-                content: inlines.into_iter().map(InlineJson::from).collect()
-            },
-            Block::Heading { level, content } => BlockJson::Heading {
-                level,
-                content: content.into_iter().map(InlineJson::from).collect(),
-            },
-            Block::List { ordered, items } => BlockJson::List {
-                ordered,
-                items: items
-                    .into_iter()
-                    .map(|item| item.into_iter().map(BlockJson::from).collect())
-                    .collect(),
-            },
-            Block::HorizontalRule => BlockJson::HorizontalRule,
-        }
-    }
-}
-
-// From &Block to BlockJson
-impl From<&Block> for BlockJson 
-{
-    fn from(src: &Block) -> Self 
-    {
-        match src {
-            Block::Paragraph(inlines) => BlockJson::Paragraph {
-                content: inlines.iter().map(InlineJson::from).collect()
-            },
-            Block::Heading { level, content } => BlockJson::Heading {
-                level: *level,
-                content: content.iter().map(InlineJson::from).collect(),
-            },
-            Block::List { ordered, items } => BlockJson::List {
-                ordered: *ordered,
-                items: items
-                    .iter()
-                    .map(|item| item.iter().map(BlockJson::from).collect())
-                    .collect(),
-            },
-            Block::HorizontalRule => BlockJson::HorizontalRule,
-        }
-    }
-}
-
-// From BlockJson to Block
-impl From<BlockJson> for Block 
-{
-    fn from(src: BlockJson) -> Self 
-    {
-        match src 
-        {
-            BlockJson::Paragraph { content } => Block::Paragraph(
-                content.into_iter().map(Inline::from).collect()
-            ),
-            BlockJson::Heading { level, content } => Block::Heading {
-                level,
-                content: content.into_iter().map(Inline::from).collect(),
-            },
-            BlockJson::List { ordered, items } => Block::List {
-                ordered,
-                items: items
-                    .into_iter()
-                    .map(|item| item.into_iter().map(Block::from).collect())
-                    .collect(),
-            },
-            BlockJson::HorizontalRule => Block::HorizontalRule,
-        }
-    }
-}
-
-// From &BlockJson to Block
-impl From<&BlockJson> for Block 
-{
-    fn from(src: &BlockJson) -> Self 
-    {
-        match src 
-        {
-            BlockJson::Paragraph { content } => Block::Paragraph(
-                content.iter().map(Inline::from).collect()
-            ),
-            BlockJson::Heading { level, content } => Block::Heading {
-                level: *level,
-                content: content.iter().map(Inline::from).collect(),
-            },
-            BlockJson::List { ordered, items } => Block::List {
-                ordered: *ordered,
-                items: items
-                    .iter()
-                    .map(|item| item.iter().map(Block::from).collect())
-                    .collect(),
-            },
-            BlockJson::HorizontalRule => Block::HorizontalRule,
-        }
-    }
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case", tag = "type")]
-pub enum InlineJson 
-{
-    Text { value: String },
-    Underline { content: Vec<InlineJson> },
-    Italic { content: Vec<InlineJson> },
-    Bold { content: Vec<InlineJson> },
-    Strike { content: Vec<InlineJson> },
+    
+    // Inline elements
+    Text { text: String },
+    Underline { content: Vec<NodeJson> },
+    Italic { content: Vec<NodeJson> },
+    Bold { content: Vec<NodeJson> },
+    Strike { content: Vec<NodeJson> },
     Image { src: AssetIdName, alt: Option<String> },
-    Anchor {
-        href: HRefSrcJson,
-        content: Vec<InlineJson>,
-    },
+    Anchor { href: HRefSrc, content: Vec<NodeJson> },
     LineBreak,
 }
 
-// From Inline to InlineJson
-impl From<Inline> for InlineJson 
+// Conversion implementations between NodeJson and biblio_json::html_text::Node
+
+impl From<Node> for NodeJson 
 {
-    fn from(src: Inline) -> Self 
+    fn from(node: Node) -> Self 
     {
-        match src {
-            Inline::Text(s) => InlineJson::Text { value: s },
-            Inline::Underline(v) => InlineJson::Underline { content: v.into_iter().map(InlineJson::from).collect() },
-            Inline::Italic(v) => InlineJson::Italic { content: v.into_iter().map(InlineJson::from).collect() },
-            Inline::Bold(v) => InlineJson::Bold { content: v.into_iter().map(InlineJson::from).collect() },
-            Inline::Strike(v) => InlineJson::Strike { content: v.into_iter().map(InlineJson::from).collect() },
-            Inline::Image { src, alt } => InlineJson::Image { src: src.clone(), alt },
-            Inline::Anchor { href, content } => InlineJson::Anchor {
-                href: href.into(),
-                content: content.into_iter().map(InlineJson::from).collect(),
+        match node {
+            Node::Paragraph(content) => NodeJson::Paragraph {
+                content: content.into_iter().map(NodeJson::from).collect(),
             },
-            Inline::LineBreak => InlineJson::LineBreak,
+            Node::Heading { level, content } => NodeJson::Heading {
+                level,
+                content: content.into_iter().map(NodeJson::from).collect(),
+            },
+            Node::List { ordered, items } => NodeJson::List {
+                ordered,
+                items: items.into_iter().map(NodeJson::from).collect(),
+            },
+            Node::ListItem(content) => NodeJson::ListItem {
+                content: content.into_iter().map(NodeJson::from).collect(),
+            },
+            Node::HorizontalRule => NodeJson::HorizontalRule,
+            Node::Text(text) => NodeJson::Text { text },
+            Node::Underline(content) => NodeJson::Underline {
+                content: content.into_iter().map(NodeJson::from).collect(),
+            },
+            Node::Italic(content) => NodeJson::Italic {
+                content: content.into_iter().map(NodeJson::from).collect(),
+            },
+            Node::Bold(content) => NodeJson::Bold {
+                content: content.into_iter().map(NodeJson::from).collect(),
+            },
+            Node::Strike(content) => NodeJson::Strike {
+                content: content.into_iter().map(NodeJson::from).collect(),
+            },
+            Node::Image { src, alt } => NodeJson::Image { src, alt },
+            Node::Anchor { href, content } => NodeJson::Anchor {
+                href,
+                content: content.into_iter().map(NodeJson::from).collect(),
+            },
+            Node::LineBreak => NodeJson::LineBreak,
         }
     }
 }
 
-// From &Inline to InlineJson
-impl From<&Inline> for InlineJson 
+impl From<&Node> for NodeJson 
 {
-    fn from(src: &Inline) -> Self 
+    fn from(node: &Node) -> Self 
     {
-        match src {
-            Inline::Text(s) => InlineJson::Text { value: s.clone() },
-            Inline::Underline(v) => InlineJson::Underline { content: v.iter().map(InlineJson::from).collect() },
-            Inline::Italic(v) => InlineJson::Italic { content: v.iter().map(InlineJson::from).collect() },
-            Inline::Bold(v) => InlineJson::Bold { content: v.iter().map(InlineJson::from).collect() },
-            Inline::Strike(v) => InlineJson::Strike { content: v.iter().map(InlineJson::from).collect() },
-            Inline::Image { src, alt } => InlineJson::Image { src: src.clone(), alt: alt.clone() },
-            Inline::Anchor { href, content } => InlineJson::Anchor {
-                href: href.into(),
-                content: content.iter().map(InlineJson::from).collect(),
+        match node {
+            Node::Paragraph(content) => NodeJson::Paragraph {
+                content: content.iter().map(NodeJson::from).collect(),
             },
-            Inline::LineBreak => InlineJson::LineBreak,
+            Node::Heading { level, content } => NodeJson::Heading {
+                level: *level,
+                content: content.iter().map(NodeJson::from).collect(),
+            },
+            Node::List { ordered, items } => NodeJson::List {
+                ordered: *ordered,
+                items: items.iter().map(NodeJson::from).collect(),
+            },
+            Node::ListItem(content) => NodeJson::ListItem {
+                content: content.iter().map(NodeJson::from).collect(),
+            },
+            Node::HorizontalRule => NodeJson::HorizontalRule,
+            Node::Text(text) => NodeJson::Text { text: text.clone() },
+            Node::Underline(content) => NodeJson::Underline {
+                content: content.iter().map(NodeJson::from).collect(),
+            },
+            Node::Italic(content) => NodeJson::Italic {
+                content: content.iter().map(NodeJson::from).collect(),
+            },
+            Node::Bold(content) => NodeJson::Bold {
+                content: content.iter().map(NodeJson::from).collect(),
+            },
+            Node::Strike(content) => NodeJson::Strike {
+                content: content.iter().map(NodeJson::from).collect(),
+            },
+            Node::Image { src, alt } => NodeJson::Image { src: src.clone(), alt: alt.clone() },
+            Node::Anchor { href, content } => NodeJson::Anchor {
+                href: href.clone(),
+                content: content.iter().map(NodeJson::from).collect(),
+            },
+            Node::LineBreak => NodeJson::LineBreak,
         }
     }
 }
 
-// From InlineJson to Inline
-impl From<InlineJson> for Inline 
+impl From<NodeJson> for Node 
 {
-    fn from(src: InlineJson) -> Self 
+    fn from(node: NodeJson) -> Self 
     {
-        match src 
-        {
-            InlineJson::Text { value } => Inline::Text(value),
-            InlineJson::Underline { content } => Inline::Underline(content.into_iter().map(Inline::from).collect()),
-            InlineJson::Italic { content } => Inline::Italic(content.into_iter().map(Inline::from).collect()),
-            InlineJson::Bold { content } => Inline::Bold(content.into_iter().map(Inline::from).collect()),
-            InlineJson::Strike { content } => Inline::Strike(content.into_iter().map(Inline::from).collect()),
-            InlineJson::Image { src, alt } => Inline::Image { src, alt },
-            InlineJson::Anchor { href, content } => Inline::Anchor {
-                href: href.into(),
-                content: content.into_iter().map(Inline::from).collect(),
+        match node {
+            NodeJson::Paragraph { content } => Node::Paragraph (
+                content.into_iter().map(Node::from).collect()
+            ),
+            NodeJson::Heading { level, content } => Node::Heading {
+                level,
+                content: content.into_iter().map(Node::from).collect(),
             },
-            InlineJson::LineBreak => Inline::LineBreak,
+            NodeJson::List { ordered, items } => Node::List {
+                ordered,
+                items: items.into_iter().map(Node::from).collect(),
+            },
+            NodeJson::ListItem { content } => Node::ListItem (
+                content.into_iter().map(Node::from).collect(),
+            ),
+            NodeJson::HorizontalRule => Node::HorizontalRule,
+            NodeJson::Text { text } => Node::Text(text),
+            NodeJson::Underline { content } => Node::Underline (
+                content.into_iter().map(Node::from).collect()
+            ),
+            NodeJson::Italic { content } => Node::Italic (
+                content.into_iter().map(Node::from).collect()
+            ),
+            NodeJson::Bold { content } => Node::Bold (
+                content.into_iter().map(Node::from).collect()
+            ),
+            NodeJson::Strike { content } => Node::Strike (
+                content.into_iter().map(Node::from).collect()
+            ),
+            NodeJson::Image { src, alt } => Node::Image { src, alt },
+            NodeJson::Anchor { href, content } => Node::Anchor {
+                href,
+                content: content.into_iter().map(Node::from).collect(),
+            },
+            NodeJson::LineBreak => Node::LineBreak,
         }
     }
 }
 
-// From &InlineJson to Inline
-impl From<&InlineJson> for Inline 
+impl From<&NodeJson> for Node 
 {
-    fn from(src: &InlineJson) -> Self 
+    fn from(node: &NodeJson) -> Self 
     {
-        match src {
-            InlineJson::Text { value } => Inline::Text(value.clone()),
-            InlineJson::Underline { content } => Inline::Underline(content.iter().map(Inline::from).collect()),
-            InlineJson::Italic { content } => Inline::Italic(content.iter().map(Inline::from).collect()),
-            InlineJson::Bold { content } => Inline::Bold(content.iter().map(Inline::from).collect()),
-            InlineJson::Strike { content } => Inline::Strike(content.iter().map(Inline::from).collect()),
-            InlineJson::Image { src, alt } => Inline::Image { src: src.clone(), alt: alt.clone() },
-            InlineJson::Anchor { href, content } => Inline::Anchor {
-                href: href.into(),
-                content: content.iter().map(Inline::from).collect(),
+        match node {
+            NodeJson::Paragraph { content } => Node::Paragraph (
+                content.iter().map(Node::from).collect()
+            ),
+            NodeJson::Heading { level, content } => Node::Heading {
+                level: *level,
+                content: content.iter().map(Node::from).collect(),
             },
-            InlineJson::LineBreak => Inline::LineBreak,
+            NodeJson::List { ordered, items } => Node::List {
+                ordered: *ordered,
+                items: items.iter().map(Node::from).collect(),
+            },
+            NodeJson::ListItem { content } => Node::ListItem (
+                content.iter().map(Node::from).collect()
+            ),
+            NodeJson::HorizontalRule => Node::HorizontalRule,
+            NodeJson::Text  { text } => Node::Text(text.clone()),
+            NodeJson::Underline { content } => Node::Underline (
+                content.iter().map(Node::from).collect()
+            ),
+            NodeJson::Italic { content } => Node::Italic (
+                content.iter().map(Node::from).collect()
+            ),
+            NodeJson::Bold { content } => Node::Bold (
+                content.iter().map(Node::from).collect()
+            ),
+            NodeJson::Strike { content } => Node::Strike (
+                content.iter().map(Node::from).collect()
+            ),
+            NodeJson::Image { src, alt } => Node::Image { src: src.clone(), alt: alt.clone() },
+            NodeJson::Anchor { href, content } => Node::Anchor {
+                href: href.clone(),
+                content: content.iter().map(Node::from).collect(),
+            },
+            NodeJson::LineBreak => Node::LineBreak,
         }
     }
 }
