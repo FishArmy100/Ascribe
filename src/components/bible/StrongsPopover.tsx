@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react"
 import { StrongsDefEntry, StrongsNumber, fetch_backend_strongs_defs, format_strongs } from "../../interop/bible/strongs"
-import { Box, Divider, Popover, Stack, Typography } from "@mui/material"
+import { Box, Divider, Popover, Stack, Typography, useTheme } from "@mui/material"
+import { HRefSrc, HtmlText, Node } from "../../interop/html_text";
+import { HtmlTextRenderer } from "../HtmlTextRenderer";
 
 export type StrongsPopoverProps = {
     anchor: HTMLElement | null,
@@ -61,7 +63,7 @@ export default function StrongsPopover({
                 {
                     strongs && (
                         <Typography 
-                            variant="body1" 
+                            variant="h5" 
                             textAlign="center" 
                             fontWeight="bold"
                         >
@@ -69,81 +71,80 @@ export default function StrongsPopover({
                         </Typography>
                     )
                 }
-                {strongs_defs && Object.entries(strongs_defs)
-                    .sort(([a], [b]) => a.localeCompare(b))
-                    .map(([mod, entry], i) => {
+                {strongs_defs && strongs_defs
+                    .sort((a, b) => a.module.localeCompare(b.module))
+                    .map((entry, i) => {
                         return (
-                            <>
-                                <Divider/>
-                                <Box
-                                    key={i}
-                                    sx={{
-                                        mt: 1
-                                    }}
-                                >
-                                    <Typography
-                                        variant="body2" 
-                                        textAlign="center" 
-                                        fontWeight="bold"
-                                    >
-                                        {`${mod} (${entry.word})`}
-                                    </Typography>
-                                    <Typography
-                                        variant="body2"
-                                        fontWeight="bold"
-                                    >
-                                        Definitions:
-                                    </Typography>
-                                    <Box
-                                        component="ol"
-                                        sx={{
-                                            paddingLeft: 2,
-                                            margin: 0,
-                                            "& li": {
-                                                fontSize: (theme) => theme.typography.body2.fontSize,
-                                                mb: 0.5,
-                                            },
-                                        }}
-                                    >
-                                        {entry.definitions.map((e, i) => (
-                                            <Box
-                                                key={i}
-                                                component="li"
-                                                sx={{
-                                                    mb: 0.5,
-                                                    pl: 1,
-                                                }}
-                                            >
-                                                <Typography
-                                                    variant="body2"
-                                                    component="span"
-                                                    dangerouslySetInnerHTML={{ __html: e }}
-                                                />
-                                            </Box>
-                                        ))}
-                                    </Box>
-
-                                    {entry.derivation && (
-                                        <>
-                                            <Typography
-                                                variant="body2"
-                                                fontWeight="bold"
-                                            >
-                                                Derivation:
-                                            </Typography>
-                                            <Typography
-                                                variant="body2"
-                                                component="div"
-                                                sx={{ pl: 2 }}
-                                                dangerouslySetInnerHTML={{ __html: entry.derivation }}
-                                            />
-                                        </>
-                                    )}
-                                </Box>
-                            </>
+                            <StrongsDefEntryRenderer
+                                entry={entry}
+                                index={i}
+                            />
                         )
                     })}
             </Stack>
         </Popover>
+    )
+}
+
+type StrongsDefEntryRendererProps = {
+    entry: StrongsDefEntry,
+    index: number,
+}
+
+function StrongsDefEntryRenderer({
+    entry,
+    index
+}: StrongsDefEntryRendererProps): React.ReactElement
+{
+    const theme = useTheme()
+    let html_text: HtmlText = {
+        nodes: [
+            { type: "bold", content: [{type: "text", text: "Definitions:"}] },
+            { type: "list", ordered: true, items: entry.definitions.map(d => ({
+                type: "list_item",
+                content: d.nodes,
+            })) },
+        ]
+    };
+
+    if (entry.derivation !== null)
+    {
+        let d = entry.derivation;
+        let content: Node[] = (d.nodes.length > 0 && d.nodes[0].type !== "paragraph") ? 
+            [{ type: "paragraph", content: d.nodes }] as Node[] : 
+            d.nodes
+
+        html_text.nodes.push(
+            { type: "bold", content: [{type: "text", text: "Derivation:"}] },
+            ...content,
+        )
+    }
+
+    const on_ref_click = (r: HRefSrc) => {
+        console.log(`Clicked href: ${JSON.stringify(r)}`);
+    }
+
+    return (
+        <>
+            <Divider/>
+            <Box
+                key={index}
+                sx={{
+                    mt: 1
+                }}
+            >
+                <Typography
+                    textAlign="center"
+                    fontWeight="bold"
+                    variant="h5"
+                >
+                    {entry.module}
+                </Typography>
+                <HtmlTextRenderer
+                    on_href_click={on_ref_click}
+                    content={html_text}
+                />
+            </Box>
+        </>
     )
 }

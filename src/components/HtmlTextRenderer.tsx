@@ -1,5 +1,5 @@
 import React from "react";
-import { Block, HRefSrc, HtmlText, Inline } from "../interop/html_text";
+import { HRefSrc, HtmlText, Node } from "../interop/html_text";
 import { Box, Typography, useTheme } from "@mui/material";
 
 export type HtmlTextRendererProps = {
@@ -9,57 +9,63 @@ export type HtmlTextRendererProps = {
 
 export function HtmlTextRenderer({
 	on_href_click: on_link_click,
-    content
+    content,
 }: HtmlTextRendererProps): React.ReactElement 
 {
     return (
         <Box>
-            {content.map(c => (
-                <HtmlBlockRenderer block={c} on_href_click={on_link_click}/>
+            {content.nodes.map(n => (
+                <HtmlNodeRenderer node={n} on_href_click={on_link_click}/>
             ))}
         </Box>
     )
 }
 
-export type HtmlBlockRendererProps = {
+export type HtmlNodeRendererProps = {
     on_href_click: (src: HRefSrc) => void,
-    block: Block,
+    node: Node,
+    key?: React.Key
 }
 
-export function HtmlBlockRenderer({
+export function HtmlNodeRenderer({
     on_href_click,
-    block,
-}: HtmlBlockRendererProps): React.ReactElement
+    node,
+    key
+}: HtmlNodeRendererProps): React.ReactElement
 {
     const theme = useTheme();
-    if (block.type === "heading")
+    if (node.type === "heading")
     {
-        let component: "div" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
-        if (block.level === 1) component = "h1";
-        else if (block.level === 2) component = "h2";
-        else if (block.level === 3) component = "h3";
-        else if (block.level === 4) component = "h4";
-        else if (block.level === 5) component = "h5";
-        else if (block.level === 6) component = "h6";
-        else component = "div";
+        let component: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
+        if (node.level === 1) component = "h1";
+        else if (node.level === 2) component = "h2";
+        else if (node.level === 3) component = "h3";
+        else if (node.level === 4) component = "h4";
+        else if (node.level === 5) component = "h5";
+        else if (node.level === 6) component = "h6";
+        else component = "h1";
 
         return (
             <Typography
                 component={component}
+                key={key}
+                sx={{
+                    ...theme.typography[component]
+                }}
             >
-                {block.content.map(i => (
-                    <HtmlInlineRenderer inline={i} on_href_click={on_href_click}/>
+                {node.content.map(n => (
+                    <HtmlNodeRenderer node={n} on_href_click={on_href_click}/>
                 ))}
             </Typography>
         )
     }
-    else if (block.type === "horizontal_rule")
+    else if (node.type === "horizontal_rule")
     {
         return <hr/>
     }
-    else if (block.type === "list")
+    else if (node.type === "list")
     {
-        let component: "ul" | "ol" = block.ordered ? "ol" : "ul";
+        let component: "ul" | "ol" = node.ordered ? "ol" : "ul";
 
         return (
             <Box
@@ -73,126 +79,135 @@ export function HtmlBlockRenderer({
                     },
                 }}
             >
-                {block.items.map((blocks, i) => (
-                    <Box
-                        key={i}
-                        component="li"
-                        sx={{
-                            mb: 0.5,
-                            pl: 1,
-                        }}
-                    >
-                        {blocks.map(b => (
-                            <HtmlBlockRenderer block={b} on_href_click={on_href_click}/>
-                        ))}
-                    </Box>
+                {node.items.map((node, i) => (
+                    <HtmlNodeRenderer key={i} node={node} on_href_click={on_href_click}/>
                 ))}
             </Box>
         )
     }
-    else if (block.type === "paragraph")
+    else if (node.type === "list_item")
+    {
+        return (
+            <Box
+                key={key}
+                component="li"
+                sx={{
+                    mb: 0.5,
+                    pl: 1,
+                }}
+            >
+                {node.content.map(n => (
+                    <HtmlNodeRenderer node={n} on_href_click={on_href_click}/>
+                ))}
+            </Box>
+        )
+    }
+    else if (node.type === "paragraph")
     {
         return (
             <Typography
+                key={key}
                 component="p"
                 sx={{
                     ...theme.typography.body1
                 }}
             >
-                {block.content.map(i => (
-                    <HtmlInlineRenderer inline={i} on_href_click={on_href_click}/>
+                {node.content.map(n => (
+                    <HtmlNodeRenderer node={n} on_href_click={on_href_click}/>
                 ))}
             </Typography>
         )
     }
-    else 
-    {
-        return null as any;
-    }
-}
-
-export type HtmlInlineRendererProps = {
-    on_href_click: (src: HRefSrc) => void,
-    inline: Inline,
-}
-
-export function HtmlInlineRenderer({
-    on_href_click,
-    inline
-}: HtmlInlineRendererProps): React.ReactElement
-{
-    if (inline.type === "anchor")
+    else if (node.type === "anchor")
     {
         return (
             <HtmlHRefSrcRenderer
-                href={inline.href}
+                href={node.href}
                 on_click={on_href_click}
-                content={inline.content}
+                content={node.content}
             />
         )
     }
-    else if (inline.type === "bold")
+    else if (node.type === "bold")
     {
         return (
-            <strong>
-                {inline.content.map(c => (
-                    <HtmlInlineRenderer inline={c} on_href_click={on_href_click}/>
+            <strong
+                key={key}
+            >
+                {node.content.map(n => (
+                    <HtmlNodeRenderer node={n} on_href_click={on_href_click}/>
                 ))}
             </strong>
         )
     }
-    else if (inline.type === "italic")
+    else if (node.type === "italic")
     {
         return (
-            <em>
-                {inline.content.map(c => (
-                    <HtmlInlineRenderer inline={c} on_href_click={on_href_click}/>
+            <em
+                key={key}
+            >
+                {node.content.map(n => (
+                    <HtmlNodeRenderer node={n} on_href_click={on_href_click}/>
                 ))}
             </em>
         )
     }
-    else if (inline.type === "underline")
+    else if (node.type === "underline")
     {
         return (
-            <u>
-                {inline.content.map(c => (
-                    <HtmlInlineRenderer inline={c} on_href_click={on_href_click}/>
+            <u
+                key={key}
+            >
+                {node.content.map(n => (
+                    <HtmlNodeRenderer node={n} on_href_click={on_href_click}/>
                 ))}
             </u>
         )
     }
-    else if (inline.type === "strike")
+    else if (node.type === "strike")
     {
         return (
-            <s>
-                {inline.content.map(c => (
-                    <HtmlInlineRenderer inline={c} on_href_click={on_href_click}/>
+            <s
+                key={key}
+            >
+                {node.content.map(n => (
+                    <HtmlNodeRenderer node={n} on_href_click={on_href_click}/>
                 ))}
             </s>
         )
     }
-    else if (inline.type === "text")
+    else if (node.type === "text")
     {
         return (
-            <span>{inline.text}</span>
+            <span
+                key={key}
+            >
+                {node.text}
+            </span>
         )
     }
-    else if (inline.type === "line_break")
+    else if (node.type === "line_break")
     {
         return (
-            <br/>
+            <br
+                key={key}
+            />
         )
     }
-    else if (inline.type === "image")
+    else if (node.type === "image")
     {
         console.log("TODO: need to add image support")
         return (
-            <span>🖼️</span>
+            <span
+                key={key}
+            >
+                🖼️
+            </span>
         );
     }
     else 
     {
-        console.error(`Inline of type ${(inline as any).type} is unsupported`)
+        console.error(`Unsupported node type ${(node as any).type}`);
         return null as any;
     }
 }
@@ -200,18 +215,21 @@ export function HtmlInlineRenderer({
 export type HtmlHRefSrcRendererProps = {
     href: HRefSrc,
     on_click: (src: HRefSrc) => void,
-    content: Inline[],
+    content: Node[],
+    key?: React.Key,
 }
 
 export function HtmlHRefSrcRenderer({
     href,
     on_click,
-    content
+    content,
+    key
 }: HtmlHRefSrcRendererProps): React.ReactElement
 {
     const theme = useTheme();
     return (
         <Typography
+            key={key}
             onClick={() => on_click(href)}
             sx={{
                 ...theme.typography.body1,
@@ -222,8 +240,8 @@ export function HtmlHRefSrcRenderer({
                 }
             }}
         >
-            {content.map(i => (
-                <HtmlInlineRenderer inline={i} on_href_click={on_click}/>
+            {content.map(n => (
+                <HtmlNodeRenderer node={n} on_href_click={on_click}/>
             ))}
         </Typography>
     )
