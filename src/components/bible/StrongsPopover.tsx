@@ -3,6 +3,7 @@ import { StrongsDefEntry, StrongsNumber, fetch_backend_strongs_defs, format_stro
 import { Box, Divider, Popover, Stack, Typography, useTheme } from "@mui/material"
 import { HRefSrc, HtmlText, Node } from "../../interop/html_text";
 import { HtmlTextRenderer } from "../HtmlTextRenderer";
+import SmallerTextSection from "../SmallerTextSection";
 
 export type StrongsPopoverProps = {
     anchor: HTMLElement | null,
@@ -22,6 +23,7 @@ export default function StrongsPopover({
         if (strongs !== null)
         {
             fetch_backend_strongs_defs(strongs).then(defs => {
+                console.log(JSON.stringify(defs))
                 set_strongs_defs(defs);
             })
         }
@@ -54,34 +56,38 @@ export default function StrongsPopover({
                 }
             }}
         >
-            <Stack
-                direction="column"
-                sx={{
-                    margin: 2,
-                }}
-            >
-                {
-                    strongs && (
-                        <Typography 
-                            variant="h5" 
-                            textAlign="center" 
-                            fontWeight="bold"
-                        >
-                            {format_strongs(strongs)}
-                        </Typography>
-                    )
-                }
-                {strongs_defs && strongs_defs
-                    .sort((a, b) => a.module.localeCompare(b.module))
-                    .map((entry, i) => {
-                        return (
-                            <StrongsDefEntryRenderer
-                                entry={entry}
-                                index={i}
-                            />
+            <SmallerTextSection scale={0.75}>
+                <Stack
+                    direction="column"
+                    sx={{
+                        margin: 2,
+                    }}
+                >
+                    {
+                        strongs && (
+                            <Typography
+                                variant="h5"
+                                textAlign="center"
+                                fontWeight="bold"
+                                key="title"
+                            >
+                                {format_strongs(strongs)}
+                            </Typography>
                         )
-                    })}
-            </Stack>
+                    }
+                    {strongs_defs && strongs_defs
+                        .sort((a, b) => a.module.localeCompare(b.module))
+                        .map((entry, i) => {
+                            return (
+                                <StrongsDefEntryRenderer
+                                    entry={entry}
+                                    index={i}
+                                    key={i}
+                                />
+                            )
+                        })}
+                </Stack>
+            </SmallerTextSection>
         </Popover>
     )
 }
@@ -93,29 +99,35 @@ type StrongsDefEntryRendererProps = {
 
 function StrongsDefEntryRenderer({
     entry,
-    index
 }: StrongsDefEntryRendererProps): React.ReactElement
 {
-    const theme = useTheme()
     let html_text: HtmlText = {
         nodes: [
-            { type: "bold", content: [{type: "text", text: "Definitions:"}] },
-            { type: "list", ordered: true, items: entry.definitions.map(d => ({
-                type: "list_item",
-                content: d.nodes,
-            })) },
+            { type: "paragraph", content: [{ type: "bold", content: [{type: "text", text: "Definitions:"}] }] },
+            { type: "list", ordered: true, items: entry.definitions.map(d => {
+
+                let content: Node[] = d.nodes.map(node => 
+                    node.type === "paragraph" ? node : { type: "paragraph", content: [node] }
+                );
+
+                return {
+                    type: "list_item",
+                    content: content,
+                }
+            })},
         ]
     };
 
     if (entry.derivation !== null)
     {
+        console.log(entry.derivation);
         let d = entry.derivation;
-        let content: Node[] = (d.nodes.length > 0 && d.nodes[0].type !== "paragraph") ? 
-            [{ type: "paragraph", content: d.nodes }] as Node[] : 
-            d.nodes
+        let content: Node[] = d.nodes.map(node => 
+            node.type === "paragraph" ? node : { type: "paragraph", content: [node] }
+        );
 
         html_text.nodes.push(
-            { type: "bold", content: [{type: "text", text: "Derivation:"}] },
+            { type: "paragraph", content: [{ type: "bold", content: [{type: "text", text: "Derivation:"}] }] },
             ...content,
         )
     }
@@ -128,7 +140,6 @@ function StrongsDefEntryRenderer({
         <>
             <Divider/>
             <Box
-                key={index}
                 sx={{
                     mt: 1
                 }}

@@ -70,7 +70,7 @@ pub enum NodeJson
     Bold { content: Vec<NodeJson> },
     Strike { content: Vec<NodeJson> },
     Image { src: AssetIdName, alt: Option<String> },
-    Anchor { href: HRefSrc, content: Vec<NodeJson> },
+    Anchor { href: HRefSrcJson, content: Vec<NodeJson> },
     LineBreak,
 }
 
@@ -111,7 +111,7 @@ impl From<Node> for NodeJson
             },
             Node::Image { src, alt } => NodeJson::Image { src, alt },
             Node::Anchor { href, content } => NodeJson::Anchor {
-                href,
+                href: href.into(),
                 content: content.into_iter().map(NodeJson::from).collect(),
             },
             Node::LineBreak => NodeJson::LineBreak,
@@ -154,7 +154,7 @@ impl From<&Node> for NodeJson
             },
             Node::Image { src, alt } => NodeJson::Image { src: src.clone(), alt: alt.clone() },
             Node::Anchor { href, content } => NodeJson::Anchor {
-                href: href.clone(),
+                href: href.into(),
                 content: content.iter().map(NodeJson::from).collect(),
             },
             Node::LineBreak => NodeJson::LineBreak,
@@ -197,7 +197,7 @@ impl From<NodeJson> for Node
             ),
             NodeJson::Image { src, alt } => Node::Image { src, alt },
             NodeJson::Anchor { href, content } => Node::Anchor {
-                href,
+                href: href.into(),
                 content: content.into_iter().map(Node::from).collect(),
             },
             NodeJson::LineBreak => Node::LineBreak,
@@ -240,7 +240,7 @@ impl From<&NodeJson> for Node
             ),
             NodeJson::Image { src, alt } => Node::Image { src: src.clone(), alt: alt.clone() },
             NodeJson::Anchor { href, content } => Node::Anchor {
-                href: href.clone(),
+                href: href.into(),
                 content: content.iter().map(Node::from).collect(),
             },
             NodeJson::LineBreak => Node::LineBreak,

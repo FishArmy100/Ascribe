@@ -14,8 +14,8 @@ export function HtmlTextRenderer({
 {
     return (
         <Box>
-            {content.nodes.map(n => (
-                <HtmlNodeRenderer node={n} on_href_click={on_link_click}/>
+            {content.nodes.map((n, i) => (
+                <HtmlNodeRenderer node={n} on_href_click={on_link_click} key={i}/>
             ))}
         </Box>
     )
@@ -24,13 +24,11 @@ export function HtmlTextRenderer({
 export type HtmlNodeRendererProps = {
     on_href_click: (src: HRefSrc) => void,
     node: Node,
-    key?: React.Key
 }
 
 export function HtmlNodeRenderer({
     on_href_click,
-    node,
-    key
+    node
 }: HtmlNodeRendererProps): React.ReactElement
 {
     const theme = useTheme();
@@ -48,13 +46,9 @@ export function HtmlNodeRenderer({
         return (
             <Typography
                 component={component}
-                key={key}
-                sx={{
-                    ...theme.typography[component]
-                }}
             >
-                {node.content.map(n => (
-                    <HtmlNodeRenderer node={n} on_href_click={on_href_click}/>
+                {node.content.map((n, i) => (
+                    <HtmlNodeRenderer node={n} on_href_click={on_href_click} key={i}/>
                 ))}
             </Typography>
         )
@@ -89,15 +83,14 @@ export function HtmlNodeRenderer({
     {
         return (
             <Box
-                key={key}
                 component="li"
                 sx={{
                     mb: 0.5,
                     pl: 1,
                 }}
             >
-                {node.content.map(n => (
-                    <HtmlNodeRenderer node={n} on_href_click={on_href_click}/>
+                {node.content.map((n, i) => (
+                    <HtmlNodeRenderer node={n} on_href_click={on_href_click} key={i}/>
                 ))}
             </Box>
         )
@@ -106,14 +99,10 @@ export function HtmlNodeRenderer({
     {
         return (
             <Typography
-                key={key}
                 component="p"
-                sx={{
-                    ...theme.typography.body1
-                }}
             >
-                {node.content.map(n => (
-                    <HtmlNodeRenderer node={n} on_href_click={on_href_click}/>
+                {node.content.map((n, i) => (
+                    <HtmlNodeRenderer node={n} on_href_click={on_href_click} key={i}/>
                 ))}
             </Typography>
         )
@@ -131,57 +120,59 @@ export function HtmlNodeRenderer({
     else if (node.type === "bold")
     {
         return (
-            <strong
-                key={key}
+            <Typography
+                component="strong"
+                sx={{ fontWeight: 'bold', display: 'inline' }}
             >
-                {node.content.map(n => (
-                    <HtmlNodeRenderer node={n} on_href_click={on_href_click}/>
+                {node.content.map((n, i) => (
+                    <HtmlNodeRenderer node={n} on_href_click={on_href_click} key={i} />
                 ))}
-            </strong>
+            </Typography>
         )
     }
     else if (node.type === "italic")
     {
         return (
-            <em
-                key={key}
+            <Typography
+                component="em"
+                sx={{ fontStyle: 'italic', display: 'inline' }}
             >
-                {node.content.map(n => (
-                    <HtmlNodeRenderer node={n} on_href_click={on_href_click}/>
+                {node.content.map((n, i) => (
+                    <HtmlNodeRenderer node={n} on_href_click={on_href_click} key={i} />
                 ))}
-            </em>
+            </Typography>
         )
     }
     else if (node.type === "underline")
     {
         return (
-            <u
-                key={key}
+            <Typography
+                component="span"
+                sx={{ textDecoration: 'underline', display: 'inline' }}
             >
-                {node.content.map(n => (
-                    <HtmlNodeRenderer node={n} on_href_click={on_href_click}/>
+                {node.content.map((n, i) => (
+                    <HtmlNodeRenderer node={n} on_href_click={on_href_click} key={i} />
                 ))}
-            </u>
+            </Typography>
         )
     }
     else if (node.type === "strike")
     {
         return (
-            <s
-                key={key}
+            <Typography
+                component="s"
+                sx={{ textDecoration: 'line-through', display: 'inline' }}
             >
-                {node.content.map(n => (
-                    <HtmlNodeRenderer node={n} on_href_click={on_href_click}/>
+                {node.content.map((n, i) => (
+                    <HtmlNodeRenderer node={n} on_href_click={on_href_click} key={i}/>
                 ))}
-            </s>
+            </Typography>
         )
     }
     else if (node.type === "text")
     {
         return (
-            <span
-                key={key}
-            >
+            <span>
                 {node.text}
             </span>
         )
@@ -189,18 +180,14 @@ export function HtmlNodeRenderer({
     else if (node.type === "line_break")
     {
         return (
-            <br
-                key={key}
-            />
+            <br />
         )
     }
     else if (node.type === "image")
     {
         console.log("TODO: need to add image support")
         return (
-            <span
-                key={key}
-            >
+            <span>
                 🖼️
             </span>
         );
@@ -232,7 +219,6 @@ export function HtmlHRefSrcRenderer({
             key={key}
             onClick={() => on_click(href)}
             sx={{
-                ...theme.typography.body1,
                 color: (theme) => theme.palette.primary.main,
                 cursor: "pointer",
                 "&:hover": {
@@ -240,8 +226,8 @@ export function HtmlHRefSrcRenderer({
                 }
             }}
         >
-            {content.map(n => (
-                <HtmlNodeRenderer node={n} on_href_click={on_click}/>
+            {content.map((n, i) => (
+                <HtmlNodeRenderer node={n} on_href_click={on_click} key={i}/>
             ))}
         </Typography>
     )
