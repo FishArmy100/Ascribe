@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub struct RefIdJson
 {
     pub bible: Option<String>,
@@ -55,9 +56,10 @@ impl From<&RefIdJson> for RefId
 }
 
 #[derive(Debug, PartialEq, Clone, Hash, Eq, Copy, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case", tag = "type")]
 pub enum RefIdInnerJson
 {
-    Single(AtomJson),
+    Single { atom: AtomJson },
     Range { from: AtomJson, to: AtomJson },
 }
 
@@ -66,7 +68,7 @@ impl From<RefIdInner> for RefIdInnerJson
     fn from(inner: RefIdInner) -> Self 
     {
         match inner {
-            RefIdInner::Single(atom) => RefIdInnerJson::Single(AtomJson::from(atom)),
+            RefIdInner::Single(atom) => RefIdInnerJson::Single { atom: AtomJson::from(atom) },
             RefIdInner::Range { from, to } => RefIdInnerJson::Range {
                 from: AtomJson::from(from),
                 to: AtomJson::from(to),
@@ -80,7 +82,7 @@ impl From<&RefIdInner> for RefIdInnerJson
     fn from(inner: &RefIdInner) -> Self 
     {
         match inner {
-            RefIdInner::Single(atom) => RefIdInnerJson::Single(AtomJson::from(atom)),
+            RefIdInner::Single(atom) => RefIdInnerJson::Single { atom: AtomJson::from(atom) },
             RefIdInner::Range { from, to } => RefIdInnerJson::Range {
                 from: AtomJson::from(from),
                 to: AtomJson::from(to),
@@ -94,7 +96,7 @@ impl From<RefIdInnerJson> for RefIdInner
     fn from(inner: RefIdInnerJson) -> Self 
     {
         match inner {
-            RefIdInnerJson::Single(atom) => RefIdInner::Single(Atom::from(atom)),
+            RefIdInnerJson::Single { atom } => RefIdInner::Single(Atom::from(atom)),
             RefIdInnerJson::Range { from, to } => RefIdInner::Range {
                 from: Atom::from(from),
                 to: Atom::from(to),
@@ -108,7 +110,7 @@ impl From<&RefIdInnerJson> for RefIdInner
     fn from(inner: &RefIdInnerJson) -> Self 
     {
         match inner {
-            RefIdInnerJson::Single(atom) => RefIdInner::Single(Atom::from(atom)),
+            RefIdInnerJson::Single { atom } => RefIdInner::Single(Atom::from(atom)),
             RefIdInnerJson::Range { from, to } => RefIdInner::Range {
                 from: Atom::from(from),
                 to: Atom::from(to),
@@ -118,6 +120,7 @@ impl From<&RefIdInnerJson> for RefIdInner
 }
 
 #[derive(Debug, PartialEq, Clone, Hash, Eq, Copy, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case", tag = "type")]
 pub enum AtomJson
 {
     Book { book: OsisBook },

@@ -89,8 +89,10 @@ pub fn run_bible_command(
                 p.modules.values()
                     .filter_map(|m| m.as_strongs_defs())
                     .filter_map(|defs| defs.get_def(&strongs)
-                        .map(|d| (defs.config.name.clone(), d.clone())))
-                    .collect::<HashMap<_, _>>()
+                        .map(|d| {
+                            StrongsDefEntryJson::new(d, defs.config.name.clone())
+                        }))
+                    .collect_vec()
             });
 
             Some(serde_json::to_string(&response).unwrap())

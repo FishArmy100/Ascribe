@@ -224,7 +224,6 @@ const RowComponentBase = forwardRef<HTMLDivElement, RowComponentProps>((
 	}
 );
 
-// --- wrap with React.memo after forwardRef ---
 export const RowComponent = React.memo(RowComponentBase, (prev, next) => {
 	const same_focus =
 		prev.show_focused_verses === next.show_focused_verses &&

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react"
-import { StrongsDefEntries, StrongsNumber, fetch_backend_strongs_defs, format_strongs } from "../../interop/bible/strongs"
+import { StrongsDefEntry, StrongsNumber, fetch_backend_strongs_defs, format_strongs } from "../../interop/bible/strongs"
 import { Box, Divider, Popover, Stack, Typography } from "@mui/material"
 
 export type StrongsPopoverProps = {
@@ -14,7 +14,7 @@ export default function StrongsPopover({
     on_close,
 }: StrongsPopoverProps): React.ReactElement
 {
-    const [strongs_defs, set_strongs_defs] = useState<StrongsDefEntries | null>(null);
+    const [strongs_defs, set_strongs_defs] = useState<StrongsDefEntry[] | null>(null);
 
     useEffect(() => {
         if (strongs !== null)
@@ -97,10 +97,10 @@ export default function StrongsPopover({
                                     <Box
                                         component="ol"
                                         sx={{
-                                            paddingLeft: 2,  // 2 * theme spacing
+                                            paddingLeft: 2,
                                             margin: 0,
                                             "& li": {
-                                                fontSize: (theme) => theme.typography.body2.fontSize, // reduces both text and marker size
+                                                fontSize: (theme) => theme.typography.body2.fontSize,
                                                 mb: 0.5,
                                             },
                                         }}
@@ -110,8 +110,8 @@ export default function StrongsPopover({
                                                 key={i}
                                                 component="li"
                                                 sx={{
-                                                    mb: 0.5,           // spacing between items
-                                                    pl: 1,             // optional inner padding
+                                                    mb: 0.5,
+                                                    pl: 1,
                                                 }}
                                             >
                                                 <Typography

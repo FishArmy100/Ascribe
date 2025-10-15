@@ -1,10 +1,10 @@
 use std::num::NonZeroU32;
 
-use biblio_json::{core::WordRange, html_text::HtmlText, modules::{ModuleEntry, xrefs::XRefEntry}};
+use biblio_json::{core::WordRange, modules::{ModuleEntry, xrefs::XRefEntry}};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 
-use crate::repr::{StrongsNumberJson, VerseIdJson, ref_id::RefIdJson};
+use crate::repr::{StrongsNumberJson, VerseIdJson, html_text::HtmlTextJson, ref_id::RefIdJson};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct StrongsWordJson
@@ -24,8 +24,8 @@ pub enum ModuleEntryJson
         module: String,
         strongs_ref: StrongsNumberJson,
         word: String,
-        definitions: Vec<HtmlText>,
-        derivation: Option<HtmlText>,
+        definitions: Vec<HtmlTextJson>,
+        derivation: Option<HtmlTextJson>,
         id: u32,
     },
     StrongsLink
@@ -40,14 +40,14 @@ pub enum ModuleEntryJson
         module: String,
         id: u32,
         references: Vec<RefIdJson>,
-        comment: HtmlText,
+        comment: HtmlTextJson,
     },
     Dictionary
     {
         module: String,
         term: String,
         aliases: Option<Vec<String>>,
-        definitions: Vec<HtmlText>,
+        definitions: Vec<HtmlTextJson>,
         id: u32,
     },
     XRefDirected
@@ -78,7 +78,7 @@ impl ModuleEntryJson
                     module, 
                     term: dict_entry.term.clone(), 
                     aliases: dict_entry.aliases.clone(),
-                    definitions: dict_entry.definitions.clone(), 
+                    definitions: dict_entry.definitions.iter().map(HtmlTextJson::from).collect(), 
                     id: dict_entry.id,
                 }
             },
@@ -87,8 +87,8 @@ impl ModuleEntryJson
                     module,
                     strongs_ref: strongs_def_entry.strongs_ref.clone().into(),
                     word: strongs_def_entry.word.clone(),
-                    definitions: strongs_def_entry.definitions.clone(),
-                    derivation: strongs_def_entry.derivation.clone(),
+                    definitions: strongs_def_entry.definitions.iter().map(HtmlTextJson::from).collect(),
+                    derivation: strongs_def_entry.derivation.as_ref().map(HtmlTextJson::from),
                     id: strongs_def_entry.id,
                 }
             },
@@ -137,7 +137,7 @@ impl ModuleEntryJson
                     module,
                     id: commentary_entry.id,
                     references: commentary_entry.references.iter().map(|t| t.into()).collect_vec(),
-                    comment: commentary_entry.comment.clone(),
+                    comment: commentary_entry.comment.clone().into(),
                 }
             },
             ModuleEntry::Verse(_) => {
