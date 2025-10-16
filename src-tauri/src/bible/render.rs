@@ -1,8 +1,6 @@
-use std::time::SystemTime;
-
 use biblio_json::{Package, VerseFetchResponse, core::{VerseId, WordRange}};
 use itertools::Itertools;
-use rayon::iter::{IndexedParallelIterator, IntoParallelRefIterator, ParallelIterator};
+use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use serde::{Deserialize, Serialize};
 
 use crate::repr::{StrongsNumberJson, VerseIdJson};

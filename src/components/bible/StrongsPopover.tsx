@@ -4,6 +4,7 @@ import { Box, Divider, Popover, Stack, Typography, useTheme } from "@mui/materia
 import { HRefSrc, HtmlText, Node } from "../../interop/html_text";
 import { HtmlTextRenderer } from "../HtmlTextRenderer";
 import SmallerTextSection from "../SmallerTextSection";
+import * as utils from "../../utils";
 
 export type StrongsPopoverProps = {
     anchor: HTMLElement | null,
@@ -23,7 +24,7 @@ export default function StrongsPopover({
         if (strongs !== null)
         {
             fetch_backend_strongs_defs(strongs).then(defs => {
-                console.log(JSON.stringify(defs))
+                console.log(utils.pretty_print_json(defs))
                 set_strongs_defs(defs);
             })
         }

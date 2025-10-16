@@ -1,11 +1,11 @@
-use std::{collections::HashMap, sync::Mutex};
+use std::{num::NonZeroU32, sync::Mutex};
 
-use biblio_json::{core::{StrongsLang, StrongsNumber}, modules::{Module, strongs::StrongsDefEntry}};
+use biblio_json::{core::{StrongsLang, StrongsNumber}, modules::Module};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use tauri::{Emitter, State};
 
-use crate::{bible::{BIBLE_VERSION_CHANGED_EVENT_NAME, BibleDisplaySettings, BibleInfo, BibleVersionChangedEvent, BiblioJsonPackageHandle, render::fetch_verse_render_data}, core::app::AppState, repr::*};
+use crate::{bible::{BIBLE_VERSION_CHANGED_EVENT_NAME, BibleDisplaySettings, BibleInfo, BibleVersionChangedEvent, BiblioJsonPackageHandle, render::fetch_verse_render_data}, core::app::AppState, repr::{entry::ModuleEntryJson, *}};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case", tag = "type")]
@@ -26,6 +26,12 @@ pub enum BibleCommand
     FetchStrongsDefs 
     {
         strongs: StrongsNumberJson,
+    },
+    FetchWordEntries
+    {
+        verse: VerseIdJson,
+        word: NonZeroU32,
+        bible: String,
     }
 }
 
@@ -94,6 +100,13 @@ pub fn run_bible_command(
                         }))
                     .collect_vec()
             });
+
+            Some(serde_json::to_string(&response).unwrap())
+        },
+        BibleCommand::FetchWordEntries { verse, word, bible } => {
+            let response = package.visit(|p | {
+                ModuleEntryJson::fetch_word_entries(p, verse.into(), word, &bible)
+            }).unwrap_or_default();
 
             Some(serde_json::to_string(&response).unwrap())
         }

@@ -46,7 +46,7 @@ const SmallerTextSection: React.FC<SmallerTextSectionProps> = ({
 
     return (
         <ThemeProvider theme={smallerTheme}>
-            <Box>{children}</Box>
+            <Box component="div">{children}</Box>
         </ThemeProvider>
     );
 };

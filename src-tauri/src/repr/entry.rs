@@ -1,6 +1,6 @@
 use std::num::NonZeroU32;
 
-use biblio_json::{core::WordRange, modules::{ModuleEntry, xrefs::XRefEntry}};
+use biblio_json::{Package, core::{VerseId, WordRange}, modules::{ModuleEntry, bible::Word, notebook::NotebookEntry, xrefs::XRefEntry}};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 
@@ -50,20 +50,47 @@ pub enum ModuleEntryJson
         definitions: Vec<HtmlTextJson>,
         id: u32,
     },
+    #[serde(rename = "xref_directed")]
     XRefDirected
     {
         module: String,
         source: RefIdJson,
         targets: Vec<RefIdJson>,
-        note: Option<String>,
+        note: Option<HtmlTextJson>,
         id: u32,
     },
+    #[serde(rename = "xref_mutual")]
     XRefMutual
     {
         module: String,
         refs: Vec<RefIdJson>,
-        note: Option<String>,
+        note: Option<HtmlTextJson>,
         id: u32,
+    },
+    Verse 
+    {
+        module: String,
+        verse_id: VerseIdJson,
+        words: Vec<Word>,
+        id: u32,
+    },
+    NotebookNote
+    {
+        module: String,
+        id: u32,
+        name: Option<String>,
+        content: HtmlTextJson,
+        references: Vec<RefIdJson>,
+    },
+    NotebookHighlight
+    {
+        module: String,
+        id: u32,
+        name: String,
+        description: Option<HtmlTextJson>,
+        priority: u32,
+        color: String,
+        references: Vec<RefIdJson>,
     }
 }
 
@@ -118,7 +145,7 @@ impl ModuleEntryJson
                             module,
                             source: source.into(),
                             targets: targets.iter().map(|t| t.into()).collect_vec(),
-                            note: note.as_ref().map(|n| n.to_string()),
+                            note: note.as_ref().map(|n| n.into()),
                             id: *id,
                         }
                     }
@@ -126,7 +153,7 @@ impl ModuleEntryJson
                         Self::XRefMutual {
                             module,
                             refs: refs.iter().map(|t| t.into()).collect_vec(),
-                            note: note.as_ref().map(|n| n.to_string()),
+                            note: note.as_ref().map(|n| n.into()),
                             id: *id,
                         }
                     }
@@ -140,12 +167,51 @@ impl ModuleEntryJson
                     comment: commentary_entry.comment.clone().into(),
                 }
             },
-            ModuleEntry::Verse(_) => {
-                panic!("ModuleEntry::Verse cannot be converted to ModuleEntryJson")
+            ModuleEntry::Verse(verse) => {
+                Self::Verse { 
+                    module, 
+                    verse_id: verse.verse_id.into(), 
+                    words: verse.words.clone(), 
+                    id: verse.id, 
+                }
             },
-            ModuleEntry::Notebook(_) => {
-                panic!("ModuleEntry::Notebook cannot be converted to ModuleEntryJson")
+            ModuleEntry::Notebook(entry) => match entry {
+                NotebookEntry::Highlight { id, name, description, priority, color, references } => {
+                    Self::NotebookHighlight { 
+                        module,
+                        id: *id, 
+                        name: name.clone(), 
+                        description: description.as_ref().map(|d| d.into()), 
+                        priority: *priority, 
+                        color: color.to_string(), 
+                        references: references.iter().map(|r| r.into()).collect_vec()
+                    }
+                },
+                NotebookEntry::Note { id, name, content, references } => {
+                    Self::NotebookNote { 
+                        module,
+                        id: *id, 
+                        name: name.clone(), 
+                        content: content.into(), 
+                        references: references.iter().map(|r| r.into()).collect_vec() 
+                    }
+                },
             },
         }
+    }
+
+    pub fn fetch_word_entries(package: &Package, verse: VerseId, word: NonZeroU32, bible: &str) -> Option<Vec<ModuleEntryJson>>
+    {
+        let result = package.fetch(verse, bible)?.entries.iter().filter(|e| match e.range {
+            WordRange::Single(s) => s == word,
+            WordRange::Range(s, e) => s <= word && e >= word,
+        }).filter_map(|e| {
+            let module_name = e.entry.module.clone();
+            let entry = package.fetch_entry(e.entry.clone())?;
+
+            Some(Self::new(entry, module_name))
+        }).collect_vec();
+
+        Some(result)
     }
 }

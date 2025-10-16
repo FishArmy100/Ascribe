@@ -1,4 +1,4 @@
-use std::{collections::HashMap, num::NonZeroU32};
+use std::num::NonZeroU32;
 
 use biblio_json::{core::OsisBook, modules::bible::BibleModule};
 use itertools::Itertools;

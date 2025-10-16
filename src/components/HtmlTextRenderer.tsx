@@ -213,9 +213,9 @@ export function HtmlHRefSrcRenderer({
     key
 }: HtmlHRefSrcRendererProps): React.ReactElement
 {
-    const theme = useTheme();
     return (
         <Typography
+            component="span"
             key={key}
             onClick={() => on_click(href)}
             sx={{

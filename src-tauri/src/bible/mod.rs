@@ -2,10 +2,9 @@ pub mod bible_cmd;
 pub mod book;
 pub mod render;
 
-use std::{sync::{Arc, Mutex, RwLock}, thread::spawn};
+use std::{sync::{Arc, RwLock}, thread::spawn};
 
-use biblio_json::{self, Package, modules::{Module, bible::{BibleModule, BookInfo}}};
-use itertools::Itertools;
+use biblio_json::{self, Package, modules::bible::BookInfo};
 use serde::{Deserialize, Serialize};
 use tauri::{Emitter, Manager, utils::platform::resource_dir};
 
