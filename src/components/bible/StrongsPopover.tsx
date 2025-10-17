@@ -26,7 +26,7 @@ export default function StrongsPopover({
             fetch_backend_strongs_defs(strongs).then(defs => {
                 console.log(utils.pretty_print_json(defs))
                 set_strongs_defs(defs);
-            })
+            }) 
         }
     }, [strongs]);
 

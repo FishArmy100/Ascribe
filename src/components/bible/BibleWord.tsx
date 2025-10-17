@@ -42,6 +42,7 @@ export default function BibleWord({
                 fontStyle: render_data.italics ? "italic" : "normal",
                 color: render_data.red ? "#c00" : "inherit",
                 cursor: can_click ? "pointer" : "default",
+				transition: "background-color 0.2s ease",
                 "&:hover": {
                     backgroundColor: (theme) => can_click ? theme.palette.action.hover : undefined,
                 }

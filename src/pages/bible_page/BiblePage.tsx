@@ -3,6 +3,7 @@ import React, { useEffect, useState, useCallback, useMemo } from "react";
 import * as images from "../../assets"
 import { use_view_history } from "../../components/providers/ViewHistoryProvider";
 import * as bible from "../../interop/bible";
+import { WordId } from "../../interop/bible";
 import { VerseRenderData } from "../../interop/bible/render";
 import { use_top_bar_padding, TopBarSpacer, ImageButton, Footer } from "../../components";
 import ChapterContent from "./ChapterContent";
@@ -11,6 +12,7 @@ import { BUTTON_SIZE } from "../../components/core/ImageButton";
 import { use_bible_display_settings } from "../../components/providers/BibleDisplaySettingsProvider";
 import { format_strongs, StrongsNumber } from "../../interop/bible/strongs";
 import StrongsPopover from "../../components/bible/StrongsPopover";
+import WordPopover from "../../components/bible/WordPopover";
 
 export default function BiblePage(): React.ReactElement {
 	const theme = useTheme();
@@ -25,8 +27,12 @@ export default function BiblePage(): React.ReactElement {
 
 	const [verses, set_verses] = useState<VerseRenderData[] | null>(null);
 	const [parallel_verses, set_parallel_verses] = useState<VerseRenderData[] | null>(null);
-	const [strongs_popover_anchor_el, set_strongs_anchor_el] = useState<HTMLElement | null>(null);
+
+	const [strongs_popover_anchor_el, set_strongs_strongs_anchor_el] = useState<HTMLElement | null>(null);
 	const [strongs_popover_number, set_strongs_popover_number] = useState<StrongsNumber | null>(null);
+
+	const [word_popover_anchor_el, set_word_popover_anchor_el] = useState<HTMLElement | null>(null);
+	const [word_popover_data, set_word_popover_data] = useState<WordId | null>(null);
 
 	const button_width = useMemo(() => BUTTON_SIZE * 0.75, []);
 	const button_spacing = use_top_bar_padding(theme);
@@ -101,14 +107,24 @@ export default function BiblePage(): React.ReactElement {
 	);
 
 	const handle_strongs_click = useCallback((e: HTMLElement, s: StrongsNumber) => {
-		set_strongs_anchor_el(e);
+		set_strongs_strongs_anchor_el(e);
 		set_strongs_popover_number(s);
 	}, []);
 
 	const handle_strongs_popover_close = useCallback(() => {
-		set_strongs_anchor_el(null);
+		set_strongs_strongs_anchor_el(null);
 		set_strongs_popover_number(null);
 	}, []);
+
+	const handle_word_click = useCallback((e: HTMLElement, word: bible.WordId) => {
+		set_word_popover_anchor_el(e)
+		set_word_popover_data(word);
+	}, []);
+
+	const handle_word_popover_close = useCallback(() => {
+		set_word_popover_anchor_el(null);
+		set_word_popover_data(null);
+	}, [])
 
 	return (
 		<Box>
@@ -142,6 +158,7 @@ export default function BiblePage(): React.ReactElement {
 						focused_range={current_verses}
 						show_strongs={show_strongs}
 						on_strongs_clicked={handle_strongs_click}
+						on_verse_word_clicked={handle_word_click}
 					/>
 				) : (
 					<LoadingSpinner />
@@ -161,6 +178,12 @@ export default function BiblePage(): React.ReactElement {
 				anchor={strongs_popover_anchor_el} 
 				strongs={strongs_popover_number} 
 				on_close={handle_strongs_popover_close}			
+			/>
+
+			<WordPopover
+				anchor={word_popover_anchor_el}
+				word={word_popover_data}
+				on_close={(handle_word_popover_close)}
 			/>
 		</Box>
 	);

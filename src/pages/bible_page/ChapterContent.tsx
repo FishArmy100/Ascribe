@@ -4,7 +4,7 @@ import { Box, Divider, Paper, Typography } from "@mui/material";
 import { Grid } from "@mui/material";
 import { useEffect, useState, useMemo, useCallback, useRef, forwardRef } from "react";
 import React from "react";
-import BibleVerseRaw from "../../components/bible/BibleVerse";
+import BibleVerseRaw, { VerseWordClickedCallback } from "../../components/bible/BibleVerse";
 import { SxProps, Theme } from "@mui/material/styles";
 import { SystemStyleObject } from "@mui/system";
 import { StrongsClickedCallback } from "../../components/bible/BibleWord";
@@ -15,6 +15,7 @@ type ChapterContentProps = {
     chapter: bible.ChapterId,
     bible_info: bible.BibleInfo,
 	on_strongs_clicked: StrongsClickedCallback,
+	on_verse_word_clicked: VerseWordClickedCallback,
     parallel_verses?: VerseRenderData[] | null,
     parallel_bible_info?: bible.BibleInfo | null,
     focused_range: { start: number, end: number } | null,
@@ -30,6 +31,7 @@ export default function ChapterContent({
     chapter,
     bible_info,
 	on_strongs_clicked,
+	on_verse_word_clicked,
     parallel_verses,
     parallel_bible_info,
     focused_range,
@@ -109,6 +111,7 @@ export default function ChapterContent({
                     set_show_focused_verses={set_show_focused_verses}
 					show_strongs={show_strongs}
 					on_strongs_clicked={on_strongs_clicked}
+					on_verse_word_clicked={on_verse_word_clicked}
                 />
             ))}
         </Paper>
@@ -124,6 +127,7 @@ type RowComponentProps = {
 	set_show_focused_verses: (v: boolean) => void,
 	show_strongs: boolean,
 	on_strongs_clicked: StrongsClickedCallback,
+	on_verse_word_clicked: VerseWordClickedCallback,
 };
 
 // --- forwardRef so parent can attach a ref ---
@@ -137,6 +141,7 @@ const RowComponentBase = forwardRef<HTMLDivElement, RowComponentProps>((
 		set_show_focused_verses,
 		show_strongs,
 		on_strongs_clicked,
+		on_verse_word_clicked,
     },
     ref
 	) => {
@@ -209,14 +214,26 @@ const RowComponentBase = forwardRef<HTMLDivElement, RowComponentProps>((
 						<Grid size={6} sx={{ pl: 2, display: "flex" }}>
 							{pv && (
 								<Box onClick={handle_click} sx={verse_box_style}>
-								<BibleVerse render_data={pv} verse_label={(index + 1).toString()} show_strongs={show_strongs} on_strongs_clicked={on_strongs_clicked} />
+								<BibleVerse 
+									render_data={pv} 
+									verse_label={(index + 1).toString()} 
+									show_strongs={show_strongs} 
+									on_strongs_clicked={on_strongs_clicked} 
+									on_verse_word_clicked={on_verse_word_clicked}
+								/>
 								</Box>
 							)}
 						</Grid>
 					</Grid>
 				) : (
 					<Box onClick={handle_click} sx={verse_box_style}>
-						<BibleVerse render_data={v} verse_label={(index + 1).toString()} show_strongs={show_strongs} on_strongs_clicked={on_strongs_clicked}/>
+						<BibleVerse 
+							render_data={v} 
+							verse_label={(index + 1).toString()} 
+							show_strongs={show_strongs} 
+							on_strongs_clicked={on_strongs_clicked}
+							on_verse_word_clicked={on_verse_word_clicked}
+						/>
 					</Box>
 				)}
 			</div>

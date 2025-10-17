@@ -4,9 +4,9 @@ import { SxProps } from "@mui/material/styles"
 import { Theme } from "@mui/material/styles"
 import { Box, Typography } from "@mui/material"
 import BibleWord, { StrongsClickedCallback } from "./BibleWord"
-import { VerseId } from "../../interop/bible"
+import { VerseId, WordId } from "../../interop/bible"
 
-export type VerseWordClickedCallback = (e: HTMLElement, verse: VerseId, word: number) => void;
+export type VerseWordClickedCallback = (e: HTMLElement, word: WordId) => void;
 
 export type BibleVerseProps = {
     render_data: VerseRenderData,
@@ -27,7 +27,10 @@ export default function BibleVerse({
 }: BibleVerseProps): React.ReactElement
 {
     const on_word_clicked = on_verse_word_clicked && ((e: HTMLElement, index: number) => {
-        on_verse_word_clicked(e, render_data.id, index + 1);
+        on_verse_word_clicked(e, {
+            verse: render_data.id, 
+            word: index + 1
+        });
     })
 
     let verse_content;
@@ -37,7 +40,13 @@ export default function BibleVerse({
             <Box component="span" sx={{ flex: 1 }}>
                 {render_data.words.map((w, i) => (
                     <React.Fragment key={i}>
-                        <BibleWord render_data={w} show_strongs={show_strongs ?? false} on_strongs_clicked={on_strongs_clicked} on_word_clicked={on_word_clicked}/>
+                        <BibleWord 
+                            render_data={w} 
+                            show_strongs={show_strongs ?? false} 
+                            on_strongs_clicked={on_strongs_clicked} 
+                            on_word_clicked={on_word_clicked}
+                        />
+                        
                         {i < render_data.words.length - 1 && " "}
                     </React.Fragment>
                 ))}

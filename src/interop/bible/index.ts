@@ -29,6 +29,16 @@ export function pretty_print_verse(id: VerseId): string
     return `${pretty_print_book(id.book)} ${id.chapter}:${id.verse}`;
 }
 
+export type WordId = {
+    verse: VerseId,
+    word: number,
+}
+
+export function pretty_print_word(word: WordId): string 
+{
+    return `${pretty_print_verse(word.verse)}#${word.word}`;
+}
+
 export type BookInfo = {
     name: string,
     osis_book: OsisBook,
