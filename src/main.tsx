@@ -5,6 +5,7 @@ import { CssBaseline, ThemeProvider } from "@mui/material";
 import theme from "./theme";
 import AppProviders from "./components/providers/AppProviders";
 import AppInitializer from "./components/AppInitializer";
+import "./utils/extensions";
 
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
