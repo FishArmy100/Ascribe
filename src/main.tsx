@@ -6,6 +6,7 @@ import theme from "./theme";
 import AppProviders from "./components/providers/AppProviders";
 import AppInitializer from "./components/AppInitializer";
 import "./utils/extensions";
+import "./components/bible/BibleWord.css";
 
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(

@@ -3,9 +3,12 @@ import { VerseRenderData } from "../../interop/bible/render"
 import { SxProps } from "@mui/material/styles"
 import { Theme } from "@mui/material/styles"
 import { Box, Typography } from "@mui/material"
-import BibleWord, { StrongsClickedCallback } from "./BibleWord"
+import BibleWord from "./BibleWord"
 import { VerseId, WordId } from "../../interop/bible"
+import { parse_strongs, StrongsNumber } from "../../interop/bible/strongs"
 
+
+export type StrongsClickedCallback = (el: HTMLElement, strongs: StrongsNumber) => void;
 export type VerseWordClickedCallback = (e: HTMLElement, word: WordId) => void;
 
 export type BibleVerseProps = {
@@ -26,69 +29,56 @@ export default function BibleVerse({
     on_verse_word_clicked,
 }: BibleVerseProps): React.ReactElement
 {
-    const on_word_clicked = on_verse_word_clicked && ((e: HTMLElement, index: number) => {
-        on_verse_word_clicked(e, {
-            verse: render_data.id, 
-            word: index + 1
-        });
-    })
+    const handle_verse_clicked = (e: React.MouseEvent<HTMLElement>) => {
+        const target = e.target as HTMLElement;
+        if (target.dataset.wordIndex)
+        {
+            const word_index = parseInt(target.dataset.wordIndex, 10);
+            on_verse_word_clicked?.(target, {
+                verse: render_data.id,
+                word: word_index,
+            });
+        }
 
-    let verse_content;
-    if (render_data.words.length > 0)
-    {
-        verse_content = (
-            <Box component="span" sx={{ flex: 1 }}>
-                {render_data.words.map((w, i) => (
-                    <React.Fragment key={i}>
-                        <BibleWord 
-                            render_data={w} 
-                            show_strongs={show_strongs ?? false} 
-                            on_strongs_clicked={on_strongs_clicked} 
-                            on_word_clicked={on_word_clicked}
-                        />
-                        
-                        {i < render_data.words.length - 1 && " "}
-                    </React.Fragment>
-                ))}
-            </Box>
-        )
-    }
-    else
-    {
-        verse_content = <em>[Verse omitted]</em>;
+        if (target.dataset.strongsNumber)
+        {
+            const strongs_number = parse_strongs(target.dataset.strongsNumber);
+            on_strongs_clicked?.(target, strongs_number);
+        }
     }
 
     return (
         <Typography
             component="div"
             variant="body1"
+            onClick={handle_verse_clicked}
             sx={{
                 display: "flex",
-                alignItems: "flex-start",
+                alignContent: "flex-start",
                 gap: 1,
                 lineHeight: 1.8,
                 marginBottom: 1,
                 ...sx,
             }}
         >
-            {/* Verse number */}
-            {
-                verse_label && <Box
-                    component="span"
-                    sx={{
-                        fontSize: "0.75rem",
-                        color: "text.secondary",
-                        mr: 0.5,
-                        mt: "2px",
-                        userSelect: "none",
-                    }}
-                >
-                    {verse_label}
-                </Box>
-            }
-
-            {/* Verse text */}
-            {verse_content}
+            {verse_label && (
+                <span className="bible-verse-label">{verse_label}</span>
+            )}
+            <span className="bible-verse-text">
+                {render_data.words.length > 0 ? (
+                    render_data.words.map((w, i) => (
+                        <React.Fragment key={i}>
+                            <BibleWord
+                                render_data={w}
+                                show_strongs={show_strongs ?? false}
+                            />
+                        {i < render_data.words.length - 1 && " "}
+                        </React.Fragment>
+                    ))
+                ) : (
+                    <em>[Verse omitted]</em>
+                )}
+            </span>
         </Typography>
     );
 }

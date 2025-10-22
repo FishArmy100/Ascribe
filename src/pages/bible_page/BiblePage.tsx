@@ -51,33 +51,33 @@ export default function BiblePage(): React.ReactElement {
 		return null;
 	}, [current_view]);
 
-	// Fetch verses effect with proper cleanup
 	useEffect(() => {
 		let is_mounted = true;
-		
 		const verse_ids = bible.get_chapter_verse_ids(selected_bibles.bible, current_chapter);
 
-		// Fetch main version
-		bible.fetch_backend_verse_render_data(verse_ids, bible_name)
-			.then(vs => {
-				if (is_mounted) set_verses(vs);
-			});
+		const fetch_verses = async () => {
+			const verses_promise = bible.fetch_backend_verse_render_data(verse_ids, bible_name);
+			const parallel_verses_promise = parallel_bible_name
+				? bible.fetch_backend_verse_render_data(verse_ids, parallel_bible_name)
+				: Promise.resolve(null);
 
-		if (parallel_bible_name) 
-		{
-			bible.fetch_backend_verse_render_data(verse_ids, parallel_bible_name)
-				.then(vs => {
-					if (is_mounted) set_parallel_verses(vs);
-				});
-		} 
-		else 
-		{
-			set_parallel_verses(null);
+			const [verses, parallel_verses] = await Promise.all([
+				verses_promise,
+				parallel_verses_promise,
+			]);
+
+			if (is_mounted)
+			{
+				set_verses(verses);
+				set_parallel_verses(parallel_verses);
+			}
 		}
 
+		fetch_verses();
 		return () => {
 			is_mounted = false;
-		};
+		}
+
 	}, [current_chapter, bible_name, parallel_bible_name, selected_bibles.bible]);
 
 	const handle_chapter_navigation = useCallback((type: "next" | "previous") => {

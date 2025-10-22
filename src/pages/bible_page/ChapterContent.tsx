@@ -4,10 +4,9 @@ import { Box, Divider, Paper, Typography } from "@mui/material";
 import { Grid } from "@mui/material";
 import { useEffect, useState, useMemo, useCallback, useRef, forwardRef } from "react";
 import React from "react";
-import BibleVerseRaw, { VerseWordClickedCallback } from "../../components/bible/BibleVerse";
+import BibleVerseRaw, { StrongsClickedCallback, VerseWordClickedCallback } from "../../components/bible/BibleVerse";
 import { SxProps, Theme } from "@mui/material/styles";
 import { SystemStyleObject } from "@mui/system";
-import { StrongsClickedCallback } from "../../components/bible/BibleWord";
 
 type ChapterContentProps = {
     verses: VerseRenderData[],

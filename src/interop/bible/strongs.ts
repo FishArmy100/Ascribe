@@ -16,6 +16,20 @@ export type StrongsDefEntry = {
     id: number,
 }
 
+export function parse_strongs(input: string): StrongsNumber 
+{
+    const match = input.match(/^([HG])(\d+)$/i);
+    if (!match) {
+        throw new Error(`Invalid Strong's number format: "${input}"`);
+    }
+
+    const [, prefix, numStr] = match;
+    const language: StrongsLang = prefix.toUpperCase() === "H" ? "hebrew" : "greek";
+    const number = parseInt(numStr, 10);
+
+    return { language, number };
+}
+
 export function format_strongs(strongs_number: StrongsNumber): string 
 {
     let prefix = "";

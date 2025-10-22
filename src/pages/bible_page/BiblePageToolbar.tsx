@@ -5,7 +5,7 @@ import { ViewHistoryEntry } from "../../interop/view_history";
 import { push_search_to_view_history } from "../../interop/searching";
 import * as bible from "../../interop/bible"
 import * as images from "../../assets";
-import React from "react";
+import React, { useCallback } from "react";
 
 export const BiblePageToolbar = React.memo(function BiblePageToolbar(): React.ReactElement
 {
@@ -13,15 +13,19 @@ export const BiblePageToolbar = React.memo(function BiblePageToolbar(): React.Re
 	const { bible: selected_bible } = bible.use_selected_bibles()
 	const placeholder = get_placeholder_text(view_history.get_current().current, selected_bible);
 
+	const on_select_callback = useCallback((c: bible.ChapterId) => {
+		view_history.push({
+			type: 'chapter',
+			chapter: c,
+		})
+	}, [view_history]);
+
     return (
         <TopBar
 				right_aligned={1}
 			>
 				<VersionSelector/>
-				<ChapterPicker on_select={(c) => view_history.push({
-                    type: 'chapter',
-                    chapter: c,
-                })}/>
+				<ChapterPicker on_select={on_select_callback}/>
 				<Divider 
 						orientation="vertical" 
 						flexItem 

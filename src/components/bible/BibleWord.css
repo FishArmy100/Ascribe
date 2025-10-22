@@ -1,0 +1,59 @@
+/* BibleWord.css */
+
+/* Base word styling */
+.bible-word {
+    transition: background-color 0.2s ease;
+    cursor: default;
+}
+
+.bible-word.italic {
+    font-style: italic;
+}
+
+.bible-word.red {
+    color: #c00;
+}
+
+.bible-word.clickable {
+    cursor: pointer;
+}
+
+.bible-word.clickable:hover {
+    background-color: var(--mui-palette-action-hover);
+}
+
+/* Strongs references */
+.bible-strongs {
+    font-size: 0.65em;
+    color: var(--mui-palette-text-secondary);
+    margin-left: 0.15em;
+    user-select: none;
+}
+
+.bible-strongs-link {
+    cursor: pointer;
+}
+
+.bible-strongs-link:hover {
+    text-decoration: underline;
+}
+
+/* Containers */
+.bible-word-container {
+    display: inline-block;
+    position: relative;
+}
+
+/* Verse styling */
+.bible-verse-label {
+    font-size: 0.75rem;
+    color: var(--mui-palette-text-secondary);
+    margin-right: 0.5em;
+    user-select: none;
+    margin-top: 2px;
+}
+
+.bible-verse-text {
+    flex: 1;
+    display: inline;
+}

@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { ChapterId, OsisBook } from "../../interop/bible";
 import * as images from "../../assets";
 import { use_settings } from "../providers/SettingsProvider";
@@ -11,6 +11,7 @@ import ExpandMore from "@mui/icons-material/ExpandMore";
 import * as utils from "../../utils";
 import { use_top_bar_padding } from "../TopBar";
 import { AppSettings } from "../../interop/settings";
+import { Theme } from "@mui/material/styles";
 
 const GRID_ITEM_SIZE = 4;
 const GRID_ITEM_COUNT_X = 6;
@@ -32,6 +33,11 @@ export default function ChapterPicker({ on_select }: ChapterPickerProps): React.
     const theme = useTheme();
     const padding = use_top_bar_padding(theme);
 
+    const on_select_ref = useRef(on_select);
+    useEffect(() => {
+        on_select_ref.current = on_select;
+    }, [on_select]);
+
     const bible_info = bible_infos[bible_version_state.bible_version];
 
     const options = useMemo(() => bible_info.books.map(b => ({
@@ -47,8 +53,8 @@ export default function ChapterPicker({ on_select }: ChapterPickerProps): React.
     const inner_on_select = useCallback((chapter: ChapterId) => {
         set_open(false);
         set_expanded_book(null);
-        on_select(chapter);
-    }, [on_select]);
+        on_select_ref.current(chapter);
+    }, []);
 
     const dropdown_width = get_grid_width(padding, settings);
 
@@ -130,22 +136,22 @@ const BookSelection = React.memo(function BookSelection({
     );
 
     const button_sx = useMemo(() => ({
-        width: (theme: any) => theme.spacing(GRID_ITEM_SIZE),
-        maxWidth: (theme: any) => theme.spacing(GRID_ITEM_SIZE),
-        minWidth: (theme: any) => theme.spacing(GRID_ITEM_SIZE),
-        height: (theme: any) => theme.spacing(GRID_ITEM_SIZE),
-        maxHeight: (theme: any) => theme.spacing(GRID_ITEM_SIZE),
-        minHeight: (theme: any) => theme.spacing(GRID_ITEM_SIZE),
+        width: (theme: Theme) => theme.spacing(GRID_ITEM_SIZE),
+        maxWidth: (theme: Theme) => theme.spacing(GRID_ITEM_SIZE),
+        minWidth: (theme: Theme) => theme.spacing(GRID_ITEM_SIZE),
+        height: (theme: Theme) => theme.spacing(GRID_ITEM_SIZE),
+        maxHeight: (theme: Theme) => theme.spacing(GRID_ITEM_SIZE),
+        minHeight: (theme: Theme) => theme.spacing(GRID_ITEM_SIZE),
         textAlign: "center",
         cursor: "pointer",
-        borderRadius: (theme: any) => theme.spacing(1),
+        borderRadius: (theme: Theme) => theme.spacing(1),
         transition: "0.3s",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
         boxSizing: "border-box",
         borderStyle: "solid",
-        borderWidth: (theme: any) => theme.spacing(1 / 8),
+        borderWidth: (theme: Theme) => theme.spacing(1 / 8),
         borderColor: theme.palette.grey[500],
     }), [theme]);
 

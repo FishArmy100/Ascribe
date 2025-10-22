@@ -32,6 +32,12 @@ pub enum BibleCommand
         verse: VerseIdJson,
         word: NonZeroU32,
         bible: String,
+    },
+    RenderVerses 
+    {
+        verses: Vec<VerseIdJson>,
+        show_strongs: bool,
+        bible: String,
     }
 }
 
@@ -109,6 +115,9 @@ pub fn run_bible_command(
             }).unwrap_or_default();
 
             Some(serde_json::to_string(&response).unwrap())
+        },
+        BibleCommand::RenderVerses { verses, show_strongs, bible } => {
+            
         }
     }
 }
