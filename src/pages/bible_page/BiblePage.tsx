@@ -4,7 +4,7 @@ import * as images from "../../assets"
 import { use_view_history } from "../../components/providers/ViewHistoryProvider";
 import * as bible from "../../interop/bible";
 import { WordId } from "../../interop/bible";
-import { VerseRenderData } from "../../interop/bible/render";
+import { RenderedVerseContent, VerseRenderData } from "../../interop/bible/render";
 import { use_top_bar_padding, TopBarSpacer, ImageButton, Footer } from "../../components";
 import ChapterContent from "./ChapterContent";
 import { BiblePageToolbar } from "./BiblePageToolbar";
@@ -25,8 +25,8 @@ export default function BiblePage(): React.ReactElement {
 	const bible_name = selected_bibles.bible.name;
 	const parallel_bible_name = selected_bibles.parallel?.name;
 
-	const [verses, set_verses] = useState<VerseRenderData[] | null>(null);
-	const [parallel_verses, set_parallel_verses] = useState<VerseRenderData[] | null>(null);
+	const [verses, set_verses] = useState<RenderedVerseContent[] | null>(null);
+	const [parallel_verses, set_parallel_verses] = useState<RenderedVerseContent[] | null>(null);
 
 	const [strongs_popover_anchor_el, set_strongs_strongs_anchor_el] = useState<HTMLElement | null>(null);
 	const [strongs_popover_number, set_strongs_popover_number] = useState<StrongsNumber | null>(null);
@@ -56,9 +56,9 @@ export default function BiblePage(): React.ReactElement {
 		const verse_ids = bible.get_chapter_verse_ids(selected_bibles.bible, current_chapter);
 
 		const fetch_verses = async () => {
-			const verses_promise = bible.fetch_backend_verse_render_data(verse_ids, bible_name);
+			const verses_promise = bible.backend_render_verse_words(verse_ids, bible_name, show_strongs);
 			const parallel_verses_promise = parallel_bible_name
-				? bible.fetch_backend_verse_render_data(verse_ids, parallel_bible_name)
+				? bible.backend_render_verse_words(verse_ids, parallel_bible_name, show_strongs)
 				: Promise.resolve(null);
 
 			const [verses, parallel_verses] = await Promise.all([
@@ -78,7 +78,7 @@ export default function BiblePage(): React.ReactElement {
 			is_mounted = false;
 		}
 
-	}, [current_chapter, bible_name, parallel_bible_name, selected_bibles.bible]);
+	}, [current_chapter, bible_name, parallel_bible_name, selected_bibles.bible, show_strongs]);
 
 	const handle_chapter_navigation = useCallback((type: "next" | "previous") => {
 		const current_page = view_history.get_current();

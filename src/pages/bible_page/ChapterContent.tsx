@@ -1,4 +1,4 @@
-import { VerseRenderData } from "../../interop/bible/render";
+import { RenderedVerseContent, VerseRenderData } from "../../interop/bible/render";
 import * as bible from "../../interop/bible";
 import { Box, Divider, Paper, Typography } from "@mui/material";
 import { Grid } from "@mui/material";
@@ -7,15 +7,16 @@ import React from "react";
 import BibleVerseRaw, { StrongsClickedCallback, VerseWordClickedCallback } from "../../components/bible/BibleVerse";
 import { SxProps, Theme } from "@mui/material/styles";
 import { SystemStyleObject } from "@mui/system";
+import RenderedVerse from "../../components/bible/RenderedVerse";
 
 type ChapterContentProps = {
-    verses: VerseRenderData[],
+    verses: RenderedVerseContent[],
     button_space: number,
     chapter: bible.ChapterId,
     bible_info: bible.BibleInfo,
 	on_strongs_clicked: StrongsClickedCallback,
 	on_verse_word_clicked: VerseWordClickedCallback,
-    parallel_verses?: VerseRenderData[] | null,
+    parallel_verses?: RenderedVerseContent[] | null,
     parallel_bible_info?: bible.BibleInfo | null,
     focused_range: { start: number, end: number } | null,
 	show_strongs: boolean,
@@ -43,10 +44,6 @@ export default function ChapterContent({
     useEffect(() => {
         set_show_focused_verses(true);
     }, [chapter, bible_info.name, parallel_bible_info?.name, focused_range]);
-
-    // Memoize verse arrays so they don't cause re-renders on shallow changes
-    const memo_verses = useMemo(() => verses, [verses]);
-    const memo_parallel_verses = useMemo(() => parallel_verses, [parallel_verses]);
 
     const row_refs = useRef<{ [v: number]: HTMLDivElement | null }>({});
 
@@ -79,7 +76,7 @@ export default function ChapterContent({
             </Typography>
             <Divider sx={{ mb: 2 }} />
 
-            {memo_parallel_verses && (
+            {parallel_verses && (
                 <Grid
                     container
                     spacing={2}
@@ -98,13 +95,13 @@ export default function ChapterContent({
                 </Grid>
             )}
 
-            {memo_verses.map((_, index) => (
+            {verses.map((_, index) => (
                 <RowComponent
                     key={`${bible_info.name}-${chapter.book}-${chapter.chapter}-${index}`}
                     ref={(el) => { row_refs.current[index] = el; }}
                     index={index}
-                    verses={memo_verses}
-                    parallel_verses={memo_parallel_verses}
+                    verses={verses}
+                    parallel_verses={parallel_verses}
                     focused_range={focused_range}
                     show_focused_verses={show_focused_verses}
                     set_show_focused_verses={set_show_focused_verses}
@@ -119,8 +116,8 @@ export default function ChapterContent({
 
 type RowComponentProps = {
 	index: number,
-	verses: VerseRenderData[],
-	parallel_verses?: VerseRenderData[] | null,
+	verses: RenderedVerseContent[],
+	parallel_verses?: RenderedVerseContent[] | null,
 	focused_range: { start: number; end: number } | null,
 	show_focused_verses: boolean,
 	set_show_focused_verses: (v: boolean) => void,
@@ -207,31 +204,34 @@ const RowComponentBase = forwardRef<HTMLDivElement, RowComponentProps>((
 							}}
 						>
 							<Box onClick={handle_click} sx={verse_box_style}>
-								<BibleVerse render_data={v} verse_label={(index + 1).toString()} show_strongs={show_strongs} on_strongs_clicked={on_strongs_clicked} />
+								<RenderedVerse 
+									content={v} 
+									verse_label={(index + 1).toString()} 
+									// on_strongs_clicked={on_strongs_clicked} 
+									// on_verse_word_clicked={on_verse_word_clicked}
+								/>
 							</Box>
 						</Grid>
 						<Grid size={6} sx={{ pl: 2, display: "flex" }}>
 							{pv && (
 								<Box onClick={handle_click} sx={verse_box_style}>
-								<BibleVerse 
-									render_data={pv} 
-									verse_label={(index + 1).toString()} 
-									show_strongs={show_strongs} 
-									on_strongs_clicked={on_strongs_clicked} 
-									on_verse_word_clicked={on_verse_word_clicked}
-								/>
+									<RenderedVerse 
+										content={pv} 
+										verse_label={(index + 1).toString()} 
+										// on_strongs_clicked={on_strongs_clicked} 
+										// on_verse_word_clicked={on_verse_word_clicked}
+									/>
 								</Box>
 							)}
 						</Grid>
 					</Grid>
 				) : (
 					<Box onClick={handle_click} sx={verse_box_style}>
-						<BibleVerse 
-							render_data={v} 
+						<RenderedVerse 
+							content={v} 
 							verse_label={(index + 1).toString()} 
-							show_strongs={show_strongs} 
-							on_strongs_clicked={on_strongs_clicked}
-							on_verse_word_clicked={on_verse_word_clicked}
+							// on_strongs_clicked={on_strongs_clicked}
+							// on_verse_word_clicked={on_verse_word_clicked}
 						/>
 					</Box>
 				)}

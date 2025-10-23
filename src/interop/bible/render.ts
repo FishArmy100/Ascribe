@@ -20,6 +20,13 @@ export type VerseRenderData = {
     failed: boolean,
 }
 
+export type RenderedVerseContent = {
+    failed: boolean,
+    id: VerseId,
+    html: string,
+    word_count: number,
+}
+
 export async function fetch_backend_verse_render_data(verses: VerseId[], bible: string,): Promise<VerseRenderData[]>
 {
     return await invoke<string>("run_bible_command", {
@@ -31,4 +38,18 @@ export async function fetch_backend_verse_render_data(verses: VerseId[], bible: 
     }).then(r => {
         return JSON.parse(r) as VerseRenderData[];
     });
+}
+
+export async function backend_render_verse_words(verses: VerseId[], bible: string, show_strongs: boolean): Promise<RenderedVerseContent[]>
+{
+    return await invoke<string>("run_bible_command", {
+        command: {
+            type: "render_verses",
+            verses,
+            bible,
+            show_strongs
+        }
+    }).then(vs => {
+        return JSON.parse(vs);
+    })
 }

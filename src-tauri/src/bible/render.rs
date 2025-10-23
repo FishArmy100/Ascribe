@@ -89,11 +89,13 @@ fn collect_word_render_data(s: VerseFetchResponse, package: &Package) -> Vec<Wor
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub struct RenderedVerseContent
 {
     pub failed: bool,
     pub id: VerseIdJson,
     pub html: String,
+    pub word_count: u32,
 }
 
 pub fn render_verse_words(package: &Package, verses: &Vec<VerseId>, bible: &str, show_strongs: bool) -> Vec<RenderedVerseContent>
@@ -105,6 +107,7 @@ pub fn render_verse_words(package: &Package, verses: &Vec<VerseId>, bible: &str,
                 failed: true,
                 id: rd.id,
                 html: String::new(),
+                word_count: 0,
             }
         }
         else 
@@ -114,6 +117,7 @@ pub fn render_verse_words(package: &Package, verses: &Vec<VerseId>, bible: &str,
                 failed: false, 
                 id: rd.id, 
                 html, 
+                word_count: rd.words.len() as u32,
             }
         }
     }).collect()

@@ -6,7 +6,7 @@ import * as utils from "../../utils"
 import { use_bible_display_settings } from "../../components/providers/BibleDisplaySettingsProvider";
 
 export * from "./book";
-export { fetch_backend_verse_render_data } from "./render";
+export { fetch_backend_verse_render_data, backend_render_verse_words } from "./render";
 
 export type ChapterId = {
     book: OsisBook,

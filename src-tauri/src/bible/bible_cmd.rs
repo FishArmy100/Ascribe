@@ -1,11 +1,11 @@
 use std::{num::NonZeroU32, sync::Mutex};
 
-use biblio_json::{core::{StrongsLang, StrongsNumber}, modules::Module};
+use biblio_json::{core::{StrongsLang, StrongsNumber, VerseId}, modules::Module};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use tauri::{Emitter, State};
 
-use crate::{bible::{BIBLE_VERSION_CHANGED_EVENT_NAME, BibleDisplaySettings, BibleInfo, BibleVersionChangedEvent, BiblioJsonPackageHandle, render::fetch_verse_render_data}, core::app::AppState, repr::{entry::ModuleEntryJson, *}};
+use crate::{bible::{BIBLE_VERSION_CHANGED_EVENT_NAME, BibleDisplaySettings, BibleInfo, BibleVersionChangedEvent, BiblioJsonPackageHandle, render::{fetch_verse_render_data, render_verse_words}}, core::app::AppState, repr::{entry::ModuleEntryJson, *}};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case", tag = "type")]
@@ -117,7 +117,13 @@ pub fn run_bible_command(
             Some(serde_json::to_string(&response).unwrap())
         },
         BibleCommand::RenderVerses { verses, show_strongs, bible } => {
+            let verses = verses.iter().map(|v| VerseId::from(v)).collect_vec();
             
+            let response = package.visit(|p| {
+                render_verse_words(p, &verses, &bible, show_strongs)
+            });
+
+            Some(serde_json::to_string(&response).unwrap())
         }
     }
 }
