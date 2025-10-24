@@ -207,8 +207,8 @@ const RowComponentBase = forwardRef<HTMLDivElement, RowComponentProps>((
 								<RenderedVerse 
 									content={v} 
 									verse_label={(index + 1).toString()} 
-									// on_strongs_clicked={on_strongs_clicked} 
-									// on_verse_word_clicked={on_verse_word_clicked}
+									on_strongs_clicked={on_strongs_clicked} 
+									on_verse_word_clicked={on_verse_word_clicked}
 								/>
 							</Box>
 						</Grid>
@@ -218,8 +218,8 @@ const RowComponentBase = forwardRef<HTMLDivElement, RowComponentProps>((
 									<RenderedVerse 
 										content={pv} 
 										verse_label={(index + 1).toString()} 
-										// on_strongs_clicked={on_strongs_clicked} 
-										// on_verse_word_clicked={on_verse_word_clicked}
+										on_strongs_clicked={on_strongs_clicked} 
+										on_verse_word_clicked={on_verse_word_clicked}
 									/>
 								</Box>
 							)}
@@ -230,8 +230,8 @@ const RowComponentBase = forwardRef<HTMLDivElement, RowComponentProps>((
 						<RenderedVerse 
 							content={v} 
 							verse_label={(index + 1).toString()} 
-							// on_strongs_clicked={on_strongs_clicked}
-							// on_verse_word_clicked={on_verse_word_clicked}
+							on_strongs_clicked={on_strongs_clicked}
+							on_verse_word_clicked={on_verse_word_clicked}
 						/>
 					</Box>
 				)}

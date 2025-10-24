@@ -28,10 +28,10 @@ export default function BiblePage(): React.ReactElement {
 	const [verses, set_verses] = useState<RenderedVerseContent[] | null>(null);
 	const [parallel_verses, set_parallel_verses] = useState<RenderedVerseContent[] | null>(null);
 
-	const [strongs_popover_anchor_el, set_strongs_strongs_anchor_el] = useState<HTMLElement | null>(null);
+	const [strongs_popover_anchor_pos, set_strongs_strongs_anchor_el] = useState<{top: number, left: number} | null>(null);
 	const [strongs_popover_number, set_strongs_popover_number] = useState<StrongsNumber | null>(null);
 
-	const [word_popover_anchor_el, set_word_popover_anchor_el] = useState<HTMLElement | null>(null);
+	const [word_popover_anchor_el, set_word_popover_anchor_el] = useState<{top: number, left: number} | null>(null);
 	const [word_popover_data, set_word_popover_data] = useState<WordId | null>(null);
 
 	const button_width = useMemo(() => BUTTON_SIZE * 0.75, []);
@@ -106,7 +106,7 @@ export default function BiblePage(): React.ReactElement {
 		[handle_chapter_navigation]
 	);
 
-	const handle_strongs_click = useCallback((e: HTMLElement, s: StrongsNumber) => {
+	const handle_strongs_click = useCallback((e: { top: number, left: number }, s: StrongsNumber) => {
 		set_strongs_strongs_anchor_el(e);
 		set_strongs_popover_number(s);
 	}, []);
@@ -116,7 +116,7 @@ export default function BiblePage(): React.ReactElement {
 		set_strongs_popover_number(null);
 	}, []);
 
-	const handle_word_click = useCallback((e: HTMLElement, word: bible.WordId) => {
+	const handle_word_click = useCallback((e: { top: number, left: number }, word: bible.WordId) => {
 		set_word_popover_anchor_el(e)
 		set_word_popover_data(word);
 	}, []);
@@ -175,13 +175,13 @@ export default function BiblePage(): React.ReactElement {
 			<Footer />
 
 			<StrongsPopover 
-				anchor={strongs_popover_anchor_el} 
+				pos={strongs_popover_anchor_pos}
 				strongs={strongs_popover_number} 
 				on_close={handle_strongs_popover_close}			
 			/>
 
 			<WordPopover
-				anchor={word_popover_anchor_el}
+				pos={word_popover_anchor_el}
 				word={word_popover_data}
 				on_close={(handle_word_popover_close)}
 			/>

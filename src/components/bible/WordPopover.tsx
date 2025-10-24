@@ -9,13 +9,13 @@ import ModuleEntryRenderer from "./ModuleEntryRenderer";
 
 export type WordPopoverProps = {
     word: WordId | null,
-    anchor: HTMLElement | null,
+    pos: {top: number, left: number} | null,
     on_close: () => void,
 }
 
 export default function WordPopover({
     word,
-    anchor,
+    pos,
     on_close,
 }: WordPopoverProps): React.ReactElement
 {
@@ -38,8 +38,8 @@ export default function WordPopover({
     }, [word]);
 
     const is_open = useMemo(() => {
-        return anchor !== null && module_entries !== null && word !== null;
-    }, [anchor, module_entries, word]);
+        return pos !== null && module_entries !== null && word !== null;
+    }, [pos, module_entries, word]);
 
     const word_text = useMemo(() => {
         if (verse_render_data !== null && word !== null)
@@ -128,13 +128,14 @@ export default function WordPopover({
     // reset when closed or anchor changes
     useEffect(() => {
         if (!is_open) setPaperTranslateY(0);
-    }, [is_open, anchor]);
+    }, [is_open, pos]);
 
     return (
         <Popover
             key={module_entries?.length}
             open={is_open}
-            anchorEl={anchor}
+            anchorPosition={pos ?? undefined}
+            anchorReference="anchorPosition"
             onClose={on_close}
             disablePortal={false}
             anchorOrigin={{

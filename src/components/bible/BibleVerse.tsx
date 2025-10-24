@@ -8,8 +8,8 @@ import { VerseId, WordId } from "../../interop/bible"
 import { parse_strongs, StrongsNumber } from "../../interop/bible/strongs"
 
 
-export type StrongsClickedCallback = (el: HTMLElement, strongs: StrongsNumber) => void;
-export type VerseWordClickedCallback = (e: HTMLElement, word: WordId) => void;
+export type StrongsClickedCallback = (pos: { top: number, left: number }, strongs: StrongsNumber) => void;
+export type VerseWordClickedCallback = (pos: { top: number, left: number }, word: WordId) => void;
 
 export type BibleVerseProps = {
     render_data: VerseRenderData,
@@ -31,10 +31,13 @@ export default function BibleVerse({
 {
     const handle_verse_clicked = (e: React.MouseEvent<HTMLElement>) => {
         const target = e.target as HTMLElement;
+        const rect = target.getBoundingClientRect();
+        const pos = { top: rect.top, left: rect.left };
+
         if (target.dataset.wordIndex)
         {
             const word_index = parseInt(target.dataset.wordIndex, 10);
-            on_verse_word_clicked?.(target, {
+            on_verse_word_clicked?.(pos, {
                 verse: render_data.id,
                 word: word_index,
             });
@@ -43,7 +46,7 @@ export default function BibleVerse({
         if (target.dataset.strongsNumber)
         {
             const strongs_number = parse_strongs(target.dataset.strongsNumber);
-            on_strongs_clicked?.(target, strongs_number);
+            on_strongs_clicked?.(pos, strongs_number);
         }
     }
 

@@ -7,13 +7,13 @@ import SmallerTextSection from "../SmallerTextSection";
 import * as utils from "../../utils";
 
 export type StrongsPopoverProps = {
-    anchor: HTMLElement | null,
+    pos: { top: number, left: number } | null,
     strongs: StrongsNumber | null,
     on_close: () => void,
 }
 
 export default function StrongsPopover({
-    anchor,
+    pos,
     strongs,
     on_close,
 }: StrongsPopoverProps): React.ReactElement
@@ -31,13 +31,14 @@ export default function StrongsPopover({
     }, [strongs]);
 
     const is_open = useMemo(() => {
-        return anchor !== null && strongs_defs !== null && strongs !== null;
-    }, [anchor, strongs_defs, strongs])
+        return pos !== null && strongs_defs !== null && strongs !== null;
+    }, [pos, strongs_defs, strongs])
 
     return (
         <Popover
             open={is_open}
-            anchorEl={anchor}
+            anchorPosition={pos ?? undefined}
+            anchorReference="anchorPosition"
             onClose={on_close}
             anchorOrigin={{
                 vertical: "bottom",
