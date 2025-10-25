@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { use_selected_bibles, WordId } from "../../interop/bible";
+import { BibleInfo, get_book_display_name, use_selected_bibles, WordId } from "../../interop/bible";
 import { fetch_backend_word_entries, ModuleEntry } from "../../interop/module_entry";
 import { Box, Collapse, Divider, ListItemButton, Popover, Stack, Typography } from "@mui/material";
 import SmallerTextSection from "../SmallerTextSection";
@@ -203,6 +203,7 @@ export default function WordPopover({
                                     handleResizeRef.current?.();
                                 }, 200); // matches MUI "auto" timeout
                             }}
+                            bible_info={bible_version}
                         />}
                     </Stack>
                 </SmallerTextSection>
@@ -214,11 +215,13 @@ export default function WordPopover({
 type WordPopoverContentProps = {
     entries: ModuleEntry[],
     onCollapseChange: () => void,
+    bible_info: BibleInfo,
 }
 
 function WordPopoverContent({
     entries,
     onCollapseChange,
+    bible_info,
 }: WordPopoverContentProps): React.ReactElement
 {
     const [open_modules, set_open_modules] = useState<string[]>([]);
@@ -247,6 +250,7 @@ function WordPopoverContent({
                             module_name={name}
                             open_modules={open_modules}
                             on_click={on_click}
+                            bible_info={bible_info}
                         />
                     )
                 })
@@ -260,6 +264,7 @@ type WordPopoverItemProps = {
     module_name: string,
     open_modules: string[],
     on_click: (name: string) => void,
+    bible_info: BibleInfo,
 }
 
 function WordPopupItem({
@@ -267,6 +272,7 @@ function WordPopupItem({
     module_name,
     open_modules,
     on_click,
+    bible_info
 }: WordPopoverItemProps): React.ReactElement
 {
     const is_expanded = open_modules.find(p => p === module_name) ? true : false;
@@ -288,13 +294,18 @@ function WordPopupItem({
                     }}
                 >
                     {entries.map((e, i) => (
-                        <ModuleEntryRenderer entry={e} key={i} />
+                        <ModuleEntryRenderer 
+                            entry={e} 
+                            key={i} 
+                            on_ref_click={() => {}}
+                            name_mapper={b => get_book_display_name(b, bible_info)}
+                        />
                     ))}
                 </Stack>
                 <Divider sx={{
                     mt: theme => theme.spacing(1),
                     mb: theme => theme.spacing(1),
-                }} />
+                }}/>
             </Collapse>
         </>
     )

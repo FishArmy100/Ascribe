@@ -1,3 +1,5 @@
+import { BibleInfo } from ".";
+
 export type OsisBook =
   | "Gen"
   | "Exod"
@@ -217,4 +219,9 @@ export function pretty_print_book(book: OsisBook): string
         case "Rev": return "Revelation";
         default: return book;
     }
+}
+
+export function get_book_display_name(book: OsisBook, bible: BibleInfo): string 
+{
+    return bible.books.find(b => b.osis_book === book)?.abbreviation ?? book;
 }

@@ -1,6 +1,6 @@
 use std::num::NonZeroU32;
 
-use biblio_json::{Package, core::{VerseId, WordRange}, modules::{ModuleEntry, bible::Word, notebook::NotebookEntry, xrefs::XRefEntry}};
+use biblio_json::{Package, core::{RefId, VerseId, WordRange}, modules::{ModuleEntry, bible::Word, notebook::NotebookEntry, xrefs::XRefEntry}};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 
@@ -208,6 +208,14 @@ impl ModuleEntryJson
         }).filter_map(|e| {
             let module_name = e.entry.module.clone();
             let entry = package.fetch_entry(e.entry.clone())?;
+
+            if let ModuleEntry::XRef(XRefEntry::Directed { source, .. }) = &entry
+            {
+                if source != &RefId::from_verse_id(verse, None)
+                {
+                    return None;
+                }
+            }
 
             Some(Self::new(entry, module_name))
         }).collect_vec();

@@ -1,3 +1,4 @@
+import { VerseId } from ".";
 import { OsisBook } from "./book";
 
 export type RefId = {
@@ -50,5 +51,43 @@ export function pretty_print_ref_id(id: RefId, namer: (book: OsisBook) => string
         let from = pretty_print_atom(id.id.from, namer);
         let to = pretty_print_atom(id.id.to, namer);
         return `${from}-${to}${bible}`;
+    }
+}
+
+export function get_first_verse(id: RefId): VerseId
+{
+    let atom = undefined;
+    if (id.id.type === "range")
+    {
+        atom = id.id.from;
+    }
+    else 
+    {
+        atom = id.id.atom;
+    }
+
+    if (atom.type === "book")
+    {
+        return {
+            book: atom.book,
+            chapter: 1,
+            verse: 1,
+        }
+    }
+    else if (atom.type === "chapter")
+    {
+        return {
+            book: atom.book,
+            chapter: atom.chapter,
+            verse: 1,
+        }
+    }
+    else
+    {
+        return {
+            book: atom.book,
+            chapter: atom.chapter,
+            verse: atom.verse,
+        }
     }
 }

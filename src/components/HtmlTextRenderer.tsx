@@ -219,10 +219,10 @@ export function HtmlHRefSrcRenderer({
             key={key}
             onClick={() => on_click(href)}
             sx={{
-                color: (theme) => theme.palette.primary.main,
+                color: (theme) => theme.palette.info.main,
                 cursor: "pointer",
                 "&:hover": {
-                    color: (theme) => theme.palette.primary.light
+                    color: (theme) => theme.palette.info.light
                 }
             }}
         >
