@@ -1,20 +1,19 @@
-import { Box, CircularProgress, Popover, useTheme } from "@mui/material";
+import { Box, CircularProgress, useTheme } from "@mui/material";
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import * as images from "../../assets"
 import { use_view_history, ViewHistoryContextType } from "../../components/providers/ViewHistoryProvider";
 import * as bible from "../../interop/bible";
 import { WordId } from "../../interop/bible";
-import { RenderedVerseContent, VerseRenderData } from "../../interop/bible/render";
+import { RenderedVerseContent } from "../../interop/bible/render";
 import { use_top_bar_padding, TopBarSpacer, ImageButton, Footer } from "../../components";
 import ChapterContent from "./ChapterContent";
 import { BiblePageToolbar } from "./BiblePageToolbar";
 import { BUTTON_SIZE } from "../../components/core/ImageButton";
 import { use_bible_display_settings } from "../../components/providers/BibleDisplaySettingsProvider";
-import { format_strongs, StrongsNumber } from "../../interop/bible/strongs";
+import { StrongsNumber } from "../../interop/bible/strongs";
 import StrongsPopover from "../../components/bible/StrongsPopover";
 import WordPopover from "../../components/bible/WordPopover";
 import { HRefSrc } from "../../interop/html_text";
-import { ViewHistoryInfo, ViewHistoryEntry } from "../../interop/view_history";
 
 export default function BiblePage(): React.ReactElement {
 	const theme = useTheme();
@@ -267,12 +266,14 @@ function get_handle_ref_clicked_fn(
 		if (href.type === "ref_id") {
 			const id = href.value.id;
 			const bible = href.value.bible;
+			update_bible_version(bible);
 
 			if (id.type === "range") {
 				if (id.from.type !== "book" &&
 					id.to.type !== "book" &&
 					id.from.book === id.to.book &&
-					id.from.chapter === id.to.chapter) {
+					id.from.chapter === id.to.chapter
+				) {
 					let start_verse: number | null = null;
 					if (id.from.type !== "chapter") {
 						start_verse = id.from.verse;
@@ -292,82 +293,77 @@ function get_handle_ref_clicked_fn(
 							start: start_verse,
 							end: end_verse,
 						});
-						update_bible_version(bible);
 					}
-
-					else {
+					else 
+					{
 						view_history.push({
 							type: "chapter",
 							chapter: { book, chapter: 1 }
 						});
-
-						update_bible_version(bible);
 					}
 				}
-
-				else {
+				else 
+				{
 					const atom = id.from;
 					const book = atom.book;
-					if (atom.type === "book") {
+					if (atom.type === "book") 
+					{
 						view_history.push({
 							type: "chapter",
 							chapter: { book, chapter: 1 }
 						});
-
-						update_bible_version(bible);
 					}
-					else if (atom.type === "chapter") {
+					else if (atom.type === "chapter") 
+					{
 						const chapter = atom.chapter;
 						view_history.push({
 							type: "chapter",
 							chapter: { book, chapter }
 						});
-						update_bible_version(bible);
 					}
-
-					else {
+					else 
+					{
 						const chapter = atom.chapter;
 						const verse = atom.verse;
+
 						view_history.push({
 							type: "verse",
 							chapter: { book, chapter },
 							start: verse,
 							end: null,
 						});
-						update_bible_version(bible);
 					}
 				}
 			}
-
-			else {
+			else 
+			{
 				const book = id.atom.book;
-				if (id.atom.type === "book") {
+				if (id.atom.type === "book") 
+				{
 					view_history.push({
 						type: "chapter",
 						chapter: { book, chapter: 1 }
 					});
-
-					update_bible_version(bible);
 				}
-				else if (id.atom.type === "chapter") {
+				else if (id.atom.type === "chapter") 
+				{
 					const chapter = id.atom.chapter;
 					view_history.push({
 						type: "chapter",
 						chapter: { book, chapter }
 					});
-					update_bible_version(bible);
 				}
-
-				else {
+				else 
+				{
 					const chapter = id.atom.chapter;
 					const verse = id.atom.verse;
+
 					view_history.push({
 						type: "verse",
 						chapter: { book, chapter },
 						start: verse,
 						end: null,
 					});
-					update_bible_version(bible);
 				}
 			}
 		}

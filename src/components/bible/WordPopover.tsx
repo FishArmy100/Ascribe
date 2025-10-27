@@ -198,7 +198,7 @@ function WordPopoverContent({
 
     return (
         <Stack
-            maxWidth="200px"
+            width="40vw"
         >
             {
                 entries.group_py(e => e.module).sort(([a], [b]) => a.localeCompare(b)).map(([name, entries], i) => {
@@ -246,7 +246,7 @@ function WordPopupItem({
                     mb: t => is_expanded ? t.spacing(1) : undefined,
                 }}
             >
-                <Typography component="h3" >{module_name}</Typography>
+                <Typography component="h2" variant="h5" fontWeight="bold" >{module_name}</Typography>
                 {is_expanded? <ExpandLess/> : <ExpandMore/>}
             </ListItemButton>
             <Collapse in={is_expanded} timeout="auto" unmountOnExit>

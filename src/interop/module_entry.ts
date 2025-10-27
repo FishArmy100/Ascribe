@@ -4,6 +4,11 @@ import { RefId } from "./bible/ref_id"
 import { StrongsNumber } from "./bible/strongs"
 import { HtmlText } from "./html_text"
 
+export type ReferenceData = {
+    preview_text: string,
+    id: RefId,
+}
+
 export type StrongsWord = {
     strongs: StrongsNumber[],
     primary: StrongsNumber | null,
@@ -50,8 +55,8 @@ export type ModuleEntry =
     module: string,
     id: number,
 
-    source: RefId,
-    targets: RefId[],
+    source: ReferenceData,
+    targets: ReferenceData[],
     note: HtmlText | null,
 }
 |{  
@@ -59,7 +64,7 @@ export type ModuleEntry =
     module: string,
     id: number,
 
-    refs: RefId[],
+    refs: ReferenceData[],
     note: HtmlText | null,
 }
 |{  

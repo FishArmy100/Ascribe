@@ -25,3 +25,43 @@ export type HRefSrc =
 	| { type: "ref_id"; value: RefId }
 	| { type: "strongs"; value: StrongsNumber }
 	| { type: "module_ref"; module_alias: string; entry_id: number };
+
+type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
+
+export class HtmlTextHelper
+{
+	static basic_heading(level: HeadingLevel, text: string): Node 
+	{
+		return HtmlTextHelper.heading(level, HtmlTextHelper.bold(HtmlTextHelper.text(text)))
+	}
+
+	static text(text: string): Node
+	{
+		return { type: "text", text }
+	}
+
+	static heading(level: HeadingLevel, ...content: Node[]): Node
+	{
+		return { type: "heading", level, content }
+	}
+
+	static bold(...content: Node[]): Node
+	{
+		return { type: "bold", content }
+	}
+
+	static italic(...content: Node[]): Node
+	{
+		return { type: "italic", content }
+	}
+
+	static underline(...content: Node[]): Node
+	{
+		return { type: "underline", content };
+	}
+
+	static strike(...content: Node[]): Node 
+	{
+		return { type: "strike", content }
+	}
+}

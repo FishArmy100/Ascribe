@@ -1,6 +1,7 @@
 import React from "react";
 import { HRefSrc, HtmlText, Node } from "../interop/html_text";
 import { Box, Typography, useTheme } from "@mui/material";
+import { TypographyVariant } from "@mui/material/styles";
 
 export type HtmlTextRendererProps = {
 	on_href_click: (src: HRefSrc) => void,
@@ -15,7 +16,12 @@ export function HtmlTextRenderer({
     return (
         <Box>
             {content.nodes.map((n, i) => (
-                <HtmlNodeRenderer node={n} on_href_click={on_link_click} key={i}/>
+                <HtmlNodeRenderer 
+                    node={n} 
+                    on_href_click={on_link_click} 
+                    key={i}
+                    parent_variant={null}
+                />
             ))}
         </Box>
     )
@@ -24,11 +30,13 @@ export function HtmlTextRenderer({
 export type HtmlNodeRendererProps = {
     on_href_click: (src: HRefSrc) => void,
     node: Node,
+    parent_variant: TypographyVariant | null,
 }
 
 export function HtmlNodeRenderer({
     on_href_click,
-    node
+    node,
+    parent_variant,
 }: HtmlNodeRendererProps): React.ReactElement
 {
     const theme = useTheme();
@@ -45,10 +53,16 @@ export function HtmlNodeRenderer({
 
         return (
             <Typography
+                variant={component}
                 component={component}
             >
                 {node.content.map((n, i) => (
-                    <HtmlNodeRenderer node={n} on_href_click={on_href_click} key={i}/>
+                    <HtmlNodeRenderer 
+                        node={n} 
+                        on_href_click={on_href_click} 
+                        key={i}
+                        parent_variant={component}
+                    />
                 ))}
             </Typography>
         )
@@ -74,7 +88,12 @@ export function HtmlNodeRenderer({
                 }}
             >
                 {node.items.map((node, i) => (
-                    <HtmlNodeRenderer key={i} node={node} on_href_click={on_href_click}/>
+                    <HtmlNodeRenderer 
+                        parent_variant="body1" 
+                        key={i} 
+                        node={node} 
+                        on_href_click={on_href_click}
+                    />
                 ))}
             </Box>
         )
@@ -90,7 +109,12 @@ export function HtmlNodeRenderer({
                 }}
             >
                 {node.content.map((n, i) => (
-                    <HtmlNodeRenderer node={n} on_href_click={on_href_click} key={i}/>
+                    <HtmlNodeRenderer 
+                        parent_variant="body1" 
+                        node={n} 
+                        on_href_click={on_href_click} 
+                        key={i}
+                    />
                 ))}
             </Box>
         )
@@ -102,7 +126,12 @@ export function HtmlNodeRenderer({
                 component="p"
             >
                 {node.content.map((n, i) => (
-                    <HtmlNodeRenderer node={n} on_href_click={on_href_click} key={i}/>
+                    <HtmlNodeRenderer 
+                        node={n} 
+                        on_href_click={on_href_click} 
+                        key={i}
+                        parent_variant="body1"
+                    />
                 ))}
             </Typography>
         )
@@ -114,6 +143,7 @@ export function HtmlNodeRenderer({
                 href={node.href}
                 on_click={on_href_click}
                 content={node.content}
+                parent_variant={parent_variant}
             />
         )
     }
@@ -122,10 +152,16 @@ export function HtmlNodeRenderer({
         return (
             <Typography
                 component="strong"
+                variant={parent_variant ?? undefined}
                 sx={{ fontWeight: 'bold', display: 'inline' }}
             >
                 {node.content.map((n, i) => (
-                    <HtmlNodeRenderer node={n} on_href_click={on_href_click} key={i} />
+                    <HtmlNodeRenderer 
+                        node={n} 
+                        on_href_click={on_href_click} 
+                        key={i} 
+                        parent_variant={parent_variant}
+                    />
                 ))}
             </Typography>
         )
@@ -135,10 +171,16 @@ export function HtmlNodeRenderer({
         return (
             <Typography
                 component="em"
+                variant={parent_variant ?? undefined}
                 sx={{ fontStyle: 'italic', display: 'inline' }}
             >
                 {node.content.map((n, i) => (
-                    <HtmlNodeRenderer node={n} on_href_click={on_href_click} key={i} />
+                    <HtmlNodeRenderer 
+                        node={n} 
+                        on_href_click={on_href_click} 
+                        key={i} 
+                        parent_variant={parent_variant}
+                    />
                 ))}
             </Typography>
         )
@@ -148,10 +190,16 @@ export function HtmlNodeRenderer({
         return (
             <Typography
                 component="span"
+                variant={parent_variant ?? undefined}
                 sx={{ textDecoration: 'underline', display: 'inline' }}
             >
                 {node.content.map((n, i) => (
-                    <HtmlNodeRenderer node={n} on_href_click={on_href_click} key={i} />
+                    <HtmlNodeRenderer 
+                        node={n} 
+                        on_href_click={on_href_click} 
+                        key={i} 
+                        parent_variant={parent_variant}
+                    />
                 ))}
             </Typography>
         )
@@ -161,10 +209,16 @@ export function HtmlNodeRenderer({
         return (
             <Typography
                 component="s"
+                variant={parent_variant ?? undefined}
                 sx={{ textDecoration: 'line-through', display: 'inline' }}
             >
                 {node.content.map((n, i) => (
-                    <HtmlNodeRenderer node={n} on_href_click={on_href_click} key={i}/>
+                    <HtmlNodeRenderer 
+                        node={n} 
+                        on_href_click={on_href_click} 
+                        key={i}
+                        parent_variant={parent_variant}
+                    />
                 ))}
             </Typography>
         )
@@ -204,13 +258,15 @@ export type HtmlHRefSrcRendererProps = {
     on_click: (src: HRefSrc) => void,
     content: Node[],
     key?: React.Key,
+    parent_variant: TypographyVariant | null,
 }
 
 export function HtmlHRefSrcRenderer({
     href,
     on_click,
     content,
-    key
+    key,
+    parent_variant,
 }: HtmlHRefSrcRendererProps): React.ReactElement
 {
     return (
@@ -218,6 +274,7 @@ export function HtmlHRefSrcRenderer({
             component="span"
             key={key}
             onClick={() => on_click(href)}
+            variant={parent_variant ?? undefined}
             sx={{
                 color: (theme) => theme.palette.info.main,
                 cursor: "pointer",
@@ -227,7 +284,12 @@ export function HtmlHRefSrcRenderer({
             }}
         >
             {content.map((n, i) => (
-                <HtmlNodeRenderer node={n} on_href_click={on_click} key={i}/>
+                <HtmlNodeRenderer 
+                    node={n} 
+                    on_href_click={on_click} 
+                    key={i}
+                    parent_variant={parent_variant}
+                />
             ))}
         </Typography>
     )

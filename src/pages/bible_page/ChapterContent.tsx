@@ -1,11 +1,11 @@
-import { RenderedVerseContent, VerseRenderData } from "../../interop/bible/render";
+import { RenderedVerseContent } from "../../interop/bible/render";
 import * as bible from "../../interop/bible";
 import { Box, Divider, Paper, Typography } from "@mui/material";
 import { Grid } from "@mui/material";
 import { useEffect, useState, useMemo, useCallback, useRef, forwardRef, useLayoutEffect } from "react";
 import React from "react";
-import BibleVerseRaw, { StrongsClickedCallback, VerseWordClickedCallback } from "../../components/bible/BibleVerse";
-import { SxProps, Theme } from "@mui/material/styles";
+import { StrongsClickedCallback, VerseWordClickedCallback } from "../../components/bible/BibleVerse";
+import { Theme } from "@mui/material/styles";
 import { SystemStyleObject } from "@mui/system";
 import RenderedVerse from "../../components/bible/RenderedVerse";
 
@@ -35,48 +35,49 @@ export default function ChapterContent({
     const book_name = bible.get_book_info(bible_info, chapter.book).name;
     const chapter_name = `${book_name} ${chapter.chapter}`;
     const [show_focused_verses, set_show_focused_verses] = useState(true);
+	const [verses_loaded, set_verses_loaded] = useState(false);
+
+	console.log("Rendering chapter content...");
 
     useEffect(() => {
         set_show_focused_verses(true);
-    }, [chapter, bible_info.name, parallel_bible_info?.name, focused_range]);
+		set_verses_loaded(false);
+    }, [focused_range, parallel_bible_info?.name, bible_info.name, chapter, show_focused_verses]);
+
+	useEffect(() => {
+        // Mark verses as loaded after they've been rendered
+        if (verses.length > 0) {
+            set_verses_loaded(true);
+        }
+    }, [verses]);
 
     const row_refs = useRef<{ [v: number]: HTMLDivElement | null }>({});
     
     // Track if we've already scrolled for this focused_range
     const last_scrolled_range = useRef<string | null>(null);
 
-    useLayoutEffect(() => {
-        if (focused_range !== null && show_focused_verses)
+    useEffect(() => {
+        if (focused_range !== null && show_focused_verses && verses_loaded)
         {
-            // Create a unique key for this scroll target
-            const scroll_key = `${chapter.book}-${chapter.chapter}-${focused_range.start}-${focused_range.end}-${bible_info.name}-${parallel_bible_info?.name}`;
-            
-            // Only scroll if we haven't already scrolled to this exact location
-            if (last_scrolled_range.current !== scroll_key) {
-                console.log("Scrolling to verse:", focused_range.start);
-                
-                // Double requestAnimationFrame to ensure layout is complete
-                requestAnimationFrame(() => {
-                    requestAnimationFrame(() => {
-                        const target_ref = row_refs.current[focused_range.start - 1];
-                        if (target_ref) {
-                            // Use a small timeout to let any layout shifts settle
-                            setTimeout(() => {
-                                target_ref.scrollIntoView({
-                                    behavior: "smooth",
-                                    block: "center",
-                                });
-                            }, 50);
-                            last_scrolled_range.current = scroll_key;
-                        }
+            // Use requestAnimationFrame to ensure DOM has updated
+            requestAnimationFrame(() => {
+                const target_ref = row_refs.current[focused_range.start - 1];
+                if (target_ref) 
+                {
+                    console.log("Scrolling into view...");
+                    target_ref.scrollIntoView({
+                        behavior: "smooth",
+                        block: "center",
                     });
-                });
-            }
-        } else {
+                }
+            });
+        } 
+		else 
+		{
             // Reset when focused_range is cleared
             last_scrolled_range.current = null;
         }
-    }, [focused_range, chapter, bible_info.name, parallel_bible_info?.name, show_focused_verses, verses]);
+    }, [focused_range, parallel_bible_info?.name, bible_info.name, chapter, show_focused_verses, verses_loaded]);
 
     return (
         <Paper
