@@ -6,23 +6,31 @@ import SmallerTextSection from "../SmallerTextSection";
 import { fetch_backend_verse_render_data, VerseRenderData } from "../../interop/bible/render";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import ModuleEntryRenderer from "./ModuleEntryRenderer";
+import { HRefSrc } from "../../interop/html_text";
 
 export type WordPopoverProps = {
     word: WordId | null,
     pos: {top: number, left: number} | null,
     on_close: () => void,
+    on_ref_clicked: (href: HRefSrc) => void,
 }
 
 export default function WordPopover({
     word,
     pos,
     on_close,
+    on_ref_clicked,
 }: WordPopoverProps): React.ReactElement
 {
     const [module_entries, set_module_entries] = useState<ModuleEntry[] | null>(null);
     const [verse_render_data, set_verse_render_data] = useState<VerseRenderData | null>(null);
     const { bible: bible_version } = use_selected_bibles();
+
+    const popover_ref = useRef<HTMLDivElement>(null);
+    const [corrected_pos, set_corrected_pos] = useState<{ top: number; left: number } | null>(pos);
     
+    const [open_modules, set_open_modules] = useState<string[]>([]);
+
     useEffect(() => {
         if (word !== null)
         {
@@ -37,6 +45,41 @@ export default function WordPopover({
         }
     }, [word]);
 
+    useEffect(() => {
+        if (!pos || !popover_ref.current) return;
+
+        const check_and_correct_pos = () => {
+            if (!popover_ref.current) return;
+            
+            const rect = popover_ref.current.getBoundingClientRect();
+            const bottomOverflow = rect.bottom - window.innerHeight;
+
+            if (bottomOverflow > 0) 
+            {
+                const newTop = Math.max(16, pos.top - bottomOverflow - 16);
+                set_corrected_pos({ ...pos, top: newTop });
+            } 
+            else 
+            {
+                set_corrected_pos({ ...pos }); // need to create a new object here
+            }
+        };
+
+        // Initial check
+        check_and_correct_pos();
+
+        // Watch for size changes
+        const resize_observer = new ResizeObserver(() => {
+            check_and_correct_pos();
+        });
+
+        resize_observer.observe(popover_ref.current);
+
+        return () => {
+            resize_observer.disconnect();
+        };
+    }, [pos, module_entries, verse_render_data, open_modules]);
+    
     const is_open = useMemo(() => {
         return pos !== null && module_entries !== null && word !== null;
     }, [pos, module_entries, word]);
@@ -52,89 +95,11 @@ export default function WordPopover({
         }
     }, [verse_render_data]);
 
-    // --- translate (px) to nudge Popover paper upward if it overflows bottom viewport
-    const [paperTranslateY, setPaperTranslateY] = useState<number>(0);
-    const paperRef = useRef<HTMLElement | null>(null);
-    const roRef = useRef<ResizeObserver | null>(null);
-    
-    // expose handleResize so child components can trigger it
-    const handleResizeRef = useRef<(() => void) | null>(null);
-
-    useEffect(() => {
-        // handler computes the needed translateY (negative moves up)
-        const handleResize = () => {
-            const node = paperRef.current;
-            if (!node) return;
-
-            const rect = node.getBoundingClientRect();
-            const margin = 8; // px gap from viewport edges
-
-            // how much the paper overflows the bottom viewport edge
-            const overflowBottom = rect.bottom - (window.innerHeight - margin);
-
-            let translateY = 0;
-            if (overflowBottom > 0) {
-                // move up by overflow amount
-                translateY = -Math.ceil(overflowBottom);
-            }
-
-            // clamp so we don't push past the top margin
-            const newTop = rect.top + translateY;
-            if (newTop < margin) {
-                // adjust translate toward zero so top >= margin
-                translateY += (margin - newTop);
-            }
-
-            setPaperTranslateY((prev) => (prev === translateY ? prev : translateY));
-        };
-
-        // store in ref so children can call it
-        handleResizeRef.current = handleResize;
-
-        // disconnect previous observer if any
-        if (roRef.current) {
-            roRef.current.disconnect();
-            roRef.current = null;
-        }
-
-        const node = paperRef.current;
-        if (!node) return;
-
-        // create and observe
-        roRef.current = new ResizeObserver(() => {
-            handleResize();
-        });
-        roRef.current.observe(node);
-
-        // call once immediately to position correctly on open
-        // use requestAnimationFrame to ensure layout is stable after render
-        requestAnimationFrame(() => handleResize());
-
-        // also respond to viewport changes
-        window.addEventListener("resize", handleResize);
-        window.addEventListener("scroll", handleResize, true); // capture to respond to ancestor scrolling too
-
-        return () => {
-            if (roRef.current) {
-                roRef.current.disconnect();
-                roRef.current = null;
-            }
-            window.removeEventListener("resize", handleResize);
-            window.removeEventListener("scroll", handleResize, true);
-            handleResizeRef.current = null;
-        };
-    }, [is_open, module_entries, word]); // reattach when content or open state changes
-
-    // reset when closed or anchor changes
-    useEffect(() => {
-        if (!is_open) setPaperTranslateY(0);
-    }, [is_open, pos]);
-
     return (
         <Popover
             key={module_entries?.length}
             open={is_open}
-            anchorPosition={pos ?? undefined}
+            anchorPosition={corrected_pos ?? pos ?? undefined}
             anchorReference="anchorPosition"
             onClose={on_close}
             disablePortal={false}
@@ -149,9 +114,7 @@ export default function WordPopover({
             marginThreshold={32}
             slotProps={{
                 paper: {
-                    ref: (el) => {
-                        paperRef.current = el;
-                    },
+                    ref: popover_ref,
                     sx: {
                         m: 2, // margin: adds spacing from viewport edges
                         maxWidth: "90vw", // optional: limit width
@@ -161,8 +124,6 @@ export default function WordPopover({
 
                         // animate the nudge so it doesn't feel abrupt
                         transition: "transform 160ms ease",
-                        // apply the computed translateY (this will be "" when zero)
-                        transform: `translateY(${paperTranslateY}px)`,
                     },
                 }
             }}
@@ -197,13 +158,10 @@ export default function WordPopover({
                         }}/>
                         {module_entries && <WordPopoverContent 
                             entries={module_entries}
-                            onCollapseChange={() => {
-                                // trigger resize after collapse animation completes
-                                setTimeout(() => {
-                                    handleResizeRef.current?.();
-                                }, 200); // matches MUI "auto" timeout
-                            }}
                             bible_info={bible_version}
+                            open_modules={open_modules}
+                            set_open_modules={set_open_modules}
+                            on_ref_clicked={on_ref_clicked}
                         />}
                     </Stack>
                 </SmallerTextSection>
@@ -214,18 +172,20 @@ export default function WordPopover({
 
 type WordPopoverContentProps = {
     entries: ModuleEntry[],
-    onCollapseChange: () => void,
     bible_info: BibleInfo,
+    open_modules: string[],
+    set_open_modules: (m: string[]) => void,
+    on_ref_clicked: (href: HRefSrc) => void,
 }
 
 function WordPopoverContent({
     entries,
-    onCollapseChange,
     bible_info,
+    open_modules,
+    set_open_modules,
+    on_ref_clicked,
 }: WordPopoverContentProps): React.ReactElement
 {
-    const [open_modules, set_open_modules] = useState<string[]>([]);
-
     const on_click = (name: string) => {
         let copy = Array.from(open_modules)
         if (!copy.remove(name))
@@ -234,7 +194,6 @@ function WordPopoverContent({
         }
 
         set_open_modules(copy)
-        onCollapseChange(); // notify parent that collapse state changed
     }
 
     return (
@@ -251,6 +210,7 @@ function WordPopoverContent({
                             open_modules={open_modules}
                             on_click={on_click}
                             bible_info={bible_info}
+                            on_ref_clicked={on_ref_clicked}
                         />
                     )
                 })
@@ -265,6 +225,7 @@ type WordPopoverItemProps = {
     open_modules: string[],
     on_click: (name: string) => void,
     bible_info: BibleInfo,
+    on_ref_clicked: (href: HRefSrc) => void,
 }
 
 function WordPopupItem({
@@ -272,7 +233,8 @@ function WordPopupItem({
     module_name,
     open_modules,
     on_click,
-    bible_info
+    bible_info,
+    on_ref_clicked
 }: WordPopoverItemProps): React.ReactElement
 {
     const is_expanded = open_modules.find(p => p === module_name) ? true : false;
@@ -297,7 +259,7 @@ function WordPopupItem({
                         <ModuleEntryRenderer 
                             entry={e} 
                             key={i} 
-                            on_ref_click={() => {}}
+                            on_ref_clicked={on_ref_clicked}
                             name_mapper={b => get_book_display_name(b, bible_info)}
                         />
                     ))}

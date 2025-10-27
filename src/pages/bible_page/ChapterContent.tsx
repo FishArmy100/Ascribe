@@ -2,7 +2,7 @@ import { RenderedVerseContent, VerseRenderData } from "../../interop/bible/rende
 import * as bible from "../../interop/bible";
 import { Box, Divider, Paper, Typography } from "@mui/material";
 import { Grid } from "@mui/material";
-import { useEffect, useState, useMemo, useCallback, useRef, forwardRef } from "react";
+import { useEffect, useState, useMemo, useCallback, useRef, forwardRef, useLayoutEffect } from "react";
 import React from "react";
 import BibleVerseRaw, { StrongsClickedCallback, VerseWordClickedCallback } from "../../components/bible/BibleVerse";
 import { SxProps, Theme } from "@mui/material/styles";
@@ -19,11 +19,7 @@ type ChapterContentProps = {
     parallel_verses?: RenderedVerseContent[] | null,
     parallel_bible_info?: bible.BibleInfo | null,
     focused_range: { start: number, end: number } | null,
-	show_strongs: boolean,
 };
-
-// Memoized version of BibleVerse (to prevent re-rendering heavy components)
-const BibleVerse = React.memo(BibleVerseRaw);
 
 export default function ChapterContent({
     verses,
@@ -35,7 +31,6 @@ export default function ChapterContent({
     parallel_verses,
     parallel_bible_info,
     focused_range,
-	show_strongs,
 }: ChapterContentProps): React.ReactElement {
     const book_name = bible.get_book_info(bible_info, chapter.book).name;
     const chapter_name = `${book_name} ${chapter.chapter}`;
@@ -46,16 +41,42 @@ export default function ChapterContent({
     }, [chapter, bible_info.name, parallel_bible_info?.name, focused_range]);
 
     const row_refs = useRef<{ [v: number]: HTMLDivElement | null }>({});
+    
+    // Track if we've already scrolled for this focused_range
+    const last_scrolled_range = useRef<string | null>(null);
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         if (focused_range !== null && show_focused_verses)
         {
-            row_refs.current[focused_range.start - 1]?.scrollIntoView({
-                behavior: "smooth",
-                block: "center",
-            })
+            // Create a unique key for this scroll target
+            const scroll_key = `${chapter.book}-${chapter.chapter}-${focused_range.start}-${focused_range.end}-${bible_info.name}-${parallel_bible_info?.name}`;
+            
+            // Only scroll if we haven't already scrolled to this exact location
+            if (last_scrolled_range.current !== scroll_key) {
+                console.log("Scrolling to verse:", focused_range.start);
+                
+                // Double requestAnimationFrame to ensure layout is complete
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        const target_ref = row_refs.current[focused_range.start - 1];
+                        if (target_ref) {
+                            // Use a small timeout to let any layout shifts settle
+                            setTimeout(() => {
+                                target_ref.scrollIntoView({
+                                    behavior: "smooth",
+                                    block: "center",
+                                });
+                            }, 50);
+                            last_scrolled_range.current = scroll_key;
+                        }
+                    });
+                });
+            }
+        } else {
+            // Reset when focused_range is cleared
+            last_scrolled_range.current = null;
         }
-    }, [focused_range, chapter, bible_info.name, parallel_bible_info?.name])
+    }, [focused_range, chapter, bible_info.name, parallel_bible_info?.name, show_focused_verses, verses]);
 
     return (
         <Paper
@@ -105,7 +126,6 @@ export default function ChapterContent({
                     focused_range={focused_range}
                     show_focused_verses={show_focused_verses}
                     set_show_focused_verses={set_show_focused_verses}
-					show_strongs={show_strongs}
 					on_strongs_clicked={on_strongs_clicked}
 					on_verse_word_clicked={on_verse_word_clicked}
                 />
@@ -121,7 +141,6 @@ type RowComponentProps = {
 	focused_range: { start: number; end: number } | null,
 	show_focused_verses: boolean,
 	set_show_focused_verses: (v: boolean) => void,
-	show_strongs: boolean,
 	on_strongs_clicked: StrongsClickedCallback,
 	on_verse_word_clicked: VerseWordClickedCallback,
 };
@@ -135,7 +154,6 @@ const RowComponentBase = forwardRef<HTMLDivElement, RowComponentProps>((
 		focused_range,
 		show_focused_verses,
 		set_show_focused_verses,
-		show_strongs,
 		on_strongs_clicked,
 		on_verse_word_clicked,
     },
@@ -250,6 +268,5 @@ export const RowComponent = React.memo(RowComponentBase, (prev, next) => {
 		prev.verses[prev.index] === next.verses[next.index] &&
 		prev.parallel_verses?.[prev.index] === next.parallel_verses?.[next.index];
 
-	return same_focus && same_content && prev.show_strongs == next.show_strongs;
+	return same_focus && same_content;
 });
-

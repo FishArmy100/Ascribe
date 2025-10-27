@@ -1,7 +1,7 @@
 import { Box, CircularProgress, Popover, useTheme } from "@mui/material";
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import * as images from "../../assets"
-import { use_view_history } from "../../components/providers/ViewHistoryProvider";
+import { use_view_history, ViewHistoryContextType } from "../../components/providers/ViewHistoryProvider";
 import * as bible from "../../interop/bible";
 import { WordId } from "../../interop/bible";
 import { RenderedVerseContent, VerseRenderData } from "../../interop/bible/render";
@@ -13,12 +13,15 @@ import { use_bible_display_settings } from "../../components/providers/BibleDisp
 import { format_strongs, StrongsNumber } from "../../interop/bible/strongs";
 import StrongsPopover from "../../components/bible/StrongsPopover";
 import WordPopover from "../../components/bible/WordPopover";
+import { HRefSrc } from "../../interop/html_text";
+import { ViewHistoryInfo, ViewHistoryEntry } from "../../interop/view_history";
 
 export default function BiblePage(): React.ReactElement {
 	const theme = useTheme();
 	const view_history = use_view_history();
 	const selected_bibles = bible.use_selected_bibles();
-	const { show_strongs } = use_bible_display_settings().bible_version_state;
+	const { bible_version_state, set_bible_version_state } = use_bible_display_settings();
+	const show_strongs = bible_version_state.show_strongs;
 
 	const current_view = view_history.get_current().current;
 	const current_chapter = current_view.chapter;
@@ -31,7 +34,7 @@ export default function BiblePage(): React.ReactElement {
 	const [strongs_popover_anchor_pos, set_strongs_strongs_anchor_el] = useState<{top: number, left: number} | null>(null);
 	const [strongs_popover_number, set_strongs_popover_number] = useState<StrongsNumber | null>(null);
 
-	const [word_popover_anchor_el, set_word_popover_anchor_el] = useState<{top: number, left: number} | null>(null);
+	const [word_popover_anchor_el, set_word_popover_anchor_pos] = useState<{top: number, left: number} | null>(null);
 	const [word_popover_data, set_word_popover_data] = useState<WordId | null>(null);
 
 	const button_width = useMemo(() => BUTTON_SIZE * 0.75, []);
@@ -117,14 +120,19 @@ export default function BiblePage(): React.ReactElement {
 	}, []);
 
 	const handle_word_click = useCallback((e: { top: number, left: number }, word: bible.WordId) => {
-		set_word_popover_anchor_el(e)
+		set_word_popover_anchor_pos(e)
 		set_word_popover_data(word);
 	}, []);
 
 	const handle_word_popover_close = useCallback(() => {
-		set_word_popover_anchor_el(null);
+		set_word_popover_anchor_pos(null);
 		set_word_popover_data(null);
 	}, [])
+
+	const handle_ref_clicked = get_handle_ref_clicked_fn(set_bible_version_state, bible_version_state, show_strongs, view_history, () => {
+		set_word_popover_anchor_pos(null);
+		set_word_popover_data(null);
+	})
 
 	return (
 		<Box>
@@ -156,7 +164,6 @@ export default function BiblePage(): React.ReactElement {
 						parallel_bible_info={selected_bibles.parallel}
 						parallel_verses={parallel_verses}
 						focused_range={current_verses}
-						show_strongs={show_strongs}
 						on_strongs_clicked={handle_strongs_click}
 						on_verse_word_clicked={handle_word_click}
 					/>
@@ -184,6 +191,7 @@ export default function BiblePage(): React.ReactElement {
 				pos={word_popover_anchor_el}
 				word={word_popover_data}
 				on_close={(handle_word_popover_close)}
+				on_ref_clicked={handle_ref_clicked}
 			/>
 		</Box>
 	);
@@ -236,3 +244,133 @@ const LoadingSpinner = React.memo(() => (
 ));
 
 LoadingSpinner.displayName = 'LoadingSpinner';
+
+function get_handle_ref_clicked_fn(
+	set_bible_version_state: (s: bible.BibleDisplaySettings) => Promise<void>, 
+	bible_version_state: bible.BibleDisplaySettings, 
+	show_strongs: boolean, 
+	view_history: ViewHistoryContextType,
+	on_click: () => void,
+) 
+{
+	return (href: HRefSrc) => {
+		on_click();
+		const update_bible_version = (bible: string | null) => {
+			bible && set_bible_version_state({
+				bible_version: bible,
+				parallel_enabled: bible_version_state.parallel_enabled,
+				parallel_version: bible_version_state.parallel_version,
+				show_strongs: show_strongs,
+			});
+		};
+
+		if (href.type === "ref_id") {
+			const id = href.value.id;
+			const bible = href.value.bible;
+
+			if (id.type === "range") {
+				if (id.from.type !== "book" &&
+					id.to.type !== "book" &&
+					id.from.book === id.to.book &&
+					id.from.chapter === id.to.chapter) {
+					let start_verse: number | null = null;
+					if (id.from.type !== "chapter") {
+						start_verse = id.from.verse;
+					}
+
+					let end_verse: number | null = null;
+					if (id.to.type !== "chapter") {
+						end_verse = id.to.verse;
+					}
+
+					const book = id.from.book;
+					if (start_verse !== null) {
+						const chapter = id.from.chapter;
+						view_history.push({
+							type: "verse",
+							chapter: { book, chapter },
+							start: start_verse,
+							end: end_verse,
+						});
+						update_bible_version(bible);
+					}
+
+					else {
+						view_history.push({
+							type: "chapter",
+							chapter: { book, chapter: 1 }
+						});
+
+						update_bible_version(bible);
+					}
+				}
+
+				else {
+					const atom = id.from;
+					const book = atom.book;
+					if (atom.type === "book") {
+						view_history.push({
+							type: "chapter",
+							chapter: { book, chapter: 1 }
+						});
+
+						update_bible_version(bible);
+					}
+					else if (atom.type === "chapter") {
+						const chapter = atom.chapter;
+						view_history.push({
+							type: "chapter",
+							chapter: { book, chapter }
+						});
+						update_bible_version(bible);
+					}
+
+					else {
+						const chapter = atom.chapter;
+						const verse = atom.verse;
+						view_history.push({
+							type: "verse",
+							chapter: { book, chapter },
+							start: verse,
+							end: null,
+						});
+						update_bible_version(bible);
+					}
+				}
+			}
+
+			else {
+				const book = id.atom.book;
+				if (id.atom.type === "book") {
+					view_history.push({
+						type: "chapter",
+						chapter: { book, chapter: 1 }
+					});
+
+					update_bible_version(bible);
+				}
+				else if (id.atom.type === "chapter") {
+					const chapter = id.atom.chapter;
+					view_history.push({
+						type: "chapter",
+						chapter: { book, chapter }
+					});
+					update_bible_version(bible);
+				}
+
+				else {
+					const chapter = id.atom.chapter;
+					const verse = id.atom.verse;
+					view_history.push({
+						type: "verse",
+						chapter: { book, chapter },
+						start: verse,
+						end: null,
+					});
+					update_bible_version(bible);
+				}
+			}
+		}
+	};
+}
+

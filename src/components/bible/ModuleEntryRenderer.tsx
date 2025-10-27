@@ -11,13 +11,13 @@ import { use_bible_display_settings } from "../providers/BibleDisplaySettingsPro
 export type ModuleEntryRendererProps = {
     entry: ModuleEntry,
     name_mapper: (osis: OsisBook) => string,
-    on_ref_click: (id: HRefSrc) => void,
+    on_ref_clicked: (id: HRefSrc) => void,
 }
 
 export default function ModuleEntryRenderer({
     entry,
     name_mapper,
-    on_ref_click,
+    on_ref_clicked,
 }: ModuleEntryRendererProps): React.ReactElement
 {
     const [retrieved_values, set_retrieved_values] = useState<string[] | null>(null);
@@ -81,7 +81,7 @@ export default function ModuleEntryRenderer({
     {
         return (
             <HtmlTextRenderer 
-                on_href_click={on_ref_click} 
+                on_href_click={on_ref_clicked} 
                 content={get_x_ref_directed_html(entry.targets, name_mapper, retrieved_values)}
             />
         )

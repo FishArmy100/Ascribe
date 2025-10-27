@@ -14,7 +14,7 @@ const DEFAULT_VIEW_HISTORY_INFO: ViewHistoryInfo = {
     count: 1,
 }
 
-type ViewHistoryContextType = {
+export type ViewHistoryContextType = {
     get_current: () => ViewHistoryInfo,
     advance: () => Promise<void>,
     retreat: () => Promise<void>,
