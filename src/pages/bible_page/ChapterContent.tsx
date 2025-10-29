@@ -37,8 +37,6 @@ export default function ChapterContent({
     const [show_focused_verses, set_show_focused_verses] = useState(true);
 	const [verses_loaded, set_verses_loaded] = useState(false);
 
-	console.log("Rendering chapter content...");
-
     useEffect(() => {
         set_show_focused_verses(true);
 		set_verses_loaded(false);

@@ -1,12 +1,10 @@
-import React, { useEffect, useState } from "react"
+import React from "react"
 import { ModuleEntry, ReferenceData } from "../../interop/module_entry"
 import { Typography } from "@mui/material"
-import RefIdRenderer, { format_ref_id } from "./RefIdRenderer"
-import { fetch_backend_verse_render_data, OsisBook } from "../../interop/bible"
-import { get_first_verse, RefId } from "../../interop/bible/ref_id"
+import { format_ref_id } from "./RefIdRenderer"
+import { OsisBook } from "../../interop/bible"
 import { HRefSrc, HtmlText, HtmlTextHelper, Node } from "../../interop/html_text"
 import { HtmlTextRenderer } from "../HtmlTextRenderer"
-import { use_bible_display_settings } from "../providers/BibleDisplaySettingsProvider"
 
 export type ModuleEntryRendererProps = {
     entry: ModuleEntry,

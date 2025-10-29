@@ -55,7 +55,7 @@ export type ModuleEntry =
     module: string,
     id: number,
 
-    source: ReferenceData,
+    source: RefId,
     targets: ReferenceData[],
     note: HtmlText | null,
 }

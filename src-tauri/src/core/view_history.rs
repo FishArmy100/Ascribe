@@ -35,6 +35,7 @@ impl ViewHistory
 
     pub fn push_entry(&mut self, entry: ViewHistoryEntry)
     {
+        self.entries = self.entries.split_at(self.index + 1).0.into();
         self.entries.push(entry);
         self.index = self.entries.len() - 1;
     }
