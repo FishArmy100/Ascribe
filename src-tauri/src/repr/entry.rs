@@ -16,6 +16,13 @@ pub struct StrongsWordJson
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ReferenceData
+{
+    pub preview_text: String,
+    pub id: RefId,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case", tag = "type")]
 pub enum ModuleEntryJson
 {
@@ -55,7 +62,7 @@ pub enum ModuleEntryJson
     {
         module: String,
         source: RefIdJson,
-        targets: Vec<RefIdJson>,
+        targets: Vec<ReferenceData>,
         note: Option<HtmlTextJson>,
         id: u32,
     },
@@ -63,7 +70,7 @@ pub enum ModuleEntryJson
     XRefMutual
     {
         module: String,
-        refs: Vec<RefIdJson>,
+        refs: Vec<ReferenceData>,
         note: Option<HtmlTextJson>,
         id: u32,
     },
@@ -96,7 +103,7 @@ pub enum ModuleEntryJson
 
 impl ModuleEntryJson
 {
-    pub fn new(entry: ModuleEntry, module: String) -> Self 
+    pub fn new(entry: ModuleEntry, module: String, verse_lookup: impl Fn(VerseId)) -> Self 
     {
         match entry
         {
