@@ -40,6 +40,8 @@ Approximately all of the requirements for the Ascribe Bible Study application ve
   - [Page History](#page-history)
   - [Highlight Picker](#highlight-picker)
   - [Word Picker](#word-picker)
+  - [Verse Picker](#verse-picker)
+  - [Strongs Picker](#strongs-picker)
   - [HTMLText Editor](#htmltext-editor)
   - [Help Page?](#help-page)
     - [Layout](#layout-2)
@@ -156,6 +158,7 @@ Core section of Ascribe, renders as a full page or partial page depending on if 
 - [ ] Chapter View
   - [ ] Displays current chapter
   - [ ] Each verse displayed in a numbered list
+    - [ ] Number can be clicked to show an [inspector](#verse-picker)
   - [ ] View Settings?
     - [ ] All verses inline
     - [ ] Red letter enable
@@ -165,7 +168,8 @@ Core section of Ascribe, renders as a full page or partial page depending on if 
     - [ ] Displays highlights
     - [ ] Displays notes
     - [ ] Displays footnotes?
-    - [ ] Can display Strong's if enabled
+    - [ ] Can display Strong's if enabled and can be clicked to show an [inspector](#strongs-picker)
+    - [ ] Can be clicked to show an [inspector](#word-picker)
   - [ ] Scrollable content area
   - [ ] Next/Previous chapter buttons
     - [ ] Are cyclic: Rev 22 <-> Gen 1
@@ -558,6 +562,20 @@ User can click on a word to look into it more. this is similar to how [seethebib
   - [ ] Contains same information as sidebar
   - [ ] Can be resized
   - [ ] Is scrollable
+
+<!-- ======================================================================================================== -->
+## Verse Picker
+Displays similar information to the word picker, but shows entries for the entire verse and not just one word
+
+<!-- ======================================================================================================== -->
+## Strongs Picker
+Is like the Word picker, but only displays information for the strongs number, no other information
+
+- [ ] Display
+  - [ ] Shows Strongs Number at the top
+  - [ ] Shows definitions
+  - [ ] Shows derivation (if it has one)
+  - [ ] Has a search button to look up that strongs number
 
 <!-- ======================================================================================================== -->
 ## HTMLText Editor
