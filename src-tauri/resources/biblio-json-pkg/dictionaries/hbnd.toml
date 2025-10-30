@@ -1,0 +1,66 @@
+name = "Hitchcock's Bible Names Dictionary"
+authors = [ "Roswell Dwight Hitchcock" ]
+
+description = """
+
+<h1><b>Hitchcock's Bible Names Dictionary</b></h1>
+
+<h2><i>A concise guide to the meanings and origins of biblical names</i></h2>
+
+<p>
+    <b>Overview:</b><br/>
+    Hitchcock’s Bible Names Dictionary provides a quick, reliable reference to the <i>meaning</i>, <i>origin</i>, and <i>usage</i> of names found in Scripture. Designed for students, pastors, translators, and curious readers, it’s compact and easy to use.
+</p>
+
+<h3><u>Features</u></h3>
+<ul>
+    <li><b>Alphabetical entries</b> — find names quickly.</li>
+    <li><b>Meaning and etymology</b> — concise explanations of roots and senses.</li>
+    <li><b>Scriptural references</b> — key verses where the name appears.</li>
+    <li><b>Variant forms</b> — alternate spellings and related names.</li>
+    <li><b>Pronunciation hints</b> — brief guides for saying names aloud.</li>
+</ul>
+
+<h3><u>How to use</u></h3>
+<p>
+    Consult the dictionary during study, sermon prep, or when you encounter an unfamiliar name. Entries are short enough for quick lookup but informative enough to point toward deeper study.
+</p>
+
+<h3><u>Sample entries</u></h3>
+<p>
+    <b>JESUS</b> — <i>"Yahweh is salvation"</i>.<br/>
+    Appears throughout the New Testament.<br/>
+    Hebrew equivalent: <u>Yeshua</u>.
+</p>
+
+<p>
+    <b>MARIA</b> — <i>"Bitter" / "beloved"</i>.<br/>
+    Used for several women in the Gospels.<br/>
+    Variant: <s>Marya</s> (older transliteration).
+</p>
+
+<h3><u>Who will benefit</u></h3>
+<ul>
+    <li><b>Students</b> — exploring linguistic and historical background.</li>
+    <li><b>Pastors</b> — sermon and lesson preparation.</li>
+    <li><b>Translators</b> — tracking meanings across languages.</li>
+    <li><b>General readers</b> — deepening personal understanding.</li>
+</ul>
+
+<h3><u>Key strengths</u></h3>
+<ul>
+    <li>Clear, concise entries for rapid lookup.</li>
+    <li>Practical scriptural references.</li>
+    <li>Readable presentation of variants and pronunciation.</li>
+</ul>
+
+<p>
+<i>Hitchcock's Bible Names Dictionary brings the meanings of Scripture's names within easy reach.</i><br/><br/>
+</p>
+
+
+"""
+
+language = "en"
+data_source = "https://github.com/BradyStephenson/bible-data?tab=License-1-ov-file"
+license = "https://github.com/BradyStephenson/bible-data/blob/main/LICENSE"

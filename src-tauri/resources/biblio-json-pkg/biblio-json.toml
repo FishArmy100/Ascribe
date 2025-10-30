@@ -1,0 +1,10 @@
+name = "The Ascribe Biblio Json Package"
+authors = [ "Nate Craver" ]
+license = "MIT"
+
+[module_paths]
+bibles = "/bibles/*"
+dictionaries = "/dictionaries/*"
+xrefs = "/cross_references/*"
+strongs_defs = "/strongs/defs/*"
+strongs_links = "/strongs/links/*"
