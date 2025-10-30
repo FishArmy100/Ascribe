@@ -1,2 +1,3 @@
 # Current Bugs
-- View History needs to clear entries when index not at the top
+- Not deselected current versions when clicking
+- Strongs popover links no worky
