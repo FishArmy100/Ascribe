@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 use crate::repr::{StrongsNumberJson, VerseIdJson, html_text::HtmlTextJson, ref_id::RefIdJson};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub struct StrongsWordJson
 {
     pub strongs: Vec<StrongsNumberJson>,
