@@ -12,6 +12,7 @@ pub const BIBLIO_JSON_PACKAGE_INITIALIZED_EVENT_NAME: &str = "bible-package-init
 pub const BIBLE_VERSION_CHANGED_EVENT_NAME: &str = "bible-version-changed";
 pub const BIBLE_PACKAGE_PATH: &str = "resources/biblio-json-pkg";
 
+#[derive(Debug, Clone)]
 pub struct BiblioJsonPackageHandle(Arc<RwLock<Option<Package>>>);
 
 impl BiblioJsonPackageHandle

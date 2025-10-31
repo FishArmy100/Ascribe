@@ -44,4 +44,33 @@ Array.prototype.remove = function<T>(value: T): T | undefined
     return this.remove_at(index);
 }
 
+declare global {
+    interface Math {
+        lerp(min: number, max: number, v: number): number;
+        clamp(min: number, max: number, v: number): number;
+        inv_lerp(min: number, max: number, v: number): number;
+        approx_eq(a: number, b: number, epsilon?: number): boolean;
+    }
+}
+
+Math.lerp = (min: number, max: number, v: number): number => {
+    let diff = max - min;
+    return min + diff * Math.clamp(0, 1, v);
+}
+
+Math.clamp = (min: number, max: number, v: number): number => {
+    if (v > max) return max;
+    if (v < min) return min;
+    return v;
+}
+
+Math.inv_lerp = (min: number, max: number, v: number): number => {
+    v = Math.clamp(min, max, v);
+    return (v - min) / (max - min);
+}
+
+Math.approx_eq = (a: number, b: number, epsilon?: number): boolean => {
+    return Math.abs(a - b) < (epsilon ?? 0.01);
+}
+
 export {}
