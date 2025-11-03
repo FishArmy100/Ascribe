@@ -1,6 +1,8 @@
 import { invoke } from "@tauri-apps/api/core"
 import { ChapterId } from "../bible"
 
+export * from "./events";
+
 export type PassageAudioKey = {
     bible: string,
     chapter: ChapterId,

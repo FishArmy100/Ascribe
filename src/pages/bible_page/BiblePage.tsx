@@ -37,6 +37,8 @@ export default function BiblePage(): React.ReactElement {
 	const [word_popover_anchor_el, set_word_popover_anchor_pos] = useState<{top: number, left: number} | null>(null);
 	const [word_popover_data, set_word_popover_data] = useState<WordId | null>(null);
 
+	const [player_open, set_player_open] = useState(false);
+
 	const button_width = useMemo(() => BUTTON_SIZE * 0.75, []);
 	const button_spacing = use_top_bar_padding(theme);
 	const button_space = useMemo(
@@ -132,11 +134,18 @@ export default function BiblePage(): React.ReactElement {
 	const handle_ref_clicked = get_handle_ref_clicked_fn(set_bible_version_state, bible_version_state, show_strongs, view_history, () => {
 		set_word_popover_anchor_pos(null);
 		set_word_popover_data(null);
-	})
+	});
+
+	const handle_player_button_click = useCallback(() => {
+		set_player_open(prev => !prev);
+	}, [])
 
 	return (
 		<Box>
-			<BiblePageToolbar />
+			<BiblePageToolbar
+				player_open={player_open}
+				on_click_player={handle_player_button_click}
+			/>
 			<TopBarSpacer />
 			
 			<NavigationButton 
@@ -194,7 +203,7 @@ export default function BiblePage(): React.ReactElement {
 				on_ref_clicked={handle_ref_clicked}
 			/>
 
-			<AudioPlayer open={true}/>
+			<AudioPlayer open={player_open}/>
 		</Box>
 	);
 }
