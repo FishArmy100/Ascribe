@@ -253,10 +253,9 @@ Similar to the old version, with behavior, however with improved looks
 - [ ] Audio player toggle located in the top bar on specific pages (see [Header](#header))
 
 ### Layout
-- [ ] Modes
-  - [ ] Pop out window
-  - [ ] Docked
-    - [ ] Bottom of screen
+- [ ] Position
+  - [ ]  Docked at the bottom of the screen
+  - [ ]  Can be shrunk?
 - [ ] Primary Section
   - [ ] How long the current chapter is
     - [ ] Possibly change if the section is timed?

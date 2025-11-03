@@ -7,6 +7,7 @@ import * as bible from "../../interop/bible"
 import * as images from "../../assets";
 import * as tts from "../../interop/tts"
 import React, { useCallback, useEffect } from "react";
+import { listen_tts_event } from "../../interop/tts/events";
 
 export const BiblePageToolbar = React.memo(function BiblePageToolbar(): React.ReactElement
 {
@@ -22,7 +23,7 @@ export const BiblePageToolbar = React.memo(function BiblePageToolbar(): React.Re
 	}, [view_history]);
 
 	useEffect(() => {
-		let unlisten = tts.listen_tts_event(e => {
+		let unlisten = listen_tts_event(e => {
 			console.log(e)
 			if (e.type === "generated")
 			{

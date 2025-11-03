@@ -14,6 +14,7 @@ import { StrongsNumber } from "../../interop/bible/strongs";
 import StrongsPopover from "../../components/bible/StrongsPopover";
 import WordPopover from "../../components/bible/WordPopover";
 import { HRefSrc } from "../../interop/html_text";
+import AudioPlayer from "../../components/audio_player/AudioPlayer";
 
 export default function BiblePage(): React.ReactElement {
 	const theme = useTheme();
@@ -192,6 +193,8 @@ export default function BiblePage(): React.ReactElement {
 				on_close={(handle_word_popover_close)}
 				on_ref_clicked={handle_ref_clicked}
 			/>
+
+			<AudioPlayer open={true}/>
 		</Box>
 	);
 }
