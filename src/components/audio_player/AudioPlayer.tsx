@@ -1,11 +1,16 @@
 import { Box, Stack, Typography, useTheme } from "@mui/material";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import ImageButton from "../core/ImageButton";
 import * as images from "../../assets"
 import Slider from "../core/Slider";
 import { motion, AnimatePresence, number } from "framer-motion";
 import { use_tts_player } from "../providers/TtsPlayerProvider";
 import PlayButton, { PlayButtonType } from "./PlayButton";
+import { use_view_history } from "../providers/ViewHistoryProvider";
+import { use_bible_display_settings } from "../providers/BibleDisplaySettingsProvider";
+
+const FAST_FORWARD_TIME = 10;
+const REWIND_TIME = 10;
 
 export type AudioPlayerProps = {
     open: boolean,
@@ -17,6 +22,12 @@ export default function AudioPlayer({
 {
     const theme = useTheme();
     const tts_player = use_tts_player();
+
+    const [user_setting_time, set_user_setting_time] = useState(false);
+    const [user_value, set_user_value] = useState(0);
+
+    const current_chapter = use_view_history().get_current().current.chapter;
+    const current_version = use_bible_display_settings().bible_version_state.bible_version;
     
     let generation_progress: number | null = null;
     let player_progress: number | null = null;
@@ -34,11 +45,6 @@ export default function AudioPlayer({
     {
         play_button_type = "pause";
         on_click = () => tts_player.pause();
-        if (tts_player.duration && tts_player.elapsed)
-        {
-            player_progress = tts_player.elapsed / tts_player.duration;
-            progress_text = format_progress_text(tts_player.elapsed, tts_player.duration)
-        }
     }
     else if (tts_player.player_state === "paused")
     {
@@ -51,9 +57,9 @@ export default function AudioPlayer({
         on_click = () => tts_player.play();
     }
 
-    if (tts_player.duration && tts_player.elapsed)
+    if (tts_player.duration !== null && tts_player.elapsed !== null)
     {
-        player_progress = tts_player.elapsed / tts_player.duration;
+        player_progress = tts_player.elapsed;
         progress_text = format_progress_text(tts_player.elapsed, tts_player.duration)
     }
 
@@ -61,8 +67,8 @@ export default function AudioPlayer({
         if (open)
         {
             tts_player.request({
-                bible: "KJV",
-                chapter: { book: "Gen", chapter: 1 },
+                bible: current_version,
+                chapter: current_chapter,
                 verse_range: null,
             })
         }
@@ -70,7 +76,37 @@ export default function AudioPlayer({
         {
             tts_player.stop();
         }
-    }, [open])
+    }, [open, current_version, current_chapter.book, current_chapter.chapter])
+
+    const handle_user_change_progress = (v: number) => {
+        console.log(v);
+        set_user_setting_time(true);
+        set_user_value(v);
+        console.log(v);
+    };
+
+    const handle_fast_forward = () => {
+        if(tts_player.duration && tts_player.elapsed)
+        {
+            let new_time = Math.clamp(0, tts_player.duration, FAST_FORWARD_TIME + tts_player.elapsed * tts_player.duration) / tts_player.duration;
+            tts_player.set_time(new_time);
+        }
+    }
+
+    const handle_rewind = () => {
+        if(tts_player.duration && tts_player.elapsed)
+        {
+            let new_time = Math.clamp(0, tts_player.duration,  tts_player.elapsed * tts_player.duration - REWIND_TIME) / tts_player.duration;
+            tts_player.set_time(new_time);
+        }
+    } 
+
+    const handle_user_commit_progress = (v: number) => {
+        set_user_setting_time(false);
+        set_user_value(v);
+        tts_player.set_time(v);
+        console.log(v);
+    }
 
     return (
         <Box
@@ -109,7 +145,9 @@ export default function AudioPlayer({
                             >
                                 <ImageButton
                                     image={images.angles_left}
-                                    tooltip="Rewind 10s"
+                                    tooltip={`Rewind ${REWIND_TIME}s`}
+                                    disabled={play_button_type === "generating"}
+                                    on_click={handle_rewind}
                                 />
                                 <PlayButton 
                                     type={play_button_type}
@@ -118,20 +156,26 @@ export default function AudioPlayer({
                                 />
                                 <ImageButton
                                     image={images.angles_right}
-                                    tooltip="Fast forward 10s"
+                                    tooltip={`Fast forward ${FAST_FORWARD_TIME}s`}
+                                    disabled={play_button_type === "generating"}
+                                    on_click={handle_fast_forward}
                                 />
                                 <Slider
-                                    value={player_progress ?? 0}
+                                    value={user_setting_time ? user_value : player_progress ?? 0}
                                     min={0}
                                     max={1}
+                                    step={0.0001}
                                     tooltip="Progress slider"
-                                    readonly
+                                    on_change={handle_user_change_progress}
+                                    on_commit={handle_user_commit_progress}
+                                    readonly={tts_player.player_state === "finished" || tts_player.player_state === "generating" || tts_player.player_state === "idle"}
                                 />
                                 <Typography
                                     color={theme.palette.primary.contrastText}
                                     variant="body2"
                                     textAlign="center"
-                                    component="span"
+                                    component="div"
+                                    width="8em"
                                 >
                                     {progress_text}
                                 </Typography>
@@ -146,5 +190,8 @@ export default function AudioPlayer({
 
 function format_progress_text(elapsed: number, duration: number): string
 {
-    return "--:--";
+    let time = Math.floor(duration - elapsed * duration);
+    let mins = Math.floor(time / 60).toString().padStart(2, '0');
+    let secs = Math.floor(time % 60).toString().padStart(2, '0');
+    return `${mins}:${secs}`;
 }

@@ -1,6 +1,6 @@
 // TtsPlayerProvider.tsx
-import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from "react";
-import { PassageAudioKey, TtsEvent, TtsGenerationProgressEvent, TtsPausedEvent, TtsPlayedEvent, TtsPlayingEvent, TtsSettings, TtsStoppedEvent } from "../../interop/tts";
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { PassageAudioKey, TtsEvent, TtsSettings } from "../../interop/tts";
 import * as tts from "../../interop/tts";
 
 export type PlayerState = "generating" | "playing" | "paused" | "idle" | "finished";
@@ -27,65 +27,113 @@ export const TtsPlayerProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const [duration, set_duration] = useState<number | null>(null);
     const [elapsed, set_elapsed] = useState<number | null>(null);
     const [generation_progress, set_generation_progress] = useState<number | "ready" | null>(null);
-    const [verse_index, set_verse_index] = useState<number | null>(null)
+    const [verse_index, set_verse_index] = useState<number | null>(null);
     const [player_state, set_player_state] = useState<PlayerState>("idle");
 
-    const handle_event = useCallback((e: TtsEvent) => {
-        switch (e.type) {
-            case "generation_progress": {
-                if (e.id === playing_id) 
-                {
-                    set_generation_progress(e.progress);
-                    set_player_state("generating");
-                }
-                break;
-            }
-            case "generated": {
-                if (e.id === playing_id) 
-                {
-                    set_generation_progress("ready");
-                    tts.backend_set_tts_id(e.id);
-                }
-                break;
-            }
-            case "set": {
-                set_player_state("paused");
-                tts.backend_get_tts_duration().then(d => set_duration(d));
-                set_elapsed(0);
-                break;
-            }
-            case "playing": {
-                set_elapsed(e.elapsed);
-                set_player_state("playing");
-                break;
-            }
-            case "finished": {
-                set_elapsed(duration);
-                set_verse_index(null);
-                set_player_state("finished");
-                break;
-            }
-            case "paused": {
-                set_player_state("paused")
-            }
-            case "played": {
-                set_player_state("playing")
-            }
-            case "stopped": {
-                set_player_state("idle");
-                set_elapsed(0);
-            }
-            default:
-                break;
-        }
-    }, [playing_id]);
+    // Use refs to access current state without causing re-renders
+    const state_ref = useRef({
+        playing_id,
+        generation_progress,
+        duration
+    });
 
-    // Subscribe to backend TTS events
+    // Keep ref in sync with state
     useEffect(() => {
-        tts.listen_tts_event(handle_event);
-    }, [handle_event]);
+        state_ref.current = {
+            playing_id,
+            generation_progress,
+            duration
+        };
+    }, [playing_id, generation_progress, duration]);
+
+    useEffect(() => {
+        
+        const unlisten = tts.listen_tts_event((e: TtsEvent) => {
+            console.log(e);
+            // Access current state via ref
+            const current_state = state_ref.current;
+            
+            switch (e.type) {
+                case "generation_progress": {
+                    if (e.id === current_state.playing_id && current_state.generation_progress !== "ready") 
+                    {
+                        set_generation_progress(e.progress);
+                        set_player_state("generating");
+                    }
+                    break;
+                }
+                case "generated": {
+                    if (e.id === current_state.playing_id) 
+                    {
+                        set_generation_progress("ready");
+                        tts.backend_set_tts_id(e.id);
+                    }
+                    break;
+                }
+                case "set": {
+                    set_player_state("paused");
+                    tts.backend_get_tts_duration().then(d => {
+                        set_duration(d);
+                    });
+                    set_elapsed(0);
+                    break;
+                }
+                case "playing": {
+                    if (e.id === current_state.playing_id) 
+                    {
+                        set_elapsed(e.elapsed);
+                        if (e.verse_index !== undefined) 
+                        {
+                            set_verse_index(e.verse_index);
+                        }
+                    }
+                    break;
+                }
+                case "finished": {
+                    set_elapsed(1);
+                    set_verse_index(null);
+                    set_player_state("finished");
+                    break;
+                }
+                case "paused": {
+                    if (e.id === current_state.playing_id) 
+                    {
+                        set_player_state("paused");
+                    }
+                    break;
+                }
+                case "played": {
+                    if (e.id === current_state.playing_id) 
+                    {
+                        set_player_state("playing");
+                    }
+                    break;
+                }
+                case "stopped": {
+                    if (e.id === current_state.playing_id) 
+                    {
+                        set_playing_id(null);
+                        set_duration(null);
+                        set_elapsed(null);
+                        set_verse_index(null);
+                        set_player_state("idle");
+                        set_generation_progress(null);
+                    }
+                    break;
+                }
+                default:
+                    break;
+            }
+        });
+
+        return () => {
+            unlisten.then(u => u());
+        };
+    }, []); // Empty dependency array - only register ONCE
 
     const request = useCallback(async (text: PassageAudioKey) => {
+        console.log(text);
+        await tts.backend_stop_tts();
         const request = await tts.backend_request_tts(text);
         set_playing_id(request.id);
         set_duration(null);
@@ -98,8 +146,10 @@ export const TtsPlayerProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
         if (ready) 
         {
-            tts.backend_set_tts_id(request.id);
+            // console.log("setting progress...")
+            set_generation_progress("ready");
             set_player_state("paused");
+            tts.backend_set_tts_id(request.id);
         } 
         else 
         {
@@ -108,48 +158,41 @@ export const TtsPlayerProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         }
     }, []);
 
-    const is_ready = generation_progress === "ready";
-
     const play = useCallback(async () => {
-        if (is_ready) 
+        if (generation_progress === "ready") 
         {
-            set_player_state("playing");
             await tts.backend_play_tts();
         } 
         else 
         {
             console.error("TTS player not ready");
         }
-    }, [is_ready]);
+    }, [generation_progress]);
+
+    useEffect(() => {
+        // console.log(generation_progress);
+    }, [generation_progress]);
 
     const pause = useCallback(async () => {
-        if (is_ready) 
+        if (generation_progress === "ready") 
         {
-            set_player_state("paused");
             await tts.backend_pause_tts();
         } 
         else 
         {
             console.error("TTS player not ready");
         }
-    }, [is_ready]);
+    }, [generation_progress]);
 
     const stop = useCallback(async () => {
-        if (is_ready) 
+        if (generation_progress === "ready") 
         {
-            set_playing_id(null);
-            set_duration(null);
-            set_elapsed(null);
-            set_verse_index(null);
-            set_player_state("idle");
-            set_generation_progress(null);
             await tts.backend_stop_tts();
         }
-    }, [is_ready]);
+    }, [generation_progress]);
 
     const value = useMemo(
         () => ({
-            is_ready: is_ready,
             duration: duration,
             elapsed: elapsed,
             generation_progress: generation_progress,
@@ -165,7 +208,7 @@ export const TtsPlayerProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             get_settings: tts.backend_get_tts_settings,
             set_settings: tts.backend_set_tts_settings,
         }),
-        [playing_id, duration, elapsed, generation_progress, verse_index, player_state, request, play, pause, stop]
+        [duration, elapsed, generation_progress, verse_index, player_state, request, play, pause, stop]
     );
 
     return <TtsContext.Provider value={value}>{children}</TtsContext.Provider>;

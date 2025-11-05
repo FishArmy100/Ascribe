@@ -67,6 +67,8 @@ impl TtsPlayerThread
                         verse_index = Some(index);
                     }
 
+                    println!("{}", sound_handle.position() as f32 / duration);
+
                     app_handle_inner.emit(TTS_EVENT_NAME, TtsEvent::Playing { 
                         id: sound_id_inner.clone(), 
                         elapsed: sound_handle.position() as f32 / duration, 

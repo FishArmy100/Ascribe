@@ -9,6 +9,7 @@ export type SliderProps = {
     step?: number,
     tooltip: string,
     on_change?: (n: number) => void,
+    on_commit?: (n: number) => void,
     readonly?: boolean,
 }
 
@@ -19,6 +20,7 @@ export default function Slider({
     step,
     tooltip,
     on_change,
+    on_commit,
     readonly
 }: SliderProps): React.ReactElement
 {
@@ -31,6 +33,7 @@ export default function Slider({
                 min={min}
                 step={step}
                 onChange={(_e, value) => (!readonly) && on_change?.(value)}
+                onChangeCommitted={(_e, value) => (!readonly) && on_commit?.(value)}
                 sx={{
                     ml: theme.spacing(1),
                     mr: theme.spacing(1),

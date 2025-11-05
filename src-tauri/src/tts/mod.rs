@@ -281,7 +281,9 @@ impl TtsPlayer
                 });
 
                 sources.lock().unwrap().insert(id_inner.clone(), TtsSoundData::Generated(Arc::new(audio)));
-                app_handle.emit(TTS_EVENT_NAME, TtsEvent::Generated { id: id_inner }).unwrap();
+                if let Err(e) = app_handle.emit(TTS_EVENT_NAME, TtsEvent::Generated { id: id_inner }) {
+                    println!("Error emitting event: {}", e);
+                }
             });
 
             TtsRequest

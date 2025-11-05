@@ -12,6 +12,7 @@ export default function GenerationProgressIndicator({
 }: GenerationProgressIndicatorProps): React.ReactElement
 {
     const theme = useTheme();
+
     return (
         <Tooltip tooltip={`${(progress * 100).toFixed(1)}% Generated`}>
             <Box
@@ -26,13 +27,17 @@ export default function GenerationProgressIndicator({
                     minWidth: (theme) => theme.spacing(BUTTON_SIZE),
                     minHeight: (theme) => theme.spacing(BUTTON_SIZE),
                     padding: BUTTON_PADDING,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                 }}
             >
                 <CircularProgress
                     size={theme.spacing(BUTTON_SIZE - BUTTON_PADDING * 2)}
                     color="secondary"
                     variant="determinate"
-                    value={progress}
+                    value={progress * 100}
+                    thickness={5}
                 />
             </Box>
         </Tooltip>
