@@ -1,12 +1,11 @@
 import { Box, Stack, Typography, useTheme } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import ImageButton from "../core/ImageButton";
 import * as images from "../../assets"
 import Slider from "../core/Slider";
-import { motion, AnimatePresence } from "framer-motion";
-import * as tts from "../../interop/tts";
-
-type PlayerState = "playing" | "paused" | "generating" | "finished" | "stopped";
+import { motion, AnimatePresence, number } from "framer-motion";
+import { use_tts_player } from "../providers/TtsPlayerProvider";
+import PlayButton, { PlayButtonType } from "./PlayButton";
 
 export type AudioPlayerProps = {
     open: boolean,
@@ -17,71 +16,61 @@ export default function AudioPlayer({
 }: AudioPlayerProps): React.ReactElement
 {
     const theme = useTheme();
-    const [player_state, set_player_state] = useState<PlayerState | null>(null);
-    const [playing_id, set_playing_id] = useState<string | null>(null);
-    const [duration, set_duration] = useState<number | null>(null);
-    const [current_time, set_current_time] = useState<number | null>(null);
-    const [generation_progress, set_generation_progress] = useState<number | null>(null);
+    const tts_player = use_tts_player();
     
-    useEffect(() => {
-        let unlisten = tts.listen_tts_event(e => {
-            if (e.type === "played")
-            {
-                set_playing_id(playing_id);
-                set_player_state("playing");
-            }
-            else if (e.type === "playing")
-            {
-                
-            }
-            else if (e.type === "generated")
-            {
-                if (playing_id === e.id)
-                {
-                    tts.backend_set_tts_id(playing_id);
-                }
-            }
-            else if (e.type === "generation_progress")
-            {
-                if (playing_id === e.id)
-                {
-                    set_player_state("generating");
-                    set_generation_progress(e.progress);
-                }
-            }
-            else if (e.type === "finished")
-            {
+    let generation_progress: number | null = null;
+    let player_progress: number | null = null;
+    let play_button_type: PlayButtonType = "play";
+    let on_click: (() => void) | null = null;
+    let progress_text = "--:--";
 
-            }
-            else if (e.type === "paused")
-            {
-
-            }
-            else if (e.type === "set")
-            {
-                if (player_state !== null && e.data.id === playing_id)
-                {
-                    tts.backend_play_tts();
-                }
-            }
-            else if (e.type === "stopped")
-            {
-                if (player_state)
-                {
-                    const id = player_state.playing_id;
-                    set_player_state({
-                        type: "stopped",
-                        playing_id: id,
-                        duration: player_state
-                    })
-                }
-            }
-        })
-
-        return () => { 
-            unlisten.then(u => u())
+    if (tts_player.player_state === "generating")
+    {
+        const progress = tts_player.generation_progress;
+        generation_progress = progress === "ready" ? 1 : progress ?? 0;
+        play_button_type = "generating";
+    }
+    else if (tts_player.player_state === "playing")
+    {
+        play_button_type = "pause";
+        on_click = () => tts_player.pause();
+        if (tts_player.duration && tts_player.elapsed)
+        {
+            player_progress = tts_player.elapsed / tts_player.duration;
+            progress_text = format_progress_text(tts_player.elapsed, tts_player.duration)
         }
-    }, [])
+    }
+    else if (tts_player.player_state === "paused")
+    {
+        play_button_type = "play";
+        on_click = () => tts_player.play();
+    }
+    else if (tts_player.player_state === "finished")
+    {
+        play_button_type = "play";
+        on_click = () => tts_player.play();
+    }
+
+    if (tts_player.duration && tts_player.elapsed)
+    {
+        player_progress = tts_player.elapsed / tts_player.duration;
+        progress_text = format_progress_text(tts_player.elapsed, tts_player.duration)
+    }
+
+    useEffect(() => {
+        if (open)
+        {
+            tts_player.request({
+                bible: "KJV",
+                chapter: { book: "Gen", chapter: 1 },
+                verse_range: null,
+            })
+        }
+        else 
+        {
+            tts_player.stop();
+        }
+    }, [open])
 
     return (
         <Box
@@ -122,20 +111,20 @@ export default function AudioPlayer({
                                     image={images.angles_left}
                                     tooltip="Rewind 10s"
                                 />
-                                <ImageButton
-                                    image={images.play}
-                                    tooltip="Play"
+                                <PlayButton 
+                                    type={play_button_type}
+                                    generation_progress={generation_progress}
+                                    on_click={on_click ?? undefined}
                                 />
                                 <ImageButton
                                     image={images.angles_right}
                                     tooltip="Fast forward 10s"
                                 />
                                 <Slider
-                                    value={progress_value}
+                                    value={player_progress ?? 0}
                                     min={0}
-                                    max={100}
+                                    max={1}
                                     tooltip="Progress slider"
-                                    on_change={v => set_progress_value(v)}
                                     readonly
                                 />
                                 <Typography
@@ -144,7 +133,7 @@ export default function AudioPlayer({
                                     textAlign="center"
                                     component="span"
                                 >
-                                    00:00
+                                    {progress_text}
                                 </Typography>
                             </Stack>
                         </Box>
@@ -153,4 +142,9 @@ export default function AudioPlayer({
             </AnimatePresence>
         </Box>
     )
+}
+
+function format_progress_text(elapsed: number, duration: number): string
+{
+    return "--:--";
 }
