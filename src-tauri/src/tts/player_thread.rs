@@ -1,6 +1,7 @@
 use std::{sync::{Arc, Mutex}, thread::{spawn, JoinHandle}, time::SystemTime};
 
-use kira::{sound::{static_sound::StaticSoundHandle, PlaybackState}, AudioManager, Decibels, DefaultBackend, PlaybackRate, Tween, Tweenable};
+use kira::{AudioManager, Decibels, DefaultBackend, Mapping, PlaybackRate, Tween, Tweenable, Value, modulator::tweener::{TweenerBuilder, TweenerHandle}, sound::{PlaybackState, static_sound::StaticSoundHandle}, track::{TrackBuilder, TrackHandle}};
+use kira_pitcher::effect::pitch::{PitcherBuilder, PitcherHandle};
 use tauri::{AppHandle, Emitter};
 
 use crate::core::utils::Shared;
@@ -11,6 +12,8 @@ pub struct TtsPlayerThread
 {
     passage_audio: Arc<PassageAudio>,
     handle: Arc<Mutex<StaticSoundHandle>>,
+    pitcher_tweener: TweenerHandle,
+    _track: TrackHandle,
     running: Arc<Mutex<bool>>,
     thread_handle: JoinHandle<()>,
     sound_id: String,
@@ -24,20 +27,41 @@ impl TtsPlayerThread
     {
         // start the handle paused
         let duration = passage_audio.sound_data.duration().as_secs_f32();
-        let mut sound_handle = manager.lock().unwrap().play(passage_audio.sound_data.clone()).unwrap();
+
+        let mut pitcher_tweener = manager.lock().unwrap().add_modulator(TweenerBuilder { initial_value: 0.0 }).unwrap();
+
+        let mut track = manager.lock().unwrap().add_sub_track({
+            let mut builder = TrackBuilder::new();
+            builder.add_effect(PitcherBuilder::new().pitch(Value::from_modulator(&pitcher_tweener, Mapping {
+                input_range: (-12.0, 12.0),
+                output_range: (-12.0, 12.0),
+                easing: kira::Easing::Linear,
+            })));
+            builder
+        }).unwrap();
+
+        let pitch_shift_semitones = if settings.correct_pitch { -12.0 * (settings.playback_speed as f64).log2() } else { 0.0 };
+        pitcher_tweener.set(pitch_shift_semitones, Tween::default());
+        
+        let mut sound_handle = track.play(passage_audio.sound_data.clone()).unwrap();
+        
         sound_handle.pause(Tween::default());
+        sound_handle.set_playback_rate(
+            PlaybackRate(settings.playback_speed as f64), 
+            Tween::default()
+        );
+        
         let sound_handle = Arc::new(Mutex::new(sound_handle));
         let sound_handle_inner = sound_handle.clone();
         let app_handle_inner = app_handle.clone();
 
         let running = Arc::new(Mutex::new(true));
-        let running_inner = running.clone();
+        let settings = Shared::new(settings);
+        
 
         let sound_id_inner = sound_id.clone();
-
         let passage_audio_inner = passage_audio.clone();
-        
-        let settings = Shared::new(settings);
+        let running_inner = running.clone();
         let settings_inner = settings.clone();
 
         let thread_handle = spawn(move || {
@@ -66,8 +90,6 @@ impl TtsPlayerThread
                         verse_time += passage_audio_inner.verse_data[index as usize].duration;
                         verse_index = Some(index);
                     }
-
-                    println!("{}", sound_handle.position() as f32 / duration);
 
                     app_handle_inner.emit(TTS_EVENT_NAME, TtsEvent::Playing { 
                         id: sound_id_inner.clone(), 
@@ -98,6 +120,8 @@ impl TtsPlayerThread
         {
             passage_audio,
             handle: sound_handle,
+            pitcher_tweener,
+            _track: track,
             running,
             thread_handle,
             sound_id,
@@ -109,9 +133,14 @@ impl TtsPlayerThread
     pub fn set_settings(&mut self, settings: TtsSettings)
     {
         let mut handle = self.handle.lock().unwrap();
+        
         let decibels = Tweenable::interpolate(Decibels::SILENCE.as_amplitude(), Decibels::IDENTITY.as_amplitude(), settings.volume as f64).log10() * 20.0;
+        let pitch_shift_semitones = if settings.correct_pitch { -12.0 * (settings.playback_speed as f64).log2() } else { 0.0 };
+
         handle.set_volume(decibels, Tween::default());
         handle.set_playback_rate(PlaybackRate(settings.playback_speed as f64), Tween::default());
+        self.pitcher_tweener.set(pitch_shift_semitones, Tween::default());
+        
         *self.settings.get() = settings;
     }
 

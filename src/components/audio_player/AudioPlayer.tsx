@@ -10,6 +10,7 @@ import { use_view_history } from "../providers/ViewHistoryProvider";
 import { use_bible_display_settings } from "../providers/BibleDisplaySettingsProvider";
 import VolumeControl from "./VolumeControl";
 import PlaybackControl from "./PlaybackControl";
+import CorrectPitchCheckbox from "./CorrectPitchCheckbox";
 
 const FAST_FORWARD_TIME = 10;
 const REWIND_TIME = 10;
@@ -192,6 +193,7 @@ export default function AudioPlayer({
                                 >
                                     <VolumeControl/>
                                     <PlaybackControl/>
+                                    <CorrectPitchCheckbox/>
                                 </Stack>
                             </Stack>
                         </Box>

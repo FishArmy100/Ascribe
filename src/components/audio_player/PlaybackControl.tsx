@@ -58,6 +58,9 @@ export default function PlaybackControl(): React.ReactElement
             alignItems="center"
             gap={theme.spacing(0.5)}
             width={theme.spacing(20)}
+            sx={{
+                mr: theme.spacing(1)
+            }}
         >
             <ImageButton
                 image={speed_image}

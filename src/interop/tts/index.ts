@@ -17,6 +17,7 @@ export type TtsRequest = {
 export type TtsSettings = {
     volume: number,
     playback_speed: number,
+    correct_pitch: boolean,
 }
 
 export async function backend_request_tts(key: PassageAudioKey): Promise<TtsRequest>

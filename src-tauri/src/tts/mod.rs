@@ -30,6 +30,7 @@ pub struct TtsSettings
 {
     pub volume: f32,
     pub playback_speed: f32,
+    pub correct_pitch: bool,
 }
 
 impl Default for TtsSettings
@@ -39,6 +40,7 @@ impl Default for TtsSettings
         {
             volume: 1.0,
             playback_speed: 1.0,
+            correct_pitch: true,
         }
     }
 }
