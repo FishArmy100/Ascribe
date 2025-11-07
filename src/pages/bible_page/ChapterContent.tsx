@@ -8,6 +8,7 @@ import { StrongsClickedCallback, VerseWordClickedCallback } from "../../componen
 import { Theme } from "@mui/material/styles";
 import { SystemStyleObject } from "@mui/system";
 import { RenderedVerse } from "../../components/bible/RenderedVerse";
+import { use_settings } from "../../components/providers/SettingsProvider";
 
 type ChapterContentProps = {
     verses: RenderedVerseContent[],
@@ -38,6 +39,7 @@ export default function ChapterContent({
     const chapter_name = `${book_name} ${chapter.chapter}`;
     const [show_focused_verses, set_show_focused_verses] = useState(true);
 	const [verses_loaded, set_verses_loaded] = useState(false);
+	const { settings } = use_settings();
 
     useEffect(() => {
         set_show_focused_verses(true);
@@ -80,7 +82,7 @@ export default function ChapterContent({
 
 	const prev_audio_index = useRef<number | null>(null);
 	useEffect(() => {
-		if (audio_index !== null && audio_index !== prev_audio_index.current)
+		if (audio_index !== null && audio_index !== prev_audio_index.current && settings.tts_settings.follow_text)
 		{
 			const target_ref = row_refs.current[audio_index];
 			if (target_ref) 

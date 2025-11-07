@@ -11,6 +11,7 @@ import { use_bible_display_settings } from "../providers/BibleDisplaySettingsPro
 import VolumeControl from "./VolumeControl";
 import PlaybackControl from "./PlaybackControl";
 import CorrectPitchCheckbox from "./CorrectPitchCheckbox";
+import FollowTextCheckbox from "./FollowTextCheckbox";
 
 const FAST_FORWARD_TIME = 10;
 const REWIND_TIME = 10;
@@ -189,11 +190,14 @@ export default function AudioPlayer({
                                     direction="row"
                                     display="flex"
                                     alignItems="center"
+                                    flexWrap="wrap"
+                                    useFlexGap
                                     gap={theme.spacing(0.5)}
                                 >
                                     <VolumeControl/>
                                     <PlaybackControl/>
                                     <CorrectPitchCheckbox/>
+                                    <FollowTextCheckbox/>
                                 </Stack>
                             </Stack>
                         </Box>

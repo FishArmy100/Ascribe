@@ -9,6 +9,7 @@ const DEFAULT_APP_SETTINGS: AppSettings = {
         volume: 1,
         playback_speed: 1,
         correct_pitch: true,
+        follow_text: true,
     }
 }
 

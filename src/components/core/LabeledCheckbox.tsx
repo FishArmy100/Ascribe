@@ -1,6 +1,6 @@
 import React from "react";
 import Tooltip from "./Tooltip";
-import { Checkbox, FormControlLabel, Typography, useTheme } from "@mui/material";
+import { Box, Checkbox, FormControlLabel, Typography, useTheme } from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
 
 export type LabeledCheckboxProps = {
@@ -19,43 +19,34 @@ export default function LabeledCheckbox({
 {
     const theme = useTheme();
     return (
-        <Tooltip
-            tooltip={tooltip}
-        >
-            <FormControlLabel
-                label={
-                    <Typography 
-                        variant="body2"
-                        component="span"
-                        color={theme.palette.primary.contrastText}
-                        sx={{
-                            mr: theme.spacing(1)
-                        }}
-                    >
-                        {label}
-                    </Typography>
-                }
-                control={
-                    <Checkbox
-                        checked={value}
-                        onChange={e => set_value(e.target.checked)}
-
-                        icon={
-                            <span style={{
-                                width: theme.spacing(20 / 8),
-                                height: theme.spacing(20 / 8),
-                                borderRadius: theme.spacing(0.5),
-                                borderWidth: theme.spacing(1 / 8),
-                                borderColor: theme.palette.grey[700],
-                                borderStyle: "solid",
-                                backgroundColor: theme.palette.grey[200],
-                                display: "inline-block",
-                            }}/>
-                        }
-
-                        checkedIcon={
-                            <span
-                                style={{
+        <Box>
+            <Tooltip
+                tooltip={tooltip}
+            >
+                <FormControlLabel
+                    sx={{
+                        m: 0
+                    }}
+                    label={
+                        <Typography
+                            variant="body2"
+                            component="span"
+                            color={theme.palette.primary.contrastText}
+                            sx={{
+                                display: "flex",
+                                alignItems: 'center',
+                                mr: theme.spacing(1)
+                            }}
+                        >
+                            {label}
+                        </Typography>
+                    }
+                    control={
+                        <Checkbox
+                            checked={value}
+                            onChange={e => set_value(e.target.checked)}
+                            icon={
+                                <span style={{
                                     width: theme.spacing(20 / 8),
                                     height: theme.spacing(20 / 8),
                                     borderRadius: theme.spacing(0.5),
@@ -63,29 +54,42 @@ export default function LabeledCheckbox({
                                     borderColor: theme.palette.grey[700],
                                     borderStyle: "solid",
                                     backgroundColor: theme.palette.grey[200],
-                                    color: theme.palette.primary.light,
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                }}
-                            >
-                                <CheckIcon style={{ 
-                                    fontSize: theme.spacing(2),
-                                    fontWeight: "bold"
-                                }} />
-                            </span>
-                        }
-
-                        sx={{
-                            padding: theme.spacing(0.5), // keeps spacing tight
-                            "&:hover": {
-                                backgroundColor: "transparent", // prevent halo on hover
-                            },
-                        }}
-                    />
-                }
-                labelPlacement="start"
-            />
-        </Tooltip>
+                                    display: "inline-block",
+                                }}/>
+                            }
+                            checkedIcon={
+                                <span
+                                    style={{
+                                        width: theme.spacing(20 / 8),
+                                        height: theme.spacing(20 / 8),
+                                        borderRadius: theme.spacing(0.5),
+                                        borderWidth: theme.spacing(1 / 8),
+                                        borderColor: theme.palette.grey[700],
+                                        borderStyle: "solid",
+                                        backgroundColor: theme.palette.grey[200],
+                                        color: theme.palette.primary.light,
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                    }}
+                                >
+                                    <CheckIcon style={{
+                                        fontSize: theme.spacing(2),
+                                        fontWeight: "bold"
+                                    }} />
+                                </span>
+                            }
+                            sx={{
+                                padding: theme.spacing(0.5), // keeps spacing tight
+                                "&:hover": {
+                                    backgroundColor: "transparent", // prevent halo on hover
+                                },
+                            }}
+                        />
+                    }
+                    labelPlacement="start"
+                />
+            </Tooltip>
+        </Box>
     )
 }
