@@ -32,3 +32,4 @@ rayon = "1.11.0"
 piper-rs = { git = "https://github.com/FishArmy100/piper-rs" }
 kira = "0.10.0"
 uuid = { version = "1.18.1", features = ["v4"] }
+rubato = "0.16.2"

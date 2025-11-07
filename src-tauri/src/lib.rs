@@ -41,6 +41,8 @@ pub fn run() {
                 view_history: ViewHistory::new(),
             }));
 
+            tts::add_sync_settings_listener(app.handle().clone());
+
             Ok(())
         })
         .plugin(tauri_plugin_opener::init())

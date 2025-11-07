@@ -24,7 +24,6 @@ export default function StrongsPopover({
         if (strongs !== null)
         {
             fetch_backend_strongs_defs(strongs).then(defs => {
-                console.log(utils.pretty_print_json(defs))
                 set_strongs_defs(defs);
             }) 
         }
@@ -122,7 +121,6 @@ function StrongsDefEntryRenderer({
 
     if (entry.derivation !== null)
     {
-        console.log(entry.derivation);
         let d = entry.derivation;
         let content: Node[] = d.nodes.map(node => 
             node.type === "paragraph" ? node : { type: "paragraph", content: [node] }

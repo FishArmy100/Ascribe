@@ -14,22 +14,18 @@ export type RenderedVerseProps = {
     verse_label?: string,
     on_strongs_clicked?: StrongsClickedCallback,
     on_verse_word_clicked?: VerseWordClickedCallback,
-    sx?: SxProps<Theme>,
 }
 
-export default function RenderedVerse({
+function RenderedVerseBase({
     content,
     on_strongs_clicked,
     on_verse_word_clicked,
     verse_label,
-    sx,
 }: RenderedVerseProps): React.ReactElement
 {
-
     const handle_verse_clicked = (e: React.MouseEvent<HTMLElement>) => {
             const target = e.target as HTMLElement;
             const rect = target.getBoundingClientRect();
-            console.log(JSON.stringify(rect));
             const pos = { top: rect.top, left: rect.left };
     
             if (target.dataset.wordIndex)
@@ -59,7 +55,6 @@ export default function RenderedVerse({
                 gap: 1,
                 lineHeight: 1.8,
                 marginBottom: 1,
-                ...sx,
             }}
         >
             {verse_label && (
@@ -77,3 +72,10 @@ export default function RenderedVerse({
         </Typography>
     );
 }
+
+export const RenderedVerse = React.memo(RenderedVerseBase, (prev, next) => {
+    return prev.content.html === next.content.html && 
+    prev.on_strongs_clicked === next.on_strongs_clicked &&
+    prev.on_verse_word_clicked === next.on_verse_word_clicked &&
+    prev.verse_label === next.verse_label;
+})

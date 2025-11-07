@@ -6,7 +6,7 @@ use kira::{Frame, sound::static_sound::{StaticSoundData, StaticSoundSettings}, A
 use serde::{Serialize, Deserialize};
 use tauri::{Runtime, path::{BaseDirectory, PathResolver}, AppHandle, Emitter, Listener, Manager};
 
-use crate::{bible::BiblioJsonPackageHandle, repr::ChapterIdJson, tts::{events::*, player_thread::TtsPlayerThread, synth::SpeechSynth}};
+use crate::{bible::BiblioJsonPackageHandle, core::settings::{SETTINGS_CHANGED_EVENT_NAME, SettingsChangedEvent}, repr::ChapterIdJson, tts::{events::*, player_thread::TtsPlayerThread, synth::SpeechSynth}};
 use crate::core::utils;
 
 pub mod events;
@@ -41,6 +41,16 @@ impl Default for TtsSettings
             playback_speed: 1.0,
         }
     }
+}
+
+pub fn add_sync_settings_listener(app_handle: AppHandle)
+{
+    let app_handle_inner = app_handle.clone();
+    app_handle.listen(SETTINGS_CHANGED_EVENT_NAME, move |event| {
+        let settings: SettingsChangedEvent = serde_json::from_str(event.payload()).unwrap();
+        let player = app_handle_inner.state::<Mutex<TtsPlayer>>();
+        player.lock().unwrap().set_settings(settings.new.tts_settings);
+    });
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]

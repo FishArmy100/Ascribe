@@ -27,11 +27,6 @@ pub enum TtsCommand
         time: f32,
     },
     GetDuration,
-    GetSettings,
-    SetSettings
-    {
-        settings: TtsSettings,
-    }
 
 }
 
@@ -79,13 +74,5 @@ pub fn run_tts_command(
         TtsCommand::GetDuration => return state.lock().unwrap().get_duration().map(|v| {
             serde_json::to_string(&v).unwrap()
         }),
-        TtsCommand::GetSettings => {
-            let settings = state.lock().unwrap().get_settings();
-            return serde_json::to_string(&settings).ok()
-        },
-        TtsCommand::SetSettings { settings } => {
-            state.lock().unwrap().set_settings(settings);
-            None
-        }
     }
 }

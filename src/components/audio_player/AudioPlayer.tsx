@@ -8,6 +8,8 @@ import { use_tts_player } from "../providers/TtsPlayerProvider";
 import PlayButton, { PlayButtonType } from "./PlayButton";
 import { use_view_history } from "../providers/ViewHistoryProvider";
 import { use_bible_display_settings } from "../providers/BibleDisplaySettingsProvider";
+import VolumeControl from "./VolumeControl";
+import PlaybackControl from "./PlaybackControl";
 
 const FAST_FORWARD_TIME = 10;
 const REWIND_TIME = 10;
@@ -79,10 +81,8 @@ export default function AudioPlayer({
     }, [open, current_version, current_chapter.book, current_chapter.chapter])
 
     const handle_user_change_progress = (v: number) => {
-        console.log(v);
         set_user_setting_time(true);
         set_user_value(v);
-        console.log(v);
     };
 
     const handle_fast_forward = () => {
@@ -105,7 +105,7 @@ export default function AudioPlayer({
         set_user_setting_time(false);
         set_user_value(v);
         tts_player.set_time(v);
-        console.log(v);
+        generation_progress = v;
     }
 
     return (
@@ -137,48 +137,62 @@ export default function AudioPlayer({
                                 padding: theme.spacing(0.5)
                             }}
                         >
-                            <Stack
-                                direction="row"
-                                display="flex"
-                                alignItems="center"
+                            <Stack 
+                                direction="column"
                                 gap={theme.spacing(0.5)}
                             >
-                                <ImageButton
-                                    image={images.angles_left}
-                                    tooltip={`Rewind ${REWIND_TIME}s`}
-                                    disabled={play_button_type === "generating"}
-                                    on_click={handle_rewind}
-                                />
-                                <PlayButton 
-                                    type={play_button_type}
-                                    generation_progress={generation_progress}
-                                    on_click={on_click ?? undefined}
-                                />
-                                <ImageButton
-                                    image={images.angles_right}
-                                    tooltip={`Fast forward ${FAST_FORWARD_TIME}s`}
-                                    disabled={play_button_type === "generating"}
-                                    on_click={handle_fast_forward}
-                                />
-                                <Slider
-                                    value={user_setting_time ? user_value : player_progress ?? 0}
-                                    min={0}
-                                    max={1}
-                                    step={0.0001}
-                                    tooltip="Progress slider"
-                                    on_change={handle_user_change_progress}
-                                    on_commit={handle_user_commit_progress}
-                                    readonly={tts_player.player_state === "finished" || tts_player.player_state === "generating" || tts_player.player_state === "idle"}
-                                />
-                                <Typography
-                                    color={theme.palette.primary.contrastText}
-                                    variant="body2"
-                                    textAlign="center"
-                                    component="div"
-                                    width="8em"
+                                <Stack
+                                    direction="row"
+                                    display="flex"
+                                    alignItems="center"
+                                    gap={theme.spacing(0.5)}
                                 >
-                                    {progress_text}
-                                </Typography>
+                                    <ImageButton
+                                        image={images.angles_left}
+                                        tooltip={`Rewind ${REWIND_TIME}s`}
+                                        disabled={play_button_type === "generating"}
+                                        on_click={handle_rewind}
+                                    />
+                                    <PlayButton
+                                        type={play_button_type}
+                                        generation_progress={generation_progress}
+                                        on_click={on_click ?? undefined}
+                                    />
+                                    <ImageButton
+                                        image={images.angles_right}
+                                        tooltip={`Fast forward ${FAST_FORWARD_TIME}s`}
+                                        disabled={play_button_type === "generating"}
+                                        on_click={handle_fast_forward}
+                                    />
+                                    <Slider
+                                        value={user_setting_time ? user_value : player_progress ?? 0}
+                                        min={0}
+                                        max={1}
+                                        step={0.0001}
+                                        tooltip="Progress slider"
+                                        on_change={handle_user_change_progress}
+                                        on_commit={handle_user_commit_progress}
+                                        readonly={tts_player.player_state === "finished" || tts_player.player_state === "generating" || tts_player.player_state === "idle"}
+                                    />
+                                    <Typography
+                                        color={theme.palette.primary.contrastText}
+                                        variant="body2"
+                                        textAlign="center"
+                                        component="div"
+                                        width="8em"
+                                    >
+                                        {progress_text}
+                                    </Typography>
+                                </Stack>
+                                <Stack
+                                    direction="row"
+                                    display="flex"
+                                    alignItems="center"
+                                    gap={theme.spacing(0.5)}
+                                >
+                                    <VolumeControl/>
+                                    <PlaybackControl/>
+                                </Stack>
                             </Stack>
                         </Box>
                     </motion.div>

@@ -19,7 +19,8 @@
     "framer-motion": "^12.23.24",
     "npm": "^11.6.0",
     "react": "^19.1.0",
-    "react-dom": "^19.1.1"
+    "react-dom": "^19.1.1",
+    "rfdc": "^1.4.1"
   },
   "devDependencies": {
     "@tanstack/react-virtual": "^3.13.12",

@@ -96,22 +96,3 @@ export async function backend_get_tts_duration(): Promise<number>
     }).then(v => JSON.parse(v))
 }
 
-export async function backend_get_tts_settings(): Promise<TtsSettings>
-{
-    return invoke<string>("run_tts_command", {
-        command: {
-            type: "get_settings"
-        }
-    }).then(v => JSON.parse(v))
-}
-
-export async function backend_set_tts_settings(settings: TtsSettings): Promise<void>
-{
-    return invoke<string>("run_tts_command", {
-        command: {
-            type: "set_settings",
-            settings
-        }
-    }).then(_ => {})
-}
-

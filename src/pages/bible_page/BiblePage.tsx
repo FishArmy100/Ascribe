@@ -15,6 +15,7 @@ import StrongsPopover from "../../components/bible/StrongsPopover";
 import WordPopover from "../../components/bible/WordPopover";
 import { HRefSrc } from "../../interop/html_text";
 import AudioPlayer from "../../components/audio_player/AudioPlayer";
+import { use_tts_player } from "../../components/providers/TtsPlayerProvider";
 
 export default function BiblePage(): React.ReactElement {
 	const theme = useTheme();
@@ -38,6 +39,12 @@ export default function BiblePage(): React.ReactElement {
 	const [word_popover_data, set_word_popover_data] = useState<WordId | null>(null);
 
 	const [player_open, set_player_open] = useState(false);
+
+	const [verse_index, set_verse_index] = useState<number | null>(null)
+	const tts_player = use_tts_player();
+	useEffect(() => {
+		set_verse_index(tts_player.verse_index);
+	}, [tts_player.verse_index]);
 
 	const button_width = useMemo(() => BUTTON_SIZE * 0.75, []);
 	const button_spacing = use_top_bar_padding(theme);
@@ -173,6 +180,7 @@ export default function BiblePage(): React.ReactElement {
 						parallel_bible_info={selected_bibles.parallel}
 						parallel_verses={parallel_verses}
 						focused_range={current_verses}
+						audio_index={verse_index}
 						on_strongs_clicked={handle_strongs_click}
 						on_verse_word_clicked={handle_word_click}
 					/>

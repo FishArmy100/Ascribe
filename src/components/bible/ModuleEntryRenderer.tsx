@@ -23,8 +23,7 @@ export default function ModuleEntryRenderer({
         return <Typography>Not implemented yet</Typography>
     }
     else if (entry.type === "dictionary")
-    {   
-        console.log(entry);
+    {
         return <DictionaryEntryRenderer 
             definitions={entry.definitions} 
             on_ref_clicked={on_ref_clicked}

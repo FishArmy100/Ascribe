@@ -16,8 +16,6 @@ interface TtsContextValue {
     pause: () => Promise<void>,
     stop: () => Promise<void>,
     set_time: (time: number) => Promise<void>,
-    get_settings: () => Promise<TtsSettings>,
-    set_settings: (settings: TtsSettings) => Promise<void>,
 }
 
 const TtsContext = createContext<TtsContextValue | undefined>(undefined);
@@ -49,7 +47,6 @@ export const TtsPlayerProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     useEffect(() => {
         
         const unlisten = tts.listen_tts_event((e: TtsEvent) => {
-            console.log(e);
             // Access current state via ref
             const current_state = state_ref.current;
             
@@ -82,7 +79,7 @@ export const TtsPlayerProvider: React.FC<{ children: React.ReactNode }> = ({ chi
                     if (e.id === current_state.playing_id) 
                     {
                         set_elapsed(e.elapsed);
-                        if (e.verse_index !== undefined) 
+                        if (e.verse_index !== null) 
                         {
                             set_verse_index(e.verse_index);
                         }
@@ -132,7 +129,6 @@ export const TtsPlayerProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }, []); // Empty dependency array - only register ONCE
 
     const request = useCallback(async (text: PassageAudioKey) => {
-        console.log(text);
         await tts.backend_stop_tts();
         const request = await tts.backend_request_tts(text);
         set_playing_id(request.id);
@@ -146,7 +142,6 @@ export const TtsPlayerProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
         if (ready) 
         {
-            // console.log("setting progress...")
             set_generation_progress("ready");
             set_player_state("paused");
             tts.backend_set_tts_id(request.id);
@@ -167,10 +162,6 @@ export const TtsPlayerProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         {
             console.error("TTS player not ready");
         }
-    }, [generation_progress]);
-
-    useEffect(() => {
-        // console.log(generation_progress);
     }, [generation_progress]);
 
     const pause = useCallback(async () => {
@@ -202,11 +193,7 @@ export const TtsPlayerProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             play,
             pause,
             stop,
-            is_playing: tts.backend_get_tts_is_playing,
-            get_duration: tts.backend_get_tts_duration,
             set_time: tts.backend_set_tts_time,
-            get_settings: tts.backend_get_tts_settings,
-            set_settings: tts.backend_set_tts_settings,
         }),
         [duration, elapsed, generation_progress, verse_index, player_state, request, play, pause, stop]
     );
