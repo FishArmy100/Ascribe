@@ -1,6 +1,6 @@
-import { Box, Stack, Typography, useTheme } from "@mui/material";
+import { Box, Collapse, Stack, Typography, useTheme } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import ImageButton from "../core/ImageButton";
+import ImageButton, { BUTTON_SIZE } from "../core/ImageButton";
 import * as images from "../../assets"
 import Slider from "../core/Slider";
 import { motion, AnimatePresence, number } from "framer-motion";
@@ -12,6 +12,7 @@ import VolumeControl from "./VolumeControl";
 import PlaybackControl from "./PlaybackControl";
 import CorrectPitchCheckbox from "./CorrectPitchCheckbox";
 import FollowTextCheckbox from "./FollowTextCheckbox";
+import ExpandButton from "./ExpandButton";
 
 const FAST_FORWARD_TIME = 10;
 const REWIND_TIME = 10;
@@ -29,6 +30,8 @@ export default function AudioPlayer({
 
     const [user_setting_time, set_user_setting_time] = useState(false);
     const [user_value, set_user_value] = useState(0);
+
+    const [is_expanded, set_is_expanded] = useState(false);
 
     const current_chapter = use_view_history().get_current().current.chapter;
     const current_version = use_bible_display_settings().bible_version_state.bible_version;
@@ -139,6 +142,10 @@ export default function AudioPlayer({
                                 padding: theme.spacing(0.5)
                             }}
                         >
+                            <ExpandButton
+                                is_expanded={is_expanded}
+                                set_is_expanded={set_is_expanded}
+                            />
                             <Stack 
                                 direction="column"
                                 gap={theme.spacing(0.5)}
@@ -186,19 +193,21 @@ export default function AudioPlayer({
                                         {progress_text}
                                     </Typography>
                                 </Stack>
-                                <Stack
-                                    direction="row"
-                                    display="flex"
-                                    alignItems="center"
-                                    flexWrap="wrap"
-                                    useFlexGap
-                                    gap={theme.spacing(0.5)}
-                                >
-                                    <VolumeControl/>
-                                    <PlaybackControl/>
-                                    <CorrectPitchCheckbox/>
-                                    <FollowTextCheckbox/>
-                                </Stack>
+                                <Collapse in={is_expanded} timeout="auto" unmountOnExit>
+                                    <Stack
+                                        direction="row"
+                                        display="flex"
+                                        alignItems="center"
+                                        flexWrap="wrap"
+                                        useFlexGap
+                                        gap={theme.spacing(0.5)}
+                                    >
+                                        <VolumeControl/>
+                                        <PlaybackControl/>
+                                        <CorrectPitchCheckbox/>
+                                        <FollowTextCheckbox/>
+                                    </Stack>
+                                </Collapse>
                             </Stack>
                         </Box>
                     </motion.div>

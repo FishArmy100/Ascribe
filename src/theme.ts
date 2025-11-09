@@ -141,4 +141,4 @@ const ascribeTheme = createTheme({
     },
 });
 
-export default theme;
+export default ascribeTheme;
