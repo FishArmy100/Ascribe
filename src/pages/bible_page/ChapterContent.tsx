@@ -7,7 +7,8 @@ import React from "react";
 import { StrongsClickedCallback, VerseWordClickedCallback } from "../../components/bible/BibleVerse";
 import { Theme } from "@mui/material/styles";
 import { SystemStyleObject } from "@mui/system";
-import RenderedVerse from "../../components/bible/RenderedVerse";
+import { RenderedVerse } from "../../components/bible/RenderedVerse";
+import { use_settings } from "../../components/providers/SettingsProvider";
 
 type ChapterContentProps = {
     verses: RenderedVerseContent[],
@@ -19,6 +20,7 @@ type ChapterContentProps = {
     parallel_verses?: RenderedVerseContent[] | null,
     parallel_bible_info?: bible.BibleInfo | null,
     focused_range: { start: number, end: number } | null,
+	audio_index: number | null,
 };
 
 export default function ChapterContent({
@@ -31,16 +33,18 @@ export default function ChapterContent({
     parallel_verses,
     parallel_bible_info,
     focused_range,
+	audio_index,
 }: ChapterContentProps): React.ReactElement {
     const book_name = bible.get_book_info(bible_info, chapter.book).name;
     const chapter_name = `${book_name} ${chapter.chapter}`;
     const [show_focused_verses, set_show_focused_verses] = useState(true);
 	const [verses_loaded, set_verses_loaded] = useState(false);
+	const { settings } = use_settings();
 
     useEffect(() => {
         set_show_focused_verses(true);
 		set_verses_loaded(false);
-    }, [focused_range, parallel_bible_info?.name, bible_info.name, chapter, show_focused_verses]);
+    }, [focused_range, parallel_bible_info?.name, bible_info.name, chapter]);
 
 	useEffect(() => {
         // Mark verses as loaded after they've been rendered
@@ -62,7 +66,6 @@ export default function ChapterContent({
                 const target_ref = row_refs.current[focused_range.start - 1];
                 if (target_ref) 
                 {
-                    console.log("Scrolling into view...");
                     target_ref.scrollIntoView({
                         behavior: "smooth",
                         block: "center",
@@ -76,6 +79,27 @@ export default function ChapterContent({
             last_scrolled_range.current = null;
         }
     }, [focused_range, parallel_bible_info?.name, bible_info.name, chapter, show_focused_verses, verses_loaded]);
+
+	const prev_audio_index = useRef<number | null>(null);
+	useEffect(() => {
+		if (audio_index !== null && audio_index !== prev_audio_index.current && settings.tts_settings.follow_text)
+		{
+			const target_ref = row_refs.current[audio_index];
+			if (target_ref) 
+			{
+				target_ref.scrollIntoView({
+					behavior: "smooth",
+					block: "center",
+				});
+			}
+
+			prev_audio_index.current = audio_index;
+		}
+	}, [audio_index])
+
+	const handle_set_show_focused_verses = useCallback((v: boolean) => {
+		set_show_focused_verses(v);
+	}, []);
 
     return (
         <Paper
@@ -124,9 +148,10 @@ export default function ChapterContent({
                     parallel_verses={parallel_verses}
                     focused_range={focused_range}
                     show_focused_verses={show_focused_verses}
-                    set_show_focused_verses={set_show_focused_verses}
+                    set_show_focused_verses={handle_set_show_focused_verses}
 					on_strongs_clicked={on_strongs_clicked}
 					on_verse_word_clicked={on_verse_word_clicked}
+					is_audio_focused={audio_index === index}
                 />
             ))}
         </Paper>
@@ -139,6 +164,7 @@ type RowComponentProps = {
 	parallel_verses?: RenderedVerseContent[] | null,
 	focused_range: { start: number; end: number } | null,
 	show_focused_verses: boolean,
+	is_audio_focused: boolean,
 	set_show_focused_verses: (v: boolean) => void,
 	on_strongs_clicked: StrongsClickedCallback,
 	on_verse_word_clicked: VerseWordClickedCallback,
@@ -152,6 +178,7 @@ const RowComponentBase = forwardRef<HTMLDivElement, RowComponentProps>((
 		parallel_verses,
 		focused_range,
 		show_focused_verses,
+		is_audio_focused,
 		set_show_focused_verses,
 		on_strongs_clicked,
 		on_verse_word_clicked,
@@ -168,16 +195,22 @@ const RowComponentBase = forwardRef<HTMLDivElement, RowComponentProps>((
 		}, [index, show_focused_verses, focused_range]);
 
 		const rounded_top = useMemo(() => {
+			if (is_audio_focused)
+				return true;
+
 			if (!focused_range || !show_focused_verses || index === 0) 
 				return true;
 			return !(index > focused_range.start - 1 && index <= focused_range.end - 1);
-		}, [index, focused_range, show_focused_verses]);
+		}, [index, focused_range, show_focused_verses, is_audio_focused]);
 
 		const rounded_bottom = useMemo(() => {
+			if (is_audio_focused)
+				return true;
+
 			if (!focused_range || !show_focused_verses || index === verses.length - 1) 
 				return true;
 			return !(index >= focused_range.start - 1 && index < focused_range.end - 1);
-		}, [index, focused_range, verses.length]);
+		}, [index, focused_range, verses.length, is_audio_focused]);
 
 		const handle_click = useCallback(() => {
 			if (is_focused && show_focused_verses) 
@@ -193,8 +226,11 @@ const RowComponentBase = forwardRef<HTMLDivElement, RowComponentProps>((
 				borderTopRightRadius: theme.spacing(rounded_top ? 1 : 0),
 				borderBottomLeftRadius: theme.spacing(rounded_bottom ? 1 : 0),
 				borderBottomRightRadius: theme.spacing(rounded_bottom ? 1 : 0),
+				borderLeftWidth: is_audio_focused ? theme.spacing(1) : undefined,
+				borderLeftColor: is_audio_focused ? theme.palette.primary.main : undefined,
+				borderLeftStyle: is_audio_focused ? "solid" : undefined,
 				transition: "background-color 0.2s ease",
-				backgroundColor: is_focused ? theme.palette.action.selected : undefined,
+				backgroundColor: is_focused || is_audio_focused ? theme.palette.action.selected : undefined,
 
 				display: "flex",
 				flexDirection: "column",
@@ -204,7 +240,7 @@ const RowComponentBase = forwardRef<HTMLDivElement, RowComponentProps>((
 					backgroundColor: theme.palette.action.hover,
 				},
 			}),
-			[rounded_top, rounded_bottom, is_focused]
+			[rounded_top, rounded_bottom, is_focused, is_audio_focused]
 		);
 
 		return (
@@ -258,14 +294,17 @@ const RowComponentBase = forwardRef<HTMLDivElement, RowComponentProps>((
 );
 
 export const RowComponent = React.memo(RowComponentBase, (prev, next) => {
-	const same_focus =
-		prev.show_focused_verses === next.show_focused_verses &&
-		prev.focused_range?.start === next.focused_range?.start &&
-		prev.focused_range?.end === next.focused_range?.end;
+    const same_focus =
+        prev.show_focused_verses === next.show_focused_verses &&
+        prev.focused_range?.start === next.focused_range?.start &&
+        prev.focused_range?.end === next.focused_range?.end;
 
-	const same_content =
-		prev.verses[prev.index] === next.verses[next.index] &&
-		prev.parallel_verses?.[prev.index] === next.parallel_verses?.[next.index];
+    const same_content =
+        prev.verses[prev.index].html === next.verses[next.index].html &&
+        prev.parallel_verses?.[prev.index]?.html === next.parallel_verses?.[next.index]?.html;
 
-	return same_focus && same_content;
+    const same_audio_index = prev.is_audio_focused === next.is_audio_focused;
+
+    const is_same = same_focus && same_content && same_audio_index;
+	return is_same;
 });
