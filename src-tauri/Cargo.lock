@@ -336,7 +336,7 @@ checksum = "72b3254f16251a8381aa12e40e3c4d2f0199f8c6508fbecb9d91f575e0fbb8c6"
 [[package]]
 name = "biblio_json"
 version = "0.1.0"
-source = "git+https://github.com/FishArmy100/biblio_json?branch=ascribe#6ef64a4b60706e4f58bf717037de05c88867e459"
+source = "git+https://github.com/FishArmy100/biblio_json?branch=ascribe-html-update#a6e5581056f82fcc77c6f5483a0fe0e19ebeb29b"
 dependencies = [
  "bimap",
  "bincode",
@@ -352,6 +352,7 @@ dependencies = [
  "serde",
  "serde_json",
  "serde_with",
+ "time",
  "toml 0.9.6",
 ]
 

@@ -1,0 +1,6 @@
+name = "Robert Roberts Reading Plan"
+
+[format]
+type = "yearly"
+count = 1
+leap_year = "skip"

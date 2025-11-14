@@ -102,35 +102,6 @@ function StrongsDefEntryRenderer({
     entry,
 }: StrongsDefEntryRendererProps): React.ReactElement
 {
-    let html_text: HtmlText = {
-        nodes: [
-            { type: "paragraph", content: [{ type: "bold", content: [{type: "text", text: "Definitions:"}] }] },
-            { type: "list", ordered: true, items: entry.definitions.map(d => {
-
-                let content: Node[] = d.nodes.map(node => 
-                    node.type === "paragraph" ? node : { type: "paragraph", content: [node] }
-                );
-
-                return {
-                    type: "list_item",
-                    content: content,
-                }
-            })},
-        ]
-    };
-
-    if (entry.derivation !== null)
-    {
-        let d = entry.derivation;
-        let content: Node[] = d.nodes.map(node => 
-            node.type === "paragraph" ? node : { type: "paragraph", content: [node] }
-        );
-
-        html_text.nodes.push(
-            { type: "paragraph", content: [{ type: "bold", content: [{type: "text", text: "Derivation:"}] }] },
-            ...content,
-        )
-    }
 
     const on_ref_click = (r: HRefSrc) => {
         console.log(`Clicked href: ${JSON.stringify(r)}`);
@@ -153,7 +124,7 @@ function StrongsDefEntryRenderer({
                 </Typography>
                 <HtmlTextRenderer
                     on_href_click={on_ref_click}
-                    content={html_text}
+                    content={entry.definition}
                 />
             </Box>
         </>

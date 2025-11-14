@@ -1,10 +1,9 @@
 use std::sync::Mutex;
 
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
 use tauri::State;
 
-use crate::{bible::BiblioJsonPackageHandle, core::app::AppState, tts::{PassageAudioKey, PassageAudioKeyJson, TtsPlayer, TtsSettings}};
+use crate::{bible::BiblioJsonPackageHandle, tts::{PassageAudioKey, PassageAudioKeyJson, TtsPlayer}};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case", tag = "type")]

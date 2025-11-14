@@ -24,10 +24,9 @@ export default function ModuleEntryRenderer({
     }
     else if (entry.type === "dictionary")
     {
-        return <DictionaryEntryRenderer 
-            definitions={entry.definitions} 
-            on_ref_clicked={on_ref_clicked}
-            aliases={entry.aliases}
+        return <HtmlTextRenderer 
+            on_href_click={on_ref_clicked}
+            content={entry.definition}
         />
     }
     else if (entry.type === "notebook_highlight")
@@ -81,13 +80,13 @@ function get_x_ref_directed_html(targets: ReferenceData[], note: HtmlText | null
     if (note)
     {
         nodes.push(
-            HtmlTextHelper.basic_heading(5, "Note:"),
+            HtmlTextHelper.basic_heading(2, "Note:"),
             ...note.nodes,
         )
     }
 
     nodes.push(
-        HtmlTextHelper.basic_heading(5, "References:"),
+        HtmlTextHelper.basic_heading(2, "References:"),
         {
             type: "list",
             ordered: false,
@@ -98,37 +97,4 @@ function get_x_ref_directed_html(targets: ReferenceData[], note: HtmlText | null
     return {
         nodes
     }
-}
-
-type DictionaryEntryRendererProps = {
-    definitions: HtmlText[],
-    on_ref_clicked: (id: HRefSrc) => void,
-    aliases: string[] | null,
-}
-
-function DictionaryEntryRenderer({
-    definitions,
-    on_ref_clicked,
-    aliases,
-}: DictionaryEntryRendererProps): React.ReactElement
-{
-    const aliases_html = aliases && {
-        nodes: [
-            HtmlTextHelper.bold(HtmlTextHelper.text("Aliases: ")),
-            HtmlTextHelper.text(aliases.join(", ")),
-        ]
-    };
-
-    return (
-        <>
-            {definitions.map((d, i) => {
-                return <HtmlTextRenderer 
-                    on_href_click={on_ref_clicked}
-                    content={d}
-                    key={i}
-                />
-            })}
-            {aliases_html}
-        </>
-    )
 }

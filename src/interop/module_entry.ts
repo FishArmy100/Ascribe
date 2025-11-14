@@ -23,8 +23,7 @@ export type ModuleEntry =
     id: number,
 
     word: string,
-    definitions: HtmlText,
-    derivation: HtmlText | null,
+    definition: HtmlText
 }
 |{  
     type: "strongs_link",
@@ -48,7 +47,7 @@ export type ModuleEntry =
     id: number,
     
     aliases: string[] | null,
-    definitions: HtmlText[],
+    definition: HtmlText,
 }
 |{  
     type: "xref_directed",
@@ -85,6 +84,13 @@ export type ModuleEntry =
     priority: number,
     color: string,
     references: RefId[],
+}|{
+    type: "readings",
+    module: string,
+    id: number,
+
+    index: number,
+    readings: RefId[],
 }
 
 export async function fetch_backend_word_entries(bible: string, verse: VerseId, word: number): Promise<ModuleEntry[]>

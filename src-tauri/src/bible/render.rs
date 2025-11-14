@@ -1,5 +1,3 @@
-use std::fmt::format;
-
 use biblio_json::{Package, VerseFetchResponse, core::{StrongsNumber, VerseId, WordRange}};
 use itertools::Itertools;
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};

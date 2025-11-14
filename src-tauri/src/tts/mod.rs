@@ -1,4 +1,4 @@
-use std::{collections::HashMap, num::NonZeroU32, ops::RangeInclusive, sync::{Arc, Mutex}, thread::spawn};
+use std::{collections::HashMap, num::NonZeroU32, sync::{Arc, Mutex}, thread::spawn};
 
 use biblio_json::{Package, core::{ChapterId, VerseId}};
 use itertools::Itertools;

@@ -33,8 +33,7 @@ pub enum ModuleEntryJson
         module: String,
         strongs_ref: StrongsNumberJson,
         word: String,
-        definitions: Vec<HtmlTextJson>,
-        derivation: Option<HtmlTextJson>,
+        definition: HtmlTextJson,
         id: u32,
     },
     StrongsLink
@@ -56,7 +55,7 @@ pub enum ModuleEntryJson
         module: String,
         term: String,
         aliases: Option<Vec<String>>,
-        definitions: Vec<HtmlTextJson>,
+        definition: HtmlTextJson,
         id: u32,
     },
     #[serde(rename = "xref_directed")]
@@ -100,6 +99,13 @@ pub enum ModuleEntryJson
         priority: u32,
         color: String,
         references: Vec<RefIdJson>,
+    },
+    Readings 
+    {
+        module: String,
+        id: u32,
+        index: u32,
+        readings: Vec<RefIdJson>,
     }
 }
 
@@ -114,7 +120,7 @@ impl ModuleEntryJson
                     module, 
                     term: dict_entry.term.clone(), 
                     aliases: dict_entry.aliases.clone(),
-                    definitions: dict_entry.definitions.iter().map(HtmlTextJson::from).collect(), 
+                    definition: HtmlTextJson::from(&dict_entry.definition), 
                     id: dict_entry.id,
                 }
             },
@@ -123,8 +129,7 @@ impl ModuleEntryJson
                     module,
                     strongs_ref: strongs_def_entry.strongs_ref.clone().into(),
                     word: strongs_def_entry.word.clone(),
-                    definitions: strongs_def_entry.definitions.iter().map(HtmlTextJson::from).collect(),
-                    derivation: strongs_def_entry.derivation.as_ref().map(HtmlTextJson::from),
+                    definition: HtmlTextJson::from(&strongs_def_entry.definition),
                     id: strongs_def_entry.id,
                 }
             },
@@ -211,6 +216,15 @@ impl ModuleEntryJson
                         references: references.iter().map(|r| r.into()).collect_vec() 
                     }
                 },
+            },
+            ModuleEntry::Readings(readings_entry) => {
+                Self::Readings 
+                { 
+                    module,
+                    id: readings_entry.id, 
+                    index: readings_entry.index, 
+                    readings: readings_entry.readings.iter().map(|r| RefIdJson::from(r)).collect_vec() 
+                }
             },
         }
     }

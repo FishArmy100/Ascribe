@@ -1,0 +1,4 @@
+name = "Monthly Proverbs Readings"
+
+[format]
+type = "monthly"

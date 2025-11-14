@@ -1,7 +1,7 @@
 use std::{sync::{Arc, Mutex}, thread::{spawn, JoinHandle}, time::SystemTime};
 
 use kira::{AudioManager, Decibels, DefaultBackend, Mapping, PlaybackRate, Tween, Tweenable, Value, modulator::tweener::{TweenerBuilder, TweenerHandle}, sound::{PlaybackState, static_sound::StaticSoundHandle}, track::{TrackBuilder, TrackHandle}};
-use kira_pitcher::effect::pitch::{PitcherBuilder, PitcherHandle};
+use kira_pitcher::effect::pitch::PitcherBuilder;
 use tauri::{AppHandle, Emitter};
 
 use crate::core::utils::Shared;
