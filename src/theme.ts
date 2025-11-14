@@ -29,7 +29,7 @@ const colors = {
     },
     text: {
         primary: '#000000',
-        secondary: '#513F24',
+        secondary: '#a1a1a1ff',
     },
     common: {
         black: '#000000',
@@ -43,6 +43,7 @@ const colors = {
 
 // The theme
 const ascribeTheme = createTheme({
+    cssVariables: true,
     palette: {
         primary: {
             main: colors.primary.main,
