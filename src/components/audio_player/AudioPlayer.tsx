@@ -1,7 +1,7 @@
 import { Box, Collapse, Stack, Typography, useTheme } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import ImageButton, { BUTTON_SIZE } from "../core/ImageButton";
-import * as images from "../../assets"
+import * as images from "@assets"
 import Slider from "../core/Slider";
 import { motion, AnimatePresence, number } from "framer-motion";
 import { use_tts_player } from "../providers/TtsPlayerProvider";

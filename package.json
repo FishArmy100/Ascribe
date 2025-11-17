@@ -20,11 +20,13 @@
     "npm": "^11.6.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.1",
-    "rfdc": "^1.4.1"
+    "rfdc": "^1.4.1",
+    "vite-tsconfig-paths": "^5.1.4"
   },
   "devDependencies": {
     "@tanstack/react-virtual": "^3.13.12",
     "@tauri-apps/cli": "^2",
+    "@types/node": "^24.10.1",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react": "^4.6.0",

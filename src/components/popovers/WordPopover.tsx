@@ -1,12 +1,12 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { BibleInfo, get_book_display_name, use_selected_bibles, WordId } from "../../interop/bible";
-import { fetch_backend_word_entries, ModuleEntry } from "../../interop/module_entry";
-import { Box, Collapse, Divider, ListItemButton, Popover, Stack, Typography } from "@mui/material";
-import SmallerTextSection from "../SmallerTextSection";
-import { fetch_backend_verse_render_data, VerseRenderData } from "../../interop/bible/render";
+import { BibleInfo, get_book_display_name, use_selected_bibles, WordId } from "@interop/bible";
+import { fetch_backend_word_entries, ModuleEntry } from "@interop/module_entry";
+import { Box, Collapse, Divider, ListItemButton, Popover, Stack, Typography, useTheme } from "@mui/material";
+import SmallerTextSection from "@components/SmallerTextSection";
+import { fetch_backend_verse_render_data, VerseRenderData } from "@interop/bible/render";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
-import ModuleEntryRenderer from "./ModuleEntryRenderer";
-import { HRefSrc } from "../../interop/html_text";
+import ModuleEntryRenderer from "@components/bible/ModuleEntryRenderer";
+import { HRefSrc } from "@interop/html_text";
 
 export type WordPopoverProps = {
     word: WordId | null,
@@ -155,6 +155,7 @@ export default function WordPopover({
                         }
                         <Divider sx={{
                             mt: (theme) => theme.spacing(1),
+                            mb: (theme) => theme.spacing(1),
                         }}/>
                         {module_entries && <WordPopoverContent 
                             entries={module_entries}
@@ -238,21 +239,37 @@ function WordPopupItem({
 }: WordPopoverItemProps): React.ReactElement
 {
     const is_expanded = open_modules.find(p => p === module_name) ? true : false;
+    const theme = useTheme();
     return (
         <>
             <ListItemButton 
                 onClick={() => on_click(module_name)}
                 sx={{
-                    mb: t => is_expanded ? t.spacing(1) : undefined,
+                    borderRadius: !is_expanded ? theme.spacing(1) : undefined,
+                    borderColor: is_expanded ? theme.palette.divider : undefined,
+                    borderWidth: is_expanded ? theme.spacing(1 / 8) : undefined,
+                    borderStyle: is_expanded ? "solid" : undefined,
+                    borderTopLeftRadius: is_expanded ? theme.spacing(1) : undefined,
+                    borderTopRightRadius: is_expanded ? theme.spacing(1) : undefined,
+                    justifyContent: "space-between",
                 }}
             >
-                <Typography component="h2" variant="h5" fontWeight="bold" >{module_name}</Typography>
+                <Typography component="p" variant="h6" fontWeight="bold" >{module_name}</Typography>
                 {is_expanded? <ExpandLess/> : <ExpandMore/>}
             </ListItemButton>
             <Collapse in={is_expanded} timeout="auto" unmountOnExit>
                 <Stack
                     sx={{
-                        mr: 1,
+                        pt: theme.spacing(1),
+                        mb: is_expanded ? theme.spacing(1) : undefined,
+                        borderColor: is_expanded ? theme.palette.divider : undefined,
+                        borderWidth: is_expanded ? theme.spacing(1 / 8) : undefined,
+                        borderTopWidth: 0,
+                        borderBottomLeftRadius: is_expanded ? theme.spacing(1) : undefined,
+                        borderBottomRightRadius: is_expanded ? theme.spacing(1) : undefined,
+                        borderStyle: is_expanded ? "solid" : undefined,
+                        padding: theme.spacing(1),
+                        width: "100%",
                     }}
                 >
                     {entries.map((e, i) => (
@@ -264,10 +281,6 @@ function WordPopupItem({
                         />
                     ))}
                 </Stack>
-                <Divider sx={{
-                    mt: theme => theme.spacing(1),
-                    mb: theme => theme.spacing(1),
-                }}/>
             </Collapse>
         </>
     )
