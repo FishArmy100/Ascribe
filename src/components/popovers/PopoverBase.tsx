@@ -5,7 +5,7 @@ import SmallerTextSection from "@components/SmallerTextSection";
 
 
 export type PopoverBaseProps = {
-    title: string,
+    title: string | null,
     pos: {top: number, left: number} | null,
     on_close: () => void,
     entries: PopoverEntryData[],
