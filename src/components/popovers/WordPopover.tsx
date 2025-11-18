@@ -53,7 +53,7 @@ export default function WordPopover({
             />
         )
     })) ?? [];
-
+ 
     return <PopoverBase
         title={`"${title}"`}
         pos={pos}
