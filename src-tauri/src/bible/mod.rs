@@ -4,7 +4,7 @@ pub mod render;
 
 use std::{sync::{Arc, RwLock}, thread::spawn};
 
-use biblio_json::{self, Package, modules::bible::BookInfo};
+use biblio_json::{self, Package, modules::{ModuleId, bible::BookInfo}};
 use serde::{Deserialize, Serialize};
 use tauri::{Emitter, Manager, utils::platform::resource_dir};
 
@@ -63,8 +63,8 @@ pub struct BibleInfo
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct BibleDisplaySettings
 {
-    pub bible_version: String,
-    pub parallel_version: String,
+    pub bible_version: ModuleId,
+    pub parallel_version: ModuleId,
     pub parallel_enabled: bool,
     pub show_strongs: bool,
 }
@@ -74,8 +74,8 @@ impl Default for BibleDisplaySettings
     fn default() -> Self 
     {
         Self { 
-            bible_version: "KJV".into(), 
-            parallel_version: "KJV".into(), 
+            bible_version: ModuleId::new("KJV".to_string()), 
+            parallel_version: ModuleId::new("KJV".to_string()), 
             parallel_enabled: false,
             show_strongs: false,
         }

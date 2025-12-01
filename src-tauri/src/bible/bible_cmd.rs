@@ -1,6 +1,6 @@
 use std::{num::NonZeroU32, sync::Mutex};
 
-use biblio_json::{core::{StrongsLang, StrongsNumber, VerseId}, modules::Module};
+use biblio_json::{core::{StrongsLang, StrongsNumber, VerseId}, modules::{Module, ModuleId}};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use tauri::{Emitter, State};
@@ -21,7 +21,7 @@ pub enum BibleCommand
     FetchVerseRenderData
     {
         verses: Vec<VerseIdJson>,
-        bible: String,
+        bible: ModuleId,
     },
     FetchStrongsDefs 
     {
@@ -31,13 +31,13 @@ pub enum BibleCommand
     {
         verse: VerseIdJson,
         word: NonZeroU32,
-        bible: String,
+        bible: ModuleId,
     },
     RenderVerses 
     {
         verses: Vec<VerseIdJson>,
         show_strongs: bool,
-        bible: String,
+        bible: ModuleId,
     }
 }
 

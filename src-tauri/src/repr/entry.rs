@@ -1,6 +1,6 @@
 use std::num::NonZeroU32;
 
-use biblio_json::{Package, core::{Atom, RefId, RefIdInner, VerseId, WordRange}, modules::{ModuleEntry, bible::Word, notebook::NotebookEntry, xrefs::XRefEntry}};
+use biblio_json::{Package, core::{Atom, RefId, RefIdInner, VerseId, WordRange}, modules::{ModuleEntry, ModuleId, bible::Word, notebook::NotebookEntry, xrefs::XRefEntry}};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 
@@ -30,7 +30,7 @@ pub enum ModuleEntryJson
 {
     StrongsDef 
     {
-        module: String,
+        module: ModuleId,
         strongs_ref: StrongsNumberJson,
         word: String,
         definition: HtmlTextJson,
@@ -38,21 +38,21 @@ pub enum ModuleEntryJson
     },
     StrongsLink
     {
-        module: String,
+        module: ModuleId,
         verse_id: VerseIdJson,
         id: u32,
         words: Vec<StrongsWordJson>,
     },
     Commentary
     {
-        module: String,
+        module: ModuleId,
         id: u32,
         references: Vec<RefIdJson>,
         comment: HtmlTextJson,
     },
     Dictionary
     {
-        module: String,
+        module: ModuleId,
         term: String,
         aliases: Option<Vec<String>>,
         definition: HtmlTextJson,
@@ -61,7 +61,7 @@ pub enum ModuleEntryJson
     #[serde(rename = "xref_directed")]
     XRefDirected
     {
-        module: String,
+        module: ModuleId,
         source: RefIdJson,
         targets: Vec<ReferenceData>,
         note: Option<HtmlTextJson>,
@@ -70,21 +70,21 @@ pub enum ModuleEntryJson
     #[serde(rename = "xref_mutual")]
     XRefMutual
     {
-        module: String,
+        module: ModuleId,
         refs: Vec<ReferenceData>,
         note: Option<HtmlTextJson>,
         id: u32,
     },
     Verse 
     {
-        module: String,
+        module: ModuleId,
         verse_id: VerseIdJson,
         words: Vec<Word>,
         id: u32,
     },
     NotebookNote
     {
-        module: String,
+        module: ModuleId,
         id: u32,
         name: Option<String>,
         content: HtmlTextJson,
@@ -92,7 +92,7 @@ pub enum ModuleEntryJson
     },
     NotebookHighlight
     {
-        module: String,
+        module: ModuleId,
         id: u32,
         name: String,
         description: Option<HtmlTextJson>,
@@ -102,7 +102,7 @@ pub enum ModuleEntryJson
     },
     Readings 
     {
-        module: String,
+        module: ModuleId,
         id: u32,
         index: u32,
         readings: Vec<RefIdJson>,
@@ -111,7 +111,7 @@ pub enum ModuleEntryJson
 
 impl ModuleEntryJson
 {
-    pub fn new(entry: ModuleEntry, module: String, preview_renderer: impl Fn(&RefId) -> String) -> Self 
+    pub fn new(entry: ModuleEntry, module: ModuleId, preview_renderer: impl Fn(&RefId) -> String) -> Self 
     {
         match entry
         {
@@ -229,7 +229,7 @@ impl ModuleEntryJson
         }
     }
 
-    pub fn fetch_word_entries(package: &Package, verse: VerseId, word: NonZeroU32, bible: &str) -> Option<Vec<ModuleEntryJson>>
+    pub fn fetch_word_entries(package: &Package, verse: VerseId, word: NonZeroU32, bible: &ModuleId) -> Option<Vec<ModuleEntryJson>>
     {
         let preview_renderer = |id: &RefId| -> String {
             let (verse, b) = get_first_verse(&id);
@@ -273,9 +273,9 @@ impl ModuleEntryJson
     }
 }
 
-fn get_first_verse(id: &RefId) -> (VerseId, Option<&str>)
+fn get_first_verse(id: &RefId) -> (VerseId, Option<&ModuleId>)
 {
-    let bible = id.bible.as_ref().map(|b| b.as_str()).clone();
+    let bible = id.bible.as_ref().clone();
     let atom = match &id.id {
         RefIdInner::Single(atom) => atom,
         RefIdInner::Range { from, .. } => from,
