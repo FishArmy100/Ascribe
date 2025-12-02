@@ -1,6 +1,6 @@
 use std::{collections::HashMap, num::NonZeroU32, sync::{Arc, Mutex}, thread::spawn};
 
-use biblio_json::{Package, core::{ChapterId, VerseId}};
+use biblio_json::{Package, core::{ChapterId, VerseId}, modules::ModuleId};
 use itertools::Itertools;
 use kira::{Frame, sound::static_sound::{StaticSoundData, StaticSoundSettings}, AudioManager, AudioManagerSettings, DefaultBackend};
 use serde::{Serialize, Deserialize};
@@ -21,7 +21,10 @@ pub fn init_espeak<R>(resolver: &PathResolver<R>)
     where R : Runtime
 {
     let tts_dir = resolver.resolve("resources/tts-data/espeak-ng-data", BaseDirectory::Resource).unwrap();
-    std::env::set_var("PIPER_ESPEAKNG_DATA_DIRECTORY", tts_dir.into_os_string());
+    unsafe 
+    {
+        std::env::set_var("PIPER_ESPEAKNG_DATA_DIRECTORY", tts_dir.into_os_string());
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Serialize, Deserialize)]
@@ -60,7 +63,7 @@ pub fn add_sync_settings_listener(app_handle: AppHandle)
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct PassageAudioKey
 {
-    pub bible: String,
+    pub bible: ModuleId,
     pub chapter: ChapterId,
     pub verse_range: Option<(NonZeroU32, NonZeroU32)>,
 }
@@ -81,7 +84,7 @@ impl PassageAudioKey
 #[serde(rename_all = "snake_case")]
 pub struct PassageAudioKeyJson
 {
-    pub bible: String,
+    pub bible: ModuleId,
     pub chapter: ChapterIdJson,
     pub verse_range: Option<(NonZeroU32, NonZeroU32)>,
 }

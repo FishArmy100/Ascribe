@@ -120,7 +120,7 @@ impl SearchType
         {
             SearchType::Chapter { book, chapter } => {
                 let id = RefId { 
-                    bible: Some(bible.config.name.clone()), 
+                    bible: Some(bible.config.id.clone()), 
                     id: RefIdInner::Single(Atom::Chapter { book: *book, chapter: *chapter }) 
                 };
 
@@ -131,7 +131,7 @@ impl SearchType
             },
             SearchType::Verse { book, chapter, verse } => {
                 let id = RefId { 
-                    bible: Some(bible.config.name.clone()), 
+                    bible: Some(bible.config.id.clone()), 
                     id: RefIdInner::Single(Atom::Verse { book: *book, chapter: *chapter, verse: *verse }) 
                 };
                 if !bible.source.id_exists(&id)
@@ -141,7 +141,7 @@ impl SearchType
             },
             SearchType::VerseRange { book, chapter, verse_start, verse_end } => {
                 let id = RefId { 
-                    bible: Some(bible.config.name.clone()), 
+                    bible: Some(bible.config.id.clone()), 
                     id: RefIdInner::Range { 
                         from: Atom::Verse { book: *book, chapter: *chapter, verse: *verse_start }, 
                         to: Atom::Verse { book: *book, chapter: *chapter, verse: *verse_end } 

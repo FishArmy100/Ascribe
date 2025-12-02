@@ -255,7 +255,7 @@ pub enum HRefSrcJson
     RefId { id: RefIdJson },
     Strongs { strongs: StrongsNumberJson },
     ModuleRef {
-        module_alias: AssetIdName,
+        module_alias: String,
         entry_id: u32,
     }
 }
