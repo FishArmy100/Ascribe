@@ -284,8 +284,8 @@ function get_handle_ref_clicked_fn(
 		};
 
 		if (href.type === "ref_id") {
-			const id = href.value.id;
-			const bible = href.value.bible;
+			const id = href.id.id;
+			const bible = href.id.bible;
 			update_bible_version(bible);
 
 			if (id.type === "range") {

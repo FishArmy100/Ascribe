@@ -22,8 +22,8 @@ export type Node =
 	| { type: "line_break" }
 
 export type HRefSrc =
-	| { type: "ref_id"; value: RefId }
-	| { type: "strongs"; value: StrongsNumber }
+	| { type: "ref_id"; id: RefId }
+	| { type: "strongs"; strongs: StrongsNumber }
 	| { type: "module_ref"; module_alias: string; entry_id: number };
 
 type HeadingLevel = 1 | 2 | 3;

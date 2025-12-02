@@ -88,7 +88,7 @@ function get_x_ref_html(targets: ReferenceData[], note: HtmlText | null, name_ma
     let items = targets.map((v, i): Node => ({
         type: "list_item",
         content: [
-            { type: "anchor", href: { type: "ref_id", value: v.id }, content: [{ type: "text", text: `[${format_ref_id(v.id, name_mapper)}]` }] },
+            { type: "anchor", href: { type: "ref_id", id: v.id }, content: [{ type: "text", text: `[${format_ref_id(v.id, name_mapper)}]` }] },
             { type: "text", text: `: "${v.preview_text}"` },
         ]
     }))
@@ -138,7 +138,7 @@ function ReferenceEntryRenderer({
             ...references.map((r): Node => ({
                 type: "anchor",
                 content: [{ type: "text", text: `[${pretty_print_ref_id(r, name_mapper)}]` }],
-                href: { type: "ref_id", value: r }
+                href: { type: "ref_id", id: r }
             }))
         ]
     }

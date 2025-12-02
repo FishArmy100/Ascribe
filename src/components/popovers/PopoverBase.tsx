@@ -164,6 +164,7 @@ function WordPopoverContent({
                     return (
                         <PopoverEntry
                             title={entry.title}
+                            key={i}
                             body={entry.body}
                             is_expanded={open_modules.includes(entry.title)}
                             on_click={on_click}
