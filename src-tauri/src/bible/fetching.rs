@@ -1,6 +1,6 @@
 use std::num::NonZeroU32;
 
-use biblio_json::{FetchEntry, Package, core::{Atom, ChapterId, OsisBook, RefId, RefIdInner, VerseId, WordRange}, modules::{Module, ModuleEntry, ModuleEntryRef, ModuleId, xrefs::XRefEntry}};
+use biblio_json::{FetchEntry, Package, core::{Atom, ChapterId, OsisBook, RefId, RefIdInner, VerseId, WordRange}, modules::{Module, ModuleEntry, ModuleEntryRef, ModuleId, notebook::NotebookEntry, xrefs::XRefEntry}};
 use itertools::Itertools;
 
 use crate::repr::ModuleEntryJson;
@@ -74,12 +74,40 @@ impl PackageEx for Package
         let entries = self.modules.iter().map(|(id, module)| {
             match module 
             {
-                Module::XRef(xrefs) => todo!(),
-                Module::Commentary(commentary) => todo!(),
-                Module::Notebook(notebook) => todo!(),
+                Module::XRef(xrefs) => xrefs.entries.iter().filter(|e| {
+                    match e 
+                    {
+                        XRefEntry::Directed { source, .. } => source.is_verse() && source.has_verse(&verse),
+                        XRefEntry::Mutual { refs, .. } => {
+                            refs.iter().any(|v| v.is_verse() && v.has_verse(&verse))
+                        },
+                    }
+                })
+                .map(|e| (ModuleEntry::XRef(e), xrefs.config.id.clone()))
+                .collect_vec(),
+                Module::Commentary(commentary) => commentary.entries.iter().filter(|e| {
+                    e.references.iter().any(|v| v.is_verse() && v.has_verse(&verse))
+                })
+                .map(|e| (ModuleEntry::Commentary(e), commentary.config.id.clone()))
+                .collect_vec(),
+                Module::Notebook(notebook) => notebook.entries.iter().filter(|e| {
+                    match e 
+                    {
+                        NotebookEntry::Highlight { references, .. } => {
+                            references.iter()
+                                .any(|v| v.is_verse() && v.has_verse(&verse))
+                        },
+                        NotebookEntry::Note { references, .. } => {
+                            references.iter()
+                                .any(|v| v.is_verse() && v.has_verse(&verse))
+                        },
+                    }
+                })
+                .map(|e| (ModuleEntry::Notebook(e), notebook.config.id.clone()))
+                .collect_vec(),
                 _ => vec![]
             }
-        }).collect::<Vec<(ModuleEntry, ModuleId)>>();
+        }).flatten().collect::<Vec<(ModuleEntry, ModuleId)>>();
 
         self.convert_to_json_entries(entries, bible)
     }
