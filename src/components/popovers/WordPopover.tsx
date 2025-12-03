@@ -46,7 +46,8 @@ export default function WordPopover({
         }
     }, [word]);
 
-    const title = verse_render_data && word ? verse_render_data.words[word.word - 1].word : null;
+    // do a .? here, just to make sure that in the rare case that it thinks everything is fetched properly, and it is still null
+    const title = verse_render_data && word ? verse_render_data.words[word.word - 1]?.word ?? null : null;
     const entries = module_entries?.map((e): PopoverEntryData => ({
         title: get_module_entry_title(e, module_infos, name_mapper),
         body: (
