@@ -24,6 +24,18 @@ export function range_inclusive_array(start: number, end: number): number[]
     return Array.from(range_inclusive(start, end));
 }
 
+export function shorten_string(s: string, max_len: number)
+{
+    if (s.length > max_len)
+    {
+        return s.substring(0, max_len - 3) + "..."
+    }
+    else 
+    {
+        return s;
+    }
+}
+
 export function pretty_print_json(obj: any, indent: number = 2): string {
     try 
     {

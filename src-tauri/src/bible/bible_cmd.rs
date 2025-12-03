@@ -12,6 +12,7 @@ use crate::{bible::{BIBLE_VERSION_CHANGED_EVENT_NAME, BibleDisplaySettings, Bibl
 pub enum BibleCommand 
 {
     FetchBibleInfos,
+    FetchModuleInfos,
     IsInitialized,
     GetBibleDisplaySettings,
     SetBibleDisplaySettings
@@ -62,6 +63,13 @@ pub fn run_bible_command(
 
             Some(serde_json::to_string(&bibles).unwrap())
         },
+        BibleCommand::FetchModuleInfos => {
+            let modules = package.visit(|p| {
+                p.modules.values().map(|m| m.get_info()).collect_vec()
+            });
+
+            Some(serde_json::to_string(&modules).unwrap())
+        }
         BibleCommand::IsInitialized => {
             Some(serde_json::to_string(&package.is_initialized()).unwrap())
         },

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react"
-import { BibleInfo, get_backend_bible_infos, get_backend_biblio_json_package_initialized as get_is_backend_biblio_json_package_initialized } from "../../interop/bible"
+import { BibleInfo, get_backend_bible_infos, get_backend_biblio_json_package_initialized } from "../../interop/bible"
 import { listen } from "@tauri-apps/api/event";
 
 type BibleInfoMap = { [name: string]: BibleInfo };
@@ -33,7 +33,7 @@ export function BibleInfoProvider({
 
     useEffect(() => {
         (async () => {
-            const alreadyReady = await get_is_backend_biblio_json_package_initialized();
+            const alreadyReady = await get_backend_biblio_json_package_initialized();
             if (alreadyReady) 
             {
                 await fetch_bible_infos();
@@ -56,6 +56,6 @@ export function BibleInfoProvider({
 export function use_bible_infos(): BibleInfoContextType
 {
     const ctx = useContext(BibleInfoContext);
-    if (!ctx) throw new Error("use_bible_info muse be used inside of BibleInfoContext");
+    if (!ctx) throw new Error("use_bible_info must be used inside of BibleInfoContext");
     return ctx;
 }
