@@ -163,9 +163,8 @@ function WordPopoverContent({
                 entries.sort((a, b) => a.title.localeCompare(b.title)).map((entry, i) => {
                     return (
                         <PopoverEntry
-                            title={entry.title}
+                            data={entry}
                             key={i}
-                            body={entry.body}
                             is_expanded={open_modules.includes(entry.title)}
                             on_click={on_click}
                         />

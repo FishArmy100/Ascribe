@@ -10,15 +10,13 @@ export type PopoverEntryData = {
 }
 
 export type PopoverEntryProps = {
-    title: string,
-    body: React.ReactNode,
+    data: PopoverEntryData,
     is_expanded: boolean,
     on_click: (t: string) => void,
 }
 
 export default function PopoverEntry({
-    title,
-    body,
+    data,
     is_expanded,
     on_click,
 }: PopoverEntryProps): React.ReactElement
@@ -27,7 +25,7 @@ export default function PopoverEntry({
     return (
         <>
             <ListItemButton 
-                onClick={() => on_click(title)}
+                onClick={() => on_click(data.title)}
                 sx={{
                     borderRadius: !is_expanded ? theme.spacing(1) : undefined,
                     borderColor: is_expanded ? theme.palette.divider : undefined,
@@ -38,7 +36,7 @@ export default function PopoverEntry({
                     justifyContent: "space-between",
                 }}
             >
-                <Typography component="p" variant="h6" fontWeight="bold" >{title}</Typography>
+                <Typography component="p" variant="h6" fontWeight="bold" >{data.title}</Typography>
                 {is_expanded? <ExpandLess/> : <ExpandMore/>}
             </ListItemButton>
             <Collapse in={is_expanded} timeout="auto" unmountOnExit>
@@ -56,7 +54,7 @@ export default function PopoverEntry({
                         width: "100%",
                     }}
                 >
-                    {body}
+                    {data.body}
                 </Stack>
             </Collapse>
         </>
