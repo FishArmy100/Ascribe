@@ -1,0 +1,42 @@
+name = "Easton's Bible Dictionary"
+short_name = "Easton's"
+id = "eastons_bible_dictionary"
+authors = [ "Matthew George Easton" ]
+language = "eng"
+description = """
+
+        <h1>Easton's Bible Dictionary</h1>
+
+        <p><strong><em>Easton's Bible Dictionary</em></strong> is a classic, concise reference work for students and readers of the Bible. It provides short, accessible entries on people, places, customs, doctrines, and terms found in the Old and New Testaments.</p>
+
+        <h2>Background</h2>
+        <p><em>Easton's</em> was compiled by a 19th-century scholar and minister and has been widely reprinted and used because of its clear, summary style. Over time it became popular as a readily available biblical reference for lay readers, pastors, and students.</p>
+
+        <h3>Key characteristics</h3>
+        <ul>
+            <li><strong>Alphabetical entries:</strong> Arranged like a traditional dictionary for quick lookup.</li>
+            <li><strong>Concise explanations:</strong> Short articles that summarize historical, geographical, and theological points.</li>
+            <li><strong>Scriptural references:</strong> Entries commonly cite Bible verses to guide further reading.</li>
+            <li><strong>Intended audience:</strong> General readers, Bible study groups, and those seeking a quick reference rather than in-depth scholarly analysis.</li>
+        </ul>
+
+        <h2>Typical contents</h2>
+        <p>The dictionary includes entries on:</p>
+        <ul>
+            <li>People (patriarchs, prophets, apostles, rulers)</li>
+            <li>Places (ancient cities, regions, geographic features)</li>
+            <li>Customs and institutions (religious practices, social customs)</li>
+            <li>Doctrinal and theological terms (key Christian ideas and terminology)</li>
+        </ul>
+
+        <h2>Usage and availability</h2>
+        <p><em>Easton's</em> is often used as a starting point for Bible study. Because it is an older work it is commonly found in public-domain reprints and online editions, which makes it easy to access. Readers should bear in mind that scholarship has advanced since the dictionary was written, so for current academic research it is best paired with more recent reference works.</p>
+
+        <h3>Quick summary</h3>
+        <p><strong>Easton's Bible Dictionary</strong> = <em>handy, succinct, historically popular</em> — ideal for quick lookups and introductory Bible study, but not a substitute for up-to-date scholarly commentaries when modern critical detail is required.</p>
+    """
+data_source = "https://huggingface.co/datasets/JWBickel/BibleDictionaries/raw/main/Easton's%20Bible%20Dictionary.jsonl"
+license = "Public Domain"
+
+[external.aliases]
+ebd = "eastons_bible_dictionary"

@@ -44,7 +44,7 @@ export default function ChapterContent({
     useEffect(() => {
         set_show_focused_verses(true);
 		set_verses_loaded(false);
-    }, [focused_range, parallel_bible_info?.name, bible_info.name, chapter]);
+    }, [focused_range, parallel_bible_info?.id, bible_info.id, chapter]);
 
 	useEffect(() => {
         // Mark verses as loaded after they've been rendered
@@ -78,7 +78,7 @@ export default function ChapterContent({
             // Reset when focused_range is cleared
             last_scrolled_range.current = null;
         }
-    }, [focused_range, parallel_bible_info?.name, bible_info.name, chapter, show_focused_verses, verses_loaded]);
+    }, [focused_range, parallel_bible_info?.id, bible_info.id, chapter, show_focused_verses, verses_loaded]);
 
 	const prev_audio_index = useRef<number | null>(null);
 	useEffect(() => {
@@ -128,12 +128,12 @@ export default function ChapterContent({
                 >
                     <Grid size={6} sx={{ borderRight: 1, borderColor: "divider", pr: 2 }}>
                         <Typography variant="h6" textAlign="center" fontWeight="bold">
-                            {bible_info.name}
+                            {bible_info.display_name}
                         </Typography>
                     </Grid>
                     <Grid size={6} sx={{ pl: 2 }}>
                         <Typography variant="h6" textAlign="center" fontWeight="bold">
-                            {parallel_bible_info?.name}
+                            {parallel_bible_info?.display_name}
                         </Typography>
                     </Grid>
                 </Grid>
@@ -141,7 +141,7 @@ export default function ChapterContent({
 
             {verses.map((_, index) => (
                 <RowComponent
-                    key={`${bible_info.name}-${chapter.book}-${chapter.chapter}-${index}`}
+                    key={`${bible_info.id}-${chapter.book}-${chapter.chapter}-${index}`}
                     ref={(el) => { row_refs.current[index] = el; }}
                     index={index}
                     verses={verses}

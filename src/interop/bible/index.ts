@@ -48,7 +48,8 @@ export type BookInfo = {
 }
 
 export type BibleInfo = {
-    name: string,
+    id: string,
+    display_name: string,
     books: BookInfo[],
 }
 
@@ -58,7 +59,7 @@ export function get_book_info(bible: BibleInfo, book: OsisBook): BookInfo
     
     if (info === undefined)
     {
-        console.error(`Book ${book} does not exist in bible ${bible.name}`);
+        console.error(`Book ${book} does not exist in bible ${bible.id}`);
         return {} as any;
     }
 
@@ -70,7 +71,7 @@ export function increment_chapter(bible: BibleInfo, chapter: ChapterId): Chapter
     let book_index = bible.books.findIndex(b => b.osis_book === chapter.book);
     if (book_index < 0)
     {
-        console.error(`Book ${chapter.book} does not exist in bible ${bible.name}`);
+        console.error(`Book ${chapter.book} does not exist in bible ${bible.id}`);
         return {} as any;
     }
 
@@ -104,7 +105,7 @@ export function decrement_chapter(bible: BibleInfo, chapter: ChapterId): Chapter
     let book_index = bible.books.findIndex(b => b.osis_book === chapter.book);
     if (book_index < 0)
     {
-        console.error(`Book ${chapter.book} does not exist in bible ${bible.name}`);
+        console.error(`Book ${chapter.book} does not exist in bible ${bible.id}`);
         return {} as any;
     }
 

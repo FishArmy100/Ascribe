@@ -26,7 +26,7 @@ export function BibleInfoProvider({
     {
         const infos = await get_backend_bible_infos();
         const map: BibleInfoMap = {};
-        infos.forEach((i) => (map[i.name] = i));
+        infos.forEach((i) => (map[i.id] = i));
         set_bible_infos(map);
         set_is_loaded(true);
     }

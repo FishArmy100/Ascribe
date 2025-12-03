@@ -1,4 +1,6 @@
-name = "ASV"
+name = "American Standard Version"
+short_name = "ASV"
+id = "asv_eng"
 description = """
 
 <h1>American Standard Version (ASV)</h1>

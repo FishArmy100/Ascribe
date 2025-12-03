@@ -54,7 +54,8 @@ pub fn run_bible_command(
         BibleCommand::FetchBibleInfos => {
             let bibles = package.visit(|p| {
                 p.modules.values().filter_map(Module::as_bible).map(|bible| BibleInfo {
-                    name: bible.config.name.clone(),
+                    id: bible.config.id.clone(),
+                    display_name: bible.config.short_name.clone().unwrap_or(bible.config.name.clone()),
                     books: bible.source.book_infos.clone()
                 }).collect_vec()
             });

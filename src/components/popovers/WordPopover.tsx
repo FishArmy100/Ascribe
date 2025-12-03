@@ -31,12 +31,12 @@ export default function WordPopover({
     useEffect(() => {
         if (word !== null)
         {
-            fetch_backend_word_entries(bible_version.name, word.verse, word.word).then(entries => {
+            fetch_backend_word_entries(bible_version.id, word.verse, word.word).then(entries => {
                 const filtered_entries = entries.filter(e => e.type !== "strongs_link")
                 set_module_entries(filtered_entries);
             })
 
-            fetch_backend_verse_render_data([word.verse], bible_version.name).then(v => {
+            fetch_backend_verse_render_data([word.verse], bible_version.id).then(v => {
                 set_verse_render_data(v[0] ?? null);
             })
         }

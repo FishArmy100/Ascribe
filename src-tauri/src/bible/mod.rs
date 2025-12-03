@@ -5,6 +5,7 @@ pub mod render;
 use std::{sync::{Arc, RwLock}, thread::spawn};
 
 use biblio_json::{self, Package, modules::{ModuleId, bible::BookInfo}};
+use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use tauri::{Emitter, Manager, utils::platform::resource_dir};
 
@@ -44,7 +45,12 @@ impl BiblioJsonPackageHandle
                 .unwrap_or(&s)
                 .to_string();
 
-            let package = Package::load(&path).unwrap();
+            let package = match Package::load(&path) {
+                Ok(ok) => ok,
+                Err(e) => {
+                    panic!("Package Loaded with errors {}:\n{}", e.len(), e.iter().map(|e| e.to_string()).join("\n---------------------------------------------\n"))
+                }
+            };
             *package_ref.try_write().unwrap() = Some(package);
             app_handle.emit(BIBLIO_JSON_PACKAGE_INITIALIZED_EVENT_NAME, ())
         });
@@ -56,7 +62,8 @@ impl BiblioJsonPackageHandle
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct BibleInfo 
 {
-    pub name: String,
+    pub id: ModuleId,
+    pub display_name: String,
     pub books: Vec<BookInfo>,
 }
 
@@ -74,8 +81,8 @@ impl Default for BibleDisplaySettings
     fn default() -> Self 
     {
         Self { 
-            bible_version: ModuleId::new("KJV".to_string()), 
-            parallel_version: ModuleId::new("KJV".to_string()), 
+            bible_version: ModuleId::new("kjv_eng".to_string()), 
+            parallel_version: ModuleId::new("kjv_eng".to_string()), 
             parallel_enabled: false,
             show_strongs: false,
         }

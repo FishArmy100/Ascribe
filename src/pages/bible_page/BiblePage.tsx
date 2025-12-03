@@ -26,8 +26,8 @@ export default function BiblePage(): React.ReactElement {
 
 	const current_view = view_history.get_current().current;
 	const current_chapter = current_view.chapter;
-	const bible_name = selected_bibles.bible.name;
-	const parallel_bible_name = selected_bibles.parallel?.name;
+	const bible_name = selected_bibles.bible.id;
+	const parallel_bible_name = selected_bibles.parallel?.id;
 
 	const [verses, set_verses] = useState<RenderedVerseContent[] | null>(null);
 	const [parallel_verses, set_parallel_verses] = useState<RenderedVerseContent[] | null>(null);

@@ -44,7 +44,7 @@ export default function ChapterPicker({ on_select }: ChapterPickerProps): React.
         id: b.osis_book,
         name: b.name,
         count: b.chapters.length,
-    })), [bible_info.name]);
+    })), [bible_info.id]);
 
     const handle_book_click = useCallback((id: OsisBook) => {
         set_expanded_book(prev => (prev === id ? null : id));
