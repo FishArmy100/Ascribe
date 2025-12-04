@@ -1,11 +1,11 @@
 use std::{num::NonZeroU32, sync::Mutex};
 
-use biblio_json::{core::{StrongsLang, StrongsNumber, VerseId}, modules::{Module, ModuleId}};
+use biblio_json::{core::{OsisBook, StrongsLang, StrongsNumber, VerseId}, modules::{Module, ModuleId}};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use tauri::{Emitter, State};
 
-use crate::{bible::{BIBLE_VERSION_CHANGED_EVENT_NAME, BibleDisplaySettings, BibleInfo, BibleVersionChangedEvent, BiblioJsonPackageHandle, render::{fetch_verse_render_data, render_verse_words}}, core::app::AppState, repr::{entry::ModuleEntryJson, *}};
+use crate::{bible::{BIBLE_VERSION_CHANGED_EVENT_NAME, BibleDisplaySettings, BibleInfo, BibleVersionChangedEvent, BiblioJsonPackageHandle, fetching::PackageEx, render::{fetch_verse_render_data, render_verse_words}}, core::app::AppState, repr::{entry::ModuleEntryJson, *}};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case", tag = "type")]
@@ -32,6 +32,21 @@ pub enum BibleCommand
     {
         verse: VerseIdJson,
         word: NonZeroU32,
+        bible: ModuleId,
+    },
+    FetchVerseEntries 
+    {
+        verse: VerseIdJson,
+        bible: ModuleId,
+    },
+    FetchChapterEntries 
+    {
+        chapter: ChapterIdJson,
+        bible: ModuleId,
+    },
+    FetchBookEntries 
+    {
+        book: OsisBook,
         bible: ModuleId,
     },
     RenderVerses 
@@ -120,11 +135,32 @@ pub fn run_bible_command(
         },
         BibleCommand::FetchWordEntries { verse, word, bible } => {
             let response = package.visit(|p | {
-                ModuleEntryJson::fetch_word_entries(p, verse.into(), word, &bible)
-            }).unwrap_or_default();
+                p.fetch_word_entries(verse.into(), word, &bible)
+            });
 
             Some(serde_json::to_string(&response).unwrap())
         },
+        BibleCommand::FetchVerseEntries { verse, bible } => {
+            let response = package.visit(|p | {
+                p.fetch_verse_entries(verse.into(), &bible)
+            });
+
+            Some(serde_json::to_string(&response).unwrap())
+        }
+        BibleCommand::FetchChapterEntries { chapter, bible } => {
+            let response = package.visit(|p | {
+                p.fetch_chapter_entries(chapter.into(), &bible)
+            });
+
+            Some(serde_json::to_string(&response).unwrap())
+        },
+        BibleCommand::FetchBookEntries { book, bible } => {
+            let response = package.visit(|p | {
+                p.fetch_book_entries(book, &bible)
+            });
+
+            Some(serde_json::to_string(&response).unwrap())
+        }
         BibleCommand::RenderVerses { verses, show_strongs, bible } => {
             let verses = verses.iter().map(|v| VerseId::from(v)).collect_vec();
             

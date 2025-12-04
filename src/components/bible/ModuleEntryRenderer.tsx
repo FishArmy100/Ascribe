@@ -52,7 +52,10 @@ export default function ModuleEntryRenderer({
     }
     else if (entry.type === "strongs_def")
     {
-        return <Typography>Not implemented yet</Typography>
+        return <HtmlTextRenderer 
+            on_href_click={on_ref_clicked}
+            content={entry.definition}
+        />
     }
     else if (entry.type === "strongs_link")
     {

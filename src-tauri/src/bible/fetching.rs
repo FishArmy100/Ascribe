@@ -49,28 +49,65 @@ impl PackageEx for Package
             .as_bible();
         let bible_mod = binding.as_ref().unwrap();
 
-        let word = bible_mod.source.verses
+        let word_data = bible_mod.source.verses
             .get(&verse).as_ref().unwrap()
-            .words[word.get() as usize].clone();
+            .words[word.get() as usize - 1].clone();
+
+        let strongs_defs = self.modules.values().filter_map(Module::as_strongs_defs).collect_vec();
 
         let entries = self.modules.values().map(|module| {
             match module
             {
                 Module::Dictionary(dictionary) => {
-                    dictionary.find(&word.text)
+                    dictionary.find(&word_data.text)
                         .map(|e| vec![(ModuleEntry::Dictionary(e), module.id().clone())])
                         .unwrap_or_default()
                 },
-                Module::XRef(xrefs) => match e {
-                    XRefEntry::Directed { source, .. } => !source.is_verse() && !source.is_chapter() && !source.is_book() && source.has_verse(verse),
-                    XRefEntry::Mutual { refs, .. } => {
-                        refs.iter().any(|v| v.is_verse() && v.has_verse(verse))
-                    },
+                Module::XRef(xrefs) => xrefs.entries.iter().filter(|e| {
+                    match e 
+                    {
+                        XRefEntry::Directed { source, .. } => is_word_ref_id(source) && source.has_verse_word(verse, word),
+                        XRefEntry::Mutual { refs, .. } => {
+                            refs.iter().any(|r| is_word_ref_id(r) && r.has_verse_word(verse, word))
+                        },
+                    }
+                })
+                    .map(|e| (ModuleEntry::XRef(e), xrefs.config.id.clone()))
+                    .collect_vec(),
+                Module::StrongsLinks(links) => {
+                    if links.config.bible != *bible { return vec![] }
+                    let Some(links) = links.get_links(&verse) else { return vec![] };
+                    let Some(strongs_word) = links.words.iter().find(|w| match w.range {
+                        WordRange::Single(s) => s == word,
+                        WordRange::Range(s, e) => s <= word && e >= word,
+                    }) else { return vec![] };
+                    
+                    strongs_word.strongs.iter().map(|s| {
+                        strongs_defs.iter().filter_map(|defs| {
+                            defs.get_def(s).map(|d| (d, defs.config.id.clone()))
+                        })
+                    }).flatten().map(|(d, id)| (ModuleEntry::StrongsDef(d), id)).collect_vec()
                 },
-                Module::StrongsLinks(links) => todo!(),
-                Module::Commentary(commentary_module) => todo!(),
-                Module::Notebook(notebook_module) => todo!(),
-                Module::Readings(readings_module) => todo!(),
+                Module::Commentary(commentary) => commentary.entries.iter().filter(|e| {
+                    e.references.iter().any(|v| is_word_ref_id(v) && v.has_verse_word(verse, word))
+                })
+                    .map(|e| (ModuleEntry::Commentary(e), commentary.config.id.clone()))
+                    .collect_vec(),
+                Module::Notebook(notebook) => notebook.entries.iter().filter(|e| {
+                    match e 
+                    {
+                        NotebookEntry::Highlight { references, .. } => {
+                            references.iter()
+                                .any(|v| is_word_ref_id(v) && v.has_verse_word(verse, word))
+                        },
+                        NotebookEntry::Note { references, .. } => {
+                            references.iter()
+                                .any(|v| is_word_ref_id(v) && v.has_verse_word(verse, word))
+                        },
+                    }
+                })
+                    .map(|e| (ModuleEntry::Notebook(e), notebook.config.id.clone()))
+                    .collect_vec(),
                 _ => vec![]
             }
         }).flatten().collect::<Vec<(ModuleEntry, ModuleId)>>();
@@ -92,13 +129,13 @@ impl PackageEx for Package
                         },
                     }
                 })
-                .map(|e| (ModuleEntry::XRef(e), xrefs.config.id.clone()))
-                .collect_vec(),
+                    .map(|e| (ModuleEntry::XRef(e), xrefs.config.id.clone()))
+                    .collect_vec(),
                 Module::Commentary(commentary) => commentary.entries.iter().filter(|e| {
                     e.references.iter().any(|v| v.is_verse() && v.has_verse(verse))
                 })
-                .map(|e| (ModuleEntry::Commentary(e), commentary.config.id.clone()))
-                .collect_vec(),
+                    .map(|e| (ModuleEntry::Commentary(e), commentary.config.id.clone()))
+                    .collect_vec(),
                 Module::Notebook(notebook) => notebook.entries.iter().filter(|e| {
                     match e 
                     {
@@ -112,8 +149,8 @@ impl PackageEx for Package
                         },
                     }
                 })
-                .map(|e| (ModuleEntry::Notebook(e), notebook.config.id.clone()))
-                .collect_vec(),
+                    .map(|e| (ModuleEntry::Notebook(e), notebook.config.id.clone()))
+                    .collect_vec(),
                 _ => vec![]
             }
         }).flatten().collect::<Vec<(ModuleEntry, ModuleId)>>();
@@ -145,10 +182,7 @@ impl PackageEx for Package
                 Module::Notebook(notebook) => notebook.entries.iter().filter(|e| {
                     match e 
                     {
-                        NotebookEntry::Highlight { references, .. } => {
-                            references.iter()
-                                .any(|r| r.is_chapter() && r.has_chapter(chapter))
-                        },
+                        NotebookEntry::Highlight { .. } => false,
                         NotebookEntry::Note { references, .. } => {
                             references.iter()
                                 .any(|r| r.is_chapter() && r.has_chapter(chapter))
@@ -188,10 +222,7 @@ impl PackageEx for Package
                 Module::Notebook(notebook) => notebook.entries.iter().filter(|e| {
                     match e 
                     {
-                        NotebookEntry::Highlight { references, .. } => {
-                            references.iter()
-                                .any(|r| r.is_book() && r.has_book(book))
-                        },
+                        NotebookEntry::Highlight { .. } => false,
                         NotebookEntry::Note { references, .. } => {
                             references.iter()
                                 .any(|r| r.is_book() && r.has_book(book))
@@ -257,4 +288,24 @@ fn get_first_verse(id: &RefId) -> (VerseId, Option<&ModuleId>)
     }
 }
 
-fn is_word_
+fn is_word_ref_id(r: &RefId) -> bool
+{
+    match r.id
+    {
+        RefIdInner::Single(atom) => {
+            match atom 
+            {
+                Atom::Word { .. } => true,
+                _ => false,
+            }
+        },
+        RefIdInner::Range { from, to } => {
+            match (to, from)
+            {
+                (Atom::Word { .. }, _) => true,
+                (_, Atom::Word { .. }) => true,
+                _ => false,
+            }
+        },
+    }
+}
