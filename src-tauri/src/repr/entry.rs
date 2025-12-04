@@ -1,6 +1,6 @@
 use std::num::NonZeroU32;
 
-use biblio_json::{Package, core::{Atom, ChapterId, OsisBook, RefId, RefIdInner, VerseId, WordRange}, modules::{ModuleEntry, ModuleId, bible::Word, notebook::NotebookEntry, xrefs::XRefEntry}};
+use biblio_json::{Package, core::{Atom, RefId, RefIdInner, VerseId, WordRange}, modules::{ModuleEntry, ModuleId, bible::Word, notebook::NotebookEntry, xrefs::XRefEntry}};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 
@@ -227,97 +227,5 @@ impl ModuleEntryJson
                 }
             },
         }
-    }
-
-    pub fn fetch_word_entries(package: &Package, verse: VerseId, word: NonZeroU32, bible: &ModuleId) -> Option<Vec<ModuleEntryJson>>
-    {
-        let preview_renderer = |id: &RefId| -> String {
-            let (verse, b) = get_first_verse(&id);
-            let bible = b.unwrap_or(bible);
-            let Some(bible) = package.get_mod(bible).map(|b| b.as_bible()).flatten() else {
-                return String::new()
-            };
-
-            let Some(verse) = bible.source.verses.get(&verse) else {
-                return String::new()
-            };
-
-            verse.words.iter()
-                .map(|w| {
-                    let begin_punc = w.begin_punc.as_ref().map_or("", |v| v);
-                    let end_punc = w.end_punc.as_ref().map_or("", |v| v);
-                    format!("{}{}{}", begin_punc, w.text, end_punc)
-                })
-                .join(" ")
-        };
-
-        let result = package.fetch(verse, bible)?.entries.iter().filter(|e| match e.range {
-            WordRange::Single(s) => s == word,
-            WordRange::Range(s, e) => s <= word && e >= word,
-        }).filter_map(|e| {
-            let module_name = e.entry.module.clone();
-            let entry = package.fetch_entry(e.entry.clone())?;
-
-            if let ModuleEntry::XRef(XRefEntry::Directed { source, .. }) = &entry
-            {
-                if source != &RefId::from_verse_id(verse, None)
-                {
-                    return None;
-                }
-            }
-
-            Some(Self::new(entry, module_name, preview_renderer))
-        }).collect_vec();
-
-        Some(result)
-    }
-}
-
-fn get_first_verse(id: &RefId) -> (VerseId, Option<&ModuleId>)
-{
-    let bible = id.bible.as_ref().clone();
-    let atom = match &id.id {
-        RefIdInner::Single(atom) => atom,
-        RefIdInner::Range { from, .. } => from,
-    };
-
-    match atom 
-    {
-        Atom::Book { book } => {
-            let verse = VerseId {
-                book: *book,
-                chapter: NonZeroU32::new(1).unwrap(),
-                verse: NonZeroU32::new(1).unwrap(),
-            };
-
-            (verse, bible)
-        },
-        Atom::Chapter { book, chapter } => {
-            let verse = VerseId {
-                book: *book,
-                chapter: *chapter,
-                verse: NonZeroU32::new(1).unwrap(),
-            };
-
-            (verse, bible)
-        },
-        Atom::Verse { book, chapter, verse } => {
-            let verse = VerseId {
-                book: *book,
-                chapter: *chapter,
-                verse: *verse,
-            };
-
-            (verse, bible)
-        },
-        Atom::Word { book, chapter, verse, .. } => {
-            let verse = VerseId {
-                book: *book,
-                chapter: *chapter,
-                verse: *verse,
-            };
-
-            (verse, bible)
-        },
     }
 }
