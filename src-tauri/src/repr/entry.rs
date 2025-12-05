@@ -1,6 +1,6 @@
 use std::num::NonZeroU32;
 
-use biblio_json::{Package, core::{Atom, RefId, RefIdInner, VerseId, WordRange}, modules::{ModuleEntry, ModuleId, bible::Word, notebook::NotebookEntry, xrefs::XRefEntry}};
+use biblio_json::{core::{RefId, WordRange}, modules::{ModuleEntry, ModuleId, bible::Word, notebook::NotebookEntry, xrefs::XRefEntry}};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 

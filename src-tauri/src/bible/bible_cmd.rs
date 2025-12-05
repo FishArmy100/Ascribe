@@ -5,7 +5,7 @@ use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use tauri::{Emitter, State};
 
-use crate::{bible::{BIBLE_VERSION_CHANGED_EVENT_NAME, BibleDisplaySettings, BibleInfo, BibleVersionChangedEvent, BiblioJsonPackageHandle, fetching::PackageEx, render::{fetch_verse_render_data, render_verse_words}}, core::app::AppState, repr::{entry::ModuleEntryJson, *}};
+use crate::{bible::{BIBLE_VERSION_CHANGED_EVENT_NAME, BibleDisplaySettings, BibleInfo, BibleVersionChangedEvent, BiblioJsonPackageHandle, fetching::PackageEx, render::{fetch_verse_render_data, render_verse_words}}, core::app::AppState, repr::*};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case", tag = "type")]
