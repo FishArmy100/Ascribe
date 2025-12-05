@@ -180,7 +180,7 @@ export async function fetch_backend_chapter_entries(bible: string, chapter: Chap
 {
     return await invoke<string>("run_bible_command", {
         command: {
-            type: "fetch_verse_entries",
+            type: "fetch_chapter_entries",
             chapter,
             bible,
         }
@@ -193,7 +193,7 @@ export async function fetch_backend_book_entries(bible: string, book: OsisBook):
 {
     return await invoke<string>("run_bible_command", {
         command: {
-            type: "fetch_verse_entries",
+            type: "fetch_book_entries",
             book,
             bible,
         }

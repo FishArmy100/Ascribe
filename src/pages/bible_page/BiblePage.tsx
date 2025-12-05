@@ -137,7 +137,23 @@ export default function BiblePage(): React.ReactElement {
 			verse,
 			position: e
 		})
-	}, [])
+	}, []);
+
+	const handle_chapter_click = useCallback((e: { top: number, left: number }, chapter: bible.ChapterId) => {
+		set_popover_data({
+			type: "chapter",
+			chapter,
+			position: e
+		})
+	}, []);
+
+	const handle_book_click = useCallback((e: { top: number, left: number }, book: bible.OsisBook) => {
+		set_popover_data({
+			type: "book",
+			book,
+			position: e
+		})
+	}, []);
 
 	const handle_ref_clicked = get_handle_ref_clicked_fn(set_bible_version_state, bible_version_state, show_strongs, view_history, () => {
 		set_popover_data(null)
@@ -188,6 +204,8 @@ export default function BiblePage(): React.ReactElement {
 						on_strongs_clicked={handle_strongs_click}
 						on_verse_word_clicked={handle_word_click}
 						on_verse_clicked={handle_verse_click}
+						on_chapter_clicked={handle_chapter_click}
+						on_book_clicked={handle_book_click}
 					/>
 				) : (
 					<LoadingSpinner />

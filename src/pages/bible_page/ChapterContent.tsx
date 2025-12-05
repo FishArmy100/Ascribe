@@ -4,7 +4,7 @@ import { Box, Divider, Paper, Typography } from "@mui/material";
 import { Grid } from "@mui/material";
 import { useEffect, useState, useMemo, useCallback, useRef, forwardRef, useLayoutEffect } from "react";
 import React from "react";
-import { StrongsClickedCallback, VerseClickedCallback, VerseWordClickedCallback } from "../../components/bible/BibleVerse";
+import { BookClickedCallback, ChapterClickedCallback, StrongsClickedCallback, VerseClickedCallback, VerseWordClickedCallback } from "../../components/bible/BibleVerse";
 import { Theme } from "@mui/material/styles";
 import { SystemStyleObject } from "@mui/system";
 import { RenderedVerse } from "../../components/bible/RenderedVerse";
@@ -18,6 +18,8 @@ type ChapterContentProps = {
 	on_strongs_clicked: StrongsClickedCallback,
 	on_verse_word_clicked: VerseWordClickedCallback,
 	on_verse_clicked: VerseClickedCallback,
+	on_chapter_clicked: ChapterClickedCallback,
+	on_book_clicked: BookClickedCallback,
     parallel_verses?: RenderedVerseContent[] | null,
     parallel_bible_info?: bible.BibleInfo | null,
     focused_range: { start: number, end: number } | null,
@@ -32,13 +34,15 @@ export default function ChapterContent({
 	on_strongs_clicked,
 	on_verse_word_clicked,
 	on_verse_clicked,
+	on_chapter_clicked,
+	on_book_clicked,
     parallel_verses,
     parallel_bible_info,
     focused_range,
 	audio_index,
 }: ChapterContentProps): React.ReactElement {
     const book_name = bible.get_book_info(bible_info, chapter.book).name;
-    const chapter_name = `${book_name} ${chapter.chapter}`;
+    const chapter_number = chapter.chapter.toString();
     const [show_focused_verses, set_show_focused_verses] = useState(true);
 	const [verses_loaded, set_verses_loaded] = useState(false);
 	const { settings } = use_settings();
@@ -103,6 +107,22 @@ export default function ChapterContent({
 		set_show_focused_verses(v);
 	}, []);
 
+	const handle_chapter_click = (e: React.MouseEvent<HTMLElement>) => {
+		const target = e.target as HTMLElement;
+        const rect = target.getBoundingClientRect();
+        const pos = { top: rect.top, left: rect.left };
+
+		on_chapter_clicked(pos, chapter)
+	}
+
+	const handle_book_click = (e: React.MouseEvent<HTMLElement>) => {
+		const target = e.target as HTMLElement;
+        const rect = target.getBoundingClientRect();
+        const pos = { top: rect.top, left: rect.left };
+
+		on_book_clicked(pos, chapter.book)
+	}
+
     return (
         <Paper
             sx={{
@@ -112,14 +132,46 @@ export default function ChapterContent({
                 minWidth: (theme) => `calc(100% - ${theme.spacing(button_space)})`,
             }}
         >
-            <Typography
-                textAlign="center"
-                variant="h4"
-                fontWeight="bold"
-                mb={2}
-            >
-                {chapter_name}
-            </Typography>
+
+            <Box
+				display="flex"
+				alignItems="center"
+				justifyContent="center"
+				gap={(theme) => theme.spacing(1.5)}
+			>
+				<Typography
+					textAlign="center"
+					variant="h4"
+					fontWeight="bold"
+					mb={2}
+					onClick={handle_book_click}
+					sx={{
+						transition: "text-decoration ease 0.3s",
+						"&:hover": {
+							textDecoration: "underline",
+							cursor: "pointer",
+						}
+					}}
+				>
+					{book_name}
+				</Typography>
+				<Typography
+					textAlign="center"
+					variant="h4"
+					fontWeight="bold"
+					mb={2}
+					onClick={handle_chapter_click}
+					sx={{
+						transition: "text-decoration ease 0.3s",
+						"&:hover": {
+							textDecoration: "underline",
+							cursor: "pointer",
+						}
+					}}
+				>
+					{chapter_number}
+				</Typography>
+            </Box>
             <Divider sx={{ mb: 2 }} />
 
             {parallel_verses && (
