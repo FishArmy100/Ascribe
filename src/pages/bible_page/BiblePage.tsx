@@ -127,9 +127,17 @@ export default function BiblePage(): React.ReactElement {
 		set_popover_data({
 			type: "word",
 			word,
-			position: { top: e.top, left: e.left }
+			position: e
 		})
 	}, []);
+
+	const handle_verse_click = useCallback((e: { top: number, left: number }, verse: bible.VerseId) => {
+		set_popover_data({
+			type: "verse",
+			verse,
+			position: e
+		})
+	}, [])
 
 	const handle_ref_clicked = get_handle_ref_clicked_fn(set_bible_version_state, bible_version_state, show_strongs, view_history, () => {
 		set_popover_data(null)
@@ -179,6 +187,7 @@ export default function BiblePage(): React.ReactElement {
 						audio_index={verse_index}
 						on_strongs_clicked={handle_strongs_click}
 						on_verse_word_clicked={handle_word_click}
+						on_verse_clicked={handle_verse_click}
 					/>
 				) : (
 					<LoadingSpinner />

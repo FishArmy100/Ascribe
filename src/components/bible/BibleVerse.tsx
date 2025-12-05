@@ -4,12 +4,15 @@ import { SxProps } from "@mui/material/styles"
 import { Theme } from "@mui/material/styles"
 import { Box, Typography } from "@mui/material"
 import BibleWord from "./BibleWord"
-import { VerseId, WordId } from "../../interop/bible"
+import { ChapterId, OsisBook, VerseId, WordId } from "../../interop/bible"
 import { parse_strongs, StrongsNumber } from "../../interop/bible/strongs"
 
 
 export type StrongsClickedCallback = (pos: { top: number, left: number }, strongs: StrongsNumber) => void;
 export type VerseWordClickedCallback = (pos: { top: number, left: number }, word: WordId) => void;
+export type VerseClickedCallback = (pos: { top: number, left: number }, verse: VerseId) => void;
+export type ChapterClickedCallback = (pos: { top: number, left: number }, chapter: ChapterId) => void;
+export type BookClickedCallback = (pos: { top: number, left: number }, book: OsisBook) => void;
 
 export type BibleVerseProps = {
     render_data: VerseRenderData,

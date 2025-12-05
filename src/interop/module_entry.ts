@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api/core"
-import { OsisBook, VerseId } from "./bible"
+import { ChapterId, OsisBook, VerseId } from "./bible"
 import { RefId } from "./bible/ref_id"
 import { format_strongs, StrongsNumber } from "./bible/strongs"
 import { HtmlText } from "./html_text"
@@ -160,5 +160,44 @@ export async function fetch_backend_word_entries(bible: string, verse: VerseId, 
         }
     }).then(s => {
         return JSON.parse(s);
+    })
+}
+
+export async function fetch_backend_verse_entries(bible: string, verse: VerseId): Promise<ModuleEntry[]>
+{
+    return await invoke<string>("run_bible_command", {
+        command: {
+            type: "fetch_verse_entries",
+            verse,
+            bible,
+        }
+    }).then(s => {
+        return JSON.parse(s)
+    })
+}
+
+export async function fetch_backend_chapter_entries(bible: string, chapter: ChapterId): Promise<ModuleEntry[]>
+{
+    return await invoke<string>("run_bible_command", {
+        command: {
+            type: "fetch_verse_entries",
+            chapter,
+            bible,
+        }
+    }).then(s => {
+        return JSON.parse(s)
+    })
+}
+
+export async function fetch_backend_book_entries(bible: string, book: OsisBook): Promise<ModuleEntry[]>
+{
+    return await invoke<string>("run_bible_command", {
+        command: {
+            type: "fetch_verse_entries",
+            book,
+            bible,
+        }
+    }).then(s => {
+        return JSON.parse(s)
     })
 }

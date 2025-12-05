@@ -4,7 +4,7 @@ import { Box, Divider, Paper, Typography } from "@mui/material";
 import { Grid } from "@mui/material";
 import { useEffect, useState, useMemo, useCallback, useRef, forwardRef, useLayoutEffect } from "react";
 import React from "react";
-import { StrongsClickedCallback, VerseWordClickedCallback } from "../../components/bible/BibleVerse";
+import { StrongsClickedCallback, VerseClickedCallback, VerseWordClickedCallback } from "../../components/bible/BibleVerse";
 import { Theme } from "@mui/material/styles";
 import { SystemStyleObject } from "@mui/system";
 import { RenderedVerse } from "../../components/bible/RenderedVerse";
@@ -17,6 +17,7 @@ type ChapterContentProps = {
     bible_info: bible.BibleInfo,
 	on_strongs_clicked: StrongsClickedCallback,
 	on_verse_word_clicked: VerseWordClickedCallback,
+	on_verse_clicked: VerseClickedCallback,
     parallel_verses?: RenderedVerseContent[] | null,
     parallel_bible_info?: bible.BibleInfo | null,
     focused_range: { start: number, end: number } | null,
@@ -30,6 +31,7 @@ export default function ChapterContent({
     bible_info,
 	on_strongs_clicked,
 	on_verse_word_clicked,
+	on_verse_clicked,
     parallel_verses,
     parallel_bible_info,
     focused_range,
@@ -151,6 +153,7 @@ export default function ChapterContent({
                     set_show_focused_verses={handle_set_show_focused_verses}
 					on_strongs_clicked={on_strongs_clicked}
 					on_verse_word_clicked={on_verse_word_clicked}
+					on_verse_clicked={on_verse_clicked}
 					is_audio_focused={audio_index === index}
                 />
             ))}
@@ -168,6 +171,7 @@ type RowComponentProps = {
 	set_show_focused_verses: (v: boolean) => void,
 	on_strongs_clicked: StrongsClickedCallback,
 	on_verse_word_clicked: VerseWordClickedCallback,
+	on_verse_clicked: VerseClickedCallback,
 };
 
 // --- forwardRef so parent can attach a ref ---
@@ -182,6 +186,7 @@ const RowComponentBase = forwardRef<HTMLDivElement, RowComponentProps>((
 		set_show_focused_verses,
 		on_strongs_clicked,
 		on_verse_word_clicked,
+		on_verse_clicked,
     },
     ref
 	) => {
@@ -262,6 +267,7 @@ const RowComponentBase = forwardRef<HTMLDivElement, RowComponentProps>((
 									verse_label={(index + 1).toString()} 
 									on_strongs_clicked={on_strongs_clicked} 
 									on_verse_word_clicked={on_verse_word_clicked}
+									on_verse_clicked={on_verse_clicked}
 								/>
 							</Box>
 						</Grid>
@@ -273,6 +279,7 @@ const RowComponentBase = forwardRef<HTMLDivElement, RowComponentProps>((
 										verse_label={(index + 1).toString()} 
 										on_strongs_clicked={on_strongs_clicked} 
 										on_verse_word_clicked={on_verse_word_clicked}
+										on_verse_clicked={on_verse_clicked}
 									/>
 								</Box>
 							)}
@@ -285,6 +292,7 @@ const RowComponentBase = forwardRef<HTMLDivElement, RowComponentProps>((
 							verse_label={(index + 1).toString()} 
 							on_strongs_clicked={on_strongs_clicked}
 							on_verse_word_clicked={on_verse_word_clicked}
+							on_verse_clicked={on_verse_clicked}
 						/>
 					</Box>
 				)}
