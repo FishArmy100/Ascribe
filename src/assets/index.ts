@@ -19,7 +19,7 @@ export { default as gauge_mid } from './images/gauges/light-gauge.svg';
 
 export { default as volume_high } from './images/volume/light-volume-high.svg';
 export { default as volume_low } from './images/volume/light-volume-low.svg';
-export { default as volume_min } from './images/volume/light-volume.svg';
+export { default as volume_mid } from './images/volume/light-volume.svg';
 export { default as volume_mute } from './images/volume/light-volume-xmark.svg';
 
 export { default as angle_down } from './images/light-angle-down.svg';

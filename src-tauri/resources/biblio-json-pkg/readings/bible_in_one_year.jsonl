@@ -1,0 +1,365 @@
+{ "id": 0, "index": 0, "readings": [ "Gen.1-Gen.3" ] }
+{ "id": 1, "index": 1, "readings": [ "Gen.4-Gen.7" ] }
+{ "id": 2, "index": 2, "readings": [ "Gen.8-Gen.11" ] }
+{ "id": 3, "index": 3, "readings": [ "Job.1-Job.5" ] }
+{ "id": 4, "index": 4, "readings": [ "Job.6-Job.9" ] }
+{ "id": 5, "index": 5, "readings": [ "Job.10-Job.13" ] }
+{ "id": 6, "index": 6, "readings": [ "Job.14-Job.16" ] }
+{ "id": 7, "index": 7, "readings": [ "Job.17-Job.20" ] }
+{ "id": 8, "index": 8, "readings": [ "Job.21-Job.23" ] }
+{ "id": 9, "index": 9, "readings": [ "Job.24-Job.28" ] }
+{ "id": 10, "index": 10, "readings": [ "Job.29-Job.31" ] }
+{ "id": 11, "index": 11, "readings": [ "Job.32-Job.34" ] }
+{ "id": 12, "index": 12, "readings": [ "Job.35-Job.37" ] }
+{ "id": 13, "index": 13, "readings": [ "Job.38-Job.39" ] }
+{ "id": 14, "index": 14, "readings": [ "Job.40-Job.42" ] }
+{ "id": 15, "index": 15, "readings": [ "Gen.12-Gen.15" ] }
+{ "id": 16, "index": 16, "readings": [ "Gen.16-Gen.18" ] }
+{ "id": 17, "index": 17, "readings": [ "Gen.19-Gen.21" ] }
+{ "id": 18, "index": 18, "readings": [ "Gen.22-Gen.24" ] }
+{ "id": 19, "index": 19, "readings": [ "Gen.25-Gen.26" ] }
+{ "id": 20, "index": 20, "readings": [ "Gen.27-Gen.29" ] }
+{ "id": 21, "index": 21, "readings": [ "Gen.30-Gen.31" ] }
+{ "id": 22, "index": 22, "readings": [ "Gen.32-Gen.34" ] }
+{ "id": 23, "index": 23, "readings": [ "Gen.35-Gen.37" ] }
+{ "id": 24, "index": 24, "readings": [ "Gen.38-Gen.40" ] }
+{ "id": 25, "index": 25, "readings": [ "Gen.41-Gen.42" ] }
+{ "id": 26, "index": 26, "readings": [ "Gen.43-Gen.45" ] }
+{ "id": 27, "index": 27, "readings": [ "Gen.46-Gen.47" ] }
+{ "id": 28, "index": 28, "readings": [ "Gen.48-Gen.50" ] }
+{ "id": 29, "index": 29, "readings": [ "Exod.1-Exod.3" ] }
+{ "id": 30, "index": 30, "readings": [ "Exod.4-Exod.6" ] }
+{ "id": 31, "index": 31, "readings": [ "Exod.7-Exod.9" ] }
+{ "id": 32, "index": 32, "readings": [ "Exod.10-Exod.12" ] }
+{ "id": 33, "index": 33, "readings": [ "Exod.13-Exod.15" ] }
+{ "id": 34, "index": 34, "readings": [ "Exod.16-Exod.18" ] }
+{ "id": 35, "index": 35, "readings": [ "Exod.19-Exod.21" ] }
+{ "id": 36, "index": 36, "readings": [ "Exod.22-Exod.24" ] }
+{ "id": 37, "index": 37, "readings": [ "Exod.25-Exod.27" ] }
+{ "id": 38, "index": 38, "readings": [ "Exod.28-Exod.29" ] }
+{ "id": 39, "index": 39, "readings": [ "Exod.30-Exod.32" ] }
+{ "id": 40, "index": 40, "readings": [ "Exod.33-Exod.35" ] }
+{ "id": 41, "index": 41, "readings": [ "Exod.36-Exod.38" ] }
+{ "id": 42, "index": 42, "readings": [ "Exod.39-Exod.40" ] }
+{ "id": 43, "index": 43, "readings": [ "Lev.1-Lev.4" ] }
+{ "id": 44, "index": 44, "readings": [ "Lev.5-Lev.7" ] }
+{ "id": 45, "index": 45, "readings": [ "Lev.8-Lev.10" ] }
+{ "id": 46, "index": 46, "readings": [ "Lev.11-Lev.13" ] }
+{ "id": 47, "index": 47, "readings": [ "Lev.14-Lev.15" ] }
+{ "id": 48, "index": 48, "readings": [ "Lev.16-Lev.18" ] }
+{ "id": 49, "index": 49, "readings": [ "Lev.19-Lev.21" ] }
+{ "id": 50, "index": 50, "readings": [ "Lev.22-Lev.23" ] }
+{ "id": 51, "index": 51, "readings": [ "Lev.24-Lev.25" ] }
+{ "id": 52, "index": 52, "readings": [ "Lev.26-Lev.27" ] }
+{ "id": 53, "index": 53, "readings": [ "Num.1-Num.2" ] }
+{ "id": 54, "index": 54, "readings": [ "Num.3-Num.4" ] }
+{ "id": 55, "index": 55, "readings": [ "Num.5-Num.6" ] }
+{ "id": 56, "index": 56, "readings": [ "Num.7" ] }
+{ "id": 57, "index": 57, "readings": [ "Num.8-Num.10" ] }
+{ "id": 58, "index": 58, "readings": [ "Num.11-Num.13" ] }
+{ "id": 59, "index": 59, "readings": [ "Num.14-Num.15", "Ps.90" ] }
+{ "id": 60, "index": 60, "readings": [ "Num.16-Num.17" ] }
+{ "id": 61, "index": 61, "readings": [ "Num.18-Num.20" ] }
+{ "id": 62, "index": 62, "readings": [ "Num.21-Num.22" ] }
+{ "id": 63, "index": 63, "readings": [ "Num.23-Num.25" ] }
+{ "id": 64, "index": 64, "readings": [ "Num.26-Num.27" ] }
+{ "id": 65, "index": 65, "readings": [ "Num.28-Num.30" ] }
+{ "id": 66, "index": 66, "readings": [ "Num.31-Num.32" ] }
+{ "id": 67, "index": 67, "readings": [ "Num.33-Num.34" ] }
+{ "id": 68, "index": 68, "readings": [ "Num.35-Num.36" ] }
+{ "id": 69, "index": 69, "readings": [ "Deut.1-Deut.2" ] }
+{ "id": 70, "index": 70, "readings": [ "Deut.3-Deut.4" ] }
+{ "id": 71, "index": 71, "readings": [ "Deut.5-Deut.7" ] }
+{ "id": 72, "index": 72, "readings": [ "Deut.8-Deut.10" ] }
+{ "id": 73, "index": 73, "readings": [ "Deut.11-Deut.13" ] }
+{ "id": 74, "index": 74, "readings": [ "Deut.14-Deut.16" ] }
+{ "id": 75, "index": 75, "readings": [ "Deut.17-Deut.20" ] }
+{ "id": 76, "index": 76, "readings": [ "Deut.21-Deut.23" ] }
+{ "id": 77, "index": 77, "readings": [ "Deut.24-Deut.27" ] }
+{ "id": 78, "index": 78, "readings": [ "Deut.28-Deut.29" ] }
+{ "id": 79, "index": 79, "readings": [ "Deut.30-Deut.31" ] }
+{ "id": 80, "index": 80, "readings": [ "Deut.32-Deut.34", "Ps.91" ] }
+{ "id": 81, "index": 81, "readings": [ "Josh.1-Josh.4" ] }
+{ "id": 82, "index": 82, "readings": [ "Josh.5-Josh.8" ] }
+{ "id": 83, "index": 83, "readings": [ "Josh.9-Josh.11" ] }
+{ "id": 84, "index": 84, "readings": [ "Josh.12-Josh.15" ] }
+{ "id": 85, "index": 85, "readings": [ "Josh.16-Josh.18" ] }
+{ "id": 86, "index": 86, "readings": [ "Josh.19-Josh.21" ] }
+{ "id": 87, "index": 87, "readings": [ "Josh.22-Josh.24" ] }
+{ "id": 88, "index": 88, "readings": [ "Judg.1-Judg.2" ] }
+{ "id": 89, "index": 89, "readings": [ "Judg.3-Judg.5" ] }
+{ "id": 90, "index": 90, "readings": [ "Judg.6-Judg.7" ] }
+{ "id": 91, "index": 91, "readings": [ "Judg.8-Judg.9" ] }
+{ "id": 92, "index": 92, "readings": [ "Judg.10-Judg.12" ] }
+{ "id": 93, "index": 93, "readings": [ "Judg.13-Judg.15" ] }
+{ "id": 94, "index": 94, "readings": [ "Judg.16-Judg.18" ] }
+{ "id": 95, "index": 95, "readings": [ "Judg.19-Judg.21" ] }
+{ "id": 96, "index": 96, "readings": [ "Ruth.1-Ruth.4" ] }
+{ "id": 97, "index": 97, "readings": [ "1Sam.1-1Sam.3" ] }
+{ "id": 98, "index": 98, "readings": [ "1Sam.4-1Sam.8" ] }
+{ "id": 99, "index": 99, "readings": [ "1Sam.9-1Sam.12" ] }
+{ "id": 100, "index": 100, "readings": [ "1Sam.13-1Sam.14" ] }
+{ "id": 101, "index": 101, "readings": [ "1Sam.15-1Sam.17" ] }
+{ "id": 102, "index": 102, "readings": [ "1Sam.18-1Sam.20", "Ps.11", "Ps.59" ] }
+{ "id": 103, "index": 103, "readings": [ "1Sam.21-1Sam.24" ] }
+{ "id": 104, "index": 104, "readings": [ "Ps.7", "Ps.27", "Ps.31", "Ps.34", "Ps.52" ] }
+{ "id": 105, "index": 105, "readings": [ "Ps.56", "Ps.120", "Ps.140-Ps.142" ] }
+{ "id": 106, "index": 106, "readings": [ "1Sam.25-1Sam.27" ] }
+{ "id": 107, "index": 107, "readings": [ "Ps.17", "Ps.35", "Ps.54", "Ps.63" ] }
+{ "id": 108, "index": 108, "readings": [ "1Sam.28-1Sam.31", "Ps.18" ] }
+{ "id": 109, "index": 109, "readings": [ "Ps.121", "Ps.123-Ps.125", "Ps.128-Ps.130" ] }
+{ "id": 110, "index": 110, "readings": [ "2Sam.1-2Sam.4" ] }
+{ "id": 111, "index": 111, "readings": [ "Ps.6", "Ps.8-Ps.10", "Ps.14", "Ps.16", "Ps.19", "Ps.21" ] }
+{ "id": 112, "index": 112, "readings": [ "1Chr.1-1Chr.2" ] }
+{ "id": 113, "index": 113, "readings": [ "Ps.43-Ps.45", "Ps.49", "Ps.84-Ps.85", "Ps.87" ] }
+{ "id": 114, "index": 114, "readings": [ "1Chr.3-1Chr.5" ] }
+{ "id": 115, "index": 115, "readings": [ "Ps.73", "Ps.77-Ps.78" ] }
+{ "id": 116, "index": 116, "readings": [ "1Chr.6" ] }
+{ "id": 117, "index": 117, "readings": [ "Ps.81", "Ps.88", "Ps.92-Ps.93" ] }
+{ "id": 118, "index": 118, "readings": [ "1Chr.7-1Chr.10" ] }
+{ "id": 119, "index": 119, "readings": [ "Ps.102-Ps.104" ] }
+{ "id": 120, "index": 120, "readings": [ "2Sam.5.1-2Sam.5.10", "1Chr.11-1Chr.12" ] }
+{ "id": 121, "index": 121, "readings": [ "Ps.133" ] }
+{ "id": 122, "index": 122, "readings": [ "Ps.106-Ps.107" ] }
+{ "id": 123, "index": 123, "readings": [ "2Sam.5.11-2Sam.6.23", "1Chr.13-1Chr.16" ] }
+{ "id": 124, "index": 124, "readings": [ "Ps.1-Ps.2", "Ps.15", "Ps.22-Ps.24", "Ps.47", "Ps.68" ] }
+{ "id": 125, "index": 125, "readings": [ "Ps.89", "Ps.96", "Ps.100", "Ps.101", "Ps.105", "Ps.132" ] }
+{ "id": 126, "index": 126, "readings": [ "2Sam.7", "1Chr.17" ] }
+{ "id": 127, "index": 127, "readings": [ "Ps.25", "Ps.29", "Ps.33", "Ps.36", "Ps.39" ] }
+{ "id": 128, "index": 128, "readings": [ "2Sam.8-2Sam.9", "1Chr.18" ] }
+{ "id": 129, "index": 129, "readings": [ "Ps.50", "Ps.53", "Ps.60", "Ps.75" ] }
+{ "id": 130, "index": 130, "readings": [ "2Sam.10", "1Chr.19", "Ps.20" ] }
+{ "id": 131, "index": 131, "readings": [ "Ps.65-Ps.67", "Ps.69-Ps.70" ] }
+{ "id": 132, "index": 132, "readings": [ "2Sam.11-2Sam.12", "1Chr.20" ] }
+{ "id": 133, "index": 133, "readings": [ "Ps.32", "Ps.51", "Ps.86", "Ps.122" ] }
+{ "id": 134, "index": 134, "readings": [ "2Sam.13-2Sam.15" ] }
+{ "id": 135, "index": 135, "readings": [ "Ps.3-Ps.4", "Ps.12-Ps.13", "Ps.28", "Ps.55" ] }
+{ "id": 136, "index": 136, "readings": [ "2Sam.16-2Sam.18" ] }
+{ "id": 137, "index": 137, "readings": [ "Ps.26", "Ps.40", "Ps.58", "Ps.61-Ps.62", "Ps.64" ] }
+{ "id": 138, "index": 138, "readings": [ "2Sam.19-2Sam.21" ] }
+{ "id": 139, "index": 139, "readings": [ "Ps.5", "Ps.38", "Ps.41-Ps.42" ] }
+{ "id": 140, "index": 140, "readings": [ "2Sam.22-2Sam.23", "Ps.57" ] }
+{ "id": 141, "index": 141, "readings": [ "Ps.95", "Ps.97-Ps.99" ] }
+{ "id": 142, "index": 142, "readings": [ "2Sam.24", "1Chr.21-1Chr.22", "Ps.30" ] }
+{ "id": 143, "index": 143, "readings": [ "Ps.108-Ps.110" ] }
+{ "id": 144, "index": 144, "readings": [ "1Chr.23-1Chr.25" ] }
+{ "id": 145, "index": 145, "readings": [ "Ps.131", "Ps.138-Ps.139", "Ps.143-Ps.145" ] }
+{ "id": 146, "index": 146, "readings": [ "1Chr.26-1Chr.29", "Ps.127" ] }
+{ "id": 147, "index": 147, "readings": [ "Ps.111-Ps.118" ] }
+{ "id": 148, "index": 148, "readings": [ "1Kgs.1-1Kgs.2", "Ps.37", "Ps.71", "Ps.94" ] }
+{ "id": 149, "index": 149, "readings": [ "Ps.119.1-Ps.119.88" ] }
+{ "id": 150, "index": 150, "readings": [ "1Kgs.3-1Kgs.4", "2Chr.1", "Ps.72" ] }
+{ "id": 151, "index": 151, "readings": [ "Ps.119.89-Ps.119.176" ] }
+{ "id": 152, "index": 152, "readings": [ "Song.1-Song.8" ] }
+{ "id": 153, "index": 153, "readings": [ "Prov.1-Prov.3" ] }
+{ "id": 154, "index": 154, "readings": [ "Prov.4-Prov.6" ] }
+{ "id": 155, "index": 155, "readings": [ "Prov.7-Prov.9" ] }
+{ "id": 156, "index": 156, "readings": [ "Prov.10-Prov.12" ] }
+{ "id": 157, "index": 157, "readings": [ "Prov.13-Prov.15" ] }
+{ "id": 158, "index": 158, "readings": [ "Prov.16-Prov.18" ] }
+{ "id": 159, "index": 159, "readings": [ "Prov.19-Prov.21" ] }
+{ "id": 160, "index": 160, "readings": [ "Prov.22-Prov.24" ] }
+{ "id": 161, "index": 161, "readings": [ "1Kgs.5-1Kgs.6", "2Chr.2-2Chr.3" ] }
+{ "id": 162, "index": 162, "readings": [ "1Kgs.7", "2Chr.4" ] }
+{ "id": 163, "index": 163, "readings": [ "1Kgs.8", "2Chr.5" ] }
+{ "id": 164, "index": 164, "readings": [ "2Chr.6-2Chr.7", "Ps.136" ] }
+{ "id": 165, "index": 165, "readings": [ "Ps.134", "Ps.146-Ps.150" ] }
+{ "id": 166, "index": 166, "readings": [ "1Kgs.9", "2Chr.8" ] }
+{ "id": 167, "index": 167, "readings": [ "Prov.25-Prov.26" ] }
+{ "id": 168, "index": 168, "readings": [ "Prov.27-Prov.29" ] }
+{ "id": 169, "index": 169, "readings": [ "Eccl.1-Eccl.6" ] }
+{ "id": 170, "index": 170, "readings": [ "Eccl.7-Eccl.12" ] }
+{ "id": 171, "index": 171, "readings": [ "1Kgs.10-1Kgs.11", "2Chr.9" ] }
+{ "id": 172, "index": 172, "readings": [ "Prov.30-Prov.31" ] }
+{ "id": 173, "index": 173, "readings": [ "1Kgs.12-1Kgs.14" ] }
+{ "id": 174, "index": 174, "readings": [ "2Chr.10-2Chr.12" ] }
+{ "id": 175, "index": 175, "readings": [ "1Kgs.15.1-1Kgs.15.24", "2Chr.13-2Chr.16" ] }
+{ "id": 176, "index": 176, "readings": [ "1Kgs.15.25-1Kgs.16.34", "2Chr.17" ] }
+{ "id": 177, "index": 177, "readings": [ "1Kgs.17-1Kgs.19" ] }
+{ "id": 178, "index": 178, "readings": [ "1Kgs.20-1Kgs.21" ] }
+{ "id": 179, "index": 179, "readings": [ "1Kgs.22", "2Chr.18" ] }
+{ "id": 180, "index": 180, "readings": [ "2Chr.19-2Chr.23" ] }
+{ "id": 181, "index": 181, "readings": [ "Obad.1", "Ps.82-Ps.83" ] }
+{ "id": 182, "index": 182, "readings": [ "2Kgs.1-2Kgs.4" ] }
+{ "id": 183, "index": 183, "readings": [ "2Kgs.5-2Kgs.8" ] }
+{ "id": 184, "index": 184, "readings": [ "2Kgs.9-2Kgs.11" ] }
+{ "id": 185, "index": 185, "readings": [ "2Kgs.12-2Kgs.13", "2Chr.24" ] }
+{ "id": 186, "index": 186, "readings": [ "2Kgs.14", "2Chr.25" ] }
+{ "id": 187, "index": 187, "readings": [ "Jonah.1-Jonah.4" ] }
+{ "id": 188, "index": 188, "readings": [ "2Kgs.15", "2Chr.26" ] }
+{ "id": 189, "index": 189, "readings": [ "Isa.1-Isa.4" ] }
+{ "id": 190, "index": 190, "readings": [ "Isa.5-Isa.8" ] }
+{ "id": 191, "index": 191, "readings": [ "Amos.1-Amos.5" ] }
+{ "id": 192, "index": 192, "readings": [ "Amos.6-Amos.9" ] }
+{ "id": 193, "index": 193, "readings": [ "2Chr.27", "Isa.9-Isa.12" ] }
+{ "id": 194, "index": 194, "readings": [ "Mic.1-Mic.7" ] }
+{ "id": 195, "index": 195, "readings": [ "2Chr.28", "2Kgs.16-2Kgs.17" ] }
+{ "id": 196, "index": 196, "readings": [ "Isa.13-Isa.17" ] }
+{ "id": 197, "index": 197, "readings": [ "Isa.18-Isa.22" ] }
+{ "id": 198, "index": 198, "readings": [ "Isa.23-Isa.27" ] }
+{ "id": 199, "index": 199, "readings": [ "2Kgs.18.1-2Kgs.18.8", "2Chr.29-2Chr.31", "Ps.48" ] }
+{ "id": 200, "index": 200, "readings": [ "Hos.1-Hos.7" ] }
+{ "id": 201, "index": 201, "readings": [ "Hos.8-Hos.14" ] }
+{ "id": 202, "index": 202, "readings": [ "Isa.28-Isa.30" ] }
+{ "id": 203, "index": 203, "readings": [ "Isa.31-Isa.34" ] }
+{ "id": 204, "index": 204, "readings": [ "Isa.35-Isa.36" ] }
+{ "id": 205, "index": 205, "readings": [ "Isa.37-Isa.39", "Ps.76" ] }
+{ "id": 206, "index": 206, "readings": [ "Isa.40-Isa.43" ] }
+{ "id": 207, "index": 207, "readings": [ "Isa.44-Isa.48" ] }
+{ "id": 208, "index": 208, "readings": [ "2Kgs.18.9-2Kgs.19.37", "Ps.46", "Ps.80", "Ps.135" ] }
+{ "id": 209, "index": 209, "readings": [ "Isa.49-Isa.53" ] }
+{ "id": 210, "index": 210, "readings": [ "Isa.54-Isa.58" ] }
+{ "id": 211, "index": 211, "readings": [ "Isa.59-Isa.63" ] }
+{ "id": 212, "index": 212, "readings": [ "Isa.64-Isa.66" ] }
+{ "id": 213, "index": 213, "readings": [ "2Kgs.20-2Kgs.21" ] }
+{ "id": 214, "index": 214, "readings": [ "2Chr.32-2Chr.33" ] }
+{ "id": 215, "index": 215, "readings": [ "Nah.1-Nah.3" ] }
+{ "id": 216, "index": 216, "readings": [ "2Kgs.22-2Kgs.23", "2Chr.34-2Chr.35" ] }
+{ "id": 217, "index": 217, "readings": [ "Zeph.1-Zeph.3" ] }
+{ "id": 218, "index": 218, "readings": [ "Jer.1-Jer.3" ] }
+{ "id": 219, "index": 219, "readings": [ "Jer.4-Jer.6" ] }
+{ "id": 220, "index": 220, "readings": [ "Jer.7-Jer.9" ] }
+{ "id": 221, "index": 221, "readings": [ "Jer.10-Jer.13" ] }
+{ "id": 222, "index": 222, "readings": [ "Jer.14-Jer.17" ] }
+{ "id": 223, "index": 223, "readings": [ "Jer.18-Jer.22" ] }
+{ "id": 224, "index": 224, "readings": [ "Jer.23-Jer.25" ] }
+{ "id": 225, "index": 225, "readings": [ "Jer.26-Jer.29" ] }
+{ "id": 226, "index": 226, "readings": [ "Jer.30-Jer.31" ] }
+{ "id": 227, "index": 227, "readings": [ "Jer.32-Jer.34" ] }
+{ "id": 228, "index": 228, "readings": [ "Jer.35-Jer.37" ] }
+{ "id": 229, "index": 229, "readings": [ "Jer.38-Jer.40", "Ps.74", "Ps.79" ] }
+{ "id": 230, "index": 230, "readings": [ "2Kgs.24-2Kgs.25", "2Chr.36" ] }
+{ "id": 231, "index": 231, "readings": [ "Hab.1-Hab.3" ] }
+{ "id": 232, "index": 232, "readings": [ "Jer.41-Jer.45" ] }
+{ "id": 233, "index": 233, "readings": [ "Jer.46-Jer.48" ] }
+{ "id": 234, "index": 234, "readings": [ "Jer.49-Jer.50" ] }
+{ "id": 235, "index": 235, "readings": [ "Jer.51-Jer.52" ] }
+{ "id": 236, "index": 236, "readings": [ "Lam.1.1-Lam.3.36" ] }
+{ "id": 237, "index": 237, "readings": [ "Lam.3.37-Lam.5.22" ] }
+{ "id": 238, "index": 238, "readings": [ "Ezek.1-Ezek.4" ] }
+{ "id": 239, "index": 239, "readings": [ "Ezek.5-Ezek.8" ] }
+{ "id": 240, "index": 240, "readings": [ "Ezek.9-Ezek.12" ] }
+{ "id": 241, "index": 241, "readings": [ "Ezek.13-Ezek.15" ] }
+{ "id": 242, "index": 242, "readings": [ "Ezek.16-Ezek.17" ] }
+{ "id": 243, "index": 243, "readings": [ "Ezek.18-Ezek.19" ] }
+{ "id": 244, "index": 244, "readings": [ "Ezek.20-Ezek.21" ] }
+{ "id": 245, "index": 245, "readings": [ "Ezek.22-Ezek.23" ] }
+{ "id": 246, "index": 246, "readings": [ "Ezek.24-Ezek.27" ] }
+{ "id": 247, "index": 247, "readings": [ "Ezek.28-Ezek.31" ] }
+{ "id": 248, "index": 248, "readings": [ "Ezek.32-Ezek.34" ] }
+{ "id": 249, "index": 249, "readings": [ "Ezek.35-Ezek.37" ] }
+{ "id": 250, "index": 250, "readings": [ "Ezek.38-Ezek.39" ] }
+{ "id": 251, "index": 251, "readings": [ "Ezek.40-Ezek.41" ] }
+{ "id": 252, "index": 252, "readings": [ "Ezek.42-Ezek.43" ] }
+{ "id": 253, "index": 253, "readings": [ "Ezek.44-Ezek.45" ] }
+{ "id": 254, "index": 254, "readings": [ "Ezek.46-Ezek.48" ] }
+{ "id": 255, "index": 255, "readings": [ "Joel.1-Joel.3" ] }
+{ "id": 256, "index": 256, "readings": [ "Dan.1-Dan.3" ] }
+{ "id": 257, "index": 257, "readings": [ "Dan.4-Dan.6" ] }
+{ "id": 258, "index": 258, "readings": [ "Dan.7-Dan.9" ] }
+{ "id": 259, "index": 259, "readings": [ "Dan.10-Dan.12" ] }
+{ "id": 260, "index": 260, "readings": [ "Ezra.1-Ezra.3" ] }
+{ "id": 261, "index": 261, "readings": [ "Ezra.4-Ezra.6", "Ps.137" ] }
+{ "id": 262, "index": 262, "readings": [ "Hag.1-Hag.2" ] }
+{ "id": 263, "index": 263, "readings": [ "Zech.1-Zech.7" ] }
+{ "id": 264, "index": 264, "readings": [ "Zech.8-Zech.14" ] }
+{ "id": 265, "index": 265, "readings": [ "Esth.1-Esth.5" ] }
+{ "id": 266, "index": 266, "readings": [ "Esth.6-Esth.10" ] }
+{ "id": 267, "index": 267, "readings": [ "Ezra.7-Ezra.10" ] }
+{ "id": 268, "index": 268, "readings": [ "Neh.1-Neh.5" ] }
+{ "id": 269, "index": 269, "readings": [ "Neh.6-Neh.7" ] }
+{ "id": 270, "index": 270, "readings": [ "Neh.8-Neh.10" ] }
+{ "id": 271, "index": 271, "readings": [ "Neh.11-Neh.13", "Ps.126" ] }
+{ "id": 272, "index": 272, "readings": [ "Mal.1-Mal.4" ] }
+{ "id": 273, "index": 273, "readings": [ "Luke.1", "John.1.1-John.1.14" ] }
+{ "id": 274, "index": 274, "readings": [ "Matt.1", "Luke.2.1-Luke.2.38" ] }
+{ "id": 275, "index": 275, "readings": [ "Matt.2", "Luke.2.39-Luke.2.52" ] }
+{ "id": 276, "index": 276, "readings": [ "Matt.3", "Mark.1", "Luke.3" ] }
+{ "id": 277, "index": 277, "readings": [ "Matt.4", "Luke.4-Luke.5", "John.1.15-John.1.51" ] }
+{ "id": 278, "index": 278, "readings": [ "John.2-John.4" ] }
+{ "id": 279, "index": 279, "readings": [ "Mark.2" ] }
+{ "id": 280, "index": 280, "readings": [ "John.5" ] }
+{ "id": 281, "index": 281, "readings": [ "Matt.12.1-Matt.12.21", "Mark.3", "Luke.6" ] }
+{ "id": 282, "index": 282, "readings": [ "Matt.5-Matt.7" ] }
+{ "id": 283, "index": 283, "readings": [ "Matt.8.1-Matt.8.13", "Luke.7" ] }
+{ "id": 284, "index": 284, "readings": [ "Matt.11" ] }
+{ "id": 285, "index": 285, "readings": [ "Matt.12.22-Matt.12.50", "Luke.11" ] }
+{ "id": 286, "index": 286, "readings": [ "Matt.13", "Luke.8" ] }
+{ "id": 287, "index": 287, "readings": [ "Matt.8.14-Matt.8.34", "Mark.4-Mark.5" ] }
+{ "id": 288, "index": 288, "readings": [ "Matt.9-Matt.10" ] }
+{ "id": 289, "index": 289, "readings": [ "Matt.14", "Mark.6", "Luke.9.1-Luke.9.17" ] }
+{ "id": 290, "index": 290, "readings": [ "John.6" ] }
+{ "id": 291, "index": 291, "readings": [ "Matt.15", "Mark.7" ] }
+{ "id": 292, "index": 292, "readings": [ "Matt.16", "Mark.8", "Luke.9.18-Luke.9.27" ] }
+{ "id": 293, "index": 293, "readings": [ "Matt.17", "Mark.9", "Luke.9.28-Luke.9.62" ] }
+{ "id": 294, "index": 294, "readings": [ "Matt.18" ] }
+{ "id": 295, "index": 295, "readings": [ "John.7-John.8" ] }
+{ "id": 296, "index": 296, "readings": [ "John.9.1-John.10.21" ] }
+{ "id": 297, "index": 297, "readings": [ "Luke.10-Luke.11", "John.10.22-John.10.42" ] }
+{ "id": 298, "index": 298, "readings": [ "Luke.12-Luke.13" ] }
+{ "id": 299, "index": 299, "readings": [ "Luke.14-Luke.15" ] }
+{ "id": 300, "index": 300, "readings": [ "Luke.16-Luke.17.10" ] }
+{ "id": 301, "index": 301, "readings": [ "John.11" ] }
+{ "id": 302, "index": 302, "readings": [ "Luke.17.11-Luke.18.14" ] }
+{ "id": 303, "index": 303, "readings": [ "Matt.19", "Mark.10" ] }
+{ "id": 304, "index": 304, "readings": [ "Matt.20-Matt.21" ] }
+{ "id": 305, "index": 305, "readings": [ "Luke.18.15-Luke.19.48" ] }
+{ "id": 306, "index": 306, "readings": [ "Mark.11", "John.12" ] }
+{ "id": 307, "index": 307, "readings": [ "Matt.22", "Mark.12" ] }
+{ "id": 308, "index": 308, "readings": [ "Matt.23", "Luke.20-Luke.21" ] }
+{ "id": 309, "index": 309, "readings": [ "Mark.13" ] }
+{ "id": 310, "index": 310, "readings": [ "Matt.24" ] }
+{ "id": 311, "index": 311, "readings": [ "Matt.25" ] }
+{ "id": 312, "index": 312, "readings": [ "Matt.26", "Mark.14" ] }
+{ "id": 313, "index": 313, "readings": [ "Luke.22", "John.13" ] }
+{ "id": 314, "index": 314, "readings": [ "John.14-John.17" ] }
+{ "id": 315, "index": 315, "readings": [ "Matt.27", "Mark.15" ] }
+{ "id": 316, "index": 316, "readings": [ "Luke.23", "John.18-John.19" ] }
+{ "id": 317, "index": 317, "readings": [ "Matt.28", "Mark.16" ] }
+{ "id": 318, "index": 318, "readings": [ "Luke.24", "John.20-John.21" ] }
+{ "id": 319, "index": 319, "readings": [ "Acts.1-Acts.3" ] }
+{ "id": 320, "index": 320, "readings": [ "Acts.4-Acts.6" ] }
+{ "id": 321, "index": 321, "readings": [ "Acts.7-Acts.8" ] }
+{ "id": 322, "index": 322, "readings": [ "Acts.9-Acts.10" ] }
+{ "id": 323, "index": 323, "readings": [ "Acts.11-Acts.12" ] }
+{ "id": 324, "index": 324, "readings": [ "Acts.13-Acts.14" ] }
+{ "id": 325, "index": 325, "readings": [ "Jas.1-Jas.5" ] }
+{ "id": 326, "index": 326, "readings": [ "Acts.15-Acts.16" ] }
+{ "id": 327, "index": 327, "readings": [ "Gal.1-Gal.3" ] }
+{ "id": 328, "index": 328, "readings": [ "Gal.4-Gal.6" ] }
+{ "id": 329, "index": 329, "readings": [ "Acts.17-Acts.18.18" ] }
+{ "id": 330, "index": 330, "readings": [ "1Thess.1-1Thess.5", "2Thess.1-2Thess.3" ] }
+{ "id": 331, "index": 331, "readings": [ "Acts.18.19-Acts.19.41" ] }
+{ "id": 332, "index": 332, "readings": [ "1Cor.1-1Cor.4" ] }
+{ "id": 333, "index": 333, "readings": [ "1Cor.5-1Cor.8" ] }
+{ "id": 334, "index": 334, "readings": [ "1Cor.9-1Cor.11" ] }
+{ "id": 335, "index": 335, "readings": [ "1Cor.12-1Cor.14" ] }
+{ "id": 336, "index": 336, "readings": [ "1Cor.15-1Cor.16" ] }
+{ "id": 337, "index": 337, "readings": [ "2Cor.1-2Cor.4" ] }
+{ "id": 338, "index": 338, "readings": [ "2Cor.5-2Cor.9" ] }
+{ "id": 339, "index": 339, "readings": [ "2Cor.10-2Cor.13" ] }
+{ "id": 340, "index": 340, "readings": [ "Acts.20.1-Acts.20.3", "Rom.1-Rom.3" ] }
+{ "id": 341, "index": 341, "readings": [ "Rom.4-Rom.7" ] }
+{ "id": 342, "index": 342, "readings": [ "Rom.8-Rom.10" ] }
+{ "id": 343, "index": 343, "readings": [ "Rom.11-Rom.13" ] }
+{ "id": 344, "index": 344, "readings": [ "Rom.14-Rom.16" ] }
+{ "id": 345, "index": 345, "readings": [ "Acts.20.4-Acts.23.35" ] }
+{ "id": 346, "index": 346, "readings": [ "Acts.24-Acts.26" ] }
+{ "id": 347, "index": 347, "readings": [ "Acts.27-Acts.28" ] }
+{ "id": 348, "index": 348, "readings": [ "Col.1-Col.4", "Phlm.1" ] }
+{ "id": 349, "index": 349, "readings": [ "Eph.1-Eph.6" ] }
+{ "id": 350, "index": 350, "readings": [ "Phil.1-Phil.4" ] }
+{ "id": 351, "index": 351, "readings": [ "1Tim.1-1Tim.6" ] }
+{ "id": 352, "index": 352, "readings": [ "Titus.1-Titus.3" ] }
+{ "id": 353, "index": 353, "readings": [ "1Pet.1-1Pet.5" ] }
+{ "id": 354, "index": 354, "readings": [ "Heb.1-Heb.6" ] }
+{ "id": 355, "index": 355, "readings": [ "Heb.7-Heb.10" ] }
+{ "id": 356, "index": 356, "readings": [ "Heb.11-Heb.13" ] }
+{ "id": 357, "index": 357, "readings": [ "2Tim.1-2Tim.4" ] }
+{ "id": 358, "index": 358, "readings": [ "2Pet.1-2Pet.3", "Jude.1" ] }
+{ "id": 359, "index": 359, "readings": [ "1John.1-1John.5" ] }
+{ "id": 360, "index": 360, "readings": [ "2John.1", "3John.1" ] }
+{ "id": 361, "index": 361, "readings": [ "Rev.1-Rev.5" ] }
+{ "id": 362, "index": 362, "readings": [ "Rev.6-Rev.11" ] }
+{ "id": 363, "index": 363, "readings": [ "Rev.12-Rev.18" ] }
+{ "id": 364, "index": 364, "readings": [ "Rev.19-Rev.22" ] }

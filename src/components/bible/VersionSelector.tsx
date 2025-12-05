@@ -18,7 +18,10 @@ export default function VersionSelector(): React.ReactElement
     const { bible_infos } = use_bible_infos();
     const [ is_open, set_is_open ] = useState(false);
 
-    let bible_versions = Object.values(bible_infos).map(b => b.name).sort();
+    let bible_versions = Object.values(bible_infos)
+        .sort((a, b) => a.display_name.localeCompare(b.display_name))
+        .map(b => b.id);
+
     const dropdown_padding = 1;
 
     return (
@@ -51,7 +54,7 @@ export default function VersionSelector(): React.ReactElement
                         variant="body1" 
                         textAlign="center"
                     >
-                        {bible_version}
+                        {bible_infos[bible_version].display_name}
                     </Typography>
                 </Button>
             </Tooltip>
@@ -120,7 +123,7 @@ export default function VersionSelector(): React.ReactElement
                             let is_selected = bible_version === v;
                             return (
                                 <Tooltip
-                                    tooltip={`Select ${v}`}
+                                    tooltip={`Select ${bible_infos[v].display_name}`}
                                     key={i}
                                 >
                                     <Button
@@ -150,7 +153,7 @@ export default function VersionSelector(): React.ReactElement
                                             variant="body1"
                                             textAlign="center"
                                         >
-                                            {v}
+                                            {bible_infos[v].display_name}
                                         </Typography>
                                     </Button>
                                 </Tooltip>
@@ -187,7 +190,7 @@ export default function VersionSelector(): React.ReactElement
 
                             return (
                                 <Tooltip
-                                    tooltip={`Select ${v}`}
+                                    tooltip={`Select ${bible_infos[v].display_name}`}
                                     key={i}
                                 >
                                     <Button
@@ -218,7 +221,7 @@ export default function VersionSelector(): React.ReactElement
                                             variant="body1"
                                             textAlign="center"
                                         >
-                                            {v}
+                                            {bible_infos[v].display_name}
                                         </Typography>
                                     </Button>
                                 </Tooltip>

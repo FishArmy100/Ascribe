@@ -1,4 +1,6 @@
-name = "KJV"
+name = "King James Version"
+short_name = "KJV"
+id = "kjv_eng"
 description = """
 
 <h1>King James Bible (KJV)</h1>

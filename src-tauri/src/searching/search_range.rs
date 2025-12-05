@@ -60,7 +60,7 @@ impl SearchRanges
                 let a = Self::parse_range_segment(a, bible)?;
                 let b = Self::parse_range_segment(b, bible)?;
                 Ok(RefId { 
-                    bible: Some(bible.config.name.clone()), 
+                    bible: Some(bible.config.id.clone()), 
                     id: RefIdInner::Range { from: a, to: b } 
                 })
             },
@@ -68,7 +68,7 @@ impl SearchRanges
                 let a = Self::parse_range_segment(a, bible)?;
                 
                 Ok(RefId { 
-                    bible: Some(bible.config.name.clone()), 
+                    bible: Some(bible.config.id.clone()), 
                     id: RefIdInner::Single(a)
                 })
             },

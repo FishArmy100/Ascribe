@@ -1,0 +1,7 @@
+name = "Bible in One Year Readings"
+id = "bible_in_one_year_readings_chronological"
+
+[format]
+type = "yearly"
+count = 1
+leap_year = "skip"

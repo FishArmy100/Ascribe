@@ -1,4 +1,6 @@
 name = "Hitchcock's Bible Names Dictionary"
+short_name = "HBND"
+id = "hitchcocks_bible_names_dictionary"
 authors = [ "Roswell Dwight Hitchcock" ]
 
 description = """
@@ -64,3 +66,6 @@ description = """
 language = "en"
 data_source = "https://github.com/BradyStephenson/bible-data?tab=License-1-ov-file"
 license = "https://github.com/BradyStephenson/bible-data/blob/main/LICENSE"
+
+[external.aliases]
+kjv_eng = "kjv_eng"

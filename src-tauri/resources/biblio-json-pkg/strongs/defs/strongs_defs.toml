@@ -1,4 +1,6 @@
 name = "Standard Strongs Definitions"
+short_name = "Strongs Definitions"
+id = "standard_strongs_definitions"
 
 description = """
 

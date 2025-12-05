@@ -51,6 +51,11 @@
     margin-right: 0.5em;
     user-select: none;
     margin-top: 2px;
+    cursor: pointer;
+}
+
+.bible-verse-label:hover {
+    text-decoration: underline;
 }
 
 .bible-verse-text {

@@ -3,7 +3,7 @@ use std::sync::Mutex;
 use serde::{Deserialize, Serialize};
 use tauri::{Emitter, State};
 
-use crate::core::app::AppState;
+use crate::{core::app::AppState, tts::TtsSettings};
 
 pub const SETTINGS_CHANGED_EVENT_NAME: &str = "settings-changed";
 
@@ -21,6 +21,7 @@ pub struct SettingsChangedEvent
 pub struct AppSettings
 {
     pub ui_scale: f32,
+    pub tts_settings: TtsSettings,
 }
 
 impl Default for AppSettings
@@ -29,7 +30,8 @@ impl Default for AppSettings
     {
         Self 
         { 
-            ui_scale: 1.0
+            ui_scale: 1.0,
+            tts_settings: TtsSettings::default(),
         }
     }
 }

@@ -11,9 +11,12 @@ import { BiblePageToolbar } from "./BiblePageToolbar";
 import { BUTTON_SIZE } from "../../components/core/ImageButton";
 import { use_bible_display_settings } from "../../components/providers/BibleDisplaySettingsProvider";
 import { StrongsNumber } from "../../interop/bible/strongs";
-import StrongsPopover from "../../components/bible/StrongsPopover";
-import WordPopover from "../../components/bible/WordPopover";
+import StrongsPopover from "@components/popovers/StrongsPopover";
+import WordPopover from "@components/popovers/WordPopover";
 import { HRefSrc } from "../../interop/html_text";
+import AudioPlayer from "../../components/audio_player/AudioPlayer";
+import { use_tts_player } from "../../components/providers/TtsPlayerProvider";
+import PopoverManager, { PopoverData } from "@components/popovers/PopoverManager";
 
 export default function BiblePage(): React.ReactElement {
 	const theme = useTheme();
@@ -24,17 +27,21 @@ export default function BiblePage(): React.ReactElement {
 
 	const current_view = view_history.get_current().current;
 	const current_chapter = current_view.chapter;
-	const bible_name = selected_bibles.bible.name;
-	const parallel_bible_name = selected_bibles.parallel?.name;
+	const bible_name = selected_bibles.bible.id;
+	const parallel_bible_name = selected_bibles.parallel?.id;
 
 	const [verses, set_verses] = useState<RenderedVerseContent[] | null>(null);
 	const [parallel_verses, set_parallel_verses] = useState<RenderedVerseContent[] | null>(null);
+	
+	const [popover_data, set_popover_data] = useState<PopoverData | null>(null)
 
-	const [strongs_popover_anchor_pos, set_strongs_strongs_anchor_el] = useState<{top: number, left: number} | null>(null);
-	const [strongs_popover_number, set_strongs_popover_number] = useState<StrongsNumber | null>(null);
+	const [player_open, set_player_open] = useState(false);
 
-	const [word_popover_anchor_el, set_word_popover_anchor_pos] = useState<{top: number, left: number} | null>(null);
-	const [word_popover_data, set_word_popover_data] = useState<WordId | null>(null);
+	const [verse_index, set_verse_index] = useState<number | null>(null)
+	const tts_player = use_tts_player();
+	useEffect(() => {
+		set_verse_index(tts_player.verse_index);
+	}, [tts_player.verse_index]);
 
 	const button_width = useMemo(() => BUTTON_SIZE * 0.75, []);
 	const button_spacing = use_top_bar_padding(theme);
@@ -109,33 +116,63 @@ export default function BiblePage(): React.ReactElement {
 	);
 
 	const handle_strongs_click = useCallback((e: { top: number, left: number }, s: StrongsNumber) => {
-		set_strongs_strongs_anchor_el(e);
-		set_strongs_popover_number(s);
-	}, []);
-
-	const handle_strongs_popover_close = useCallback(() => {
-		set_strongs_strongs_anchor_el(null);
-		set_strongs_popover_number(null);
+		set_popover_data({
+			type: "strongs",
+			strongs_number: s,
+			position: { top: e.top, left: e.left }
+		})
 	}, []);
 
 	const handle_word_click = useCallback((e: { top: number, left: number }, word: bible.WordId) => {
-		set_word_popover_anchor_pos(e)
-		set_word_popover_data(word);
+		set_popover_data({
+			type: "word",
+			word,
+			position: e
+		})
 	}, []);
 
-	const handle_word_popover_close = useCallback(() => {
-		set_word_popover_anchor_pos(null);
-		set_word_popover_data(null);
-	}, [])
+	const handle_verse_click = useCallback((e: { top: number, left: number }, verse: bible.VerseId) => {
+		set_popover_data({
+			type: "verse",
+			verse,
+			position: e
+		})
+	}, []);
+
+	const handle_chapter_click = useCallback((e: { top: number, left: number }, chapter: bible.ChapterId) => {
+		set_popover_data({
+			type: "chapter",
+			chapter,
+			position: e
+		})
+	}, []);
+
+	const handle_book_click = useCallback((e: { top: number, left: number }, book: bible.OsisBook) => {
+		set_popover_data({
+			type: "book",
+			book,
+			position: e
+		})
+	}, []);
 
 	const handle_ref_clicked = get_handle_ref_clicked_fn(set_bible_version_state, bible_version_state, show_strongs, view_history, () => {
-		set_word_popover_anchor_pos(null);
-		set_word_popover_data(null);
-	})
+		set_popover_data(null)
+	});
+
+	const handle_popover_close = useCallback(() => {
+		set_popover_data(null)
+	}, [])
+
+	const handle_player_button_click = useCallback(() => {
+		set_player_open(prev => !prev);
+	}, [])
 
 	return (
 		<Box>
-			<BiblePageToolbar />
+			<BiblePageToolbar
+				player_open={player_open}
+				on_click_player={handle_player_button_click}
+			/>
 			<TopBarSpacer />
 			
 			<NavigationButton 
@@ -163,8 +200,12 @@ export default function BiblePage(): React.ReactElement {
 						parallel_bible_info={selected_bibles.parallel}
 						parallel_verses={parallel_verses}
 						focused_range={current_verses}
+						audio_index={verse_index}
 						on_strongs_clicked={handle_strongs_click}
 						on_verse_word_clicked={handle_word_click}
+						on_verse_clicked={handle_verse_click}
+						on_chapter_clicked={handle_chapter_click}
+						on_book_clicked={handle_book_click}
 					/>
 				) : (
 					<LoadingSpinner />
@@ -180,18 +221,13 @@ export default function BiblePage(): React.ReactElement {
 
 			<Footer />
 
-			<StrongsPopover 
-				pos={strongs_popover_anchor_pos}
-				strongs={strongs_popover_number} 
-				on_close={handle_strongs_popover_close}			
+			<PopoverManager
+				data={popover_data}
+				on_ref_clicked={handle_ref_clicked}
+				on_close={handle_popover_close}
 			/>
 
-			<WordPopover
-				pos={word_popover_anchor_el}
-				word={word_popover_data}
-				on_close={(handle_word_popover_close)}
-				on_ref_clicked={handle_ref_clicked}
-			/>
+			<AudioPlayer open={player_open}/>
 		</Box>
 	);
 }
@@ -264,8 +300,8 @@ function get_handle_ref_clicked_fn(
 		};
 
 		if (href.type === "ref_id") {
-			const id = href.value.id;
-			const bible = href.value.bible;
+			const id = href.id.id;
+			const bible = href.id.bible;
 			update_bible_version(bible);
 
 			if (id.type === "range") {

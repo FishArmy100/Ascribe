@@ -1,4 +1,4 @@
-use biblio_json::html_text::{HtmlText, ast::{AssetIdName, HRefSrc, Node}};
+use biblio_json::html_text::{HtmlText, ast::{AssetIdName, HRefSrc, HeadingLevel, Node}};
 use serde::{Deserialize, Serialize};
 
 use crate::repr::{StrongsNumberJson, ref_id::RefIdJson};
@@ -58,7 +58,7 @@ pub enum NodeJson
 {
     // Block-level elements
     Paragraph { content: Vec<NodeJson> },
-    Heading { level: u8, content: Vec<NodeJson> },
+    Heading { level: HeadingLevel, content: Vec<NodeJson> },
     List { ordered: bool, items: Vec<NodeJson> },
     ListItem { content: Vec<NodeJson> },
     HorizontalRule,
@@ -255,7 +255,7 @@ pub enum HRefSrcJson
     RefId { id: RefIdJson },
     Strongs { strongs: StrongsNumberJson },
     ModuleRef {
-        module_alias: AssetIdName,
+        module_alias: String,
         entry_id: u32,
     }
 }

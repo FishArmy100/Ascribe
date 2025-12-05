@@ -4,11 +4,11 @@ import { StrongsNumber } from "./bible/strongs";
 
 export type HtmlText = {
 	nodes: Node[]
-}
+};
 
 export type Node = 
 	| { type: "paragraph", content: Node[] }
-	| { type: "heading", level: number, content: Node[] }
+	| { type: "heading", level: HeadingLevel, content: Node[] }
 	| { type: "list", ordered: boolean, items: Node[] }
 	| { type: "list_item", content: Node[] }
 	| { type: "horizontal_rule" }
@@ -22,11 +22,11 @@ export type Node =
 	| { type: "line_break" }
 
 export type HRefSrc =
-	| { type: "ref_id"; value: RefId }
-	| { type: "strongs"; value: StrongsNumber }
+	| { type: "ref_id"; id: RefId }
+	| { type: "strongs"; strongs: StrongsNumber }
 	| { type: "module_ref"; module_alias: string; entry_id: number };
 
-type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
+type HeadingLevel = 1 | 2 | 3;
 
 export class HtmlTextHelper
 {

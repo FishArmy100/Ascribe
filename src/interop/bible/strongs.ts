@@ -11,8 +11,7 @@ export type StrongsDefEntry = {
     module: string,
     strongs_ref: string,
     word: String,
-    definitions: HtmlText[],
-    derivation: HtmlText | null,
+    definition: HtmlText,
     id: number,
 }
 

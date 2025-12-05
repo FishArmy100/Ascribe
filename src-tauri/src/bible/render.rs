@@ -1,6 +1,4 @@
-use std::fmt::format;
-
-use biblio_json::{Package, VerseFetchResponse, core::{StrongsNumber, VerseId, WordRange}};
+use biblio_json::{Package, VerseFetchResponse, core::{StrongsNumber, VerseId, WordRange}, modules::ModuleId};
 use itertools::Itertools;
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use serde::{Deserialize, Serialize};
@@ -29,7 +27,7 @@ pub struct WordRenderData
     pub index: u32,
 }
 
-pub fn fetch_verse_render_data(package: &Package, verses: &Vec<VerseId>, bible: &str) -> Vec<VerseRenderData>
+pub fn fetch_verse_render_data(package: &Package, verses: &Vec<VerseId>, bible: &ModuleId) -> Vec<VerseRenderData>
 {
     verses.par_iter().map(|v| match package.fetch(*v, bible) {
         Some(s) => VerseRenderData {
@@ -98,7 +96,7 @@ pub struct RenderedVerseContent
     pub word_count: u32,
 }
 
-pub fn render_verse_words(package: &Package, verses: &Vec<VerseId>, bible: &str, show_strongs: bool) -> Vec<RenderedVerseContent>
+pub fn render_verse_words(package: &Package, verses: &Vec<VerseId>, bible: &ModuleId, show_strongs: bool) -> Vec<RenderedVerseContent>
 {
     fetch_verse_render_data(package, verses, bible).into_iter().map(|rd| {
         if rd.failed

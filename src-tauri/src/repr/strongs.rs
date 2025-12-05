@@ -105,8 +105,7 @@ pub struct StrongsDefEntryJson
     pub module: String,
     pub strongs_ref: StrongsNumberJson,
     pub word: String,
-    pub definitions: Vec<HtmlTextJson>,
-    pub derivation: Option<HtmlTextJson>,
+    pub definition: HtmlTextJson,
     pub id: u32,
 }
 
@@ -118,8 +117,7 @@ impl StrongsDefEntryJson
             module,
             strongs_ref: entry.strongs_ref.clone().into(),
             word: entry.word.clone(),
-            definitions: entry.definitions.iter().map(HtmlTextJson::from).collect(),
-            derivation: entry.derivation.as_ref().map(HtmlTextJson::from),
+            definition: HtmlTextJson::from(&entry.definition),
             id: entry.id,
         }
     }

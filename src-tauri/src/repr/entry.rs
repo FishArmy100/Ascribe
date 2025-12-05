@@ -1,6 +1,6 @@
 use std::num::NonZeroU32;
 
-use biblio_json::{Package, core::{Atom, RefId, RefIdInner, VerseId, WordRange}, modules::{ModuleEntry, bible::Word, notebook::NotebookEntry, xrefs::XRefEntry}};
+use biblio_json::{core::{RefId, WordRange}, modules::{ModuleEntry, ModuleId, bible::Word, notebook::NotebookEntry, xrefs::XRefEntry}};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 
@@ -30,39 +30,38 @@ pub enum ModuleEntryJson
 {
     StrongsDef 
     {
-        module: String,
+        module: ModuleId,
         strongs_ref: StrongsNumberJson,
         word: String,
-        definitions: Vec<HtmlTextJson>,
-        derivation: Option<HtmlTextJson>,
+        definition: HtmlTextJson,
         id: u32,
     },
     StrongsLink
     {
-        module: String,
+        module: ModuleId,
         verse_id: VerseIdJson,
         id: u32,
         words: Vec<StrongsWordJson>,
     },
     Commentary
     {
-        module: String,
+        module: ModuleId,
         id: u32,
         references: Vec<RefIdJson>,
         comment: HtmlTextJson,
     },
     Dictionary
     {
-        module: String,
+        module: ModuleId,
         term: String,
         aliases: Option<Vec<String>>,
-        definitions: Vec<HtmlTextJson>,
+        definition: HtmlTextJson,
         id: u32,
     },
     #[serde(rename = "xref_directed")]
     XRefDirected
     {
-        module: String,
+        module: ModuleId,
         source: RefIdJson,
         targets: Vec<ReferenceData>,
         note: Option<HtmlTextJson>,
@@ -71,21 +70,21 @@ pub enum ModuleEntryJson
     #[serde(rename = "xref_mutual")]
     XRefMutual
     {
-        module: String,
+        module: ModuleId,
         refs: Vec<ReferenceData>,
         note: Option<HtmlTextJson>,
         id: u32,
     },
     Verse 
     {
-        module: String,
+        module: ModuleId,
         verse_id: VerseIdJson,
         words: Vec<Word>,
         id: u32,
     },
     NotebookNote
     {
-        module: String,
+        module: ModuleId,
         id: u32,
         name: Option<String>,
         content: HtmlTextJson,
@@ -93,19 +92,26 @@ pub enum ModuleEntryJson
     },
     NotebookHighlight
     {
-        module: String,
+        module: ModuleId,
         id: u32,
         name: String,
         description: Option<HtmlTextJson>,
         priority: u32,
         color: String,
         references: Vec<RefIdJson>,
+    },
+    Readings 
+    {
+        module: ModuleId,
+        id: u32,
+        index: u32,
+        readings: Vec<RefIdJson>,
     }
 }
 
 impl ModuleEntryJson
 {
-    pub fn new(entry: ModuleEntry, module: String, preview_renderer: impl Fn(&RefId) -> String) -> Self 
+    pub fn new(entry: ModuleEntry, module: ModuleId, preview_renderer: impl Fn(&RefId) -> String) -> Self 
     {
         match entry
         {
@@ -114,7 +120,7 @@ impl ModuleEntryJson
                     module, 
                     term: dict_entry.term.clone(), 
                     aliases: dict_entry.aliases.clone(),
-                    definitions: dict_entry.definitions.iter().map(HtmlTextJson::from).collect(), 
+                    definition: HtmlTextJson::from(&dict_entry.definition), 
                     id: dict_entry.id,
                 }
             },
@@ -123,8 +129,7 @@ impl ModuleEntryJson
                     module,
                     strongs_ref: strongs_def_entry.strongs_ref.clone().into(),
                     word: strongs_def_entry.word.clone(),
-                    definitions: strongs_def_entry.definitions.iter().map(HtmlTextJson::from).collect(),
-                    derivation: strongs_def_entry.derivation.as_ref().map(HtmlTextJson::from),
+                    definition: HtmlTextJson::from(&strongs_def_entry.definition),
                     id: strongs_def_entry.id,
                 }
             },
@@ -212,98 +217,15 @@ impl ModuleEntryJson
                     }
                 },
             },
-        }
-    }
-
-    pub fn fetch_word_entries(package: &Package, verse: VerseId, word: NonZeroU32, bible: &str) -> Option<Vec<ModuleEntryJson>>
-    {
-        let preview_renderer = |id: &RefId| -> String {
-            let (verse, b) = get_first_verse(&id);
-            let bible = b.unwrap_or(bible);
-            let Some(bible) = package.get_mod(bible).map(|b| b.as_bible()).flatten() else {
-                return String::new()
-            };
-
-            let Some(verse) = bible.source.verses.get(&verse) else {
-                return String::new()
-            };
-
-            verse.words.iter()
-                .map(|w| {
-                    let begin_punc = w.begin_punc.as_ref().map_or("", |v| v);
-                    let end_punc = w.end_punc.as_ref().map_or("", |v| v);
-                    format!("{}{}{}", begin_punc, w.text, end_punc)
-                })
-                .join(" ")
-        };
-
-        let result = package.fetch(verse, bible)?.entries.iter().filter(|e| match e.range {
-            WordRange::Single(s) => s == word,
-            WordRange::Range(s, e) => s <= word && e >= word,
-        }).filter_map(|e| {
-            let module_name = e.entry.module.clone();
-            let entry = package.fetch_entry(e.entry.clone())?;
-
-            if let ModuleEntry::XRef(XRefEntry::Directed { source, .. }) = &entry
-            {
-                if source != &RefId::from_verse_id(verse, None)
-                {
-                    return None;
+            ModuleEntry::Readings(readings_entry) => {
+                Self::Readings 
+                { 
+                    module,
+                    id: readings_entry.id, 
+                    index: readings_entry.index, 
+                    readings: readings_entry.readings.iter().map(|r| RefIdJson::from(r)).collect_vec() 
                 }
-            }
-
-            Some(Self::new(entry, module_name, preview_renderer))
-        }).collect_vec();
-
-        Some(result)
-    }
-}
-
-fn get_first_verse(id: &RefId) -> (VerseId, Option<&str>)
-{
-    let bible = id.bible.as_ref().map(|b| b.as_str()).clone();
-    let atom = match &id.id {
-        RefIdInner::Single(atom) => atom,
-        RefIdInner::Range { from, .. } => from,
-    };
-
-    match atom 
-    {
-        Atom::Book { book } => {
-            let verse = VerseId {
-                book: *book,
-                chapter: NonZeroU32::new(1).unwrap(),
-                verse: NonZeroU32::new(1).unwrap(),
-            };
-
-            (verse, bible)
-        },
-        Atom::Chapter { book, chapter } => {
-            let verse = VerseId {
-                book: *book,
-                chapter: *chapter,
-                verse: NonZeroU32::new(1).unwrap(),
-            };
-
-            (verse, bible)
-        },
-        Atom::Verse { book, chapter, verse } => {
-            let verse = VerseId {
-                book: *book,
-                chapter: *chapter,
-                verse: *verse,
-            };
-
-            (verse, bible)
-        },
-        Atom::Word { book, chapter, verse, .. } => {
-            let verse = VerseId {
-                book: *book,
-                chapter: *chapter,
-                verse: *verse,
-            };
-
-            (verse, bible)
-        },
+            },
+        }
     }
 }

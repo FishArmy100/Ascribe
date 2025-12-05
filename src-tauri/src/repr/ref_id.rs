@@ -1,5 +1,5 @@
 use std::num::NonZeroU32;
-use biblio_json::core::{Atom, OsisBook, RefId, RefIdInner};
+use biblio_json::{core::{Atom, OsisBook, RefId, RefIdInner}, modules::ModuleId};
 use serde::{Deserialize, Serialize};
 
 
@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 #[serde(rename_all = "snake_case")]
 pub struct RefIdJson
 {
-    pub bible: Option<String>,
+    pub bible: Option<ModuleId>,
     pub id: RefIdInnerJson,
 }
 

@@ -1,0 +1,8 @@
+name = "Robert Roberts Reading Plan"
+short_name = "RR Reading Plan"
+id = "robert_roberts_reading_plan"
+
+[format]
+type = "yearly"
+count = 1
+leap_year = "skip"

@@ -1,10 +1,12 @@
 pub mod bible_cmd;
 pub mod book;
 pub mod render;
+pub mod fetching;
 
 use std::{sync::{Arc, RwLock}, thread::spawn};
 
-use biblio_json::{self, Package, modules::bible::BookInfo};
+use biblio_json::{self, Package, modules::{ModuleId, bible::BookInfo}};
+use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use tauri::{Emitter, Manager, utils::platform::resource_dir};
 
@@ -12,6 +14,7 @@ pub const BIBLIO_JSON_PACKAGE_INITIALIZED_EVENT_NAME: &str = "bible-package-init
 pub const BIBLE_VERSION_CHANGED_EVENT_NAME: &str = "bible-version-changed";
 pub const BIBLE_PACKAGE_PATH: &str = "resources/biblio-json-pkg";
 
+#[derive(Debug, Clone)]
 pub struct BiblioJsonPackageHandle(Arc<RwLock<Option<Package>>>);
 
 impl BiblioJsonPackageHandle
@@ -43,7 +46,12 @@ impl BiblioJsonPackageHandle
                 .unwrap_or(&s)
                 .to_string();
 
-            let package = Package::load(&path).unwrap();
+            let package = match Package::load(&path) {
+                Ok(ok) => ok,
+                Err(e) => {
+                    panic!("Package Loaded with errors {}:\n{}", e.len(), e.iter().map(|e| e.to_string()).join("\n---------------------------------------------\n"))
+                }
+            };
             *package_ref.try_write().unwrap() = Some(package);
             app_handle.emit(BIBLIO_JSON_PACKAGE_INITIALIZED_EVENT_NAME, ())
         });
@@ -55,15 +63,16 @@ impl BiblioJsonPackageHandle
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct BibleInfo 
 {
-    pub name: String,
+    pub id: ModuleId,
+    pub display_name: String,
     pub books: Vec<BookInfo>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct BibleDisplaySettings
 {
-    pub bible_version: String,
-    pub parallel_version: String,
+    pub bible_version: ModuleId,
+    pub parallel_version: ModuleId,
     pub parallel_enabled: bool,
     pub show_strongs: bool,
 }
@@ -73,8 +82,8 @@ impl Default for BibleDisplaySettings
     fn default() -> Self 
     {
         Self { 
-            bible_version: "KJV".into(), 
-            parallel_version: "KJV".into(), 
+            bible_version: ModuleId::new("kjv_eng".to_string()), 
+            parallel_version: ModuleId::new("kjv_eng".to_string()), 
             parallel_enabled: false,
             show_strongs: false,
         }

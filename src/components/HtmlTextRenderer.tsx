@@ -42,14 +42,11 @@ export function HtmlNodeRenderer({
     const theme = useTheme();
     if (node.type === "heading")
     {
-        let component: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
-        if (node.level === 1) component = "h1";
-        else if (node.level === 2) component = "h2";
-        else if (node.level === 3) component = "h3";
-        else if (node.level === 4) component = "h4";
-        else if (node.level === 5) component = "h5";
-        else if (node.level === 6) component = "h6";
-        else component = "h1";
+        let component: "h4" | "h5" | "h6";
+        if (node.level === 1) component = "h4";
+        else if (node.level === 2) component = "h5";
+        else if (node.level === 3) component = "h6";
+        else component = "h4";
 
         return (
             <Typography

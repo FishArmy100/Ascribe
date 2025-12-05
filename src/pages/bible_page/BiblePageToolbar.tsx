@@ -5,9 +5,19 @@ import { ViewHistoryEntry } from "../../interop/view_history";
 import { push_search_to_view_history } from "../../interop/searching";
 import * as bible from "../../interop/bible"
 import * as images from "../../assets";
-import React, { useCallback } from "react";
+import * as tts from "../../interop/tts"
+import React, { useCallback, useEffect } from "react";
+import { listen_tts_event } from "../../interop/tts/events";
 
-export const BiblePageToolbar = React.memo(function BiblePageToolbar(): React.ReactElement
+export type BiblePageToolbarProps = {
+	player_open: boolean,
+	on_click_player: () => void,
+}
+
+export const BiblePageToolbar = React.memo(function BiblePageToolbar({
+	player_open,
+	on_click_player,
+}: BiblePageToolbarProps): React.ReactElement
 {
     const view_history = use_view_history();
 	const { bible: selected_bible } = bible.use_selected_bibles()
@@ -57,6 +67,22 @@ export const BiblePageToolbar = React.memo(function BiblePageToolbar(): React.Re
                     disabled={view_history.get_current().index >= view_history.get_current().count - 1}
                     on_click={() => view_history.advance()}
                 />
+				<ImageButton
+					image={images.volume_high}
+					tooltip="Play audio"
+					on_click={() => {
+						// tts.backend_request_tts({
+						// 	bible: "KJV",
+						// 	chapter: {
+						// 		book: "Gen",
+						// 		chapter: 1,
+						// 	},
+						// 	verse_range: null,
+						// });
+						on_click_player();
+					}}
+					active={player_open}
+				/>
 				<ImageDropdown 
 					image={images.unordered_list}
 					tooltip="Menu"

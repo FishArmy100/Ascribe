@@ -1,17 +1,18 @@
 use std::{num::NonZeroU32, sync::Mutex};
 
-use biblio_json::{core::{StrongsLang, StrongsNumber, VerseId}, modules::Module};
+use biblio_json::{core::{OsisBook, StrongsLang, StrongsNumber, VerseId}, modules::{Module, ModuleId}};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use tauri::{Emitter, State};
 
-use crate::{bible::{BIBLE_VERSION_CHANGED_EVENT_NAME, BibleDisplaySettings, BibleInfo, BibleVersionChangedEvent, BiblioJsonPackageHandle, render::{fetch_verse_render_data, render_verse_words}}, core::app::AppState, repr::{entry::ModuleEntryJson, *}};
+use crate::{bible::{BIBLE_VERSION_CHANGED_EVENT_NAME, BibleDisplaySettings, BibleInfo, BibleVersionChangedEvent, BiblioJsonPackageHandle, fetching::PackageEx, render::{fetch_verse_render_data, render_verse_words}}, core::app::AppState, repr::*};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case", tag = "type")]
 pub enum BibleCommand 
 {
     FetchBibleInfos,
+    FetchModuleInfos,
     IsInitialized,
     GetBibleDisplaySettings,
     SetBibleDisplaySettings
@@ -21,7 +22,7 @@ pub enum BibleCommand
     FetchVerseRenderData
     {
         verses: Vec<VerseIdJson>,
-        bible: String,
+        bible: ModuleId,
     },
     FetchStrongsDefs 
     {
@@ -31,13 +32,28 @@ pub enum BibleCommand
     {
         verse: VerseIdJson,
         word: NonZeroU32,
-        bible: String,
+        bible: ModuleId,
+    },
+    FetchVerseEntries 
+    {
+        verse: VerseIdJson,
+        bible: ModuleId,
+    },
+    FetchChapterEntries 
+    {
+        chapter: ChapterIdJson,
+        bible: ModuleId,
+    },
+    FetchBookEntries 
+    {
+        book: OsisBook,
+        bible: ModuleId,
     },
     RenderVerses 
     {
         verses: Vec<VerseIdJson>,
         show_strongs: bool,
-        bible: String,
+        bible: ModuleId,
     }
 }
 
@@ -54,13 +70,21 @@ pub fn run_bible_command(
         BibleCommand::FetchBibleInfos => {
             let bibles = package.visit(|p| {
                 p.modules.values().filter_map(Module::as_bible).map(|bible| BibleInfo {
-                    name: bible.config.name.clone(),
+                    id: bible.config.id.clone(),
+                    display_name: bible.config.short_name.clone().unwrap_or(bible.config.name.clone()),
                     books: bible.source.book_infos.clone()
                 }).collect_vec()
             });
 
             Some(serde_json::to_string(&bibles).unwrap())
         },
+        BibleCommand::FetchModuleInfos => {
+            let modules = package.visit(|p| {
+                p.modules.values().map(|m| m.get_info()).collect_vec()
+            });
+
+            Some(serde_json::to_string(&modules).unwrap())
+        }
         BibleCommand::IsInitialized => {
             Some(serde_json::to_string(&package.is_initialized()).unwrap())
         },
@@ -111,11 +135,32 @@ pub fn run_bible_command(
         },
         BibleCommand::FetchWordEntries { verse, word, bible } => {
             let response = package.visit(|p | {
-                ModuleEntryJson::fetch_word_entries(p, verse.into(), word, &bible)
-            }).unwrap_or_default();
+                p.fetch_word_entries(verse.into(), word, &bible)
+            });
 
             Some(serde_json::to_string(&response).unwrap())
         },
+        BibleCommand::FetchVerseEntries { verse, bible } => {
+            let response = package.visit(|p | {
+                p.fetch_verse_entries(verse.into(), &bible)
+            });
+
+            Some(serde_json::to_string(&response).unwrap())
+        }
+        BibleCommand::FetchChapterEntries { chapter, bible } => {
+            let response = package.visit(|p | {
+                p.fetch_chapter_entries(chapter.into(), &bible)
+            });
+
+            Some(serde_json::to_string(&response).unwrap())
+        },
+        BibleCommand::FetchBookEntries { book, bible } => {
+            let response = package.visit(|p | {
+                p.fetch_book_entries(book, &bible)
+            });
+
+            Some(serde_json::to_string(&response).unwrap())
+        }
         BibleCommand::RenderVerses { verses, show_strongs, bible } => {
             let verses = verses.iter().map(|v| VerseId::from(v)).collect_vec();
             
