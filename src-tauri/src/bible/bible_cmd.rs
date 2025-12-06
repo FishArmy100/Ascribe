@@ -54,7 +54,7 @@ pub enum BibleCommand
         verses: Vec<VerseIdJson>,
         show_strongs: bool,
         bible: ModuleId,
-    }
+    },
 }
 
 #[tauri::command(rename_all = "snake_case")]
@@ -169,6 +169,6 @@ pub fn run_bible_command(
             });
 
             Some(serde_json::to_string(&response).unwrap())
-        }
+        },
     }
 }
