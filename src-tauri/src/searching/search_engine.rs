@@ -19,6 +19,7 @@ pub enum SearchPart
 {
     Or(Vec<SearchPart>),
     And(Vec<SearchPart>),
+    Not(Box<SearchPart>),
     Strongs(StrongsNumber),
     Word(String),
 }
@@ -40,6 +41,16 @@ pub enum SearchError
     {
         book: OsisBook,
         bible: String,
+    },
+    BookDoesNotHaveEnoughChapters
+    {
+        requested: u32,
+        contains: u32,
+    },
+    VerseDoesNotHaveEnoughVerses
+    {
+        requested: u32,
+        contains: u32,
     }
 }
 
@@ -63,17 +74,17 @@ pub fn get_verses(package: &Package, range: &SearchRange) -> Result<Vec<VerseId>
 
     for (i, b) in book_range.iter().enumerate()
     {
-        // in same book
+        // first and last book same
         if i == 0 && i == book_range.len() - 1
         {
 
         }
-        // first not same book
+        // first && more than one book
         else if i == 0
         {
 
         }
-        // last not same book
+        // last && more than one book
         else if i == book_range.len() - 1
         {
 
@@ -81,7 +92,17 @@ pub fn get_verses(package: &Package, range: &SearchRange) -> Result<Vec<VerseId>
         // in the middle
         else 
         {
-            
+            for (ci, c) in b.chapters.iter().enumerate()
+            {
+                for v in 1..=*c 
+                {
+                    verses.push(VerseId { 
+                        book: b.osis_book, 
+                        chapter: (ci as u32 + 1).try_into().unwrap(), 
+                        verse: v.try_into().unwrap(), 
+                    });
+                }
+            }
         }
     }
 
