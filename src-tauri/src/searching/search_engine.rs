@@ -11,61 +11,65 @@ pub struct SearchRange
 
 pub struct SearchQuery
 {
-    pub ranges: Vec<SearchRange>,
-    pub root: SearchPart,
+    ranges: Vec<SearchRange>,
+    root: SearchPart,
 }
 
 impl SearchQuery  
 {
-    pub fn run_query(&self, package: &Package) -> Result<Vec<SearchHit>, SearchError>
+    pub fn new(ranges: Vec<SearchRange>, root: SearchPart, package: &Package) -> Result<Self, String>
     {
-        let hits = self.ranges.iter()
-            .map(|range| Self::run_query_on_range(package, range, &self.root))
-            .collect::<Result<Vec<Vec<SearchHit>>, SearchError>>()?
-            .into_iter()
-            .flatten()
-            .collect();
+        let error = ranges.iter().find_map(|r| {
+            let Some(bible) = package.get_mod(&r.bible).map(Module::as_bible).flatten() else
+            {
+                return Some(format!("Bible {} does not exist", r.bible));
+            };
 
-        Ok(hits)
+            if !bible.source.verses.contains_key(&r.start)
+            {
+                return Some(format!("Verse id {} does not exist", r.start));
+            }
+
+            if !bible.source.verses.contains_key(&r.end)
+            {
+                return Some(format!("Verse id {} does not exist", r.end));
+            }
+
+            None
+        });
+
+        if let Some(error) = error
+        {
+            return Err(error)
+        }
+
+        Ok(Self {
+            ranges,
+            root,
+        })
     }
 
-    fn run_query_on_range(package: &Package, range: &SearchRange, root: &SearchPart) -> Result<Vec<SearchHit>, SearchError>
+    pub fn run_query(&self, package: &Package) -> Vec<SearchHit>
     {
-        let bible = match package.get_mod(&range.bible).map(Module::as_bible).flatten() {
-            Some(s) => s,
-            None => return Err(SearchError::UnknownBible { 
-                bible: range.bible.get().to_owned() 
-            })
-        };
+        self.ranges.iter()
+            .map(|range| Self::run_query_on_range(package, range, &self.root))
+            .flatten().collect()
+    }
+
+    fn run_query_on_range(package: &Package, range: &SearchRange, root: &SearchPart) -> Vec<SearchHit>
+    {
+        let bible = package.get_mod(&range.bible).map(Module::as_bible).flatten().unwrap();
 
         let links = package.modules.values()
             .filter_map(Module::as_strongs_links)
             .find(|l| l.config.bible == bible.config.id);
-        
-        if !bible.source.book_infos.iter().any(|i| i.osis_book == range.start.book)
-        {
-            return Err(SearchError::BibleDoesNotContainBook { 
-                book: range.start.book, 
-                bible: range.bible.get().to_owned() 
-            });
-        }
 
-        if !bible.source.book_infos.iter().any(|i| i.osis_book == range.end.book)
-        {
-            return Err(SearchError::BibleDoesNotContainBook { 
-                book: range.end.book, 
-                bible: range.bible.get().to_owned() 
-            });
-        }
-
-        let hits = VerseRangeIter::from_verses(&bible.source.book_infos, range.start, range.end).filter_map(|v_id| {
+        VerseRangeIter::from_verses(&bible.source.book_infos, range.start, range.end).filter_map(|v_id| {
             let verse = bible.source.verses.get(&v_id).unwrap();
             let strongs = links.as_ref().map(|l| l.get_links(&v_id)).flatten();
 
             root.run_on_verse(verse, strongs)
-        }).collect_vec();
-
-        Ok(hits)
+        }).collect_vec()
     }    
 }
 

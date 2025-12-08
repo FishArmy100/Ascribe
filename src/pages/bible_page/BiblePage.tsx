@@ -299,29 +299,35 @@ function get_handle_ref_clicked_fn(
 			});
 		};
 
-		if (href.type === "ref_id") {
+		if (href.type === "ref_id") 
+		{
 			const id = href.id.id;
 			const bible = href.id.bible;
 			update_bible_version(bible);
 
-			if (id.type === "range") {
+			if (id.type === "range") 
+			{
 				if (id.from.type !== "book" &&
 					id.to.type !== "book" &&
 					id.from.book === id.to.book &&
 					id.from.chapter === id.to.chapter
-				) {
+				) 
+				{
 					let start_verse: number | null = null;
-					if (id.from.type !== "chapter") {
+					if (id.from.type !== "chapter") 
+					{
 						start_verse = id.from.verse;
 					}
 
 					let end_verse: number | null = null;
-					if (id.to.type !== "chapter") {
+					if (id.to.type !== "chapter") 
+					{
 						end_verse = id.to.verse;
 					}
 
 					const book = id.from.book;
-					if (start_verse !== null) {
+					if (start_verse !== null) 
+					{
 						const chapter = id.from.chapter;
 						view_history.push({
 							type: "verse",

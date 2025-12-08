@@ -172,25 +172,27 @@ pub fn push_search_to_view_history(
         SearchType::Phrases(_) => {
             // $Gen.1.1-Gen.50.26$ JOSEPH 
             // $Gen$ JOSEPH 
-            let query = SearchQuery {
-                ranges: vec![SearchRange {
-                    bible: ModuleId::new("kjv_eng".into()),
-                    start: VerseId { 
-                        book: OsisBook::Gen, 
-                        chapter: 1u32.try_into().unwrap(), 
-                        verse: 1u32.try_into().unwrap() 
-                    },
-                    end: VerseId { 
-                        book: OsisBook::Gen,
-                        chapter: 50u32.try_into().unwrap(), 
-                        verse: 26u32.try_into().unwrap() 
-                    }
-                }],
-                root: SearchPart::Word("JOSEPH".into())
-            };
 
-            let response = package.visit(|p| {
-                query.run_query(p)
+            let response: Result<_, String> = package.visit(|p| {
+                let query = SearchQuery::new(
+                    vec![SearchRange {
+                        bible: ModuleId::new("kjv_eng".into()),
+                        start: VerseId { 
+                            book: OsisBook::Gen, 
+                            chapter: 1u32.try_into().unwrap(), 
+                            verse: 1u32.try_into().unwrap() 
+                        },
+                        end: VerseId { 
+                            book: OsisBook::Gen,
+                            chapter: 50u32.try_into().unwrap(), 
+                            verse: 26u32.try_into().unwrap() 
+                        }
+                    }],
+                    SearchPart::Word("JOSEPH".into()),
+                    &p
+                )?;
+
+                Ok(query.run_query(p))
             });
             
             match response
