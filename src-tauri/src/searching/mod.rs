@@ -2,6 +2,7 @@ pub mod search_type;
 pub mod search_phrase;
 pub mod search_range;
 pub mod word_search_engine;
+pub mod word_search_parsing;
 
 use std::sync::Mutex;
 

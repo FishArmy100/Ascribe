@@ -26,6 +26,19 @@ pub enum ResolveBookNameError
     BookDoesNotExist
 }
 
+impl std::fmt::Display for ResolveBookNameError
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result 
+    {
+        match self 
+        {
+            ResolveBookNameError::InvalidInput => write!(f, "Invalid book"),
+            ResolveBookNameError::PrefixInvalid => write!(f, "Invalid prefix"),
+            ResolveBookNameError::BookDoesNotExist => write!(f, "Book does not exist"),
+        }
+    }
+}
+
 pub fn resolve_book_name(name: &str, module: &BibleModule) -> Result<OsisBook, ResolveBookNameError>
 {
     let Some(captures) = BOOK_NAME_REGEX.captures(name) else {

@@ -1,12 +1,86 @@
-use biblio_json::{Package, core::{OsisBook, StrongsNumber, VerseId, VerseRangeIter, WordRange}, modules::{Module, ModuleId, bible::Verse, strongs::StrongsLinkEntry}};
+use std::num::NonZeroU32;
+
+use biblio_json::{Package, core::{Atom, OsisBook, RefId, RefIdInner, StrongsNumber, VerseId, VerseRangeIter, WordRange}, modules::{Module, ModuleId, bible::{BibleModule, BibleSource, Verse}, strongs::StrongsLinkEntry}};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
+
+use crate::{bible::ref_id_parsing::{RefIdParseError, parse_ref_ids}, searching::word_search_parsing::WordSearchParser};
 
 pub struct WordSearchRange
 {
     pub bible: ModuleId,
     pub start: VerseId,
     pub end: VerseId,
+}
+
+impl WordSearchRange
+{
+    /// Assumes that `id` exists in the package
+    pub fn from_ref_id(id: RefIdInner, bible: ModuleId, package: &Package) -> Self
+    {
+        let module = package.get_mod(&bible).map(Module::as_bible).unwrap().unwrap();
+        match id 
+        {
+            RefIdInner::Single(atom) => {
+                Self {
+                    bible,
+                    start: Self::start_atom(atom),
+                    end: Self::end_atom(atom, &module)
+                }
+            },
+            RefIdInner::Range { from, to } => {
+                Self {
+                    bible,
+                    start: Self::start_atom(from),
+                    end: Self::end_atom(to, &module)
+                }
+            },
+        }
+    }
+
+    fn start_atom(atom: Atom) -> VerseId
+    {
+        let one = NonZeroU32::new(1).unwrap();
+        match atom
+        {
+            Atom::Book { book } => VerseId::new(book, one, one),
+            Atom::Chapter { book, chapter } => VerseId::new(book, chapter, one),
+            Atom::Verse { book, chapter, verse } => VerseId::new(book, chapter, verse),
+            Atom::Word { book, chapter, verse, .. } => VerseId::new(book, chapter, verse),
+        }
+    }
+
+    fn end_atom(atom: Atom, module: &BibleModule) -> VerseId
+    {
+        let book = atom.book();
+        let book_info = module.source.book_infos.iter()
+            .find(|b| b.osis_book == book)
+            .unwrap();
+
+        match atom 
+        {
+            Atom::Book { book } => VerseId { 
+                book, 
+                chapter: (book_info.chapters.len() as u32).try_into().unwrap(), 
+                verse: book_info.chapters.last().cloned().unwrap().try_into().unwrap(),
+            },
+            Atom::Chapter { book, chapter } => VerseId { 
+                book, 
+                chapter, 
+                verse: book_info.chapters.last().cloned().unwrap().try_into().unwrap(),
+            },
+            Atom::Verse { book, chapter, verse } => VerseId { 
+                book, 
+                chapter, 
+                verse,
+            },
+            Atom::Word { book, chapter, verse, .. } => VerseId { 
+                book, 
+                chapter, 
+                verse,
+            },
+        }
+    }
 }
 
 pub struct WordSearchQuery
@@ -25,9 +99,39 @@ impl WordSearchQuery
         }
     }
 
-    pub fn try_parse(text: &str, package: &Package) -> Result<Self, Vec<WordQueryParseError>>
+    pub fn try_parse(text: &str, default_bible: &ModuleId, package: &Package) -> Result<Self, WordQueryParseError>
     {
-        todo!()
+        let segments = text.split("::").map(str::trim).collect_vec();
+        if segments.len() == 2 
+        {
+            let ranges = parse_ref_ids(segments[0], default_bible, package)
+                .map_err(|e| WordQueryParseError::RefIdParseError(e))?
+                .iter().map(|id| {
+                    let bible_id = id.bible.as_ref().unwrap().clone();
+                    WordSearchRange::from_ref_id(id.id, bible_id, package)
+                }).collect_vec();
+
+            let root = WordSearchParser::new(segments[1]).parse()
+                .map_err(|e| WordQueryParseError::ParseError(e))?;
+
+            return Ok(Self {
+                ranges,
+                root,
+            })
+        }
+
+        if segments.len() == 1
+        {
+            let root = WordSearchParser::new(segments[0]).parse()
+                .map_err(|e| WordQueryParseError::ParseError(e))?;
+
+            return Ok(Self {
+                ranges: vec![],
+                root,
+            })
+        }
+        
+        Err(WordQueryParseError::InvalidFormat(text.into()))
     }
 
     pub fn run_query(&self, package: &Package) -> Result<Vec<SearchHit>, SearchError>
@@ -209,7 +313,9 @@ impl WordSearchPart
 
                 if indexes.is_empty() {
                     None
-                } else {
+                } 
+                else 
+                {
                     Some(SearchHit {
                         verse: verse.verse_id,
                         hit_indexes: indexes,
@@ -279,5 +385,7 @@ impl std::fmt::Display for SearchError
 
 pub enum WordQueryParseError
 {
-    
+    RefIdParseError(RefIdParseError),
+    ParseError(String),
+    InvalidFormat(String),
 }

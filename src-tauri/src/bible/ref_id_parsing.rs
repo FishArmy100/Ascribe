@@ -37,18 +37,68 @@ lazy_static::lazy_static! {
 pub enum RefIdParseError
 {
     UnknownBible(String),
-    UnknownBook(ResolveBookNameError),
+    BookError(ResolveBookNameError),
     ChapterCannotBeZero,
     VerseCannotBeZero,
     InvalidRefId(String),
     InvalidAtom(String),
+    RefIdDoesNotExist
+    {
+        bible: String,
+        raw: String,
+    }
 }
+
+impl std::fmt::Display for RefIdParseError 
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result 
+    {
+        match self 
+        {
+            RefIdParseError::UnknownBible(b) => {
+                write!(f, "Unknown Bible specified: '{}'", b)
+            }
+            RefIdParseError::BookError(err) => {
+                write!(f, "{}", err)
+            }
+            RefIdParseError::ChapterCannotBeZero => {
+                write!(f, "Chapter number cannot be zero")
+            }
+            RefIdParseError::VerseCannotBeZero => {
+                write!(f, "Verse number cannot be zero")
+            }
+            RefIdParseError::InvalidRefId(ref_id) => {
+                write!(f, "Invalid reference ID: '{}'", ref_id)
+            }
+            RefIdParseError::InvalidAtom(atom) => {
+                write!(f, "Invalid atom in reference: '{}'", atom)
+            }
+            RefIdParseError::RefIdDoesNotExist { bible, raw } => {
+                write!(f, "Reference ID '{}' does not exist in Bible '{}'", raw, bible)
+            }
+        }
+    }
+}
+
 
 pub fn parse_ref_ids(text: &str, bible: &ModuleId, package: &Package) -> Result<Vec<RefId>, RefIdParseError>
 {
     text.split(";").filter(|s| s.len() > 0)
         .map(|s| s.trim())
-        .map(|id| parse_ref_id(id, bible, package))
+        .map(|text| -> Result<RefId, RefIdParseError> {
+            let id = parse_ref_id(text, bible, package)?;
+            // we can do all this `unwrapping`, cause the `parse_ref_id` does all the checks for us
+            let bible = package.get_mod(id.bible.as_ref().unwrap()).map(Module::as_bible).unwrap().unwrap();
+            if !bible.source.id_exists(&id)
+            {
+                return Err(RefIdParseError::RefIdDoesNotExist { 
+                    bible: bible.config.name.clone(), 
+                    raw: text.into() 
+                })
+            }
+
+            Ok(id)
+        })
         .collect()
 }
 
@@ -67,7 +117,7 @@ fn parse_ref_id(text: &str, default_bible_id: &ModuleId, package: &Package) -> R
             .ok_or(RefIdParseError::UnknownBible(bible_id.get().to_owned()))?;
 
         let book = resolve_book_name(groups.name("book").unwrap().as_str(), &bible)
-            .map_err(|e| RefIdParseError::UnknownBook(e))?;
+            .map_err(|e| RefIdParseError::BookError(e))?;
 
         let chapter: NonZeroU32 = groups.name("chapter").unwrap()
             .as_str().parse()
@@ -103,7 +153,7 @@ fn parse_ref_id(text: &str, default_bible_id: &ModuleId, package: &Package) -> R
             .ok_or(RefIdParseError::UnknownBible(bible_id.get().to_owned()))?;
 
         let book = resolve_book_name(groups.name("book").unwrap().as_str(), &bible)
-            .map_err(|e| RefIdParseError::UnknownBook(e))?;
+            .map_err(|e| RefIdParseError::BookError(e))?;
 
         let chapter_start: NonZeroU32 = groups.name("chapter_start").unwrap()
             .as_str().parse()
@@ -159,7 +209,7 @@ fn parse_ref_id(text: &str, default_bible_id: &ModuleId, package: &Package) -> R
             .ok_or(RefIdParseError::UnknownBible(bible_id.get().to_owned()))?;
 
         let book = resolve_book_name(groups.name("book").unwrap().as_str(), &bible)
-            .map_err(|e| RefIdParseError::UnknownBook(e))?;
+            .map_err(|e| RefIdParseError::BookError(e))?;
 
         let Some(chapter) = groups.name("chapter") else {
             return Ok(RefId { bible: Some(bible_id), id: RefIdInner::Single( Atom::Book { book }) })
@@ -188,7 +238,7 @@ fn parse_atom(text: &str, bible: &BibleModule) -> Result<Atom, RefIdParseError>
     };
 
     let book = resolve_book_name(atom.name("book").unwrap().as_str(), &bible)
-            .map_err(|e| RefIdParseError::UnknownBook(e))?;
+            .map_err(|e| RefIdParseError::BookError(e))?;
 
     let Some(chapter) = atom.name("chapter") else {
         return Ok(Atom::Book { book })
@@ -398,7 +448,7 @@ mod tests {
         let bible_id = ModuleId::new("kjv_eng".into());
         
         let result = parse_ref_id("InvalidBook 1:1", &bible_id, &package);
-        assert!(matches!(result, Err(RefIdParseError::UnknownBook(_))));
+        assert!(matches!(result, Err(RefIdParseError::BookError(_))));
     }
     
     #[test]
@@ -464,5 +514,16 @@ mod tests {
         
         assert!(result1.is_ok());
         assert!(result2.is_ok());
+    }
+
+    #[test]
+    fn test_id_does_not_exist()
+    {
+        let package = create_test_package();
+        let bible_id = ModuleId::new("kjv_eng".into());
+
+        // Jonah only has 4 chapters
+        let result = parse_ref_ids("Jonah 5", &bible_id, &package);
+        assert!(result.is_err());
     }
 }
