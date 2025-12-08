@@ -1,7 +1,7 @@
 pub mod search_type;
 pub mod search_phrase;
 pub mod search_range;
-pub mod search_engine;
+pub mod word_search_engine;
 
 use std::sync::Mutex;
 
@@ -9,7 +9,7 @@ use biblio_json::{core::{OsisBook, VerseId}, modules::{ModuleId, bible::BibleMod
 use regex::Regex;
 use tauri::{AppHandle, State};
 
-use crate::{bible::{BiblioJsonPackageHandle, book::ResolveBookNameError}, core::{app::AppState, view_history::{ViewHistoryEntry, update_view_history}}, repr::ChapterIdJson, searching::{search_engine::{SearchPart, SearchQuery, SearchRange}, search_range::SearchRanges, search_type::SearchType}};
+use crate::{bible::{BiblioJsonPackageHandle, book::ResolveBookNameError}, core::{app::AppState, view_history::{ViewHistoryEntry, update_view_history}}, repr::ChapterIdJson, searching::{word_search_engine::{WordSearchPart, WordSearchQuery, WordSearchRange}, search_range::SearchRanges, search_type::SearchType}};
 
 lazy_static::lazy_static!
 {
@@ -172,27 +172,25 @@ pub fn push_search_to_view_history(
         SearchType::Phrases(_) => {
             // $Gen.1.1-Gen.50.26$ JOSEPH 
             // $Gen$ JOSEPH 
+            let query = WordSearchQuery {
+                ranges: vec![WordSearchRange {
+                    bible: ModuleId::new("kjv_eng".into()),
+                    start: VerseId { 
+                        book: OsisBook::Gen, 
+                        chapter: 1u32.try_into().unwrap(), 
+                        verse: 1u32.try_into().unwrap() 
+                    },
+                    end: VerseId { 
+                        book: OsisBook::Gen,
+                        chapter: 50u32.try_into().unwrap(), 
+                        verse: 26u32.try_into().unwrap() 
+                    }
+                }],
+                root: WordSearchPart::Word("JOSEPH".into())
+            };
 
-            let response: Result<_, String> = package.visit(|p| {
-                let query = SearchQuery::new(
-                    vec![SearchRange {
-                        bible: ModuleId::new("kjv_eng".into()),
-                        start: VerseId { 
-                            book: OsisBook::Gen, 
-                            chapter: 1u32.try_into().unwrap(), 
-                            verse: 1u32.try_into().unwrap() 
-                        },
-                        end: VerseId { 
-                            book: OsisBook::Gen,
-                            chapter: 50u32.try_into().unwrap(), 
-                            verse: 26u32.try_into().unwrap() 
-                        }
-                    }],
-                    SearchPart::Word("JOSEPH".into()),
-                    &p
-                )?;
-
-                Ok(query.run_query(p))
+            let response = package.visit(|p| {
+                query.run_query(p)
             });
             
             match response

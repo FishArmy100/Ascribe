@@ -2,94 +2,103 @@ use biblio_json::{Package, core::{OsisBook, StrongsNumber, VerseId, VerseRangeIt
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 
-pub struct SearchRange
+pub struct WordSearchRange
 {
     pub bible: ModuleId,
     pub start: VerseId,
     pub end: VerseId,
 }
 
-pub struct SearchQuery
+pub struct WordSearchQuery
 {
-    ranges: Vec<SearchRange>,
-    root: SearchPart,
+    pub ranges: Vec<WordSearchRange>,
+    pub root: WordSearchPart,
 }
 
-impl SearchQuery  
+impl WordSearchQuery  
 {
-    pub fn new(ranges: Vec<SearchRange>, root: SearchPart, package: &Package) -> Result<Self, String>
+    pub fn new(ranges: Vec<WordSearchRange>, root: WordSearchPart) -> Self
     {
-        let error = ranges.iter().find_map(|r| {
-            let Some(bible) = package.get_mod(&r.bible).map(Module::as_bible).flatten() else
-            {
-                return Some(format!("Bible {} does not exist", r.bible));
-            };
-
-            if !bible.source.verses.contains_key(&r.start)
-            {
-                return Some(format!("Verse id {} does not exist", r.start));
-            }
-
-            if !bible.source.verses.contains_key(&r.end)
-            {
-                return Some(format!("Verse id {} does not exist", r.end));
-            }
-
-            None
-        });
-
-        if let Some(error) = error
-        {
-            return Err(error)
-        }
-
-        Ok(Self {
+        Self {
             ranges,
             root,
-        })
+        }
     }
 
-    pub fn run_query(&self, package: &Package) -> Vec<SearchHit>
+    pub fn try_parse(text: &str, package: &Package) -> Result<Self, Vec<WordQueryParseError>>
     {
-        self.ranges.iter()
+        todo!()
+    }
+
+    pub fn run_query(&self, package: &Package) -> Result<Vec<SearchHit>, SearchError>
+    {
+        let hits = self.ranges.iter()
             .map(|range| Self::run_query_on_range(package, range, &self.root))
-            .flatten().collect()
-    }
+            .collect::<Result<Vec<Vec<SearchHit>>, SearchError>>()?
+            .into_iter()
+            .flatten()
+            .collect();
 
-    fn run_query_on_range(package: &Package, range: &SearchRange, root: &SearchPart) -> Vec<SearchHit>
+        Ok(hits)
+    }
+    
+    fn run_query_on_range(package: &Package, range: &WordSearchRange, root: &WordSearchPart) -> Result<Vec<SearchHit>, SearchError>
     {
-        let bible = package.get_mod(&range.bible).map(Module::as_bible).flatten().unwrap();
+        let bible = match package.get_mod(&range.bible).map(Module::as_bible).flatten() {
+            Some(s) => s,
+            None => return Err(SearchError::UnknownBible { 
+                bible: range.bible.get().to_owned() 
+            })
+        };
 
         let links = package.modules.values()
             .filter_map(Module::as_strongs_links)
             .find(|l| l.config.bible == bible.config.id);
+        
+        if !bible.source.book_infos.iter().any(|i| i.osis_book == range.start.book)
+        {
+            return Err(SearchError::BibleDoesNotContainBook { 
+                book: range.start.book, 
+                bible: range.bible.get().to_owned() 
+            });
+        }
 
-        VerseRangeIter::from_verses(&bible.source.book_infos, range.start, range.end).filter_map(|v_id| {
+        if !bible.source.book_infos.iter().any(|i| i.osis_book == range.end.book)
+        {
+            return Err(SearchError::BibleDoesNotContainBook { 
+                book: range.end.book, 
+                bible: range.bible.get().to_owned() 
+            });
+        }
+
+        let hits = VerseRangeIter::from_verses(&bible.source.book_infos, range.start, range.end).filter_map(|v_id| {
             let verse = bible.source.verses.get(&v_id).unwrap();
             let strongs = links.as_ref().map(|l| l.get_links(&v_id)).flatten();
 
             root.run_on_verse(verse, strongs)
-        }).collect_vec()
-    }    
+        }).collect_vec();
+
+        Ok(hits)
+    }
 }
 
-pub enum SearchPart
+pub enum WordSearchPart
 {
-    Or(Vec<SearchPart>),
-    And(Vec<SearchPart>),
-    Not(Box<SearchPart>),
-    Sequence(Vec<SearchPart>),
+    Or(Vec<WordSearchPart>),
+    And(Vec<WordSearchPart>),
+    Not(Box<WordSearchPart>),
+    Sequence(Vec<WordSearchPart>),
     Strongs(StrongsNumber),
     Word(String),
 }
 
-impl SearchPart
+impl WordSearchPart
 {
     pub fn run_on_verse(&self, verse: &Verse, strongs: Option<&StrongsLinkEntry>) -> Option<SearchHit>
     {
         match self 
         {
-            SearchPart::Or(parts) => {
+            WordSearchPart::Or(parts) => {
                 for p in parts 
                 {
                     if let Some(hit) = p.run_on_verse(verse, strongs)
@@ -100,7 +109,7 @@ impl SearchPart
 
                 None
             },
-            SearchPart::And(parts) => {
+            WordSearchPart::And(parts) => {
                 let mut merged = Vec::<u32>::new();
                 for p in parts
                 {
@@ -116,7 +125,7 @@ impl SearchPart
                     hit_indexes: merged 
                 })
             },
-            SearchPart::Not(inner) => {
+            WordSearchPart::Not(inner) => {
                 if inner.run_on_verse(verse, strongs).is_none()
                 {
                     Some(SearchHit { 
@@ -129,7 +138,7 @@ impl SearchPart
                     None    
                 }
             },
-            SearchPart::Sequence(parts) => {
+            WordSearchPart::Sequence(parts) => {
                 let mut all_hits: Vec<Vec<u32>> = vec![];
 
                 for p in parts {
@@ -172,7 +181,7 @@ impl SearchPart
 
                 None
             },
-            SearchPart::Strongs(strongs_number) => {
+            WordSearchPart::Strongs(strongs_number) => {
                 let strongs = strongs?;
 
                 let mut indexes = Vec::<u32>::new();
@@ -207,7 +216,7 @@ impl SearchPart
                     })
                 }
             },
-            SearchPart::Word(word) => {
+            WordSearchPart::Word(word) => {
                 let target_lc = word.to_lowercase();
                 let mut indexes = Vec::<u32>::new();
 
@@ -266,4 +275,9 @@ impl std::fmt::Display for SearchError
             SearchError::BibleDoesNotContainBook { book, bible } => write!(f, "Bible '{}' does note contain book '{}'", bible, book),
         }
     }
+}
+
+pub enum WordQueryParseError
+{
+    
 }

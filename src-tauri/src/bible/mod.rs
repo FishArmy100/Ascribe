@@ -2,6 +2,7 @@ pub mod bible_cmd;
 pub mod book;
 pub mod render;
 pub mod fetching;
+pub mod ref_id_parsing;
 
 use std::{sync::{Arc, RwLock}, thread::spawn};
 
