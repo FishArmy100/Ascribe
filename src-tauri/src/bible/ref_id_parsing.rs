@@ -33,7 +33,7 @@ lazy_static::lazy_static! {
     ).unwrap();
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum RefIdParseError
 {
     UnknownBible(String),

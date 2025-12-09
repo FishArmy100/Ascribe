@@ -1,8 +1,8 @@
 use std::num::NonZeroU32;
 
-use biblio_json::{core::{Atom, OsisBook, RefId, RefIdInner}, modules::bible::BibleModule};
+use biblio_json::{Package, core::{Atom, OsisBook, RefId, RefIdInner}, modules::bible::BibleModule};
 
-use crate::{bible::book::resolve_book_name, core::utils::load_capture, searching::{SEARCH_REGEX, SearchParseError, search_phrase::SearchPhrase}};
+use crate::{bible::book::resolve_book_name, core::utils::load_capture, searching::{SEARCH_REGEX, SearchParseError, word_search_engine::WordSearchQuery}};
 
 
 #[derive(Debug)]
@@ -26,12 +26,12 @@ pub enum SearchType
         verse_start: NonZeroU32,
         verse_end: NonZeroU32,
     },
-    Phrases(Vec<SearchPhrase>)
+    WordSearch(WordSearchQuery)
 }
 
 impl SearchType
 {
-    pub fn parse(search: &str, bible: &BibleModule) -> Result<SearchType, SearchParseError>
+    pub fn parse(search: &str, bible: &BibleModule, package: &Package) -> Result<SearchType, SearchParseError>
     {
         if search.chars().all(char::is_whitespace) {
             return Err(SearchParseError::EmptySearch);
@@ -105,8 +105,9 @@ impl SearchType
             Some(Ok(ok)) => Ok(ok),
             Some(Err(err)) => Err(err),
             None => {
-                let phrases = SearchPhrase::parse(search)?;
-                Ok(Self::Phrases(phrases))
+                let word_search = WordSearchQuery::try_parse(search, &bible.config.id, package)
+                    .map_err(|e| SearchParseError::WordQueryParseError(e))?;
+                Ok(Self::WordSearch(word_search))
             }
         }?;
 
@@ -154,7 +155,7 @@ impl SearchType
                     return Err(SearchParseError::InvalidVerseRange  { book: *book, chapter: chapter.get(), verse_start: verse_start.get(), verse_end: verse_end.get() })
                 }
             },
-            SearchType::Phrases(_) => {},
+            SearchType::WordSearch(_) => {}, // this is already checked
         }
 
         Ok(())

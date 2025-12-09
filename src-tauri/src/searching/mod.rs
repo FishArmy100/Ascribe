@@ -1,16 +1,15 @@
 pub mod search_type;
-pub mod search_phrase;
 pub mod search_range;
 pub mod word_search_engine;
 pub mod word_search_parsing;
 
 use std::sync::Mutex;
 
-use biblio_json::{core::{OsisBook, VerseId}, modules::{ModuleId, bible::BibleModule}};
+use biblio_json::{Package, core::{OsisBook, VerseId}, modules::{ModuleId, bible::BibleModule}};
 use regex::Regex;
 use tauri::{AppHandle, State};
 
-use crate::{bible::{BiblioJsonPackageHandle, book::ResolveBookNameError}, core::{app::AppState, view_history::{ViewHistoryEntry, update_view_history}}, repr::ChapterIdJson, searching::{word_search_engine::{WordSearchPart, WordSearchQuery, WordSearchRange}, search_range::SearchRanges, search_type::SearchType}};
+use crate::{bible::{BiblioJsonPackageHandle, book::ResolveBookNameError}, core::{app::AppState, view_history::{ViewHistoryEntry, update_view_history}}, repr::ChapterIdJson, searching::{search_range::SearchRanges, search_type::SearchType, word_search_engine::{WordQueryParseError, WordSearchPart, WordSearchQuery, WordSearchRange}}};
 
 lazy_static::lazy_static!
 {
@@ -48,7 +47,7 @@ pub enum SearchParseError
         error: ResolveBookNameError,
         book: String,
     },
-    InvalidSearchPhrase,
+    WordQueryParseError(WordQueryParseError),
 }
 
 impl SearchParseError
@@ -72,7 +71,7 @@ impl SearchParseError
                 ResolveBookNameError::PrefixInvalid => format!("Book '{}' has an invalid prefix", book),
                 ResolveBookNameError::BookDoesNotExist => format!("Book '{}' does not exist", book),
             },
-            SearchParseError::InvalidSearchPhrase => todo!(),
+            SearchParseError::WordQueryParseError(err) => format!("{}", err),
         }
     }
 }
@@ -86,7 +85,7 @@ pub struct Search
 
 impl Search
 {
-    pub fn parse(src: &str, bible: &BibleModule) -> Result<Self, SearchParseError>
+    pub fn parse(src: &str, bible: &BibleModule, package: &Package) -> Result<Self, SearchParseError>
     {
         let Some(captures) = SEARCH_PARSE_REGEX.captures(src) else {
             return Err(SearchParseError::InvalidSearch);
@@ -98,7 +97,7 @@ impl Search
             .unwrap_or(Ok(SearchRanges::default()))?;
         
         let search = captures.name("search").unwrap().as_str();
-        let search_type = SearchType::parse(search, bible)?;
+        let search_type = SearchType::parse(search, bible, package)?;
 
         Ok(Self {
             search_type,
@@ -126,9 +125,15 @@ pub fn push_search_to_view_history(
             .clone()
     });
 
-    let parsed = match Search::parse(input_str, &bible_module) {
+    let parsed = package.visit(|p| {
+        Search::parse(input_str, &bible_module, p).map_err(|e| {
+            Some(e.to_string(&bible_module))
+        })
+    });
+
+    let parsed = match parsed {
         Ok(ok) => ok,
-        Err(e) => return Some(e.to_string(&bible_module))
+        Err(err) => return err
     };
 
     if parsed.ranges.len() > 0
@@ -170,35 +175,19 @@ pub fn push_search_to_view_history(
                 });
             });
         },
-        SearchType::Phrases(_) => {
-            // $Gen.1.1-Gen.50.26$ JOSEPH 
-            // $Gen$ JOSEPH 
-            let query = WordSearchQuery {
-                ranges: vec![WordSearchRange {
-                    bible: ModuleId::new("kjv_eng".into()),
-                    start: VerseId { 
-                        book: OsisBook::Gen, 
-                        chapter: 1u32.try_into().unwrap(), 
-                        verse: 1u32.try_into().unwrap() 
-                    },
-                    end: VerseId { 
-                        book: OsisBook::Gen,
-                        chapter: 50u32.try_into().unwrap(), 
-                        verse: 26u32.try_into().unwrap() 
-                    }
-                }],
-                root: WordSearchPart::Word("JOSEPH".into())
-            };
-
-            let response = package.visit(|p| {
-                query.run_query(p)
-            });
+        SearchType::WordSearch(query) => {
+            println!("{:#?}", query)
             
-            match response
-            {
-                Ok(ok) => println!("Found {} results", ok.len()),
-                Err(err) => println!("{}", err),
-            }
+
+            // let response = package.visit(|p| {
+            //     query.run_query(p)
+            // });
+            
+            // match response
+            // {
+            //     Ok(ok) => println!("Found {} results", ok.len()),
+            //     Err(err) => println!("{}", err),
+            // }
         },
     }
     None
@@ -207,13 +196,13 @@ pub fn push_search_to_view_history(
 #[tauri::command(rename_all = "snake_case")]
 pub fn test_search(
     input_str: &str, 
-    biblio_json: State<'_, BiblioJsonPackageHandle>, 
+    package: State<'_, BiblioJsonPackageHandle>, 
     app_state: State<'_, Mutex<AppState>>
 ) -> Option<String>
 {
 
     let current_bible = app_state.lock().unwrap().bible_version_state.bible_version.clone();
-    let bible_module = biblio_json.visit(|p| {
+    let bible_module = package.visit(|p| {
         p.get_mod(&current_bible)
             .unwrap()
             .as_bible()
@@ -221,9 +210,15 @@ pub fn test_search(
             .clone()
     });
 
-    let parsed = match Search::parse(input_str, &bible_module) {
+    let parsed = package.visit(|p| {
+        Search::parse(input_str, &bible_module, p).map_err(|e| {
+            Some(e.to_string(&bible_module))
+        })
+    });
+
+    let parsed = match parsed {
         Ok(ok) => ok,
-        Err(e) => return Some(e.to_string(&bible_module))
+        Err(err) => return err
     };
 
     println!("Searched: \n{:#?}", parsed);

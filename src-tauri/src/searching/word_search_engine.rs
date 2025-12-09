@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{bible::ref_id_parsing::{RefIdParseError, parse_ref_ids}, searching::word_search_parsing::WordSearchParser};
 
+#[derive(Debug)]
 pub struct WordSearchRange
 {
     pub bible: ModuleId,
@@ -83,6 +84,7 @@ impl WordSearchRange
     }
 }
 
+#[derive(Debug)]
 pub struct WordSearchQuery
 {
     pub ranges: Vec<WordSearchRange>,
@@ -186,6 +188,7 @@ impl WordSearchQuery
     }
 }
 
+#[derive(Debug)]
 pub enum WordSearchPart
 {
     Or(Vec<WordSearchPart>),
@@ -383,9 +386,23 @@ impl std::fmt::Display for SearchError
     }
 }
 
+#[derive(Debug, Clone)]
 pub enum WordQueryParseError
 {
     RefIdParseError(RefIdParseError),
     ParseError(String),
     InvalidFormat(String),
+}
+
+impl std::fmt::Display for WordQueryParseError
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result 
+    {
+        match self 
+        {
+            WordQueryParseError::RefIdParseError(err) => write!(f, "{}", err),
+            WordQueryParseError::ParseError(err) => write!(f, "{}", err),
+            WordQueryParseError::InvalidFormat(raw) => write!(f, "\"{}\" is not a valid word search format", raw),
+        }
+    }
 }
