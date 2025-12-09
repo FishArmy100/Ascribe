@@ -5,17 +5,10 @@ pub mod word_search_parsing;
 
 use std::sync::Mutex;
 
-use biblio_json::{Package, core::{OsisBook, VerseId}, modules::{ModuleId, bible::BibleModule}};
-use regex::Regex;
+use biblio_json::{Package, core::OsisBook, modules::bible::BibleModule};
 use tauri::{AppHandle, State};
 
-use crate::{bible::{BiblioJsonPackageHandle, book::ResolveBookNameError}, core::{app::AppState, view_history::{ViewHistoryEntry, update_view_history}}, repr::ChapterIdJson, searching::{search_range::SearchRanges, search_type::SearchType, word_search_engine::{WordQueryParseError, WordSearchPart, WordSearchQuery, WordSearchRange}}};
-
-lazy_static::lazy_static!
-{
-    pub static ref SEARCH_PARSE_REGEX: Regex = Regex::new("^(?P<ranges>\\$.*\\$)?(?P<search>.*)$").unwrap();
-    pub static ref SEARCH_REGEX: Regex = Regex::new(r"\s*(?<prefix>\d+)?\s*(?<name>[a-zA-Z](?:.*?[a-zA-Z])?)\s*(?<chapter>\d+)[:|\s*]?(?<verse_start>\d+)?-?(?<verse_end>\d+)?").unwrap();
-}
+use crate::{bible::{BiblioJsonPackageHandle, book::ResolveBookNameError}, core::{app::AppState, view_history::{ViewHistoryEntry, update_view_history}}, repr::ChapterIdJson, searching::{search_range::SearchRanges, search_type::SearchType, word_search_engine::WordQueryParseError}};
 
 #[derive(Debug, Clone)]
 pub enum SearchParseError
@@ -76,36 +69,6 @@ impl SearchParseError
     }
 }
 
-#[derive(Debug)]
-pub struct Search
-{
-    pub search_type: SearchType,
-    pub ranges: SearchRanges,
-}
-
-impl Search
-{
-    pub fn parse(src: &str, bible: &BibleModule, package: &Package) -> Result<Self, SearchParseError>
-    {
-        let Some(captures) = SEARCH_PARSE_REGEX.captures(src) else {
-            return Err(SearchParseError::InvalidSearch);
-        };
-
-        let ranges = captures.name("ranges")
-            .map(|r| r.as_str())
-            .map(|r| SearchRanges::parse(r, bible))
-            .unwrap_or(Ok(SearchRanges::default()))?;
-        
-        let search = captures.name("search").unwrap().as_str();
-        let search_type = SearchType::parse(search, bible, package)?;
-
-        Ok(Self {
-            search_type,
-            ranges,
-        })
-    }
-}
-
 #[tauri::command(rename_all = "snake_case")]
 pub fn push_search_to_view_history(
     input_str: &str, 
@@ -126,7 +89,7 @@ pub fn push_search_to_view_history(
     });
 
     let parsed = package.visit(|p| {
-        Search::parse(input_str, &bible_module, p).map_err(|e| {
+        SearchType::parse(input_str, &bible_module, p).map_err(|e| {
             Some(e.to_string(&bible_module))
         })
     });
@@ -136,12 +99,7 @@ pub fn push_search_to_view_history(
         Err(err) => return err
     };
 
-    if parsed.ranges.len() > 0
-    {
-        return Some(format!("Search ranges are not supported yet!"));
-    }
-
-    match parsed.search_type
+    match parsed
     {
         SearchType::Chapter { book, chapter } => {
             update_view_history(&mut app_state.view_history, &handle, |vh| {

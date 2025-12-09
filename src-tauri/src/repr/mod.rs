@@ -5,6 +5,7 @@ pub mod ref_id;
 pub mod entry;
 pub mod html_text;
 pub mod module_info;
+pub mod searching;
 
 pub use strongs::*;
 pub use verse::*;

@@ -16,6 +16,7 @@ pub enum WordSearchToken
     Or,
     Not,
     EOF,
+    Star,
 }
 
 struct WordSearchLexer<'a>
@@ -58,6 +59,10 @@ impl<'a> WordSearchLexer<'a>
                 self.input.next();
                 WordSearchToken::RParen
             }
+            Some('*') => {
+                self.input.next();
+                WordSearchToken::Star
+            }
             Some(_) =>
             {
                 let word = self.consume_word();
@@ -98,7 +103,7 @@ impl<'a> WordSearchLexer<'a>
         let mut out = String::new();
         while let Some(&c) = self.input.peek()
         {
-            if c.is_whitespace() || c == '(' || c == ')' || c == '"' { break; }
+            if c.is_whitespace() || c == '(' || c == ')' || c == '"' || c == '*' { break; }
             out.push(c);
             self.input.next();
         }
@@ -194,8 +199,17 @@ impl<'a> WordSearchParser<'a>
     {
         match self.consume()
         {
-            WordSearchToken::Word(w) =>
-                Ok(WordSearchPart::Word(w)),
+            WordSearchToken::Word(w) => {
+                if let WordSearchToken::Star = self.lookahead
+                {
+                    self.consume();
+                    Ok(WordSearchPart::StartsWith(w))
+                }
+                else 
+                {
+                    Ok(WordSearchPart::Word(w))    
+                }
+            },
 
             WordSearchToken::Strongs(s) =>
             {
@@ -230,6 +244,14 @@ impl<'a> WordSearchParser<'a>
                 {
                     WordSearchToken::RParen => Ok(inside),
                     other => Err(format!("Expected ')', found {:?}", other)),
+                }
+            }
+
+            WordSearchToken::Star => {
+                match self.consume()
+                {
+                    WordSearchToken::Word(word) => Ok(WordSearchPart::EndsWith(word)),
+                    other => Err(format!("Expected a word, found {:?}", other)),
                 }
             }
 

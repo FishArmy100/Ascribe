@@ -1,12 +1,13 @@
 use std::num::NonZeroU32;
 
-use biblio_json::{Package, core::{Atom, OsisBook, RefId, RefIdInner, StrongsNumber, VerseId, VerseRangeIter, WordRange}, modules::{Module, ModuleId, bible::{BibleModule, BibleSource, Verse}, strongs::StrongsLinkEntry}};
+use biblio_json::{Package, core::{Atom, OsisBook, RefIdInner, StrongsNumber, VerseId, VerseRangeIter, WordRange}, modules::{Module, ModuleId, bible::{BibleModule, Verse}, strongs::StrongsLinkEntry}};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 
 use crate::{bible::ref_id_parsing::{RefIdParseError, parse_ref_ids}, searching::word_search_parsing::WordSearchParser};
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
 pub struct WordSearchRange
 {
     pub bible: ModuleId,
@@ -84,7 +85,7 @@ impl WordSearchRange
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct WordSearchQuery
 {
     pub ranges: Vec<WordSearchRange>,
@@ -188,7 +189,7 @@ impl WordSearchQuery
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum WordSearchPart
 {
     Or(Vec<WordSearchPart>),
@@ -196,6 +197,8 @@ pub enum WordSearchPart
     Not(Box<WordSearchPart>),
     Sequence(Vec<WordSearchPart>),
     Strongs(StrongsNumber),
+    StartsWith(String),
+    EndsWith(String),
     Word(String),
 }
 
@@ -226,7 +229,7 @@ impl WordSearchPart
 
                 merged.sort_unstable();
                 merged.dedup();
-                
+    
                 Some(SearchHit { 
                     verse: verse.verse_id, 
                     hit_indexes: merged 
@@ -332,6 +335,54 @@ impl WordSearchPart
                 for (i, w) in verse.words.iter().enumerate() 
                 {
                     if w.text.to_lowercase() == target_lc 
+                    {
+                        indexes.push(i as u32);
+                    }
+                }
+
+                if indexes.is_empty() 
+                {
+                    None
+                } 
+                else 
+                {
+                    Some(SearchHit {
+                        verse: verse.verse_id,
+                        hit_indexes: indexes,
+                    })
+                }
+            },
+            WordSearchPart::StartsWith(word) => {
+                let target_lc = word.to_lowercase();
+                let mut indexes = Vec::<u32>::new();
+
+                for (i, w) in verse.words.iter().enumerate() 
+                {
+                    if w.text.to_lowercase().starts_with(&target_lc) 
+                    {
+                        indexes.push(i as u32);
+                    }
+                }
+
+                if indexes.is_empty() 
+                {
+                    None
+                } 
+                else 
+                {
+                    Some(SearchHit {
+                        verse: verse.verse_id,
+                        hit_indexes: indexes,
+                    })
+                }
+            },
+            WordSearchPart::EndsWith(word) => {
+                let target_lc = word.to_lowercase();
+                let mut indexes = Vec::<u32>::new();
+
+                for (i, w) in verse.words.iter().enumerate() 
+                {
+                    if w.text.to_lowercase().ends_with(&target_lc) 
                     {
                         indexes.push(i as u32);
                     }
