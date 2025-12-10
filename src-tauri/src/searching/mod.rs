@@ -1,14 +1,13 @@
 pub mod search_type;
-pub mod search_range;
 pub mod word_search_engine;
 pub mod word_search_parsing;
 
 use std::sync::Mutex;
 
-use biblio_json::{Package, core::OsisBook, modules::bible::BibleModule};
+use biblio_json::{core::OsisBook, modules::bible::BibleModule};
 use tauri::{AppHandle, State};
 
-use crate::{bible::{BiblioJsonPackageHandle, book::ResolveBookNameError}, core::{app::AppState, view_history::{ViewHistoryEntry, update_view_history}}, repr::ChapterIdJson, searching::{search_range::SearchRanges, search_type::SearchType, word_search_engine::WordQueryParseError}};
+use crate::{bible::{BiblioJsonPackageHandle, book::ResolveBookNameError}, core::{app::AppState, view_history::{ViewHistoryEntry, update_view_history}}, repr::ChapterIdJson, searching::{search_type::SearchType, word_search_engine::WordQueryParseError}};
 
 #[derive(Debug, Clone)]
 pub enum SearchParseError
@@ -134,18 +133,12 @@ pub fn push_search_to_view_history(
             });
         },
         SearchType::WordSearch(query) => {
-            println!("{:#?}", query)
-            
-
-            // let response = package.visit(|p| {
-            //     query.run_query(p)
-            // });
-            
-            // match response
-            // {
-            //     Ok(ok) => println!("Found {} results", ok.len()),
-            //     Err(err) => println!("{}", err),
-            // }
+            update_view_history(&mut app_state.view_history, &handle, |vh| {
+                vh.push_entry(ViewHistoryEntry::WordSearch { 
+                    query: query.into(),
+                    raw: Some(input_str.into()),
+                });
+            });
         },
     }
     None

@@ -1,10 +1,19 @@
 import { invoke } from "@tauri-apps/api/core";
-import { VerseId } from "./bible";
+import { OsisBook, pretty_print_verse, VerseId } from "./bible";
 import { StrongsNumber } from "./bible/strongs";
+import { RenderedVerseContent } from "./bible/render";
 
 export async function backend_push_search_to_view_history(str: string): Promise<string | null>
 {
     return await invoke("push_search_to_view_history", { input_str: str });
+}
+
+export type WordSearchResult = |{
+    type: "ok",
+    hits: SearchHit[]
+} |{
+    type: "error",
+    error: string,
 }
 
 export async function run_backend_search_query(query: WordSearchQuery): Promise<WordSearchResult>
@@ -19,12 +28,39 @@ export async function run_backend_search_query(query: WordSearchQuery): Promise<
     })
 }
 
-export type WordSearchResult = |{
+export type RenderedWordSearchResult = |{
     type: "ok",
-    hits: SearchHit[]
+    verses: RenderedVerseContent[]
 } |{
     type: "error",
     error: string,
+}
+
+export type BackendRenderWordSearchQueryArgs = {
+    query: WordSearchQuery,
+    show_strongs: boolean,
+    page_size: number,
+    page_index: number,
+}
+
+export async function backend_render_word_search_query({
+    query,
+    show_strongs,
+    page_index,
+    page_size,
+}: BackendRenderWordSearchQueryArgs): Promise<RenderedWordSearchResult>
+{
+    return await invoke<string>("run_bible_command", {
+        command: {
+            type: "render_word_search_query",
+            query,
+            show_strongs,
+            page_index,
+            page_size,
+        }
+    }).then(result => {
+        return JSON.parse(result) as RenderedWordSearchResult
+    })
 }
 
 export type SearchHit = {
@@ -34,7 +70,7 @@ export type SearchHit = {
 
 export type WordSearchQuery = {
     ranges: WordSearchRange[];
-    root: WordSearchPartJson;
+    root: WordSearchPart;
 }
 
 export type WordSearchRange = {
@@ -43,7 +79,7 @@ export type WordSearchRange = {
     end: VerseId,
 }
 
-export type WordSearchPartJson =
+export type WordSearchPart =
     | WordSearchPartOr
     | WordSearchPartAnd
     | WordSearchPartNot
@@ -56,22 +92,22 @@ export type WordSearchPartJson =
     
 export type WordSearchPartOr = {
     type: "or";
-    content: WordSearchPartJson[];
+    content: WordSearchPart[];
 };
 
 export type WordSearchPartAnd = {
     type: "and";
-    content: WordSearchPartJson[];
+    content: WordSearchPart[];
 };
 
 export type WordSearchPartNot = {
     type: "not";
-    content: WordSearchPartJson;
+    content: WordSearchPart;
 };
 
 export type WordSearchPartSequence = {
     type: "sequence";
-    content: WordSearchPartJson[];
+    content: WordSearchPart[];
 };
 
 export type WordSearchPartStrongs = {
@@ -93,3 +129,69 @@ export type WordSearchPartWord = {
     type: "word";
     word: string;
 };
+
+export function pretty_print_word_search_query(query: WordSearchQuery, book_namer: (bible_id: string, book: OsisBook) => string, bible_namer: (id: string) => string): string 
+{
+    const root = pretty_print_word_search_part(query.root);
+
+    if (query.ranges.length === 0)
+    {
+        return root;
+    }
+
+    const ranges = query.ranges
+        .map(r => pretty_print_word_search_range(r, book_namer, bible_namer))
+        .join("; ");
+    
+
+    return `${ranges} :: ${root}`;
+}
+
+export function pretty_print_word_search_part(part: WordSearchPart): string 
+{
+    switch (part.type)
+    {
+        case "or":
+        {
+            return part.content.map(pretty_print_word_search_part).join(" OR ");
+        }
+        case "and":
+        {
+            return part.content.map(pretty_print_word_search_part).join(" ");   
+        }
+        case "not":
+        {
+            return `NOT ${part.content}`;
+        }
+        case "sequence":
+        {
+            return `"${part.content.map(pretty_print_word_search_part).join(" ")}"`;   
+        }
+        case "strongs":
+        {
+            return (part.strongs.language == "greek" ? "G" : "H") + part.strongs.number.toString();
+        }
+        case "starts_with":
+        {
+            return part.pattern + "*";
+        }
+        case "ends_with":
+        {
+            return "*" + part.pattern;
+        }
+        case "word":
+        {
+            return part.word;
+        }
+    }
+}
+
+export function pretty_print_word_search_range(range: WordSearchRange, book_namer: (bible_id: string, book: OsisBook) => string, bible_namer: (id: string) => string): string 
+{
+    function print_verse(verse: VerseId): string 
+    {
+        return `${book_namer(range.bible, verse.book)} ${verse.chapter}:${verse.verse}`;
+    }
+
+    return `${print_verse(range.start)}-${print_verse(range.end)} (${bible_namer(range.bible)})`;
+}

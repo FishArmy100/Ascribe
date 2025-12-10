@@ -1,32 +1,36 @@
-import { Box, CircularProgress, useTheme } from "@mui/material";
+import { Box, useTheme } from "@mui/material";
 import React, { useEffect, useState, useCallback, useMemo } from "react";
-import * as images from "../../assets"
-import { use_view_history, ViewHistoryContextType } from "../../components/providers/ViewHistoryProvider";
+import { use_view_history } from "../../components/providers/ViewHistoryProvider";
 import * as bible from "../../interop/bible";
-import { WordId } from "../../interop/bible";
 import { RenderedVerseContent } from "../../interop/bible/render";
-import { use_top_bar_padding, TopBarSpacer, ImageButton, Footer } from "../../components";
+import { use_top_bar_padding, TopBarSpacer, Footer } from "../../components";
 import ChapterContent from "./ChapterContent";
-import { BiblePageToolbar } from "./BiblePageToolbar";
 import { BUTTON_SIZE } from "../../components/core/ImageButton";
 import { use_bible_display_settings } from "../../components/providers/BibleDisplaySettingsProvider";
 import { StrongsNumber } from "../../interop/bible/strongs";
-import StrongsPopover from "@components/popovers/StrongsPopover";
-import WordPopover from "@components/popovers/WordPopover";
-import { HRefSrc } from "../../interop/html_text";
 import AudioPlayer from "../../components/audio_player/AudioPlayer";
 import { use_tts_player } from "../../components/providers/TtsPlayerProvider";
 import PopoverManager, { PopoverData } from "@components/popovers/PopoverManager";
+import { ChapterHistoryEntry, VerseHistoryEntry } from "@interop/view_history";
+import { NavigationButton } from "./NavigationButton";
+import { LoadingSpinner } from "../LoadingSpinner";
+import { get_handle_ref_clicked_callback } from "../page_utils";
+import { BiblePageToolbar } from "./BiblePageToolbar";
 
-export default function BiblePage(): React.ReactElement {
+export type BiblePageProps = {
+	entry: ChapterHistoryEntry | VerseHistoryEntry,
+}
+
+export default function BiblePage({
+	entry
+}: BiblePageProps): React.ReactElement {
 	const theme = useTheme();
 	const view_history = use_view_history();
 	const selected_bibles = bible.use_selected_bibles();
 	const { bible_version_state, set_bible_version_state } = use_bible_display_settings();
 	const show_strongs = bible_version_state.show_strongs;
 
-	const current_view = view_history.get_current().current;
-	const current_chapter = current_view.chapter;
+	const current_chapter = entry.chapter;
 	const bible_name = selected_bibles.bible.id;
 	const parallel_bible_name = selected_bibles.parallel?.id;
 
@@ -51,14 +55,14 @@ export default function BiblePage(): React.ReactElement {
 	);
 
 	const current_verses = useMemo(() => {
-		if (current_view.type === "verse") {
+		if (entry.type === "verse") {
 			return {
-				start: current_view.start,
-				end: current_view.end ?? current_view.start,
+				start: entry.start,
+				end: entry.end ?? entry.start,
 			};
 		}
 		return null;
-	}, [current_view]);
+	}, [entry]);
 
 	useEffect(() => {
 		let is_mounted = true;
@@ -155,7 +159,7 @@ export default function BiblePage(): React.ReactElement {
 		})
 	}, []);
 
-	const handle_ref_clicked = get_handle_ref_clicked_fn(set_bible_version_state, bible_version_state, show_strongs, view_history, () => {
+	const handle_ref_clicked = get_handle_ref_clicked_callback(set_bible_version_state, bible_version_state, show_strongs, view_history, () => {
 		set_popover_data(null)
 	});
 
@@ -227,188 +231,12 @@ export default function BiblePage(): React.ReactElement {
 				on_close={handle_popover_close}
 			/>
 
-			<AudioPlayer open={player_open}/>
+			<AudioPlayer 
+				open={player_open} 
+				current_chapter={entry.chapter}
+			/>
 		</Box>
 	);
 }
 
-const NavigationButton = React.memo(({ 
-	direction, 
-	onClick, 
-	buttonWidth, 
-	buttonSpacing 
-}: { 
-	direction: 'left' | 'right'; 
-	onClick: () => void;
-	buttonWidth: number;
-	buttonSpacing: number;
-}) => {
-	const theme = useTheme();
-	const isLeft = direction === 'left';
-	
-	return (
-		<ImageButton
-			image={isLeft ? images.arrow_left : images.arrow_right}
-			tooltip={`To ${isLeft ? 'previous' : 'next'} chapter`}
-			sx={{
-				position: "fixed",
-				top: `calc(50% - 30vh / 2)`,
-				[isLeft ? 'left' : 'right']: theme.spacing(buttonSpacing),
-				minHeight: "30vh",
-				height: "30vh",
-				minWidth: (theme) => theme.spacing(buttonWidth),
-				width: (theme) => theme.spacing(buttonWidth),
-			}}
-			on_click={onClick}
-		/>
-	);
-});
-
-NavigationButton.displayName = 'NavigationButton';
-
-const LoadingSpinner = React.memo(() => (
-	<CircularProgress 
-		size={60} 
-		thickness={4}
-		sx={{
-			position: "fixed",
-			left: (theme) => `calc(50vw - ${theme.spacing(4)})`,
-			top: (theme) => `calc(50vh - ${theme.spacing(4)})`
-		}}
-	/>
-));
-
-LoadingSpinner.displayName = 'LoadingSpinner';
-
-function get_handle_ref_clicked_fn(
-	set_bible_version_state: (s: bible.BibleDisplaySettings) => Promise<void>, 
-	bible_version_state: bible.BibleDisplaySettings, 
-	show_strongs: boolean, 
-	view_history: ViewHistoryContextType,
-	on_click: () => void,
-) 
-{
-	return (href: HRefSrc) => {
-		on_click();
-		const update_bible_version = (bible: string | null) => {
-			bible && set_bible_version_state({
-				bible_version: bible,
-				parallel_enabled: bible_version_state.parallel_enabled,
-				parallel_version: bible_version_state.parallel_version,
-				show_strongs: show_strongs,
-			});
-		};
-
-		if (href.type === "ref_id") 
-		{
-			const id = href.id.id;
-			const bible = href.id.bible;
-			update_bible_version(bible);
-
-			if (id.type === "range") 
-			{
-				if (id.from.type !== "book" &&
-					id.to.type !== "book" &&
-					id.from.book === id.to.book &&
-					id.from.chapter === id.to.chapter
-				) 
-				{
-					let start_verse: number | null = null;
-					if (id.from.type !== "chapter") 
-					{
-						start_verse = id.from.verse;
-					}
-
-					let end_verse: number | null = null;
-					if (id.to.type !== "chapter") 
-					{
-						end_verse = id.to.verse;
-					}
-
-					const book = id.from.book;
-					if (start_verse !== null) 
-					{
-						const chapter = id.from.chapter;
-						view_history.push({
-							type: "verse",
-							chapter: { book, chapter },
-							start: start_verse,
-							end: end_verse,
-						});
-					}
-					else 
-					{
-						view_history.push({
-							type: "chapter",
-							chapter: { book, chapter: 1 }
-						});
-					}
-				}
-				else 
-				{
-					const atom = id.from;
-					const book = atom.book;
-					if (atom.type === "book") 
-					{
-						view_history.push({
-							type: "chapter",
-							chapter: { book, chapter: 1 }
-						});
-					}
-					else if (atom.type === "chapter") 
-					{
-						const chapter = atom.chapter;
-						view_history.push({
-							type: "chapter",
-							chapter: { book, chapter }
-						});
-					}
-					else 
-					{
-						const chapter = atom.chapter;
-						const verse = atom.verse;
-
-						view_history.push({
-							type: "verse",
-							chapter: { book, chapter },
-							start: verse,
-							end: null,
-						});
-					}
-				}
-			}
-			else 
-			{
-				const book = id.atom.book;
-				if (id.atom.type === "book") 
-				{
-					view_history.push({
-						type: "chapter",
-						chapter: { book, chapter: 1 }
-					});
-				}
-				else if (id.atom.type === "chapter") 
-				{
-					const chapter = id.atom.chapter;
-					view_history.push({
-						type: "chapter",
-						chapter: { book, chapter }
-					});
-				}
-				else 
-				{
-					const chapter = id.atom.chapter;
-					const verse = id.atom.verse;
-
-					view_history.push({
-						type: "verse",
-						chapter: { book, chapter },
-						start: verse,
-						end: null,
-					});
-				}
-			}
-		}
-	};
-}
 

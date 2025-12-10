@@ -1,12 +1,15 @@
 import React, { createContext, useContext, useEffect, useState } from "react"
-import { BibleInfo, get_backend_bible_infos, get_backend_biblio_json_package_initialized } from "../../interop/bible"
+import { BibleInfo, get_backend_bible_infos, get_backend_biblio_json_package_initialized, OsisBook } from "../../interop/bible"
 import { listen } from "@tauri-apps/api/event";
 
 type BibleInfoMap = { [name: string]: BibleInfo };
 
-type BibleInfoContextType = {
-    bible_infos: BibleInfoMap,
-    is_loaded: boolean,
+interface BibleInfoContextType
+{
+    readonly bible_infos: BibleInfoMap,
+    readonly is_loaded: boolean,
+    readonly get_book_display_name: (bible_id: string, book: OsisBook) => string,
+    readonly get_bible_display_name: (bible_id: string) => string,
 }
 
 const BibleInfoContext = createContext<BibleInfoContextType | null>(null);
@@ -19,16 +22,34 @@ export function BibleInfoProvider({
     children,
 }: BibleInfoProviderProps): React.ReactElement
 {
-    const [bible_infos, set_bible_infos] = useState<BibleInfoMap>({});
-    const [is_loaded, set_is_loaded] = useState<boolean>(false);
+    const [context_value, set_context_value] = useState<BibleInfoContextType>({
+        is_loaded: false,
+        bible_infos: {},
+        get_bible_display_name: () => { return ""; },
+        get_book_display_name: () => { return ""; }
+    });
 
-    async function fetch_bible_infos() 
+    async function fetch_context_value() 
     {
         const infos = await get_backend_bible_infos();
         const map: BibleInfoMap = {};
         infos.forEach((i) => (map[i.id] = i));
-        set_bible_infos(map);
-        set_is_loaded(true);
+        
+        const get_book_display_name = (bible_id: string, book: OsisBook) => {
+            const bible_info = map[bible_id];
+            return bible_info.books.find(b => b.osis_book === book)?.abbreviation ?? book
+        }
+
+        const get_bible_display_name = (bible_id: string) => {
+            return map[bible_id].display_name;
+        }
+
+        set_context_value({
+            bible_infos: map,
+            get_bible_display_name,
+            get_book_display_name,
+            is_loaded: true,
+        });
     }
 
     useEffect(() => {
@@ -36,18 +57,18 @@ export function BibleInfoProvider({
             const alreadyReady = await get_backend_biblio_json_package_initialized();
             if (alreadyReady) 
             {
-                await fetch_bible_infos();
+                await fetch_context_value();
             } 
             else 
             {
-                const unlisten = await listen("bible-package-initialized", fetch_bible_infos);
+                const unlisten = await listen("bible-package-initialized", fetch_context_value);
                 return () => unlisten();
             }
         })();
     }, []);
 
     return (
-        <BibleInfoContext.Provider value={{bible_infos, is_loaded}}>
+        <BibleInfoContext.Provider value={context_value}>
             {children}
         </BibleInfoContext.Provider>
     )   

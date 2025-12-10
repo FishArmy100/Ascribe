@@ -6,7 +6,7 @@ use crate::{repr::{StrongsNumberJson, VerseIdJson}, searching::word_search_engin
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct WordSearchQueryJson
 {
-    pub ranges: Vec<WordSearchRange>,
+    pub ranges: Vec<WordSearchRangeJson>,
     pub root: WordSearchPartJson,
 }
 
@@ -15,7 +15,7 @@ impl From<WordSearchQuery> for WordSearchQueryJson
     fn from(value: WordSearchQuery) -> Self 
     {
         Self {
-            ranges: value.ranges,
+            ranges: value.ranges.into_iter().map(Into::into).collect(),
             root: value.root.into()
         }
     }
@@ -26,7 +26,7 @@ impl From<&WordSearchQuery> for WordSearchQueryJson
     fn from(value: &WordSearchQuery) -> Self 
     {
         Self {
-            ranges: value.ranges.clone(),
+            ranges: value.ranges.clone().into_iter().map(Into::into).collect(),
             root: value.root.clone().into()
         }
     }
@@ -37,7 +37,7 @@ impl From<WordSearchQueryJson> for WordSearchQuery
     fn from(value: WordSearchQueryJson) -> Self 
     {
         Self {
-            ranges: value.ranges,
+            ranges: value.ranges.into_iter().map(Into::into).collect(),
             root: value.root.into(),
         }    
     }
@@ -48,7 +48,7 @@ impl From<&WordSearchQueryJson> for WordSearchQuery
     fn from(value: &WordSearchQueryJson) -> Self 
     {
         Self {
-            ranges: value.ranges.clone(),
+            ranges: value.ranges.clone().into_iter().map(Into::into).collect(),
             root: value.root.clone().into(),
         }    
     }
@@ -284,6 +284,7 @@ impl From<&WordSearchRangeJson> for WordSearchRange
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SearchHitJson
 {
+    pub bible: ModuleId,
     pub verse: VerseIdJson,
     pub hit_indexes: Vec<u32>,
 }
@@ -295,6 +296,7 @@ impl From<SearchHit> for SearchHitJson
         Self {
             verse: value.verse.into(),
             hit_indexes: value.hit_indexes,
+            bible: value.bible,
         }
     }
 }
@@ -306,6 +308,7 @@ impl From<&SearchHit> for SearchHitJson
         Self {
             verse: value.verse.into(),
             hit_indexes: value.hit_indexes.clone(),
+            bible: value.bible.clone(),
         }
     }
 }
@@ -317,6 +320,7 @@ impl From<SearchHitJson> for SearchHit
         Self {
             verse: value.verse.into(),
             hit_indexes: value.hit_indexes,
+            bible: value.bible,
         }
     }
 }
@@ -328,6 +332,7 @@ impl From<&SearchHitJson> for SearchHit
         Self {
             verse: value.verse.into(),
             hit_indexes: value.hit_indexes.clone(),
+            bible: value.bible.clone(),
         }
     }
 }

@@ -13,16 +13,19 @@ import PlaybackControl from "./PlaybackControl";
 import CorrectPitchCheckbox from "./CorrectPitchCheckbox";
 import FollowTextCheckbox from "./FollowTextCheckbox";
 import ExpandButton from "./ExpandButton";
+import { ChapterId } from "@interop/bible";
 
 const FAST_FORWARD_TIME = 10;
 const REWIND_TIME = 10;
 
 export type AudioPlayerProps = {
     open: boolean,
+    current_chapter: ChapterId,
 }
 
 export default function AudioPlayer({
-    open
+    open,
+    current_chapter
 }: AudioPlayerProps): React.ReactElement
 {
     const theme = useTheme();
@@ -32,8 +35,6 @@ export default function AudioPlayer({
     const [user_value, set_user_value] = useState(0);
 
     const [is_expanded, set_is_expanded] = useState(false);
-
-    const current_chapter = use_view_history().get_current().current.chapter;
     const current_version = use_bible_display_settings().bible_version_state.bible_version;
     
     let generation_progress: number | null = null;

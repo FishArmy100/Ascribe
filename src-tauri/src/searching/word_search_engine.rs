@@ -182,7 +182,7 @@ impl WordSearchQuery
             let verse = bible.source.verses.get(&v_id).unwrap();
             let strongs = links.as_ref().map(|l| l.get_links(&v_id)).flatten();
 
-            root.run_on_verse(verse, strongs)
+            root.run_on_verse(verse, strongs, &bible.config.id)
         }).collect_vec();
 
         Ok(hits)
@@ -204,14 +204,14 @@ pub enum WordSearchPart
 
 impl WordSearchPart
 {
-    pub fn run_on_verse(&self, verse: &Verse, strongs: Option<&StrongsLinkEntry>) -> Option<SearchHit>
+    pub fn run_on_verse(&self, verse: &Verse, strongs: Option<&StrongsLinkEntry>, bible: &ModuleId) -> Option<SearchHit>
     {
         match self 
         {
             WordSearchPart::Or(parts) => {
                 for p in parts 
                 {
-                    if let Some(hit) = p.run_on_verse(verse, strongs)
+                    if let Some(hit) = p.run_on_verse(verse, strongs, bible)
                     {
                         return Some(hit)
                     }
@@ -223,7 +223,7 @@ impl WordSearchPart
                 let mut merged = Vec::<u32>::new();
                 for p in parts
                 {
-                    let hit = p.run_on_verse(verse, strongs)?;
+                    let hit = p.run_on_verse(verse, strongs, bible)?;
                     merged.extend(hit.hit_indexes);
                 }
 
@@ -232,15 +232,17 @@ impl WordSearchPart
     
                 Some(SearchHit { 
                     verse: verse.verse_id, 
-                    hit_indexes: merged 
+                    hit_indexes: merged,
+                    bible: bible.clone(),
                 })
             },
             WordSearchPart::Not(inner) => {
-                if inner.run_on_verse(verse, strongs).is_none()
+                if inner.run_on_verse(verse, strongs, bible).is_none()
                 {
                     Some(SearchHit { 
                         verse: verse.verse_id, 
-                        hit_indexes: vec![] 
+                        hit_indexes: vec![],
+                        bible: bible.clone(),
                     })
                 }
                 else 
@@ -252,7 +254,7 @@ impl WordSearchPart
                 let mut all_hits: Vec<Vec<u32>> = vec![];
 
                 for p in parts {
-                    let Some(hit) = p.run_on_verse(verse, strongs) else {
+                    let Some(hit) = p.run_on_verse(verse, strongs, bible) else {
                         return None
                     };
                     all_hits.push(hit.hit_indexes);
@@ -285,7 +287,8 @@ impl WordSearchPart
 
                     return Some(SearchHit { 
                         verse: verse.verse_id, 
-                        hit_indexes 
+                        hit_indexes,
+                        bible: bible.clone(),
                     });
                 }
 
@@ -325,6 +328,7 @@ impl WordSearchPart
                     Some(SearchHit {
                         verse: verse.verse_id,
                         hit_indexes: indexes,
+                        bible: bible.clone(),
                     })
                 }
             },
@@ -349,6 +353,7 @@ impl WordSearchPart
                     Some(SearchHit {
                         verse: verse.verse_id,
                         hit_indexes: indexes,
+                        bible: bible.clone(),
                     })
                 }
             },
@@ -373,6 +378,7 @@ impl WordSearchPart
                     Some(SearchHit {
                         verse: verse.verse_id,
                         hit_indexes: indexes,
+                        bible: bible.clone(),
                     })
                 }
             },
@@ -397,6 +403,7 @@ impl WordSearchPart
                     Some(SearchHit {
                         verse: verse.verse_id,
                         hit_indexes: indexes,
+                        bible: bible.clone(),
                     })
                 }
             },
@@ -407,6 +414,7 @@ impl WordSearchPart
 #[derive(Debug, Clone)]
 pub struct SearchHit
 {
+    pub bible: ModuleId,
     pub verse: VerseId,
     pub hit_indexes: Vec<u32>,
 }
