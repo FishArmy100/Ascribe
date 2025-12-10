@@ -1,8 +1,14 @@
 use std::num::NonZeroU32;
 
 use biblio_json::{Package, core::{Atom, OsisBook, RefId, RefIdInner}, modules::bible::BibleModule};
+use regex::Regex;
 
-use crate::{bible::book::resolve_book_name, core::utils::load_capture, searching::{SEARCH_REGEX, SearchParseError, word_search_engine::WordSearchQuery}};
+use crate::{bible::book::resolve_book_name, core::utils::load_capture, searching::{SearchParseError, word_search_engine::WordSearchQuery}};
+
+lazy_static::lazy_static!
+{
+    pub static ref SEARCH_REGEX: Regex = Regex::new(r"^\s*(?<prefix>\d+)?\s*(?<name>[a-zA-Z](?:.*?[a-zA-Z])?)\s+(?<chapter>\d+)\s*[:|\s+]\s*(?<verse_start>\d+)?-?(?<verse_end>\d+)?$").unwrap();
+}
 
 
 #[derive(Debug)]
@@ -33,11 +39,13 @@ impl SearchType
 {
     pub fn parse(search: &str, bible: &BibleModule, package: &Package) -> Result<SearchType, SearchParseError>
     {
-        if search.chars().all(char::is_whitespace) {
+        if search.chars().all(char::is_whitespace) 
+        {
             return Err(SearchParseError::EmptySearch);
         }
 
-        if search.is_empty() {
+        if search.is_empty() 
+        {
             return Err(SearchParseError::EmptySearch);
         }
 

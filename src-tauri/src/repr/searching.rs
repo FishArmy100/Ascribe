@@ -1,7 +1,7 @@
 use biblio_json::modules::ModuleId;
 use serde::{Deserialize, Serialize};
 
-use crate::{repr::{StrongsNumberJson, VerseIdJson}, searching::word_search_engine::{WordSearchPart, WordSearchQuery, WordSearchRange}};
+use crate::{repr::{StrongsNumberJson, VerseIdJson}, searching::word_search_engine::{SearchHit, WordSearchPart, WordSearchQuery, WordSearchRange}};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct WordSearchQueryJson
@@ -277,6 +277,57 @@ impl From<&WordSearchRangeJson> for WordSearchRange
             bible: value.bible.clone(),
             start: value.start.into(),
             end: value.end.into(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SearchHitJson
+{
+    pub verse: VerseIdJson,
+    pub hit_indexes: Vec<u32>,
+}
+
+impl From<SearchHit> for SearchHitJson
+{
+    fn from(value: SearchHit) -> Self 
+    {
+        Self {
+            verse: value.verse.into(),
+            hit_indexes: value.hit_indexes,
+        }
+    }
+}
+
+impl From<&SearchHit> for SearchHitJson
+{
+    fn from(value: &SearchHit) -> Self 
+    {
+        Self {
+            verse: value.verse.into(),
+            hit_indexes: value.hit_indexes.clone(),
+        }
+    }
+}
+
+impl From<SearchHitJson> for SearchHit
+{
+    fn from(value: SearchHitJson) -> Self 
+    {
+        Self {
+            verse: value.verse.into(),
+            hit_indexes: value.hit_indexes,
+        }
+    }
+}
+
+impl From<&SearchHitJson> for SearchHit
+{
+    fn from(value: &SearchHitJson) -> Self 
+    {
+        Self {
+            verse: value.verse.into(),
+            hit_indexes: value.hit_indexes.clone(),
         }
     }
 }

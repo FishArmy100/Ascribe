@@ -169,7 +169,7 @@ pub fn test_search(
     });
 
     let parsed = package.visit(|p| {
-        Search::parse(input_str, &bible_module, p).map_err(|e| {
+        SearchType::parse(input_str, &bible_module, p).map_err(|e| {
             Some(e.to_string(&bible_module))
         })
     });

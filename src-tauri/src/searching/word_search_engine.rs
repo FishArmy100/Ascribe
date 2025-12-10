@@ -404,7 +404,7 @@ impl WordSearchPart
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone)]
 pub struct SearchHit
 {
     pub verse: VerseId,

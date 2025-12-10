@@ -5,7 +5,7 @@ use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use tauri::{Emitter, State};
 
-use crate::{bible::{BIBLE_VERSION_CHANGED_EVENT_NAME, BibleDisplaySettings, BibleInfo, BibleVersionChangedEvent, BiblioJsonPackageHandle, fetching::PackageEx, render::{fetch_verse_render_data, render_verse_words}}, core::app::AppState, repr::*, searching::word_search_engine::SearchHit};
+use crate::{bible::{BIBLE_VERSION_CHANGED_EVENT_NAME, BibleDisplaySettings, BibleInfo, BibleVersionChangedEvent, BiblioJsonPackageHandle, fetching::PackageEx, render::{fetch_verse_render_data, render_verse_words}}, core::app::AppState, repr::{searching::{SearchHitJson, WordSearchQueryJson}, *}, searching::word_search_engine::{SearchHit, WordSearchQuery}};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case", tag = "type")]
@@ -13,7 +13,7 @@ pub enum SearchResult
 {
     Ok 
     {
-        hits: Vec<SearchHit>,
+        hits: Vec<SearchHitJson>,
     },
     Error 
     {
@@ -69,6 +69,10 @@ pub enum BibleCommand
         show_strongs: bool,
         bible: ModuleId,
     },
+    RunWordSearchQuery
+    {
+        query: WordSearchQueryJson
+    }
 }
 
 #[tauri::command(rename_all = "snake_case")]
@@ -184,5 +188,17 @@ pub fn run_bible_command(
 
             Some(serde_json::to_string(&response).unwrap())
         },
+        BibleCommand::RunWordSearchQuery { query } => {
+            let query: WordSearchQuery = query.into();
+            let response = package.visit(|p| {
+                match query.run_query(p)
+                {
+                    Ok(ok) => SearchResult::Ok { hits: ok.into_iter().map(Into::into).collect() },
+                    Err(error) => SearchResult::Error { error: error.to_string() },
+                }
+            });
+
+            Some(serde_json::to_string(&response).unwrap())
+        }
     }
 }

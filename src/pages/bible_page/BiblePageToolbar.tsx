@@ -2,7 +2,7 @@ import { Divider } from "@mui/material";
 import { ChapterPicker, ImageButton, ImageDropdown, SearchBar, TopBar, VersionSelector } from "../../components";
 import { use_view_history } from "../../components/providers/ViewHistoryProvider";
 import { ViewHistoryEntry } from "../../interop/view_history";
-import { push_search_to_view_history } from "../../interop/searching";
+import { backend_push_search_to_view_history } from "../../interop/searching";
 import * as bible from "../../interop/bible"
 import * as images from "../../assets";
 import * as tts from "../../interop/tts"
@@ -42,7 +42,7 @@ export const BiblePageToolbar = React.memo(function BiblePageToolbar({
 					/>
 				<SearchBar 
 					on_search={async (term) => {
-						const error = await push_search_to_view_history(term);
+						const error = await backend_push_search_to_view_history(term);
 
 						return {
 							is_error: error !== null,
