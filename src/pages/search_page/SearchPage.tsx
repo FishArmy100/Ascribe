@@ -3,8 +3,11 @@ import { WordSearchHistoryEntry } from "@interop/view_history"
 import React, { useCallback, useEffect, useState } from "react"
 import * as searching from "@interop/searching";
 import { RenderedVerseContent } from "@interop/bible/render";
-import { Box } from "@mui/material";
+import { Box, Stack } from "@mui/material";
 import { SearchPageToolbar } from "src/pages/search_page/SearchPageToolbar";
+import { LoadingSpinner } from "../LoadingSpinner";
+import SearchedVerse from "./SearchedVerse";
+import TopBarSpacer from "@components/TopBarSpacer";
 
 export type SearchPageProps = {
     entry: WordSearchHistoryEntry
@@ -48,7 +51,35 @@ export default function SearchPage({
         }
     }, [entry])
 
-    return <Box>
-        <SearchPageToolbar entry={entry}/>
-    </Box>
+    let content = <LoadingSpinner/>
+
+    if (typeof(rendered_content) === "string")
+    {
+        content = <Box>{rendered_content}</Box>
+    }
+    else if (rendered_content !== null)
+    {
+        content = (
+            <Stack>
+                {rendered_content.map((c, i) => (
+                    <SearchedVerse
+                        key={i}
+                        render_data={c}
+                        on_strongs_clicked={() => {}}
+                        on_verse_clicked={() => {}}
+                        on_verse_word_clicked={() => {}}
+                    />
+                ))}
+            </Stack>
+        )
+    }
+
+
+    return (
+        <Box>
+            <SearchPageToolbar entry={entry}/>
+            <TopBarSpacer />
+            {content}
+        </Box>
+    );
 }
