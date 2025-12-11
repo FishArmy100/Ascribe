@@ -8,6 +8,7 @@ import { SearchPageToolbar } from "src/pages/search_page/SearchPageToolbar";
 import { LoadingSpinner } from "../LoadingSpinner";
 import SearchedVerse from "./SearchedVerse";
 import TopBarSpacer from "@components/TopBarSpacer";
+import SearchPageContent from "./SearchPageContent";
 
 export type SearchPageProps = {
     entry: WordSearchHistoryEntry
@@ -60,17 +61,18 @@ export default function SearchPage({
     else if (rendered_content !== null)
     {
         content = (
-            <Stack>
-                {rendered_content.map((c, i) => (
-                    <SearchedVerse
-                        key={i}
-                        render_data={c}
-                        on_strongs_clicked={() => {}}
-                        on_verse_clicked={() => {}}
-                        on_verse_word_clicked={() => {}}
-                    />
-                ))}
-            </Stack>
+            <Box
+                sx={{
+                    mt: 5,
+                }}
+            >
+                <SearchPageContent
+                    verses={rendered_content}
+                    on_strongs_clicked={() => {}}
+                    on_verse_clicked={() => {}}
+                    on_verse_word_clicked={() => {}}
+                />
+            </Box> 
         )
     }
 
