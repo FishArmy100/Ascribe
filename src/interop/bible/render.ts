@@ -25,6 +25,7 @@ export type RenderedVerseContent = {
     id: VerseId,
     html: string,
     word_count: number,
+    bible: string,
 }
 
 export async function fetch_backend_verse_render_data(verses: VerseId[], bible: string,): Promise<VerseRenderData[]>

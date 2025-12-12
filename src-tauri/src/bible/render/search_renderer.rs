@@ -34,8 +34,6 @@ pub fn render_word_search_verses(args: RenderSearchArgs) -> RenderWordSearchResu
 {
     let RenderSearchArgs { query, package, show_strongs, page_index, page_size } = args;
 
-    println!("index = {}, size = {}", page_index, page_size);
-
     let mut hits = match query.run_query(package)
     {
         Ok(ok) => ok,

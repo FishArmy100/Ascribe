@@ -9,13 +9,11 @@ export type SearchPageContentProps = {
     
     on_strongs_clicked: StrongsClickedCallback,
     on_verse_word_clicked: VerseWordClickedCallback,
-    on_verse_clicked: VerseClickedCallback,
 }
 
 export default function SearchPageContent({
     verses,
     on_strongs_clicked,
-    on_verse_clicked,
     on_verse_word_clicked,
 }: SearchPageContentProps): React.ReactElement
 {
@@ -37,7 +35,6 @@ export default function SearchPageContent({
                         key={i}
                         render_data={c}
                         on_strongs_clicked={on_strongs_clicked}
-                        on_verse_clicked={on_verse_clicked}
                         on_verse_word_clicked={on_verse_word_clicked}
                     />
                 ))}

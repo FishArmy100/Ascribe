@@ -37,7 +37,7 @@ export default function BiblePage({
 	const [verses, set_verses] = useState<RenderedVerseContent[] | null>(null);
 	const [parallel_verses, set_parallel_verses] = useState<RenderedVerseContent[] | null>(null);
 	
-	const [popover_data, set_popover_data] = useState<PopoverData | null>(null)
+	const [popover_data, set_popover_data] = useState<PopoverData | null>(null);
 
 	const [player_open, set_player_open] = useState(false);
 
@@ -159,7 +159,7 @@ export default function BiblePage({
 		})
 	}, []);
 
-	const handle_ref_clicked = get_handle_ref_clicked_callback(set_bible_version_state, bible_version_state, show_strongs, view_history, () => {
+	const handle_ref_clicked = get_handle_ref_clicked_callback(set_bible_version_state, bible_version_state, view_history, () => {
 		set_popover_data(null)
 	});
 

@@ -5,7 +5,6 @@ import { HRefSrc } from "@interop/html_text";
 export function get_handle_ref_clicked_callback(
 	set_bible_version_state: (s: bible.BibleDisplaySettings) => Promise<void>,
 	bible_version_state: bible.BibleDisplaySettings,
-	show_strongs: boolean,
 	view_history: ViewHistoryContextType,
 	on_click: () => void)
 {
@@ -18,7 +17,7 @@ export function get_handle_ref_clicked_callback(
 				bible_version: bible,
 				parallel_enabled: bible_version_state.parallel_enabled,
 				parallel_version: bible_version_state.parallel_version,
-				show_strongs: show_strongs,
+				show_strongs: bible_version_state.show_strongs,
 			});
 		};
 

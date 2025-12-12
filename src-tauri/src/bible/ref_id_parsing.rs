@@ -9,7 +9,7 @@ use crate::bible::book::{ResolveBookNameError, resolve_book_name};
 lazy_static::lazy_static! {
     // Matches: book [chapter[:verse]]
     static ref ATOM_REGEX: Regex = Regex::new(
-        r"^(?P<book>(?:\d+\s+)?\p{L}+)(?:\s+(?P<chapter>\d+)(?:[:\s](?P<verse>\d+))?)?$"
+        r"^(?P<book>(?:\d+\s+)?\p{L}+)(?:\s+(?P<chapter>\d+)(?:[:\s](?P<verse>\d+))?)?(?:$|\()"
     ).unwrap();
 
     // Matches: book [chapter[:verse]] optionally followed by (bible)

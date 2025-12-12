@@ -1,14 +1,20 @@
-import { WordSearchQuery } from "@interop/searching"
 import { WordSearchHistoryEntry } from "@interop/view_history"
 import React, { useCallback, useEffect, useState } from "react"
 import * as searching from "@interop/searching";
 import { RenderedVerseContent } from "@interop/bible/render";
-import { Box, Stack } from "@mui/material";
+import { Box, Typography, useTheme } from "@mui/material";
 import { SearchPageToolbar } from "src/pages/search_page/SearchPageToolbar";
 import { LoadingSpinner } from "../LoadingSpinner";
-import SearchedVerse from "./SearchedVerse";
-import TopBarSpacer from "@components/TopBarSpacer";
 import SearchPageContent from "./SearchPageContent";
+import { Footer } from "@components/index";
+import PopoverManager, { PopoverData } from "@components/popovers/PopoverManager";
+import { BibleInfo, VerseId, WordId } from "@interop/bible";
+import { use_bible_infos } from "@components/providers/BibleInfoProvider";
+import { use_bible_display_settings } from "@components/providers/BibleDisplaySettingsProvider";
+import rfdc from "rfdc";
+import { get_handle_ref_clicked_callback } from "../page_utils";
+import { StrongsNumber } from "@interop/bible/strongs";
+import { use_view_history } from "@components/providers/ViewHistoryProvider";
 
 export type SearchPageProps = {
     entry: WordSearchHistoryEntry
@@ -19,12 +25,25 @@ export default function SearchPage({
 }: SearchPageProps): React.ReactElement
 {
     const [rendered_content, set_rendered_content] = useState<RenderedVerseContent[] | string | null>(null);
+    const [popover_data, set_popover_data] = useState<PopoverData | null>(null);
+
+    const { bible_infos } = use_bible_infos();
+    const { bible_version_state, set_bible_version_state } = use_bible_display_settings();
+    const current_bible = bible_infos[bible_version_state.bible_version];
+    const view_history = use_view_history();
 
     useEffect(() => {
         let is_mounted = true;
         const render_query = async () => {
+            const query = rfdc()(entry.query);
+
+            if (entry.query.ranges.length === 0)
+            {
+                query.ranges = get_default_ranges(current_bible);
+            }
+
             const rendered = await searching.backend_render_word_search_query({ 
-                query: entry.query,
+                query: query,
                 show_strongs: false,
                 page_index: 0,
                 page_size: 20,
@@ -50,7 +69,23 @@ export default function SearchPage({
         return () => {
             is_mounted = false;
         }
-    }, [entry])
+    }, [entry]);
+
+    const handle_strongs_click = useCallback((e: { top: number, left: number }, s: StrongsNumber) => {
+            set_popover_data({
+                type: "strongs",
+                strongs_number: s,
+                position: { top: e.top, left: e.left }
+            })
+    }, []);
+
+    const handle_word_click = useCallback((e: { top: number, left: number }, word: WordId) => {
+        set_popover_data({
+            type: "word",
+            word,
+            position: e
+        })
+    }, []);
 
     let content = <LoadingSpinner/>
 
@@ -61,27 +96,71 @@ export default function SearchPage({
     else if (rendered_content !== null)
     {
         content = (
-            <Box
-                sx={{
-                    mt: 5,
-                }}
-            >
-                <SearchPageContent
-                    verses={rendered_content}
-                    on_strongs_clicked={() => {}}
-                    on_verse_clicked={() => {}}
-                    on_verse_word_clicked={() => {}}
-                />
-            </Box> 
+            <SearchPageContent
+                verses={rendered_content}
+                on_strongs_clicked={handle_strongs_click}
+                on_verse_word_clicked={handle_word_click}
+            />
         )
     }
+
+    const theme = useTheme();
+
+    const handle_ref_clicked = get_handle_ref_clicked_callback(set_bible_version_state, bible_version_state, view_history, () => {
+        set_popover_data(null)
+    });
+
+    const handle_popover_close = useCallback(() => {
+        set_popover_data(null)
+    }, []);
+
 
 
     return (
         <Box>
             <SearchPageToolbar entry={entry}/>
-            <TopBarSpacer />
-            {content}
+            <Box
+                sx={{
+                    mb: `calc(100vh - (${theme.spacing(14)}))`,
+                    mt: theme.spacing(5),
+                }}
+            >
+                <Typography variant="h2">{}</Typography>
+                {content}
+            </Box>
+            <Footer />
+            <PopoverManager 
+                data={popover_data}
+                on_ref_clicked={handle_ref_clicked}
+                on_close={handle_popover_close}
+            />
         </Box>
     );
+}
+
+function get_search_title(raw: string, search_count: number): string
+{
+    if (search_count === 0)
+    {
+
+    }
+
+    return ""
+}
+
+function get_default_ranges(bible: BibleInfo): searching.WordSearchRange[]
+{
+    const start: VerseId = { book: bible.books[0].osis_book, chapter: 1, verse: 1 };
+    const last_book = bible.books[bible.books.length - 1];
+    const end: VerseId = { 
+        book: last_book.osis_book, 
+        chapter: last_book.chapters.length, 
+        verse: last_book.chapters[last_book.chapters.length - 1] 
+    };
+
+    return [{
+        bible: bible.id,
+        start,
+        end
+    }]
 }
