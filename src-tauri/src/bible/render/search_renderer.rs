@@ -4,7 +4,7 @@ use biblio_json::{Package, modules::ModuleId};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 
-use crate::{bible::render::verse_renderer::{RenderedVerseContent, render_verses}, searching::word_search_engine::{SearchHit, WordSearchQuery}};
+use crate::{bible::render::verse_renderer::{RenderedVerseContent, render_verses}, repr::searching::SearchHitJson, searching::word_search_engine::{SearchHit, WordSearchQuery}};
 
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -14,6 +14,7 @@ pub enum RenderWordSearchResult
     Ok
     {
         verses: Vec<RenderedVerseContent>,
+        hits: Vec<SearchHitJson>,
     },
     Error 
     {
@@ -47,14 +48,14 @@ pub fn render_word_search_verses(args: RenderSearchArgs) -> RenderWordSearchResu
 
     if start >= hits.len()
     {
-        return RenderWordSearchResult::Ok { verses: vec![] }
+        return RenderWordSearchResult::Ok { verses: vec![], hits: vec![] }
     }
     
 
-    let hits = &mut hits[start..end];
+    let rendered_hits = &mut hits[start..end];
 
     let mut grouped_hits = HashMap::<ModuleId, Vec<SearchHit>>::new();
-    for hit in hits.into_iter()
+    for hit in rendered_hits.into_iter()
     {
         grouped_hits.entry(hit.bible.clone()).or_default().push(hit.clone());
     }
@@ -66,7 +67,10 @@ pub fn render_word_search_verses(args: RenderSearchArgs) -> RenderWordSearchResu
 
     sort_rendered_content(&mut rendered);
     
-    RenderWordSearchResult::Ok { verses: rendered }
+    RenderWordSearchResult::Ok { 
+        verses: rendered, 
+        hits: hits.iter().map(Into::into).collect() 
+    }
 }
 
 fn sort_hits(hits: &mut [SearchHit])

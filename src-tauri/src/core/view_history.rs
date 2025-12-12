@@ -97,6 +97,7 @@ pub enum ViewHistoryEntry
     WordSearch
     {
         query: WordSearchQueryJson,
+        page_index: u32,
         raw: Option<String>,
     }
 }

@@ -18,6 +18,7 @@ export type VerseHistoryEntry = {
 export type WordSearchHistoryEntry = {
     type: "word_search",
     query: WordSearchQuery,
+    page_index: number,
     raw: string | null,
 }
 

@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
-import { OsisBook, pretty_print_verse, VerseId } from "./bible";
+import { OsisBook, VerseId } from "./bible";
 import { StrongsNumber } from "./bible/strongs";
 import { RenderedVerseContent } from "./bible/render";
 
@@ -30,7 +30,8 @@ export async function run_backend_search_query(query: WordSearchQuery): Promise<
 
 export type RenderedWordSearchResult = |{
     type: "ok",
-    verses: RenderedVerseContent[]
+    verses: RenderedVerseContent[],
+    hits: SearchHit[],
 } |{
     type: "error",
     error: string,

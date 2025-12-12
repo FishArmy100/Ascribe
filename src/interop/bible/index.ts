@@ -13,30 +13,21 @@ export type ChapterId = {
     chapter: number,
 }
 
-export function pretty_print_chapter(id: ChapterId): string 
-{
-    return `${pretty_print_book(id.book)} ${id.chapter}`;
-}
-
 export type VerseId = {
     book: OsisBook,
     chapter: number,
     verse: number,
 }
 
-export function pretty_print_verse(id: VerseId): string 
+export function use_display_verse(): (id: VerseId, bible_id: string) => string 
 {
-    return `${pretty_print_book(id.book)} ${id.chapter}:${id.verse}`;
+    const { get_book_display_name } = use_bible_infos();
+    return (id: VerseId, bible_id: string) => `${get_book_display_name(bible_id, id.book)} ${id.chapter}:${id.verse}`;
 }
 
 export type WordId = {
     verse: VerseId,
     word: number,
-}
-
-export function pretty_print_word(word: WordId): string 
-{
-    return `${pretty_print_verse(word.verse)}#${word.word}`;
 }
 
 export type BookInfo = {

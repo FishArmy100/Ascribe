@@ -15,6 +15,9 @@ import rfdc from "rfdc";
 import { get_handle_ref_clicked_callback } from "../page_utils";
 import { StrongsNumber } from "@interop/bible/strongs";
 import { use_view_history } from "@components/providers/ViewHistoryProvider";
+import SearchPaginator from "./SearchPaginator";
+
+const SEARCH_RESULT_DISPLAY_COUNT: number = 50;
 
 export type SearchPageProps = {
     entry: WordSearchHistoryEntry
@@ -24,7 +27,7 @@ export default function SearchPage({
     entry
 }: SearchPageProps): React.ReactElement
 {
-    const [rendered_content, set_rendered_content] = useState<RenderedVerseContent[] | string | null>(null);
+    const [rendered_content, set_rendered_content] = useState<searching.RenderedWordSearchResult | null>(null);
     const [popover_data, set_popover_data] = useState<PopoverData | null>(null);
 
     const { bible_infos, get_bible_display_name, get_book_display_name } = use_bible_infos();
@@ -45,22 +48,13 @@ export default function SearchPage({
             const rendered = await searching.backend_render_word_search_query({ 
                 query: query,
                 show_strongs: false,
-                page_index: 0,
-                page_size: 20,
+                page_index: entry.page_index,
+                page_size: SEARCH_RESULT_DISPLAY_COUNT,
             });
 
             if (is_mounted)
             {
-                if (rendered.type === "ok")
-                {
-                    set_rendered_content(rendered.verses);
-                }
-                else 
-                {
-                    set_rendered_content(rendered.error)
-                }
-
-                console.log(rendered);
+                set_rendered_content(rendered)
             }
         }
 
@@ -89,11 +83,11 @@ export default function SearchPage({
 
     let content = <LoadingSpinner/>
 
-    if (typeof(rendered_content) === "string")
+    if (rendered_content?.type === "error")
     {
-        content = <Box>{rendered_content}</Box>
+        content = <Box>{rendered_content.error}</Box>
     }
-    else if (rendered_content !== null)
+    else if (rendered_content?.type === "ok")
     {
         const raw = entry.raw ?? searching.pretty_print_word_search_query(
             entry.query, 
@@ -101,7 +95,7 @@ export default function SearchPage({
             get_bible_display_name
         );
 
-        const title = get_search_title(raw, rendered_content.length)
+        const title = get_search_title(raw, rendered_content.hits.length)
         content = <>
             <Typography 
                 variant="h5"
@@ -122,9 +116,25 @@ export default function SearchPage({
             />
 
             <SearchPageContent
-                verses={rendered_content}
+                verses={rendered_content.verses}
                 on_strongs_clicked={handle_strongs_click}
                 on_verse_word_clicked={handle_word_click}
+            />
+            
+            <Divider 
+                orientation="horizontal"
+                sx={{
+                    mt: 1,
+                    mb: 1,
+                    ml: 3,
+                    mr: 3,
+                }}
+            />
+
+            <SearchPaginator 
+                entry={entry}
+                hits={rendered_content.hits}
+                page_size={SEARCH_RESULT_DISPLAY_COUNT}
             />
         </>
     }

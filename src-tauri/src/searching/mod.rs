@@ -137,6 +137,7 @@ pub fn push_search_to_view_history(
                 vh.push_entry(ViewHistoryEntry::WordSearch { 
                     query: query.into(),
                     raw: Some(input_str.into()),
+                    page_index: 0,
                 });
             });
         },
