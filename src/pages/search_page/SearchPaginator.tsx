@@ -52,32 +52,52 @@ export default function SearchPaginator({
     return (
         <Box
             sx={{
+                width: "100%",
+                boxSizing: "border-box",
+                ml: 1,
+                mr: 1,
                 display: "flex",
                 justifyContent: "center",
-                gap: theme.spacing(1)
             }}
         >
-            {chunk_ranges.map((c, i) => {
-                const start_name = display_verse(c.start, bible.id);
-                const end_name = display_verse(c.end, bible.id);
-                return (
-                    <Box
-                        key={i}
-                        sx={{
-                            width: `calc(25% - (${theme.spacing(1)}))`,
-                            boxSizing: "border-box",
-                            borderRadius: theme.spacing(1),
-                            borderColor: theme.palette.grey[700],
-                            borderWidth: theme.spacing(1 / 8),
-                            color: i === page_index ? theme.palette.common.white : theme.palette.primary.main,
-                            backgroundColor: i === page_index ? theme.palette.primary.main : undefined
-                        }}
-                        onClick={() => handle_page_clicked(i)}
-                    >
-                        {`${start_name}-${end_name}`}
-                    </Box>
-                )
-            })}
+            <Box
+                sx={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
+                    gap: theme.spacing(1),
+                    width: "100%"
+                }}
+            >
+                {chunk_ranges.map((c, i) => {
+                    const start_name = display_verse(c.start, bible.id);
+                    const end_name = display_verse(c.end, bible.id);
+                    const title = `${start_name}-${end_name}`;
+                    return (
+                        <Box
+                            key={i}
+                            sx={{
+                                textAlign: "center",
+                                boxSizing: "border-box",
+                                borderRadius: theme.spacing(1),
+                                borderColor: theme.palette.grey[700],
+                                borderStyle: "solid",
+                                borderWidth: theme.spacing(1 / 8),
+                                padding: 1,
+                                cursor: "pointer",
+                                color: i === page_index ? theme.palette.common.white : theme.palette.primary.main,
+                                backgroundColor: i === page_index ? theme.palette.primary.main : undefined,
+                                transition: "background-color 0.3s ease",
+                                "&:hover": {
+                                    backgroundColor: theme.palette.action.hover,
+                                }
+                            }}
+                            onClick={() => handle_page_clicked(i)}
+                        >
+                            {title}
+                        </Box>
+                    )
+                })}
+            </Box>
         </Box>
     )
 }
