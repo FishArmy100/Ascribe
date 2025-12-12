@@ -8,7 +8,7 @@ export default function Footer(): React.ReactElement
         <Box
             component="footer"
             sx={{
-                bgcolor: theme.palette.primary.main,
+                bgcolor: theme.palette.primary.dark,
                 color: theme.palette.primary.contrastText,
                 py: 1,
                 mt: "auto",

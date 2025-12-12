@@ -53,6 +53,9 @@ export default function VersionSelector(): React.ReactElement
                     <Typography 
                         variant="body1" 
                         textAlign="center"
+                        sx={{
+                            color: theme.palette.common.black
+                        }}
                     >
                         {bible_infos[bible_version].display_name}
                     </Typography>

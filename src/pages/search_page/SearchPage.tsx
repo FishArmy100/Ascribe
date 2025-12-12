@@ -2,7 +2,7 @@ import { WordSearchHistoryEntry } from "@interop/view_history"
 import React, { useCallback, useEffect, useState } from "react"
 import * as searching from "@interop/searching";
 import { RenderedVerseContent } from "@interop/bible/render";
-import { Box, Typography, useTheme } from "@mui/material";
+import { Box, Divider, Typography, useTheme } from "@mui/material";
 import { SearchPageToolbar } from "src/pages/search_page/SearchPageToolbar";
 import { LoadingSpinner } from "../LoadingSpinner";
 import SearchPageContent from "./SearchPageContent";
@@ -27,7 +27,7 @@ export default function SearchPage({
     const [rendered_content, set_rendered_content] = useState<RenderedVerseContent[] | string | null>(null);
     const [popover_data, set_popover_data] = useState<PopoverData | null>(null);
 
-    const { bible_infos } = use_bible_infos();
+    const { bible_infos, get_bible_display_name, get_book_display_name } = use_bible_infos();
     const { bible_version_state, set_bible_version_state } = use_bible_display_settings();
     const current_bible = bible_infos[bible_version_state.bible_version];
     const view_history = use_view_history();
@@ -95,13 +95,38 @@ export default function SearchPage({
     }
     else if (rendered_content !== null)
     {
-        content = (
+        const raw = entry.raw ?? searching.pretty_print_word_search_query(
+            entry.query, 
+            get_book_display_name, 
+            get_bible_display_name
+        );
+
+        const title = get_search_title(raw, rendered_content.length)
+        content = <>
+            <Typography 
+                variant="h5"
+                textAlign="center"
+                fontWeight="bold"
+            >
+                {title}
+            </Typography>
+
+            <Divider 
+                orientation="horizontal"
+                sx={{
+                    mt: 1,
+                    mb: 1,
+                    ml: 3,
+                    mr: 3,
+                }}
+            />
+
             <SearchPageContent
                 verses={rendered_content}
                 on_strongs_clicked={handle_strongs_click}
                 on_verse_word_clicked={handle_word_click}
             />
-        )
+        </>
     }
 
     const theme = useTheme();
@@ -114,18 +139,15 @@ export default function SearchPage({
         set_popover_data(null)
     }, []);
 
-
-
     return (
         <Box>
             <SearchPageToolbar entry={entry}/>
             <Box
                 sx={{
                     mb: `calc(100vh - (${theme.spacing(14)}))`,
-                    mt: theme.spacing(5),
+                    mt: theme.spacing(7),
                 }}
             >
-                <Typography variant="h2">{}</Typography>
                 {content}
             </Box>
             <Footer />
@@ -142,10 +164,16 @@ function get_search_title(raw: string, search_count: number): string
 {
     if (search_count === 0)
     {
-
+        return `No search results were found for: ${raw}`;
     }
-
-    return ""
+    else if (search_count === 1)
+    {
+        return `Found a result for: ${raw}`;
+    }
+    else 
+    {
+        return `Found ${search_count} results for: ${raw}`;
+    }
 }
 
 function get_default_ranges(bible: BibleInfo): searching.WordSearchRange[]
