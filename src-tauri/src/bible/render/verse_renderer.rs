@@ -2,7 +2,7 @@ use biblio_json::{Package, core::{StrongsNumber, VerseId}, modules::ModuleId};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 
-use crate::{bible::render::{WordRenderData, fetch_verse_render_data}, repr::VerseIdJson};
+use crate::{bible::render::{WordRenderData, WrapTagArgs, fetch_verse_render_data, wrap_tag}, repr::VerseIdJson};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -89,34 +89,4 @@ pub fn render_word(word: &WordRenderData, show_strongs: bool) -> String
         data: None, 
         content: &content, 
     })
-}
-struct WrapTagArgs<'a>
-{
-    tag: &'a str,
-    classes: Option<&'a [&'a str]>,
-    data: Option<&'a [(&'a str, &'a str)]>,
-    content: &'a str,
-}
-
-fn wrap_tag(args: WrapTagArgs) -> String 
-{
-    let WrapTagArgs { tag, classes, data, content } = args; 
-
-    match (classes, data)
-    {
-        (Some(classes), Some(data)) => {
-            let data = data.iter().map(|(n, d)| format!("{}=\"{}\"", n, d)).join(" ");
-            format!("<{} class=\"{}\" {}>{}</{}>", tag, classes.iter().join(" "), data, content, tag)
-        }
-        (Some(classes), None) => {
-            format!("<{} class=\"{}\">{}</{}>", tag, classes.iter().join(" "), content, tag)
-        }
-        (None, Some(data)) => {
-            let data = data.iter().map(|(n, d)| format!("{}=\"{}\"", n, d)).join(" ");
-            format!("<{} {}>{}</{}>", tag, data, content, tag) 
-        }
-        (None, None) => { 
-            format!("<{}>{}</{}>", tag, content, tag) 
-        }
-    }
 }

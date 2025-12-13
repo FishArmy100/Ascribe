@@ -73,6 +73,11 @@ pub fn render_word_search_verses(args: RenderSearchArgs) -> RenderWordSearchResu
     }
 }
 
+fn render_searched_verses()
+{
+
+}
+
 fn sort_hits(hits: &mut [SearchHit])
 {
     hits.sort_by(|a, b| {
