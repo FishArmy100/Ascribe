@@ -2,7 +2,7 @@ import { use_view_history } from "@components/providers/ViewHistoryProvider";
 import { use_display_verse, use_selected_bibles } from "@interop/bible";
 import { SearchHit } from "@interop/searching"
 import { WordSearchHistoryEntry } from "@interop/view_history";
-import { Box, useTheme } from "@mui/material";
+import { Box, Typography, useTheme } from "@mui/material";
 import React from "react"
 import rfdc from "rfdc";
 
@@ -52,7 +52,6 @@ export default function SearchPaginator({
     return (
         <Box
             sx={{
-                width: "100%",
                 boxSizing: "border-box",
                 ml: 1,
                 mr: 1,
@@ -82,18 +81,22 @@ export default function SearchPaginator({
                                 borderColor: theme.palette.grey[700],
                                 borderStyle: "solid",
                                 borderWidth: theme.spacing(1 / 8),
-                                padding: 1,
+                                padding: 0.5,
                                 cursor: "pointer",
                                 color: i === page_index ? theme.palette.common.white : theme.palette.primary.main,
                                 backgroundColor: i === page_index ? theme.palette.primary.main : undefined,
                                 transition: "background-color 0.3s ease",
                                 "&:hover": {
-                                    backgroundColor: theme.palette.action.hover,
+                                    backgroundColor: i == page_index ? theme.palette.primary.dark : theme.palette.action.hover,
                                 }
                             }}
                             onClick={() => handle_page_clicked(i)}
                         >
-                            {title}
+                            <Typography
+                                variant="body2"
+                            >
+                                {title}
+                            </Typography>
                         </Box>
                     )
                 })}
