@@ -47,7 +47,7 @@ export default function SearchPage({
 
             const rendered = await searching.backend_render_word_search_query({ 
                 query: query,
-                show_strongs: false,
+                show_strongs: bible_version_state.show_strongs,
                 page_index: entry.page_index,
                 page_size: SEARCH_RESULT_DISPLAY_COUNT,
             });
@@ -63,7 +63,7 @@ export default function SearchPage({
         return () => {
             is_mounted = false;
         }
-    }, [entry]);
+    }, [entry, bible_version_state]);
 
     const handle_strongs_click = useCallback((e: { top: number, left: number }, s: StrongsNumber) => {
             set_popover_data({

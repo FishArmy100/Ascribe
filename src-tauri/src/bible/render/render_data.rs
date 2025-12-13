@@ -28,7 +28,7 @@ pub struct WordRenderData
     pub index: u32,
 }
 
-pub fn fetch_verse_render_data(package: &Package, verses: &Vec<VerseId>, bible: &ModuleId) -> Vec<VerseRenderData>
+pub fn fetch_verse_render_data(package: &Package, verses: &[VerseId], bible: &ModuleId) -> Vec<VerseRenderData>
 {
     verses.par_iter().map(|v| match package.fetch(*v, bible) {
         Some(s) => VerseRenderData {

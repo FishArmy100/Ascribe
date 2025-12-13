@@ -409,6 +409,34 @@ impl WordSearchPart
             },
         }
     }
+    
+    pub fn contains_strongs(&self, strongs: &StrongsNumber) -> bool
+    {
+        match self 
+        {
+            WordSearchPart::Or(parts) => parts.iter().any(|p| p.contains_strongs(strongs)),
+            WordSearchPart::And(parts) => parts.iter().any(|p| p.contains_strongs(strongs)),
+            WordSearchPart::Not(inner) => inner.contains_strongs(strongs),
+            WordSearchPart::Sequence(parts) => parts.iter().any(|p| p.contains_strongs(strongs)),
+            WordSearchPart::Strongs(s) => s == strongs,
+            _ => false,
+        }
+    }
+
+    pub fn contains_word(&self, word: &str) -> bool
+    {
+        match self 
+        {
+            WordSearchPart::Or(parts) => parts.iter().any(|p| p.contains_word(word)),
+            WordSearchPart::And(parts) => parts.iter().any(|p| p.contains_word(word)),
+            WordSearchPart::Not(part) => part.contains_word(word),
+            WordSearchPart::Sequence(parts) => parts.iter().any(|p| p.contains_word(word)),
+            WordSearchPart::StartsWith(pattern) => word.to_uppercase().starts_with(&pattern.to_lowercase()),
+            WordSearchPart::EndsWith(pattern) => word.to_uppercase().ends_with(&pattern.to_lowercase()),
+            WordSearchPart::Word(w) => w.to_lowercase() == word.to_lowercase(),
+            _ => false,
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
