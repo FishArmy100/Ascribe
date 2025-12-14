@@ -1,7 +1,6 @@
 import { WordSearchHistoryEntry } from "@interop/view_history"
 import React, { useCallback, useEffect, useState } from "react"
 import * as searching from "@interop/searching";
-import { RenderedVerseContent } from "@interop/bible/render";
 import { Box, Divider, Typography, useTheme } from "@mui/material";
 import { SearchPageToolbar } from "src/pages/search_page/SearchPageToolbar";
 import { LoadingSpinner } from "../LoadingSpinner";
@@ -87,7 +86,7 @@ export default function SearchPage({
     {
         content = <Box>{rendered_content.error}</Box>
     }
-    else if (rendered_content?.type === "ok")
+    else if (rendered_content?.type === "ok" && rendered_content.hits.length > 0)
     {
         const raw = entry.raw ?? searching.pretty_print_word_search_query(
             entry.query, 
@@ -121,22 +120,46 @@ export default function SearchPage({
                 on_verse_word_clicked={handle_word_click}
             />
             
-            <Divider 
-                orientation="horizontal"
-                sx={{
-                    mt: 1,
-                    mb: 1,
-                    ml: 3,
-                    mr: 3,
-                }}
-            />
+            {rendered_content.hits.length > SEARCH_RESULT_DISPLAY_COUNT && <>
+                <Divider 
+                    orientation="horizontal"
+                    sx={{
+                        mt: 1,
+                        mb: 1,
+                        ml: 3,
+                        mr: 3,
+                    }}
+                />
 
-            <SearchPaginator 
-                entry={entry}
-                hits={rendered_content.hits}
-                page_size={SEARCH_RESULT_DISPLAY_COUNT}
-            />
+                <SearchPaginator 
+                    entry={entry}
+                    hits={rendered_content.hits}
+                    page_size={SEARCH_RESULT_DISPLAY_COUNT}
+                />
+            </>}
         </>
+    }
+    else if (rendered_content?.type === "ok" && rendered_content.hits.length === 0)
+    {
+        const raw = entry.raw ?? searching.pretty_print_word_search_query(
+            entry.query, 
+            get_book_display_name, 
+            get_bible_display_name
+        );
+
+        const title = get_search_title(raw, rendered_content.hits.length);
+
+        content = (
+            <Box>
+                <Typography 
+                    variant="h5"
+                    textAlign="center"
+                    fontWeight="bold"
+                >
+                    {title}
+                </Typography>
+            </Box>
+        )
     }
 
     const theme = useTheme();

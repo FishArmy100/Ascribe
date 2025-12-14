@@ -62,7 +62,7 @@ export default function SearchPaginator({
             <Box
                 sx={{
                     display: "grid",
-                    gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
+                    gridTemplateColumns: `repeat(auto-fill, minmax(${theme.spacing(22)}, 1fr))`,
                     gap: theme.spacing(1),
                     width: "100%"
                 }}
