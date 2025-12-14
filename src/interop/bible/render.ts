@@ -25,6 +25,7 @@ export type RenderedVerseContent = {
     id: VerseId,
     html: string,
     word_count: number,
+    bible: string,
 }
 
 export async function fetch_backend_verse_render_data(verses: VerseId[], bible: string,): Promise<VerseRenderData[]>
@@ -40,7 +41,7 @@ export async function fetch_backend_verse_render_data(verses: VerseId[], bible: 
     });
 }
 
-export async function backend_render_verse_words(verses: VerseId[], bible: string, show_strongs: boolean): Promise<RenderedVerseContent[]>
+export async function backend_render_verses(verses: VerseId[], bible: string, show_strongs: boolean): Promise<RenderedVerseContent[]>
 {
     return await invoke<string>("run_bible_command", {
         command: {

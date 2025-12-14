@@ -5,7 +5,21 @@ use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use tauri::{Emitter, State};
 
-use crate::{bible::{BIBLE_VERSION_CHANGED_EVENT_NAME, BibleDisplaySettings, BibleInfo, BibleVersionChangedEvent, BiblioJsonPackageHandle, fetching::PackageEx, render::{fetch_verse_render_data, render_verse_words}}, core::app::AppState, repr::*};
+use crate::{bible::{BIBLE_VERSION_CHANGED_EVENT_NAME, BibleDisplaySettings, BibleInfo, BibleVersionChangedEvent, BiblioJsonPackageHandle, fetching::PackageEx, render::{RenderSearchArgs, fetch_verse_render_data, render_verses, render_word_search_verses}}, core::app::AppState, repr::{searching::{SearchHitJson, WordSearchQueryJson}, *}, searching::word_search_engine::WordSearchQuery};
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case", tag = "type")]
+pub enum WordSearchResult
+{
+    Ok 
+    {
+        hits: Vec<SearchHitJson>,
+    },
+    Error 
+    {
+        error: String
+    }
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case", tag = "type")]
@@ -54,6 +68,17 @@ pub enum BibleCommand
         verses: Vec<VerseIdJson>,
         show_strongs: bool,
         bible: ModuleId,
+    },
+    RunWordSearchQuery
+    {
+        query: WordSearchQueryJson
+    },
+    RenderWordSearchQuery
+    {
+        query: WordSearchQueryJson,
+        show_strongs: bool,
+        page_index: u32,
+        page_size: u32,
     }
 }
 
@@ -165,7 +190,33 @@ pub fn run_bible_command(
             let verses = verses.iter().map(|v| VerseId::from(v)).collect_vec();
             
             let response = package.visit(|p| {
-                render_verse_words(p, &verses, &bible, show_strongs)
+                render_verses(p, &verses, &bible, show_strongs)
+            });
+
+            Some(serde_json::to_string(&response).unwrap())
+        },
+        BibleCommand::RunWordSearchQuery { query } => {
+            let query: WordSearchQuery = query.into();
+            let response = package.visit(|p| {
+                match query.run_query(p)
+                {
+                    Ok(ok) => WordSearchResult::Ok { hits: ok.into_iter().map(Into::into).collect() },
+                    Err(error) => WordSearchResult::Error { error: error.to_string() },
+                }
+            });
+
+            Some(serde_json::to_string(&response).unwrap())
+        },
+        BibleCommand::RenderWordSearchQuery { query, show_strongs, page_index, page_size } => {
+            let query: WordSearchQuery = query.into();
+            let response = package.visit(|package| {
+                render_word_search_verses(RenderSearchArgs {
+                    query: &query, 
+                    package, 
+                    show_strongs, 
+                    page_index, 
+                    page_size
+                })
             });
 
             Some(serde_json::to_string(&response).unwrap())

@@ -1,5 +1,5 @@
 import { use_module_infos } from "@components/providers/ModuleInfoProvider";
-import { get_book_display_name, OsisBook, pretty_print_verse, use_selected_bibles, VerseId } from "@interop/bible";
+import { get_book_display_name, OsisBook, use_selected_bibles, VerseId } from "@interop/bible";
 import { HRefSrc } from "@interop/html_text";
 import { fetch_backend_verse_entries, get_module_entry_title, ModuleEntry } from "@interop/module_entry";
 import React, { useEffect, useState } from "react";

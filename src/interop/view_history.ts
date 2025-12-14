@@ -1,17 +1,31 @@
 import { invoke } from "@tauri-apps/api/core";
 import { ChapterId } from "./bible";
 import { listen, UnlistenFn } from "@tauri-apps/api/event";
+import { WordSearchQuery } from "./searching";
 
-
-export type ViewHistoryEntry = |{
+export type ChapterHistoryEntry = {
     type: 'chapter',
     chapter: ChapterId,
-} |{
-    type: 'verse',
+}
+
+export type VerseHistoryEntry = {
+    type: "verse",
     chapter: ChapterId,
     start: number,
     end: number | null,
-};
+}
+
+export type WordSearchHistoryEntry = {
+    type: "word_search",
+    query: WordSearchQuery,
+    page_index: number,
+    raw: string | null,
+}
+
+export type ViewHistoryEntry = 
+    | ChapterHistoryEntry
+    | VerseHistoryEntry
+    | WordSearchHistoryEntry
 
 export type ViewHistoryInfo = {
     current: ViewHistoryEntry,

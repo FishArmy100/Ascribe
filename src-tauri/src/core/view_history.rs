@@ -4,7 +4,7 @@ use biblio_json::core::{OsisBook, chapter_id::ChapterId};
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Emitter, State};
 
-use crate::{repr::ChapterIdJson, core::app::AppState};
+use crate::{core::app::AppState, repr::{ChapterIdJson, searching::WordSearchQueryJson}};
 
 pub const VIEW_HISTORY_CHANGED_EVENT_NAME: &str = "view-history-changed";
 
@@ -93,6 +93,12 @@ pub enum ViewHistoryEntry
         chapter: ChapterIdJson,
         start: NonZeroU32,
         end: Option<NonZeroU32>,
+    },
+    WordSearch
+    {
+        query: WordSearchQueryJson,
+        page_index: u32,
+        raw: Option<String>,
     }
 }
 

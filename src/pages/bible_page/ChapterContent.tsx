@@ -319,7 +319,7 @@ const RowComponentBase = forwardRef<HTMLDivElement, RowComponentProps>((
 									verse_label={(index + 1).toString()} 
 									on_strongs_clicked={on_strongs_clicked} 
 									on_verse_word_clicked={on_verse_word_clicked}
-									on_verse_clicked={on_verse_clicked}
+									on_verse_label_clicked={on_verse_clicked}
 								/>
 							</Box>
 						</Grid>
@@ -331,7 +331,7 @@ const RowComponentBase = forwardRef<HTMLDivElement, RowComponentProps>((
 										verse_label={(index + 1).toString()} 
 										on_strongs_clicked={on_strongs_clicked} 
 										on_verse_word_clicked={on_verse_word_clicked}
-										on_verse_clicked={on_verse_clicked}
+										on_verse_label_clicked={on_verse_clicked}
 									/>
 								</Box>
 							)}
@@ -344,7 +344,7 @@ const RowComponentBase = forwardRef<HTMLDivElement, RowComponentProps>((
 							verse_label={(index + 1).toString()} 
 							on_strongs_clicked={on_strongs_clicked}
 							on_verse_word_clicked={on_verse_word_clicked}
-							on_verse_clicked={on_verse_clicked}
+							on_verse_label_clicked={on_verse_clicked}
 						/>
 					</Box>
 				)}

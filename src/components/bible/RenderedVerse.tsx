@@ -15,14 +15,14 @@ export type RenderedVerseProps = {
     verse_label?: string,
     on_strongs_clicked?: StrongsClickedCallback,
     on_verse_word_clicked?: VerseWordClickedCallback,
-    on_verse_clicked?: VerseClickedCallback,
+    on_verse_label_clicked?: VerseClickedCallback,
 }
 
 function RenderedVerseBase({
     content,
     on_strongs_clicked,
     on_verse_word_clicked,
-    on_verse_clicked,
+    on_verse_label_clicked,
     verse_label,
 }: RenderedVerseProps): React.ReactElement
 {
@@ -48,7 +48,7 @@ function RenderedVerseBase({
 
         if (target.classList.contains("bible-verse-label"))
         {
-            on_verse_clicked?.(pos, content.id);
+            on_verse_label_clicked?.(pos, content.id);
         }
     }
 

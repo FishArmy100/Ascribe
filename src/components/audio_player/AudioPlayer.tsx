@@ -1,28 +1,30 @@
 import { Box, Collapse, Stack, Typography, useTheme } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import ImageButton, { BUTTON_SIZE } from "../core/ImageButton";
+import ImageButton from "../core/ImageButton";
 import * as images from "@assets"
 import Slider from "../core/Slider";
 import { motion, AnimatePresence, number } from "framer-motion";
 import { use_tts_player } from "../providers/TtsPlayerProvider";
 import PlayButton, { PlayButtonType } from "./PlayButton";
-import { use_view_history } from "../providers/ViewHistoryProvider";
 import { use_bible_display_settings } from "../providers/BibleDisplaySettingsProvider";
 import VolumeControl from "./VolumeControl";
 import PlaybackControl from "./PlaybackControl";
 import CorrectPitchCheckbox from "./CorrectPitchCheckbox";
 import FollowTextCheckbox from "./FollowTextCheckbox";
 import ExpandButton from "./ExpandButton";
+import { ChapterId } from "@interop/bible";
 
 const FAST_FORWARD_TIME = 10;
 const REWIND_TIME = 10;
 
 export type AudioPlayerProps = {
     open: boolean,
+    current_chapter: ChapterId,
 }
 
 export default function AudioPlayer({
-    open
+    open,
+    current_chapter
 }: AudioPlayerProps): React.ReactElement
 {
     const theme = useTheme();
@@ -32,8 +34,6 @@ export default function AudioPlayer({
     const [user_value, set_user_value] = useState(0);
 
     const [is_expanded, set_is_expanded] = useState(false);
-
-    const current_chapter = use_view_history().get_current().current.chapter;
     const current_version = use_bible_display_settings().bible_version_state.bible_version;
     
     let generation_progress: number | null = null;
@@ -137,7 +137,7 @@ export default function AudioPlayer({
                         <Box
                             sx={{
                                 width: "100%",
-                                backgroundColor: theme.palette.primary.main,
+                                backgroundColor: theme.palette.primary.dark,
                                 borderRadius: `${theme.spacing(1)} ${theme.spacing(1)} 0 0`,
                                 padding: theme.spacing(0.5)
                             }}
