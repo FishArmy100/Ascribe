@@ -99,7 +99,8 @@ pub enum ViewHistoryEntry
         query: WordSearchQueryJson,
         page_index: u32,
         raw: Option<String>,
-    }
+    },
+    Settings,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

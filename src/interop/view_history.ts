@@ -22,10 +22,15 @@ export type WordSearchHistoryEntry = {
     raw: string | null,
 }
 
+export type SettingsHistoryEntry = {
+    type: "settings",
+}
+
 export type ViewHistoryEntry = 
     | ChapterHistoryEntry
     | VerseHistoryEntry
     | WordSearchHistoryEntry
+    | SettingsHistoryEntry
 
 export type ViewHistoryInfo = {
     current: ViewHistoryEntry,

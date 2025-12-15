@@ -7,7 +7,7 @@ use crate::{bible::book::resolve_book_name, core::utils::load_capture, searching
 
 lazy_static::lazy_static!
 {
-    pub static ref SEARCH_REGEX: Regex = Regex::new(r"^\s*(?<prefix>\d+)?\s*(?<name>[a-zA-Z](?:.*?[a-zA-Z])?)\s+(?<chapter>\d+)\s*[:|\s+]\s*(?<verse_start>\d+)?-?(?<verse_end>\d+)?$").unwrap();
+    pub static ref SEARCH_REGEX: Regex = Regex::new(r"^\s*(?<prefix>\d+)?\s*(?<name>[a-zA-Z](?:.*?[a-zA-Z])?)\s+(?<chapter>\d+)\s*[:|\s+]?\s*(?<verse_start>\d+)?-?(?<verse_end>\d+)?$").unwrap();
 }
 
 
@@ -39,6 +39,7 @@ impl SearchType
 {
     pub fn parse(search: &str, bible: &BibleModule, package: &Package) -> Result<SearchType, SearchParseError>
     {
+        println!("{}", search);
         if search.chars().all(char::is_whitespace) 
         {
             return Err(SearchParseError::EmptySearch);

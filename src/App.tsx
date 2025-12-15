@@ -3,6 +3,7 @@ import BiblePage from "./pages/bible_page/BiblePage";
 import { List, RowComponentProps, useDynamicRowHeight, useListRef } from "react-window";
 import { use_view_history } from "@components/providers/ViewHistoryProvider";
 import SearchPage from "./pages/search_page/SearchPage";
+import SettingsPage from "./pages/settings_page/SettingsPage";
 
 export default function App(): React.ReactElement
 {
@@ -15,6 +16,10 @@ export default function App(): React.ReactElement
 	else if (current.type === "word_search")
 	{
 		return <SearchPage entry={current}/>
+	}
+	else if (current.type === "settings")
+	{
+		return <SettingsPage />
 	}
 	else
 	{

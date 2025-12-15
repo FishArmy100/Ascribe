@@ -177,7 +177,6 @@ export default function BiblePage({
 				player_open={player_open}
 				on_click_player={handle_player_button_click}
 			/>
-			<TopBarSpacer />
 			
 			<NavigationButton 
 				direction="left"
