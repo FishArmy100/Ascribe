@@ -2,16 +2,16 @@ import { ImageButton } from "@components/index";
 import { Paper, Stack, Typography, useTheme } from "@mui/material";
 import * as images from "@assets";
 import { use_settings } from "@components/providers/SettingsProvider";
-import rfdc from "rfdc";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Slider from "@components/core/Slider";
+import { use_deep_copy } from "@utils/index";
 
 const UI_SCALE_SLIDER_TITLE: string = "Ui Scale";
 
 export default function UiScaleSlider(): React.ReactElement
 {
     const { settings, set_settings } = use_settings();
-    const deep_copy = useMemo(() => rfdc(), []);
+    const deep_copy = use_deep_copy();
     const theme = useTheme();
 
     const [ui_scale_value, set_ui_scale_value] = useState(settings.ui_scale);

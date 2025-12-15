@@ -1,3 +1,6 @@
+import { useMemo } from "react";
+import rfdc from "rfdc";
+
 export function* range(start: number, end: number): Generator<number>
 {
     for(let i = start; i < end; i++)
@@ -46,5 +49,10 @@ export function pretty_print_json(obj: any, indent: number = 2): string {
         console.error("Failed to stringify object:", error);
         return "";
     }
+}
+
+export function use_deep_copy(): <T>(input: T) => T 
+{
+    return useMemo(() => rfdc(), [])
 }
 
