@@ -15,15 +15,15 @@ export default function AppThemeProvider({
     let theme;
     if (settings.selected_theme.type === "light")
     {
-        theme = build_theme(ASCRIBE_LIGHT_THEME, settings.ui_scale);
+        theme = build_theme(ASCRIBE_LIGHT_THEME, settings.ui_scale, settings.selected_font);
     }
     else if (settings.selected_theme.type === "dark")
     {
-        theme = build_theme(ASCRIBE_DARK_THEME, settings.ui_scale);
+        theme = build_theme(ASCRIBE_DARK_THEME, settings.ui_scale, settings.selected_font);
     }
     else 
     {
-        theme = build_theme(settings.custom_themes[settings.selected_theme.value], settings.ui_scale);
+        theme = build_theme(settings.custom_themes[settings.selected_theme.value], settings.ui_scale, settings.selected_font);
     }
 
     return (

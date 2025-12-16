@@ -13,11 +13,15 @@ export type SelectedTheme = |{
     value: string,
 }
 
+export type SelectedFont = "times_new_roman" | "helvetica" | "arial" | "open_dyslexic";
+export const ALL_FONTS: SelectedFont[] = ["arial", "helvetica", "open_dyslexic", "times_new_roman"];
+
 export type AppSettings = {
     tts_settings: TtsSettings,
     ui_scale: number,
     selected_theme: SelectedTheme,
-    custom_themes: { [name: string]: AppTheme }
+    custom_themes: { [name: string]: AppTheme },
+    selected_font: SelectedFont,
 }
 
 export type AppSettingsChangedEvent = {

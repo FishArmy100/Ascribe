@@ -27,6 +27,25 @@ pub enum SelectedTheme
     },
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum SelectedFont
+{
+    TimesNewRoman,
+    Helvetica,
+    Arial,
+    OpenDyslexic,
+    
+}
+
+impl Default for SelectedFont
+{
+    fn default() -> Self 
+    {
+        Self::Helvetica
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub struct AppSettings
@@ -34,7 +53,8 @@ pub struct AppSettings
     pub ui_scale: f32,
     pub tts_settings: TtsSettings,
     pub selected_theme: SelectedTheme,
-    pub custom_themes: HashMap<String, AppTheme>
+    pub custom_themes: HashMap<String, AppTheme>,
+    pub selected_font: SelectedFont,
 }
 
 impl Default for AppSettings
@@ -47,6 +67,7 @@ impl Default for AppSettings
             tts_settings: TtsSettings::default(),
             selected_theme: SelectedTheme::Light,
             custom_themes: HashMap::new(),
+            selected_font: Default::default(),
         }
     }
 }

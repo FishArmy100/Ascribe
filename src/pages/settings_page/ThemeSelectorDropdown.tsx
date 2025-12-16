@@ -4,7 +4,6 @@ import { SelectedTheme } from "@interop/settings";
 import { Paper, Stack, Typography, useTheme } from "@mui/material";
 import { use_deep_copy } from "@utils/index";
 import React, { useCallback, useMemo } from "react";
-import { text } from "stream/consumers";
 
 const THEME_SELECTOR_DROPDOWN_TITLE: string = "Theme: "
 

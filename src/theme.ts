@@ -1,6 +1,7 @@
 import React from "react";
 import { createTheme } from "@mui/material";
 import { Theme } from "@mui/material/styles";
+import { SelectedFont } from "@interop/settings";
 
 export interface AppTheme {
     name: string;
@@ -105,16 +106,52 @@ export const ASCRIBE_DARK_THEME: AppTheme = {
     }
 };
 
-
-export const ASCRIBE_DEFAULT_FONT_FAMILY = [
-    '"Inter"', 
-    '"Helvetica Neue"', 
-    'Arial', 
-    'sans-serif'
+export const ASCRIBE_HELVETICA_FONT = [
+  '"Inter"',
+  '"Helvetica Neue"',
+  'Arial',
+  'sans-serif',
 ].join(',');
 
-export function build_theme(theme: AppTheme, ui_scale: number, font_family: string = ASCRIBE_DEFAULT_FONT_FAMILY): Theme 
+export const ASCRIBE_TIMES_NEW_ROMAN_FONT = [
+  '"Times New Roman"',
+  'Times',
+  'serif',
+].join(',');
+
+export const ASCRIBE_ARIAL_FONT = [
+  'Arial',
+  '"Helvetica Neue"',
+  'Helvetica',
+  'sans-serif',
+].join(',');
+
+export const ASCRIBE_OPEN_DYSLEXIC_FONT = [
+  '"OpenDyslexic"',
+  'Arial',
+  'sans-serif',
+].join(',');
+
+export function build_theme(theme: AppTheme, ui_scale: number, font: SelectedFont): Theme 
 {
+    let font_family = ASCRIBE_HELVETICA_FONT;
+    if (font === "helvetica")
+    {
+        font_family = ASCRIBE_HELVETICA_FONT;
+    }
+    else if (font === "arial")
+    {
+        font_family = ASCRIBE_ARIAL_FONT;
+    }
+    else if (font === "open_dyslexic")
+    {
+        font_family = ASCRIBE_OPEN_DYSLEXIC_FONT;
+    }
+    else if (font === "times_new_roman")
+    {
+        font_family = ASCRIBE_TIMES_NEW_ROMAN_FONT;
+    }
+
     const colors = theme.colors;
     const BASE_FONT_SIZE = 14;
 

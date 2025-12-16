@@ -3,6 +3,7 @@ import SettingsPageToolbar from "./SettingsPageToolbar";
 import { Box, Stack, Typography, useTheme } from "@mui/material";
 import UiScaleSlider from "./UiScaleSlider";
 import ThemeSelectorDropdown from "./ThemeSelectorDropdown";
+import FontSelectorDropdown from "./FontSelectorDropdown";
 
 export default function SettingsPage(): React.ReactElement
 {
@@ -30,6 +31,7 @@ export default function SettingsPage(): React.ReactElement
                 </Typography>
                 <UiScaleSlider />
                 <ThemeSelectorDropdown />
+                <FontSelectorDropdown />
             </Stack>
         </Box>
     )
