@@ -41,6 +41,8 @@ export default function Slider({
 
                     "& .MuiSlider-thumb": {
                         backgroundColor: theme.palette.primary.light,
+                        width: theme.spacing(3),
+                        height: theme.spacing(3),
                         '&:focus, &:hover, &.Mui-focusVisible, &.Mui-active': {
                             boxShadow: 'none',
                         },

@@ -1,15 +1,18 @@
 import React from "react";
 import SettingsPageToolbar from "./SettingsPageToolbar";
-import { Box, Stack, Typography } from "@mui/material";
+import { Box, Stack, Typography, useTheme } from "@mui/material";
 import UiScaleSlider from "./UiScaleSlider";
+import ThemeSelectorDropdown from "./ThemeSelectorDropdown";
 
 export default function SettingsPage(): React.ReactElement
 {
+    const theme = useTheme();
     return (
         <Box>
             <SettingsPageToolbar />
             <Stack
                 direction="column"
+                gap={theme.spacing(1)}
                 sx={{
                     mt: 7,
                     mr: 5,
@@ -26,6 +29,7 @@ export default function SettingsPage(): React.ReactElement
                     Settings
                 </Typography>
                 <UiScaleSlider />
+                <ThemeSelectorDropdown />
             </Stack>
         </Box>
     )

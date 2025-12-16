@@ -1,3 +1,4 @@
+import Tooltip from "@components/core/Tooltip";
 import { use_view_history } from "@components/providers/ViewHistoryProvider";
 import { use_display_verse, use_selected_bibles } from "@interop/bible";
 import { SearchHit } from "@interop/searching"
@@ -72,32 +73,36 @@ export default function SearchPaginator({
                     const end_name = display_verse(c.end, bible.id);
                     const title = `${start_name}-${end_name}`;
                     return (
-                        <Box
+                        <Tooltip
                             key={i}
-                            sx={{
-                                textAlign: "center",
-                                boxSizing: "border-box",
-                                borderRadius: theme.spacing(1),
-                                borderColor: theme.palette.grey[700],
-                                borderStyle: "solid",
-                                borderWidth: theme.spacing(1 / 8),
-                                padding: 0.5,
-                                cursor: "pointer",
-                                color: i === page_index ? theme.palette.common.white : theme.palette.primary.main,
-                                backgroundColor: i === page_index ? theme.palette.primary.main : undefined,
-                                transition: "background-color 0.3s ease",
-                                "&:hover": {
-                                    backgroundColor: i == page_index ? theme.palette.primary.dark : theme.palette.action.hover,
-                                }
-                            }}
-                            onClick={() => handle_page_clicked(i)}
+                            tooltip={`Select range ${title}`}
                         >
-                            <Typography
-                                variant="body2"
+                            <Box
+                                sx={{
+                                    textAlign: "center",
+                                    boxSizing: "border-box",
+                                    borderRadius: theme.spacing(1),
+                                    borderColor: theme.palette.grey[700],
+                                    borderStyle: "solid",
+                                    borderWidth: theme.spacing(1 / 8),
+                                    padding: 0.5,
+                                    cursor: "pointer",
+                                    color: i === page_index ? theme.palette.common.white : theme.palette.primary.main,
+                                    backgroundColor: i === page_index ? theme.palette.primary.main : undefined,
+                                    transition: "background-color 0.3s ease",
+                                    "&:hover": {
+                                        backgroundColor: i == page_index ? theme.palette.primary.dark : theme.palette.action.hover,
+                                    }
+                                }}
+                                onClick={() => handle_page_clicked(i)}
                             >
-                                {title}
-                            </Typography>
-                        </Box>
+                                <Typography
+                                    variant="body2"
+                                >
+                                    {title}
+                                </Typography>
+                            </Box>
+                        </Tooltip>
                     )
                 })}
             </Box>

@@ -2,7 +2,7 @@ import { ImageButton } from "@components/index";
 import { Paper, Stack, Typography, useTheme } from "@mui/material";
 import * as images from "@assets";
 import { use_settings } from "@components/providers/SettingsProvider";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Slider from "@components/core/Slider";
 import { use_deep_copy } from "@utils/index";
 
