@@ -7,6 +7,7 @@ import * as images from "@assets";
 import * as searching from "@interop/searching"
 import React, { useCallback } from "react";
 import { use_bible_infos } from "@components/providers/BibleInfoProvider";
+import SubMenuDropdown from "@components/SubMenuDropdown";
 
 export type SearchPageToolbarProps = {
     entry: WordSearchHistoryEntry
@@ -64,18 +65,7 @@ export const SearchPageToolbar = React.memo(function SearchPageToolbar({
                     disabled={view_history.get_current().index >= view_history.get_current().count - 1}
                     on_click={() => view_history.advance()}
                 />
-                <ImageDropdown 
-                    image={images.unordered_list}
-                    tooltip="Menu"
-                    on_select={(v) => {
-                        console.log(`Selected option: ${v}`);
-                    }}
-                    options={[
-                        { image: images.gear_complex, tooltip: "Settings", value: 0 },
-                        { image: images.note_plus, tooltip: "Notes", value: 1 },
-                        { image: images.info, tooltip: "Help", value: 2 },
-                    ]}
-                />
+                <SubMenuDropdown />
             </TopBar>
     )
 })

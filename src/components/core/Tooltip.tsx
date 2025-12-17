@@ -21,6 +21,9 @@ export default function Tooltip({
             disableHoverListener={false}
             slotProps={{
                 popper: {
+                    sx: {
+                        pointerEvents: "none",
+                    },
                     modifiers: [
                         {
                             name: "offset",

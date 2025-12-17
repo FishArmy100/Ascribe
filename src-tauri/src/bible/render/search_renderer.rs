@@ -88,7 +88,7 @@ fn render_searched_hits(package: &Package, hits: &[SearchHit], query_root: &Word
         }
         else 
         {
-            let html = rd.words.iter().map(|w| render_word(w, query_root, hit, show_strongs)).join(" ");
+            let html = rd.words.iter().map(|w| render_word(w, query_root, hit, show_strongs)).join("<span class=\"bible-space\"> </span>");
             RenderedVerseContent { 
                 failed: false, 
                 id: rd.id, 
@@ -100,7 +100,7 @@ fn render_searched_hits(package: &Package, hits: &[SearchHit], query_root: &Word
     }).collect()
 }
 
-pub fn render_word(word: &WordRenderData, query_root: &WordSearchPart, hit: &SearchHit, show_strongs: bool) -> String 
+fn render_word(word: &WordRenderData, query_root: &WordSearchPart, hit: &SearchHit, show_strongs: bool) -> String 
 {
     let selected_word = hit.hit_indexes.contains(&word.index) && query_root.contains_word(&word.word);
     let selected_strongs = if hit.hit_indexes.contains(&word.index) 

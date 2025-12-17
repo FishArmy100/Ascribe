@@ -8,6 +8,7 @@ import * as images from "../../assets";
 import * as tts from "../../interop/tts"
 import React, { useCallback, useEffect } from "react";
 import { listen_tts_event } from "../../interop/tts/events";
+import SubMenuDropdown from "@components/SubMenuDropdown";
 
 export type BiblePageToolbarProps = {
 	player_open: boolean,
@@ -32,70 +33,60 @@ export const BiblePageToolbar = React.memo(function BiblePageToolbar({
 
     return (
         <TopBar
-				right_aligned={1}
-			>
-				<VersionSelector/>
-				<ChapterPicker on_select={on_select_callback}/>
-				<Divider 
-						orientation="vertical" 
-						flexItem 
-					/>
-				<SearchBar 
-					on_search={async (term) => {
-						const error = await backend_push_search_to_view_history(term);
+			right_aligned={1}
+		>
+			<VersionSelector/>
+			<ChapterPicker on_select={on_select_callback}/>
+			<Divider 
+					orientation="vertical" 
+					flexItem 
+				/>
+			<SearchBar 
+				on_search={async (term) => {
+					const error = await backend_push_search_to_view_history(term);
 
-						return {
-							is_error: error !== null,
-							error_message: error
-						}
-					}}
-					value={placeholder}
-				/>
-                <Divider 
-                    orientation="vertical" 
-                    flexItem 
-                />
-                <ImageButton
-                    image={images.arrow_turn_left}
-                    tooltip="To previous page"
-                    disabled={view_history.get_current().index === 0}
-                    on_click={() => view_history.retreat()}
-                />
-                <ImageButton
-                    image={images.arrow_turn_right}
-                    tooltip="To next page"
-                    disabled={view_history.get_current().index >= view_history.get_current().count - 1}
-                    on_click={() => view_history.advance()}
-                />
-				<ImageButton
-					image={images.volume_high}
-					tooltip="Play audio"
-					on_click={() => {
-						// tts.backend_request_tts({
-						// 	bible: "KJV",
-						// 	chapter: {
-						// 		book: "Gen",
-						// 		chapter: 1,
-						// 	},
-						// 	verse_range: null,
-						// });
-						on_click_player();
-					}}
-					active={player_open}
-				/>
-				<ImageDropdown 
-					image={images.unordered_list}
-					tooltip="Menu"
-					on_select={(v) => {
-						console.log(`Selected option: ${v}`);
-					}}
-					options={[
-						{ image: images.gear_complex, tooltip: "Settings", value: 0 },
-						{ image: images.note_plus, tooltip: "Notes", value: 1 },
-						{ image: images.info, tooltip: "Help", value: 2 },
-					]}
-				/>
-			</TopBar>
+					return {
+						is_error: error !== null,
+						error_message: error
+					}
+				}}
+				value={placeholder}
+			/>
+			<Divider 
+				orientation="vertical" 
+				flexItem 
+			/>
+			<ImageButton
+				image={images.arrow_turn_left}
+				tooltip="To previous page"
+				disabled={view_history.get_current().index === 0}
+				on_click={() => view_history.retreat()}
+			/>
+			<ImageButton
+				image={images.arrow_turn_right}
+				tooltip="To next page"
+				disabled={view_history.get_current().index >= view_history.get_current().count - 1}
+				on_click={() => view_history.advance()}
+			/>
+			<ImageButton
+				image={images.volume_high}
+				tooltip="Play audio"
+				on_click={() => {
+					// tts.backend_request_tts({
+					// 	bible: "KJV",
+					// 	chapter: {
+					// 		book: "Gen",
+					// 		chapter: 1,
+					// 	},
+					// 	verse_range: null,
+					// });
+					on_click_player();
+				}}
+				active={player_open}
+			/>
+
+			<SubMenuDropdown />
+		</TopBar>
     )
 })
 

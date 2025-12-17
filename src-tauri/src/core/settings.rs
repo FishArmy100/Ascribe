@@ -1,9 +1,9 @@
-use std::sync::Mutex;
+use std::{collections::HashMap, sync::Mutex};
 
 use serde::{Deserialize, Serialize};
 use tauri::{Emitter, State};
 
-use crate::{core::app::AppState, tts::TtsSettings};
+use crate::{core::{app::AppState, theme::AppTheme}, tts::TtsSettings};
 
 pub const SETTINGS_CHANGED_EVENT_NAME: &str = "settings-changed";
 
@@ -15,6 +15,39 @@ pub struct SettingsChangedEvent
     pub new: AppSettings,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case", tag = "type")]
+pub enum SelectedTheme
+{
+    Light,
+    Dark,
+    Custom 
+    {
+        value: String 
+    },
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum SelectedFont
+{
+    Arial,
+    Verdana,
+    Tahoma,
+    Trebuchet,
+    TimesNewRoman,
+    Georgia,
+    CourtierNew,
+    OpenDyslexic,
+}
+
+impl Default for SelectedFont
+{
+    fn default() -> Self 
+    {
+        Self::Arial
+    }
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -22,6 +55,9 @@ pub struct AppSettings
 {
     pub ui_scale: f32,
     pub tts_settings: TtsSettings,
+    pub selected_theme: SelectedTheme,
+    pub custom_themes: HashMap<String, AppTheme>,
+    pub selected_font: SelectedFont,
 }
 
 impl Default for AppSettings
@@ -32,6 +68,9 @@ impl Default for AppSettings
         { 
             ui_scale: 1.0,
             tts_settings: TtsSettings::default(),
+            selected_theme: SelectedTheme::Light,
+            custom_themes: HashMap::new(),
+            selected_font: Default::default(),
         }
     }
 }

@@ -9,7 +9,7 @@ import { parse_strongs, StrongsNumber } from "../../interop/bible/strongs"
 
 
 export type StrongsClickedCallback = (pos: { top: number, left: number }, strongs: StrongsNumber) => void;
-export type VerseWordClickedCallback = (pos: { top: number, left: number }, word: WordId) => void;
+export type VerseWordClickedCallback = (pos: { top: number, left: number }, bible_id: string, word: WordId) => void;
 export type VerseClickedCallback = (pos: { top: number, left: number }, verse: VerseId) => void;
 export type ChapterClickedCallback = (pos: { top: number, left: number }, chapter: ChapterId) => void;
 export type BookClickedCallback = (pos: { top: number, left: number }, book: OsisBook) => void;
@@ -40,7 +40,7 @@ export default function BibleVerse({
         if (target.dataset.wordIndex)
         {
             const word_index = parseInt(target.dataset.wordIndex, 10);
-            on_verse_word_clicked?.(pos, {
+            on_verse_word_clicked?.(pos, render_data.bible, {
                 verse: render_data.id,
                 word: word_index,
             });

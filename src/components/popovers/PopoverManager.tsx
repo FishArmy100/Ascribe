@@ -13,6 +13,7 @@ export type PopoverData = ({
     strongs_number: StrongsNumber,
 }| {
     type: "word",
+    bible_id: string,
     word: WordId,
 }| {
     type: "verse",
@@ -46,6 +47,7 @@ export default function PopoverManager({
             on_close={on_close}
         />
         <WordPopover
+            bible_id={data && data.type === "word" ? data.bible_id : null}
             word={data && data.type === "word" ? data.word : null}
             pos={data && data.type === "word" ? data.position : null}
             on_ref_clicked={on_ref_clicked}

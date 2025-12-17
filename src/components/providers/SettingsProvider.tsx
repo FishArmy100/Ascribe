@@ -5,12 +5,15 @@ import rfdc from "rfdc";
 
 const DEFAULT_APP_SETTINGS: AppSettings = {
     ui_scale: 1,
+    selected_theme: { type: "light" },
+    custom_themes: {},
     tts_settings: {
         volume: 1,
         playback_speed: 1,
         correct_pitch: true,
         follow_text: true,
-    }
+    },
+    selected_font: "arial",
 }
 
 type AppSettingsContextType = {

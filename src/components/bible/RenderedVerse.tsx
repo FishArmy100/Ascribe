@@ -4,10 +4,7 @@ import { Theme } from "@mui/material/styles"
 import React from "react"
 import { parse_strongs, StrongsNumber } from "../../interop/bible/strongs";
 import { WordId } from "../../interop/bible";
-import { VerseClickedCallback } from "./BibleVerse";
-
-export type StrongsClickedCallback = (pos: { top: number, left: number }, strongs: StrongsNumber) => void;
-export type VerseWordClickedCallback = (pos: { top: number, left: number }, word: WordId) => void;
+import { StrongsClickedCallback, VerseClickedCallback, VerseWordClickedCallback } from "./BibleVerse";
 
 
 export type RenderedVerseProps = {
@@ -31,10 +28,10 @@ function RenderedVerseBase({
         const rect = target.getBoundingClientRect();
         const pos = { top: rect.top, left: rect.left };
 
-        if (target.dataset.wordIndex)
+        if (target.dataset.wordIndex && target.classList.contains("clickable"))
         {
             const word_index = parseInt(target.dataset.wordIndex, 10);
-            on_verse_word_clicked?.(pos, {
+            on_verse_word_clicked?.(pos, content.bible, {
                 verse: content.id,
                 word: word_index,
             });

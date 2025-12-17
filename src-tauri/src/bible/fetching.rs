@@ -1,4 +1,4 @@
-use std::num::NonZeroU32;
+use std::{collections::{HashMap, HashSet}, num::NonZeroU32};
 
 use biblio_json::{Package, core::{Atom, ChapterId, OsisBook, RefId, RefIdInner, VerseId, WordRange}, modules::{Module, ModuleEntry, ModuleId, notebook::NotebookEntry, xrefs::XRefEntry}};
 use itertools::Itertools;
@@ -12,6 +12,7 @@ pub trait PackageEx
     fn fetch_verse_entries(&self, verse: VerseId, bible: &ModuleId) -> Vec<ModuleEntryJson>;
     fn fetch_chapter_entries(&self, chapter: ChapterId, bible: &ModuleId) -> Vec<ModuleEntryJson>;
     fn fetch_book_entries(&self, book: OsisBook, bible: &ModuleId) -> Vec<ModuleEntryJson>;
+    fn fetch_words_have_entries(&self, words: &[(VerseId, NonZeroU32)], bible: &ModuleId) -> Vec<(VerseId, NonZeroU32)>;
 }
 
 impl PackageEx for Package
@@ -236,6 +237,144 @@ impl PackageEx for Package
         }).flatten().collect::<Vec<(ModuleEntry, ModuleId)>>();
 
         self.convert_to_json_entries(entries, bible)
+    }
+    
+    fn fetch_words_have_entries(&self, words: &[(VerseId, NonZeroU32)], bible: &ModuleId) -> Vec<(VerseId, NonZeroU32)> 
+    {
+        let binding = self.get_mod(bible).as_ref().unwrap()
+            .as_bible();
+        let bible_mod = binding.as_ref().unwrap();
+
+        let mut no_entry_words: HashSet<_> = words.iter().cloned().collect();
+
+        let mut word_datas = no_entry_words.iter().map(|(v, w)| {
+            let data = bible_mod.source.verses
+                .get(v).as_ref().unwrap()
+                .words[w.get() as usize - 1].clone();
+            ((*v, *w), data)
+        }).collect::<HashMap<_, _>>();
+
+        for module in self.modules.values() 
+        {
+            match module
+            {
+                Module::Dictionary(dictionary) => {
+                    let mut found_words = vec![];
+                    for (k, v) in &word_datas
+                    {
+                        let found = dictionary.find(&v.text)
+                            .map(|e| vec![(ModuleEntry::Dictionary(e), module.id().clone())])
+                            .is_some();
+
+                        if found
+                        {
+                            found_words.push(k.clone());
+                        }
+                    }
+
+                    for f in found_words
+                    {
+                        word_datas.remove(&f);
+                        no_entry_words.remove(&f);
+                    }
+                },
+                Module::XRef(xrefs) => xrefs.entries.iter().for_each(|e| {
+                    let mut found_words = vec![];
+                    for &(verse, word) in &no_entry_words
+                    {
+                        let found = match e 
+                        {
+                            XRefEntry::Directed { source, .. } => is_word_ref_id(source) && source.has_verse_word(verse, word),
+                            XRefEntry::Mutual { refs, .. } => {
+                                refs.iter().any(|r| is_word_ref_id(r) && r.has_verse_word(verse, word))
+                            },
+                        };
+
+                        if found 
+                        {
+                            found_words.push((verse, word));
+                        }
+                    }
+
+                    for f in found_words
+                    {
+                        word_datas.remove(&f);
+                        no_entry_words.remove(&f);
+                    }
+                }),
+                Module::StrongsLinks(links) => {
+                    if links.config.bible != *bible { continue; }
+
+                    let mut found_words = vec![];
+                    for &(verse, word) in &no_entry_words
+                    {
+                        let Some(links) = links.get_links(&verse) else { continue; };
+                        let found = links.words.iter().find(|w| match w.range {
+                            WordRange::Single(s) => s == word,
+                            WordRange::Range(s, e) => s <= word && e >= word,
+                        }).is_some();
+
+                        if found
+                        {
+                            found_words.push((verse, word));
+                        }
+                    }
+
+                    for f in found_words
+                    {
+                        word_datas.remove(&f);
+                        no_entry_words.remove(&f);
+                    }
+                },
+                Module::Commentary(commentary) => commentary.entries.iter().for_each(|e| {
+                    let mut found_words = vec![];
+                    for &(verse, word) in &no_entry_words
+                    {
+                        let found = e.references.iter().any(|v| is_word_ref_id(v) && v.has_verse_word(verse, word));
+                        if found
+                        {
+                            found_words.push((verse, word));
+                        }
+                    }
+
+                    for f in found_words
+                    {
+                        word_datas.remove(&f);
+                        no_entry_words.remove(&f);
+                    }
+                }),
+                Module::Notebook(notebook) => notebook.entries.iter().for_each(|e| {
+                    let mut found_words = vec![];
+                    for &(verse, word) in &no_entry_words
+                    {
+                        let found = match e {
+                            NotebookEntry::Highlight { references, .. } => {
+                                references.iter()
+                                    .any(|v| is_word_ref_id(v) && v.has_verse_word(verse, word))
+                            },
+                            NotebookEntry::Note { references, .. } => {
+                                references.iter()
+                                    .any(|v| is_word_ref_id(v) && v.has_verse_word(verse, word))
+                            },
+                        };
+
+                        if found
+                        {
+                            found_words.push((verse, word));
+                        }
+                    }
+
+                    for f in found_words
+                    {
+                        word_datas.remove(&f);
+                        no_entry_words.remove(&f);
+                    }
+                }),
+                _ => {}
+            }
+        };
+
+        words.iter().filter(|w| !no_entry_words.contains(&w)).cloned().collect()
     }
 }
 

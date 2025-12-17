@@ -1,6 +1,10 @@
 /* BibleWord.css */
 
 /* Base word styling */
+.bible-space {
+    cursor: default;
+}
+
 .bible-word {
     transition: background-color 0.2s ease;
     cursor: default;
@@ -19,11 +23,26 @@
 }
 
 .bible-word.clickable {
+    position: relative;
+    text-decoration: none;
     cursor: pointer;
 }
 
-.bible-word.clickable:hover {
-    background-color: var(--mui-palette-action-hover);
+.bible-word.clickable::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 1px;
+    bottom: 0;
+    left: 0;
+    background-color: currentColor;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border-radius: 0;
+}
+
+.bible-word.clickable:hover::after {
+    opacity: 1;
 }
 
 /* Strongs references */
@@ -36,14 +55,29 @@
 
 .bible-strongs-link {
     cursor: pointer;
+    position: relative;
+    text-decoration: none;
 }
 
 .bible-strongs-link.searched {
     font-weight: bold;
 }
 
-.bible-strongs-link:hover {
-    text-decoration: underline;
+.bible-strongs-link::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 1px;
+    bottom: 0;
+    left: 0;
+    background-color: currentColor;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border-radius: 0;
+}
+
+.bible-strongs-link:hover::after {
+    opacity: 1;
 }
 
 /* Containers */
@@ -60,10 +94,25 @@
     user-select: none;
     margin-top: 2px;
     cursor: pointer;
+    position: relative;
+    height: 1.1rem;
 }
 
-.bible-verse-label:hover {
-    text-decoration: underline;
+.bible-verse-label::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 1px;
+    bottom: 0;
+    left: 0;
+    background-color: currentColor;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border-radius: 0;
+}
+
+.bible-verse-label:hover::after {
+    opacity: 1;
 }
 
 .bible-verse-text {

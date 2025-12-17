@@ -26,6 +26,7 @@ export default function ImageDropdown<T>({
 }: ImageDropdownProps<T>): React.ReactElement
 {
     const [is_open, set_open] = useState(false);
+    const theme = useTheme();
 
     return (
         <Box
@@ -45,7 +46,7 @@ export default function ImageDropdown<T>({
             <Paper
                 sx={{
                     position: "absolute",
-                    top: (theme) => `calc(100% - ${theme.spacing(DROPDOWN_PADDING)})`,
+                    top: `100%`,
                     left: (theme) => theme.spacing(-DROPDOWN_PADDING),
                     padding: DROPDOWN_PADDING,
                     visibility: is_open ? "visible" : "hidden",
@@ -77,9 +78,18 @@ export default function ImageDropdown<T>({
             <style>
                 {`
                     .dropdown-button:hover .dropdown-content {
+                        position: relative
                         opacity: 1;
                         visibility: visible;
                         pointer-events: auto;
+                    }
+                    .dropdown-content::before {
+                        content: "";
+                        position: absolute;
+                        top: ${theme.spacing(1)};
+                        left: 0;
+                        right: 0;
+                        height: ${theme.spacing(1)};
                     }
                 `}
             </style>

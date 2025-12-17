@@ -30,7 +30,7 @@ pub fn render_verses(package: &Package, verses: &Vec<VerseId>, bible: &ModuleId,
         }
         else 
         {
-            let html = rd.words.iter().map(|w| render_word(w, show_strongs)).join(" ");
+            let html = rd.words.iter().map(|w| render_word(w, show_strongs)).join("<span class=\"bible-space\"> </span>");
             RenderedVerseContent { 
                 failed: false, 
                 id: rd.id, 
@@ -42,7 +42,7 @@ pub fn render_verses(package: &Package, verses: &Vec<VerseId>, bible: &ModuleId,
     }).collect()
 }
 
-pub fn render_word(word: &WordRenderData, show_strongs: bool) -> String 
+fn render_word(word: &WordRenderData, show_strongs: bool) -> String 
 {
     let begin_punc = word.begin_punc.clone().unwrap_or_default();
     let end_punc = word.end_punc.clone().unwrap_or_default();
