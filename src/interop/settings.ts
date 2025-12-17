@@ -13,8 +13,8 @@ export type SelectedTheme = |{
     value: string,
 }
 
-export type SelectedFont = "times_new_roman" | "helvetica" | "arial" | "open_dyslexic";
-export const ALL_FONTS: SelectedFont[] = ["arial", "helvetica", "open_dyslexic", "times_new_roman"];
+export type SelectedFont = "arial" | "verdana" | "tahoma" | "trebuchet" | "times_new_roman" | "georgia" | "courtier_new" | "open_dyslexic";
+export const ALL_FONTS: SelectedFont[] = ["arial", "verdana", "tahoma", "trebuchet", "times_new_roman", "georgia", "courtier_new", "open_dyslexic"];
 
 export type AppSettings = {
     tts_settings: TtsSettings,

@@ -127,8 +127,9 @@ export default function BiblePage({
 		})
 	}, []);
 
-	const handle_word_click = useCallback((e: { top: number, left: number }, word: bible.WordId) => {
+	const handle_word_click = useCallback((e: { top: number, left: number }, bible_id: string, word: bible.WordId) => {
 		set_popover_data({
+			bible_id,
 			type: "word",
 			word,
 			position: e

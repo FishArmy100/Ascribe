@@ -9,11 +9,13 @@ export interface AppTheme {
 }
 
 export interface AppColors {
-    primary: PrimaryColors;
-    secondary: SecondaryColors;
-    background: BackgroundColors;
-    text: TextColors;
-    common: CommonColors;
+    primary: PrimaryColors,
+    secondary: SecondaryColors,
+    background: BackgroundColors,
+    text: TextColors,
+    common: CommonColors,
+    action: ActionColors,
+    divider: string,
 }
 
 export interface PrimaryColors {
@@ -45,6 +47,10 @@ export interface CommonColors {
     white: string;
 }
 
+export interface ActionColors {
+    hover: string,
+}
+
 
 export const ASCRIBE_LIGHT_THEME: AppTheme = {
     name: "Light",
@@ -73,6 +79,10 @@ export const ASCRIBE_LIGHT_THEME: AppTheme = {
             default: '#FFFFFF',
             paper: '#FFF9F3',
         },
+        action: {
+            hover: 'rgba(0, 0, 0, 0.08)', // Light gray for light mode
+        },
+        divider: "#616161"
     }
 };
 
@@ -103,54 +113,100 @@ export const ASCRIBE_DARK_THEME: AppTheme = {
             default: '#121212',
             paper: '#1C1C1C',
         },
+        action: {
+            hover: 'rgba(255, 255, 255, 0.15)', // More visible white overlay for dark mode
+        },
+        divider: "#6e6e6eff"
     }
 };
 
-export const ASCRIBE_HELVETICA_FONT = [
-  '"Inter"',
-  '"Helvetica Neue"',
-  'Arial',
-  'sans-serif',
+export const ASCRIBE_ARIAL_FONT = [
+    'Arial',
+    'sans-serif',
+].join(',');
+
+export const ASCRIBE_VERDANA_FONT = [
+    'Verdana',
+    'Geneva',
+    'sans-serif',
+].join(',');
+
+export const ASCRIBE_TAHOMA_FONT = [
+    'Tahoma',
+    'Geneva',
+    'sans-serif',
+].join(',');
+
+export const ASCRIBE_TREBUCHET_MS_FONT = [
+    '"Trebuchet MS"',
+    'Helvetica',
+    'sans-serif',
 ].join(',');
 
 export const ASCRIBE_TIMES_NEW_ROMAN_FONT = [
-  '"Times New Roman"',
-  'Times',
-  'serif',
+    '"Times New Roman"',
+    'Times',
+    'serif',
 ].join(',');
 
-export const ASCRIBE_ARIAL_FONT = [
-  'Arial',
-  '"Helvetica Neue"',
-  'Helvetica',
-  'sans-serif',
+export const ASCRIBE_GEORGIA_FONT = [
+    'Georgia',
+    'serif',
 ].join(',');
+
+export const ASCRIBE_COURIER_NEW_FONT = [
+    '"Courier New"',
+    'Courier',
+    'monospace',
+].join(',');
+
 
 export const ASCRIBE_OPEN_DYSLEXIC_FONT = [
-  '"OpenDyslexic"',
-  'Arial',
-  'sans-serif',
+    '"OpenDyslexic"',
+    'system-ui',
+    'sans-serif',
 ].join(',');
 
 export function build_theme(theme: AppTheme, ui_scale: number, font: SelectedFont): Theme 
 {
-    let font_family = ASCRIBE_HELVETICA_FONT;
-    if (font === "helvetica")
-    {
-        font_family = ASCRIBE_HELVETICA_FONT;
-    }
-    else if (font === "arial")
+    let font_family;
+    if (font === "arial")
     {
         font_family = ASCRIBE_ARIAL_FONT;
+    }
+    else if (font === "courtier_new")
+    {
+        font_family = ASCRIBE_COURIER_NEW_FONT;
+    }
+    else if (font === "georgia")
+    {
+        font_family = ASCRIBE_GEORGIA_FONT;
     }
     else if (font === "open_dyslexic")
     {
         font_family = ASCRIBE_OPEN_DYSLEXIC_FONT;
     }
+    else if (font === "tahoma")
+    {
+        font_family = ASCRIBE_TAHOMA_FONT
+    }
     else if (font === "times_new_roman")
     {
-        font_family = ASCRIBE_TIMES_NEW_ROMAN_FONT;
+        font_family = ASCRIBE_TIMES_NEW_ROMAN_FONT
     }
+    else if (font === "trebuchet")
+    {
+        font_family = ASCRIBE_TREBUCHET_MS_FONT;
+    }
+    else if (font === "verdana")
+    {
+        font_family = ASCRIBE_VERDANA_FONT;
+    }
+    else 
+    {
+        font_family = ASCRIBE_ARIAL_FONT;
+    }
+
 
     const colors = theme.colors;
     const BASE_FONT_SIZE = 14;
@@ -182,6 +238,10 @@ export function build_theme(theme: AppTheme, ui_scale: number, font: SelectedFon
                 black: colors.common.black,
                 white: colors.common.white,
             },
+            action: {
+                hover: colors.action.hover,
+            },
+            divider: colors.divider,
         },
 
         typography: {

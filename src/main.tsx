@@ -4,8 +4,10 @@ import App from "./App";
 import { CssBaseline } from "@mui/material";
 import AppProviders from "./components/providers/AppProviders";
 import AppInitializer from "./components/AppInitializer";
-import "./utils/extensions";
-import "./components/bible/BibleWord.css";
+import "@utils/extensions";
+import "@components/bible/BibleWord.css";
+import "@components/bible/AnimatedUnderline.css";
+import "@assets/fonts/fonts.css"
 import AppThemeProvider from "@components/providers/AppThemeProvider";
 
 

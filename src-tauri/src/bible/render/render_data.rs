@@ -9,6 +9,7 @@ use crate::repr::{StrongsNumberJson, VerseIdJson};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VerseRenderData
 {
+    pub bible: ModuleId,
     pub id: VerseIdJson,
     pub words: Vec<WordRenderData>,
     pub failed: bool,
@@ -32,11 +33,13 @@ pub fn fetch_verse_render_data(package: &Package, verses: &[VerseId], bible: &Mo
 {
     verses.par_iter().map(|v| match package.fetch(*v, bible) {
         Some(s) => VerseRenderData {
+            bible: bible.clone(),
             id: v.clone().into(),
             words: collect_word_render_data(s, package),
             failed: false,
         },
         None => VerseRenderData { 
+            bible: bible.clone(),
             id: v.clone().into(), 
             words: vec![], 
             failed: true 

@@ -15,6 +15,7 @@ export type WordRenderData = {
 }
 
 export type VerseRenderData = {
+    bible: string,
     id: VerseId,
     words: WordRenderData[],
     failed: boolean,

@@ -31,18 +31,21 @@ pub enum SelectedTheme
 #[serde(rename_all = "snake_case")]
 pub enum SelectedFont
 {
-    TimesNewRoman,
-    Helvetica,
     Arial,
+    Verdana,
+    Tahoma,
+    Trebuchet,
+    TimesNewRoman,
+    Georgia,
+    CourtierNew,
     OpenDyslexic,
-    
 }
 
 impl Default for SelectedFont
 {
     fn default() -> Self 
     {
-        Self::Helvetica
+        Self::Arial
     }
 }
 

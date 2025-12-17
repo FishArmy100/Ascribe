@@ -39,7 +39,6 @@ impl SearchType
 {
     pub fn parse(search: &str, bible: &BibleModule, package: &Package) -> Result<SearchType, SearchParseError>
     {
-        println!("{}", search);
         if search.chars().all(char::is_whitespace) 
         {
             return Err(SearchParseError::EmptySearch);

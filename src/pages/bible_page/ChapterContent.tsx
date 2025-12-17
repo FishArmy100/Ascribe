@@ -145,12 +145,9 @@ export default function ChapterContent({
 					fontWeight="bold"
 					mb={2}
 					onClick={handle_book_click}
+					className="animated-underline-thick"
 					sx={{
-						transition: "text-decoration ease 0.3s",
-						"&:hover": {
-							textDecoration: "underline",
-							cursor: "pointer",
-						}
+						cursor: "pointer",
 					}}
 				>
 					{book_name}
@@ -161,12 +158,9 @@ export default function ChapterContent({
 					fontWeight="bold"
 					mb={2}
 					onClick={handle_chapter_click}
+					className="animated-underline-thick"
 					sx={{
-						transition: "text-decoration ease 0.3s",
-						"&:hover": {
-							textDecoration: "underline",
-							cursor: "pointer",
-						}
+						cursor: "pointer",
 					}}
 				>
 					{chapter_number}
@@ -287,7 +281,7 @@ const RowComponentBase = forwardRef<HTMLDivElement, RowComponentProps>((
 				borderLeftColor: is_audio_focused ? theme.palette.primary.main : undefined,
 				borderLeftStyle: is_audio_focused ? "solid" : undefined,
 				transition: "background-color 0.2s ease",
-				backgroundColor: is_focused || is_audio_focused ? theme.palette.action.selected : undefined,
+				backgroundColor: is_focused || is_audio_focused ? theme.palette.action.hover : undefined,
 
 				display: "flex",
 				flexDirection: "column",

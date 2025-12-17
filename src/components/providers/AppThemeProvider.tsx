@@ -1,7 +1,7 @@
 import React from "react";
 import { use_settings } from "./SettingsProvider";
 import { ASCRIBE_DARK_THEME, ASCRIBE_LIGHT_THEME, build_theme } from "src/theme";
-import { ThemeProvider } from "@emotion/react";
+import { ThemeProvider } from "@mui/material";
 
 export type AppThemeProviderProps = {
     children: React.ReactNode,

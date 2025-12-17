@@ -19,6 +19,7 @@ export type TextSelectDropdownProps<T> = {
     on_select: (value: T) => void,
     variant: TypographyVariant,
     bold: boolean,
+    width?: string,
 }
 
 export default function TextSelectDropdown<T>({
@@ -28,36 +29,43 @@ export default function TextSelectDropdown<T>({
     on_select,
     variant,
     bold,
+    width
 }: TextSelectDropdownProps<T>): React.ReactElement
 {
     const [is_open, set_open] = useState(false);
     const theme = useTheme();
     const title = options[selected].text;
+    const dropdown_width = width ?? "max-content";
 
     return (
         <Box
             sx={{
-                position: "relative"
+                position: "relative",
+                width: dropdown_width,
             }}
             className="dropdown-button"
         >
-            <Typography
-                variant={variant}
-                fontWeight={bold ? "bold" : undefined}
-                sx={{
-                    cursor: "pointer",
-                    backgroundColor: is_open ? theme.palette.secondary.main : theme.palette.primary.light,
-                    color: theme.palette.common.black,
-                    padding: DROPDOWN_PADDING,
-                    borderRadius: theme.spacing(DROPDOWN_PADDING),
-                    transition: "background-color 0.3s ease",
-                }}
-                onClick={() => {
-                    set_open(!is_open)
-                }}
-            >
-                {title}
-            </Typography>
+            <Tooltip tooltip={tooltip}>
+                <Typography
+                    variant={variant}
+                    fontWeight={bold ? "bold" : undefined}
+                    sx={{
+                        cursor: "pointer",
+                        backgroundColor: is_open ? theme.palette.secondary.main : theme.palette.primary.light,
+                        color: theme.palette.common.black,
+                        padding: DROPDOWN_PADDING,
+                        borderRadius: theme.spacing(DROPDOWN_PADDING),
+                        transition: "background-color 0.3s ease",
+                        textAlign: "center",
+                        whiteSpace: width === undefined ? "nowrap" : undefined
+                    }}
+                    onClick={() => {
+                        set_open(!is_open)
+                    }}
+                >
+                    {title}
+                </Typography>
+            </Tooltip>
             <Paper
                 sx={{
                     position: "absolute",
@@ -71,6 +79,9 @@ export default function TextSelectDropdown<T>({
                     "&::before": {
                         display: 'none', // Remove the ::before element
                     },
+                    width: dropdown_width,
+                    height: theme.spacing(20),
+                    overflow: "auto",
                 }}
                 className="dropdown-content"
             >
@@ -102,6 +113,8 @@ export default function TextSelectDropdown<T>({
                                         },
                                         padding: DROPDOWN_PADDING,
                                         borderRadius: theme.spacing(DROPDOWN_PADDING),
+                                        textAlign: "center",
+                                        whiteSpace: width === undefined ? "nowrap" : undefined
                                     }}
                                 >
                                     {o.text}
@@ -118,6 +131,7 @@ export default function TextSelectDropdown<T>({
                         opacity: 1;
                         visibility: visible;
                         pointer-events: auto;
+                        z-index: 100;
                     }
                 `}
             </style>

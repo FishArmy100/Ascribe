@@ -72,8 +72,9 @@ export default function SearchPage({
             })
     }, []);
 
-    const handle_word_click = useCallback((e: { top: number, left: number }, word: WordId) => {
+    const handle_word_click = useCallback((e: { top: number, left: number }, bible_id: string, word: WordId) => {
         set_popover_data({
+            bible_id,
             type: "word",
             word,
             position: e

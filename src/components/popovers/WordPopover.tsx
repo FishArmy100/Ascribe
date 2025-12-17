@@ -11,8 +11,11 @@ import PopoverBase from "./PopoverBase";
 import { PopoverEntryData } from "./PopoverEntry";
 import { use_module_infos } from "@components/providers/ModuleInfoProvider";
 import { get_module_display_name } from "@interop/module_info";
+import { use_bible_infos } from "@components/providers/BibleInfoProvider";
+import { use_bible_display_settings } from "@components/providers/BibleDisplaySettingsProvider";
 
 export type WordPopoverProps = {
+    bible_id: string | null,
     word: WordId | null,
     pos: {top: number, left: number} | null,
     on_close: () => void,
@@ -20,6 +23,7 @@ export type WordPopoverProps = {
 }
 
 export default function WordPopover({
+    bible_id,
     word,
     pos,
     on_close,
@@ -29,7 +33,9 @@ export default function WordPopover({
     const { module_infos } = use_module_infos();
     const [module_entries, set_module_entries] = useState<ModuleEntry[] | null>(null);
     const [verse_render_data, set_verse_render_data] = useState<VerseRenderData | null>(null);
-    const { bible: bible_version } = use_selected_bibles();
+    const { bible_infos } = use_bible_infos();
+    const { bible_version_state } = use_bible_display_settings()
+    const bible_version = bible_id ? bible_infos[bible_id] : bible_infos[bible_version_state.bible_version]
     const name_mapper = (b: OsisBook) => get_book_display_name(b, bible_version);
 
     useEffect(() => {
