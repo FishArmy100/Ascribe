@@ -1,6 +1,6 @@
 use std::{num::NonZeroU32, sync::Mutex};
 
-use biblio_json::core::{OsisBook, chapter_id::ChapterId};
+use biblio_json::{core::{OsisBook, chapter_id::ChapterId}, modules::{EntryId, ModuleId}};
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Emitter, State};
 
@@ -82,6 +82,22 @@ impl ViewHistory
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case", tag = "type")]
+pub enum ModuleInspectorEntry
+{
+    Menu,
+    Module
+    {
+        module: ModuleId,
+    },
+    ModuleEntry
+    {
+        module: ModuleId,
+        entry: EntryId,
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case", tag = "type")]
 pub enum ViewHistoryEntry
 {
     Chapter
@@ -101,6 +117,10 @@ pub enum ViewHistoryEntry
         raw: Option<String>,
     },
     Settings,
+    ModuleInspector
+    {
+        value: ModuleInspectorEntry,
+    },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

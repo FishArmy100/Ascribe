@@ -26,11 +26,26 @@ export type SettingsHistoryEntry = {
     type: "settings",
 }
 
+export type ModuleInspectorEntry = {
+    type: "module_inspector",
+    value: |{
+        type: "menu"
+    } |{
+        type: "module",
+        module: string,
+    } |{
+        type: "module_entry",
+        module: string,
+        module_entry: number,
+    }
+}
+
 export type ViewHistoryEntry = 
     | ChapterHistoryEntry
     | VerseHistoryEntry
     | WordSearchHistoryEntry
     | SettingsHistoryEntry
+    | ModuleInspectorEntry
 
 export type ViewHistoryInfo = {
     current: ViewHistoryEntry,

@@ -43,7 +43,7 @@ export default function ImageButton({
                         backgroundColor: active ? theme.palette.secondary.main : theme.palette.primary.light,
                         borderRadius: (theme) => theme.spacing(BUTTON_BORDER_RADIUS),
                         borderWidth: (theme) => theme.spacing(1 / 8),
-                        borderColor: theme.palette.grey[700],
+                        borderColor: theme.palette.divider,
                         borderStyle: "solid",
                         width: (theme) => theme.spacing(BUTTON_SIZE),
                         height: (theme) => theme.spacing(BUTTON_SIZE),
