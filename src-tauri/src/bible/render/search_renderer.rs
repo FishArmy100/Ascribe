@@ -88,7 +88,7 @@ fn render_searched_hits(package: &Package, hits: &[SearchHit], query_root: &Word
         }
         else 
         {
-            let html = rd.words.iter().map(|w| render_word(w, query_root, hit, show_strongs)).join(" ");
+            let html = rd.words.iter().map(|w| render_word(w, query_root, hit, show_strongs)).join("<span class=\"bible-space\"> </span>");
             RenderedVerseContent { 
                 failed: false, 
                 id: rd.id, 

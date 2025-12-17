@@ -1,6 +1,10 @@
 /* BibleWord.css */
 
 /* Base word styling */
+.bible-space {
+    cursor: default;
+}
+
 .bible-word {
     transition: background-color 0.2s ease;
     cursor: default;

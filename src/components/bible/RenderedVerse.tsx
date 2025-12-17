@@ -28,7 +28,7 @@ function RenderedVerseBase({
         const rect = target.getBoundingClientRect();
         const pos = { top: rect.top, left: rect.left };
 
-        if (target.dataset.wordIndex)
+        if (target.dataset.wordIndex && target.classList.contains("clickable"))
         {
             const word_index = parseInt(target.dataset.wordIndex, 10);
             on_verse_word_clicked?.(pos, content.bible, {
