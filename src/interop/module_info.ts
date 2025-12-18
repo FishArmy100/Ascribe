@@ -1,6 +1,8 @@
 import { invoke } from "@tauri-apps/api/core";
 import { HtmlText } from "./html_text";
 
+export type ModuleInfoMap = { [name: string]: ModuleInfo | undefined }
+
 export type ModuleInfo = {
     module_type: ModuleType;
     name: string;

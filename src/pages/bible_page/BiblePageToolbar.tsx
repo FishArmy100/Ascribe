@@ -1,13 +1,11 @@
 import { Divider } from "@mui/material";
-import { ChapterPicker, ImageButton, ImageDropdown, SearchBar, TopBar, VersionSelector } from "../../components";
+import { ChapterPicker, ImageButton, SearchBar, TopBar, VersionSelector } from "../../components";
 import { use_view_history } from "../../components/providers/ViewHistoryProvider";
 import { ViewHistoryEntry } from "../../interop/view_history";
 import { backend_push_search_to_view_history } from "../../interop/searching";
 import * as bible from "../../interop/bible"
 import * as images from "../../assets";
-import * as tts from "../../interop/tts"
 import React, { useCallback, useEffect } from "react";
-import { listen_tts_event } from "../../interop/tts/events";
 import SubMenuDropdown from "@components/SubMenuDropdown";
 
 export type BiblePageToolbarProps = {
@@ -38,9 +36,9 @@ export const BiblePageToolbar = React.memo(function BiblePageToolbar({
 			<VersionSelector/>
 			<ChapterPicker on_select={on_select_callback}/>
 			<Divider 
-					orientation="vertical" 
-					flexItem 
-				/>
+				orientation="vertical" 
+				flexItem 
+			/>
 			<SearchBar 
 				on_search={async (term) => {
 					const error = await backend_push_search_to_view_history(term);
@@ -72,14 +70,6 @@ export const BiblePageToolbar = React.memo(function BiblePageToolbar({
 				image={images.volume_high}
 				tooltip="Play audio"
 				on_click={() => {
-					// tts.backend_request_tts({
-					// 	bible: "KJV",
-					// 	chapter: {
-					// 		book: "Gen",
-					// 		chapter: 1,
-					// 	},
-					// 	verse_range: null,
-					// });
 					on_click_player();
 				}}
 				active={player_open}

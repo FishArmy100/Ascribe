@@ -33,3 +33,4 @@ piper-rs = { git = "https://github.com/FishArmy100/piper-rs" }
 kira = "0.10.5"
 uuid = { version = "1.18.1", features = ["v4"] }
 kira-pitcher = "0.1.0"
+open = "5.3.3"

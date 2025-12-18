@@ -105,7 +105,7 @@ pub fn run_bible_command(
         },
         BibleCommand::FetchModuleInfos => {
             let modules = package.visit(|p| {
-                p.modules.values().map(|m| m.get_info()).collect_vec()
+                p.modules.values().map(|m| ModuleInfoJson::from(m.get_info())).collect_vec()
             });
 
             Some(serde_json::to_string(&modules).unwrap())

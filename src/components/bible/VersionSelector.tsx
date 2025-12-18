@@ -9,7 +9,6 @@ import Tooltip from "../core/Tooltip";
 
 export default function VersionSelector(): React.ReactElement
 {
-    const { settings } = use_settings();
     const theme = useTheme();
     
     const { bible_version_state, set_bible_version_state } = use_bible_display_settings();

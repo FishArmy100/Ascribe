@@ -3,12 +3,9 @@ import { ChapterId, OsisBook, VerseId } from "./bible"
 import { RefId } from "./bible/ref_id"
 import { format_strongs, StrongsNumber } from "./bible/strongs"
 import { HtmlText } from "./html_text"
-import { get_module_display_name, ModuleInfo } from "./module_info"
+import { get_module_display_name, ModuleInfo, ModuleInfoMap } from "./module_info"
 import { format_ref_id } from "@components/bible/RefIdRenderer"
 import { shorten_string } from "@utils/index"
-
-
-export type ModuleInfoMap = { [name: string]: ModuleInfo | undefined }
 
 export type ReferenceData = {
     preview_text: string,

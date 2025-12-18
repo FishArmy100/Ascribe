@@ -91,3 +91,4 @@ export { default as google_drive } from './images/brands-google-drive.svg';
 export { default as cloud_upload } from './images/light-cloud-arrow-up.svg';
 export { default as vertical_dots } from './images/light-ellipsis-vertical.svg';
 export { default as magnifying_glass_folder } from './images/light-folder-magnifying-glass.svg';
+export { default as sliders } from './images/light-sliders.svg';

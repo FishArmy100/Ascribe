@@ -1,6 +1,5 @@
 import { Alert, Box, Collapse, Stack, TextField, useTheme } from "@mui/material";
 import React, { useState } from "react";
-import { use_settings } from "../providers/SettingsProvider";
 import SearchButton from "./SearchButton";
 import SearchMoreButton from "./SearchMoreButton";
 import { BUTTON_SIZE } from "../core/ImageButton";
@@ -16,7 +15,6 @@ export default function SearchBar({
 }: SearchBarProps): React.ReactElement
 {
     const theme = useTheme();
-    const { settings } = use_settings();
 
     const [search_value, set_search_value] = useState(value);
 

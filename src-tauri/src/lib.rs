@@ -9,6 +9,7 @@ pub mod bible;
 pub mod searching;
 pub mod repr;
 pub mod tts;
+pub mod commands;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -53,6 +54,7 @@ pub fn run() {
             searching::push_search_to_view_history,
             view_history::run_view_history_command,
             tts::tts_cmd::run_tts_command,
+            commands::open,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
