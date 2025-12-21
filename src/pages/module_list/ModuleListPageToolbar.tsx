@@ -7,15 +7,15 @@ import SubMenuDropdown from "@components/SubMenuDropdown";
 import { Divider } from "@mui/material";
 import ModuleTypeDisplayDropdown, { ModuleDisplayOptions } from "./ModuleTypeDisplayDropdown";
 
-export type ModuleInspectorPageToolbarProps = {
+export type ModuleListPageToolbarProps = {
     display_options: ModuleDisplayOptions,
     set_display_options: (options: ModuleDisplayOptions) => void,
 }
 
-export default function ModuleInspectorPageToolbar({
+export default function ModuleListPageToolbar({
     display_options,
     set_display_options
-}: ModuleInspectorPageToolbarProps): React.ReactElement
+}: ModuleListPageToolbarProps): React.ReactElement
 {
     const view_history = use_view_history();
 

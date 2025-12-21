@@ -26,18 +26,21 @@ export type SettingsHistoryEntry = {
     type: "settings",
 }
 
+export type ModuleListEntry = {
+    type: "module_list",
+}
+
 export type ModuleInspectorEntry = {
     type: "module_inspector",
-    value: |{
-        type: "menu"
-    } |{
-        type: "module",
-        module: string,
-    } |{
-        type: "module_entry",
-        module: string,
-        module_entry: number,
-    }
+    module: string,
+    entry: number | null,
+}
+
+export type ModuleWordSearchEntry = {
+    type: "module_word_search",
+    query: WordSearchQuery,
+    page_index: number,
+    raw: string | null,
 }
 
 export type ViewHistoryEntry = 
@@ -46,6 +49,8 @@ export type ViewHistoryEntry =
     | WordSearchHistoryEntry
     | SettingsHistoryEntry
     | ModuleInspectorEntry
+    | ModuleListEntry
+    | ModuleWordSearchEntry
 
 export type ViewHistoryInfo = {
     current: ViewHistoryEntry,

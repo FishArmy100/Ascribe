@@ -1,4 +1,4 @@
-use biblio_json::{core::{StrongsLang, StrongsNumber}, modules::strongs::StrongsDefEntry};
+use biblio_json::{core::{StrongsLang, StrongsNumber}, modules::{ModuleInfo, strongs::StrongsDefEntry}};
 use serde::{Deserialize, Serialize};
 
 use crate::repr::html_text::HtmlTextJson;
@@ -111,13 +111,13 @@ pub struct StrongsDefEntryJson
 
 impl StrongsDefEntryJson
 {
-    pub fn new(entry: &StrongsDefEntry, module: String) -> Self 
+    pub fn new(entry: &StrongsDefEntry, info: &ModuleInfo) -> Self 
     {
         Self {
-            module,
+            module: info.name.clone(),
             strongs_ref: entry.strongs_ref.clone().into(),
             word: entry.word.clone(),
-            definition: HtmlTextJson::from(&entry.definition),
+            definition: HtmlTextJson::from_html(&entry.definition, &info.external),
             id: entry.id,
         }
     }

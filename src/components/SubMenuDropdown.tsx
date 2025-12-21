@@ -16,7 +16,7 @@ export default function SubMenuDropdown(): React.ReactElement
         }
         else if (value === "module_inspector")
         {
-            view_history.push({ type: "module_inspector", value: { type: "menu" } });
+            view_history.push({ type: "module_list" });
         }
         else 
         {

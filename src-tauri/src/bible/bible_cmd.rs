@@ -148,10 +148,10 @@ pub fn run_bible_command(
 
             let response = package.visit(|p| {
                 p.modules.values()
-                    .filter_map(|m| m.as_strongs_defs())
-                    .filter_map(|defs| defs.get_def(&strongs)
+                    .filter_map(|m| m.as_strongs_defs().map(|d| (d, m.get_info())))
+                    .filter_map(|(defs, info)| defs.get_def(&strongs)
                         .map(|d| {
-                            StrongsDefEntryJson::new(d, defs.config.name.clone())
+                            StrongsDefEntryJson::new(d, &info)
                         }))
                     .collect_vec()
             });

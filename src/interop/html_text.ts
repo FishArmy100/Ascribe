@@ -24,7 +24,7 @@ export type Node =
 export type HRefSrc =
 	| { type: "ref_id"; id: RefId }
 	| { type: "strongs"; strongs: StrongsNumber }
-	| { type: "module_ref"; module_alias: string; entry_id: number };
+	| { type: "module_ref"; module_alias: string; module: string, entry_id: number };
 
 type HeadingLevel = 1 | 2 | 3;
 

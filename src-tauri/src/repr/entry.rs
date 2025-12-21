@@ -1,6 +1,6 @@
 use std::num::NonZeroU32;
 
-use biblio_json::{core::{RefId, WordRange}, modules::{ModuleEntry, ModuleId, bible::Word, notebook::NotebookEntry, xrefs::XRefEntry}};
+use biblio_json::{core::{RefId, WordRange}, modules::{ModuleEntry, ModuleId, ModuleInfo, bible::Word, notebook::NotebookEntry, xrefs::XRefEntry}};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 
@@ -111,31 +111,31 @@ pub enum ModuleEntryJson
 
 impl ModuleEntryJson
 {
-    pub fn new(entry: ModuleEntry, module: ModuleId, preview_renderer: impl Fn(&RefId) -> String) -> Self 
+    pub fn new(entry: ModuleEntry, info: &ModuleInfo, preview_renderer: impl Fn(&RefId) -> String) -> Self 
     {
         match entry
         {
             ModuleEntry::Dictionary(dict_entry) => {
                 Self::Dictionary { 
-                    module, 
+                    module: info.id.clone(), 
                     term: dict_entry.term.clone(), 
                     aliases: dict_entry.aliases.clone(),
-                    definition: HtmlTextJson::from(&dict_entry.definition), 
+                    definition: HtmlTextJson::from_html(&dict_entry.definition, &info.external), 
                     id: dict_entry.id,
                 }
             },
             ModuleEntry::StrongsDef(strongs_def_entry) => {
                 Self::StrongsDef {
-                    module,
+                    module: info.id.clone(),
                     strongs_ref: strongs_def_entry.strongs_ref.clone().into(),
                     word: strongs_def_entry.word.clone(),
-                    definition: HtmlTextJson::from(&strongs_def_entry.definition),
+                    definition: HtmlTextJson::from_html(&strongs_def_entry.definition, &info.external),
                     id: strongs_def_entry.id,
                 }
             },
             ModuleEntry::StrongsLink(strongs_link_entry) => {
                 Self::StrongsLink {
-                    module,
+                    module: info.id.clone(),
                     verse_id: strongs_link_entry.verse_id.into(),
                     id: strongs_link_entry.id,
                     words: strongs_link_entry.words.iter().map(|i| StrongsWordJson {
@@ -156,24 +156,24 @@ impl ModuleEntryJson
                 match xref_entry {
                     XRefEntry::Directed { source, targets, note, id } => {
                         Self::XRefDirected {
-                            module,
+                            module: info.id.clone(),
                             source: source.into(),
                             targets: targets.iter().map(|t| ReferenceData {
                                 id: t.into(),
                                 preview_text: preview_renderer(t)
                             }).collect_vec(),
-                            note: note.as_ref().map(|n| n.into()),
+                            note: note.as_ref().map(|n| HtmlTextJson::from_html(n, &info.external)),
                             id: *id,
                         }
                     }
                     XRefEntry::Mutual { refs, note, id } => {
                         Self::XRefMutual {
-                            module,
+                            module: info.id.clone(),
                             refs: refs.iter().map(|t| ReferenceData {
                                 id: t.into(),
                                 preview_text: preview_renderer(t),
                             }).collect_vec(),
-                            note: note.as_ref().map(|n| n.into()),
+                            note: note.as_ref().map(|n| HtmlTextJson::from_html(n, &info.external)),
                             id: *id,
                         }
                     }
@@ -181,15 +181,15 @@ impl ModuleEntryJson
             },
             ModuleEntry::Commentary(commentary_entry) => {
                 Self::Commentary {
-                    module,
+                    module: info.id.clone(),
                     id: commentary_entry.id,
                     references: commentary_entry.references.iter().map(|t| t.into()).collect_vec(),
-                    comment: commentary_entry.comment.clone().into(),
+                    comment: HtmlTextJson::from_html(&commentary_entry.comment, &info.external),
                 }
             },
             ModuleEntry::Verse(verse) => {
                 Self::Verse { 
-                    module, 
+                    module: info.id.clone(), 
                     verse_id: verse.verse_id.into(), 
                     words: verse.words.clone(), 
                     id: verse.id, 
@@ -198,10 +198,10 @@ impl ModuleEntryJson
             ModuleEntry::Notebook(entry) => match entry {
                 NotebookEntry::Highlight { id, name, description, priority, color, references } => {
                     Self::NotebookHighlight { 
-                        module,
+                        module: info.id.clone(),
                         id: *id, 
                         name: name.clone(), 
-                        description: description.as_ref().map(|d| d.into()), 
+                        description: description.as_ref().map(|d| HtmlTextJson::from_html(d, &info.external)), 
                         priority: *priority, 
                         color: color.to_string(), 
                         references: references.iter().map(|r| r.into()).collect_vec()
@@ -209,10 +209,10 @@ impl ModuleEntryJson
                 },
                 NotebookEntry::Note { id, name, content, references } => {
                     Self::NotebookNote { 
-                        module,
+                        module: info.id.clone(),
                         id: *id, 
                         name: name.clone(), 
-                        content: content.into(), 
+                        content: HtmlTextJson::from_html(content, &info.external), 
                         references: references.iter().map(|r| r.into()).collect_vec() 
                     }
                 },
@@ -220,7 +220,7 @@ impl ModuleEntryJson
             ModuleEntry::Readings(readings_entry) => {
                 Self::Readings 
                 { 
-                    module,
+                    module: info.id.clone(),
                     id: readings_entry.id, 
                     index: readings_entry.index, 
                     readings: readings_entry.readings.iter().map(|r| RefIdJson::from(r)).collect_vec() 

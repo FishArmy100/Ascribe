@@ -82,22 +82,6 @@ impl ViewHistory
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case", tag = "type")]
-pub enum ModuleInspectorEntry
-{
-    Menu,
-    Module
-    {
-        module: ModuleId,
-    },
-    ModuleEntry
-    {
-        module: ModuleId,
-        entry: EntryId,
-    }
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case", tag = "type")]
 pub enum ViewHistoryEntry
 {
     Chapter
@@ -117,10 +101,18 @@ pub enum ViewHistoryEntry
         raw: Option<String>,
     },
     Settings,
+    ModuleList,
     ModuleInspector
     {
-        value: ModuleInspectorEntry,
+        module: ModuleId,
+        entry: Option<EntryId>,
     },
+    ModuleWordSearch
+    {
+        query: WordSearchQueryJson,
+        page_index: u32,
+        raw: Option<String>,
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

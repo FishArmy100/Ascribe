@@ -127,6 +127,14 @@ export function get_handle_ref_clicked_callback(
 				}
 			}
 		}
+		else if (href.type === "module_ref")
+		{
+			view_history.push({
+				type: "module_inspector",
+				module: href.module,
+				entry: href.entry_id,
+			})
+		}
 		else 
 		{
 			console.error(`Href failed: ${JSON.stringify(href)}`);

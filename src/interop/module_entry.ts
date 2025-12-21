@@ -19,85 +19,86 @@ export type StrongsWord = {
     end: number | null,
 }
 
-export type ModuleEntry = 
-|{  
+export type StrongsDefEntry = {
     type: "strongs_def",
     module: string,
     id: number,
-
     word: string,
     strongs_ref: StrongsNumber,
     definition: HtmlText
 }
-|{  
+
+export type StrongsLinkEntry = {
     type: "strongs_link",
     module: string,
     id: number,
-    
     verse_id: VerseId,
     words: StrongsWord[],
 }
-|{  
+
+export type CommentaryEntry = {
     type: "commentary",
     module: string,
     id: number,
-    
     references: RefId[],
     comment: HtmlText,
 }
-|{  
+
+export type DictionaryEntry = {
     type: "dictionary",
     module: string,
     id: number,
-    
     aliases: string[] | null,
     definition: HtmlText,
     term: string,
 }
-|{  
+
+export type XrefDirectedEntry = {
     type: "xref_directed",
     module: string,
     id: number,
-
     source: RefId,
     targets: ReferenceData[],
     note: HtmlText | null,
 }
-|{  
+
+export type XrefMutualEntry = {
     type: "xref_mutual",
     module: string,
     id: number,
-
     refs: ReferenceData[],
     note: HtmlText | null,
 }
-|{  
+
+export type NotebookNoteEntry = {
     type: "notebook_note",
     module: string,
     id: number,
-
     name: string | null,
     content: HtmlText,
     references: RefId[],
 }
-|{  
+
+export type NotebookHighlightEntry = {
     type: "notebook_highlight",
     module: string,
     id: number,
-
     description: HtmlText | null,
     priority: number,
     color: string,
     references: RefId[],
     name: string,
-}|{
+}
+
+export type ReadingsEntry = {
     type: "readings",
     module: string,
     id: number,
-
     index: number,
     readings: RefId[],
 }
+
+export type ModuleEntry = StrongsDefEntry | StrongsLinkEntry | CommentaryEntry | DictionaryEntry | XrefDirectedEntry | XrefMutualEntry | NotebookNoteEntry | NotebookHighlightEntry | ReadingsEntry
 
 export function get_module_entry_title(entry: ModuleEntry, modules: ModuleInfoMap, name_mapper: (osis: OsisBook) => string): string 
 {

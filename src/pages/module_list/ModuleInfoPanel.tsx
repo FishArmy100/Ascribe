@@ -1,31 +1,40 @@
 import { HtmlTextRenderer } from "@components/HtmlTextRenderer";
 import { ImageButton } from "@components/index";
 import { HRefSrc } from "@interop/html_text";
-import { ModuleInfo, ModuleInfoMap } from "@interop/module_info";
+import { ModuleInfo } from "@interop/module_info";
 import { Box, Collapse, Divider, List, ListItem, Paper, Stack, Typography, useTheme } from "@mui/material";
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import * as images from "@assets";
 import Anchor from "@components/core/Anchor";
+import { use_view_history } from "@components/providers/ViewHistoryProvider";
 
 export type ModuleInfoPanelProps = {
     info: ModuleInfo,
     on_href_clicked: (ref: HRefSrc) => void,
-    on_module_click: (module: string) => void,
 }
 
 export default function ModuleInfoPanel({
     info,
     on_href_clicked,
-    on_module_click,
 }: ModuleInfoPanelProps): React.ReactElement
 {
     const theme = useTheme();
     const [is_open, set_is_open] = useState(false);
 
+    const view_history = use_view_history();
+
     const expand_image = is_open ? images.angle_up : images.angle_down;
     const expand_text = is_open ? "Collapse module information" : "Expand module information";
 
     const is_expandable = info.description != undefined || info.license != undefined || info.data_source != undefined || info.pub_year != undefined;
+
+    const on_module_click = useCallback(() => {
+        view_history.push({
+            type: "module_inspector",
+            module: info.id,
+            entry: null,
+        })
+    }, [view_history, info.id])
 
     return (
         <Paper
@@ -61,9 +70,7 @@ export default function ModuleInfoPanel({
                         sx={{
                             cursor: "pointer",
                         }}
-                        onClick={() =>{
-                            on_module_click(info.id)
-                        }}
+                        onClick={on_module_click}
                     >
                         {info.name} {info.short_name && `(${info.short_name})`}
                     </Typography>

@@ -4,6 +4,7 @@ import { List, RowComponentProps, useDynamicRowHeight, useListRef } from "react-
 import { use_view_history } from "@components/providers/ViewHistoryProvider";
 import SearchPage from "./pages/search_page/SearchPage";
 import SettingsPage from "./pages/settings_page/SettingsPage";
+import ModuleListPage from "./pages/module_list/ModuleListPage";
 import ModuleInspectorPage from "./pages/module_inspector/ModuleInspectorPage";
 
 export default function App(): React.ReactElement
@@ -21,6 +22,10 @@ export default function App(): React.ReactElement
 	else if (current.type === "settings")
 	{
 		return <SettingsPage />
+	}
+	else if (current.type === "module_list")
+	{
+		return <ModuleListPage />
 	}
 	else if (current.type === "module_inspector")
 	{
