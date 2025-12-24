@@ -1,11 +1,11 @@
 use std::{num::NonZeroU32, sync::Mutex};
 
-use biblio_json::{core::{OsisBook, StrongsLang, StrongsNumber, VerseId}, modules::{Module, ModuleId}};
+use biblio_json::{core::{OsisBook, StrongsLang, StrongsNumber, VerseId}, modules::{EntryId, Module, ModuleId}};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use tauri::{Emitter, State};
 
-use crate::{bible::{BIBLE_VERSION_CHANGED_EVENT_NAME, BibleDisplaySettings, BibleInfo, BibleVersionChangedEvent, BiblioJsonPackageHandle, fetching::PackageEx, render::{RenderSearchArgs, fetch_verse_render_data, render_verses, render_word_search_verses}}, core::app::AppState, repr::{searching::{SearchHitJson, WordSearchQueryJson}, *}, searching::word_search_engine::WordSearchQuery};
+use crate::{bible::{BIBLE_VERSION_CHANGED_EVENT_NAME, BibleDisplaySettings, BibleInfo, BibleVersionChangedEvent, BiblioJsonPackageHandle, fetching::PackageEx, render::{RenderSearchArgs, fetch_verse_render_data, render_verses, render_word_search_verses}}, core::app::AppState, repr::{module_config::ModuleConfigJson, searching::{SearchHitJson, WordSearchQueryJson}, *}, searching::word_search_engine::WordSearchQuery};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case", tag = "type")]
@@ -19,6 +19,15 @@ pub enum WordSearchResult
     {
         error: String
     }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub struct ModulePage
+{
+    pub start: ModuleEntryJson,
+    pub end: ModuleEntryJson,
+    pub count: u32,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -79,7 +88,24 @@ pub enum BibleCommand
         show_strongs: bool,
         page_index: u32,
         page_size: u32,
-    }
+    },
+    FetchModuleConfigs,
+    GetEntryIndex
+    {
+        module: ModuleId,
+        entry: EntryId, 
+    },
+    FetchModuleEntries
+    {
+        module: ModuleId,
+        page_size: u32,
+        page_index: u32,
+    },
+    FetchModulePages
+    {
+        module: ModuleId,
+        page_size: usize,
+    },
 }
 
 #[tauri::command(rename_all = "snake_case")]
@@ -217,6 +243,74 @@ pub fn run_bible_command(
                     page_index, 
                     page_size
                 })
+            });
+
+            Some(serde_json::to_string(&response).unwrap())
+        },
+        BibleCommand::FetchModuleConfigs => {
+            let response = package.visit(|package| {
+                package.modules.values()
+                    .map(|m| ModuleConfigJson::new(m))
+                    .collect_vec()
+            });
+
+            Some(serde_json::to_string(&response).unwrap())
+        },
+        BibleCommand::GetEntryIndex { module, entry } => {
+            let response = package.visit(|package| {
+                package.get_mod(&module).unwrap().entries()
+                    .find_position(|e| e.id() == entry)
+                    .map(|(i, _)| i as u32)
+            });
+
+            Some(serde_json::to_string(&response).unwrap())
+        }
+        BibleCommand::FetchModuleEntries { module, page_size, page_index } => {
+            let bible = app_state.lock().unwrap().bible_version_state.bible_version.clone();
+
+            let start = (page_index * page_size) as usize;
+
+            let response = package.visit(|package| {
+                let Some(module) = package.get_mod(&module) else {
+                    return vec![]
+                };
+                
+                let entries = module.entries()
+                    .skip(start)
+                    .take(page_size as usize)
+                    .map(|e| (e, module.get_info()))
+                    .collect_vec();
+
+                package.convert_to_json_entries(entries, &bible)
+            });
+
+            Some(serde_json::to_string(&response).unwrap())
+        }
+        BibleCommand::FetchModulePages { module, page_size } => {
+            let bible = app_state.lock().unwrap().bible_version_state.bible_version.clone();
+            let response = package.visit(|package| {
+                let Some(module) = package.get_mod(&module) else {
+                    return vec![]
+                };
+                
+                let total_entries = module.entries().count();
+                let page_count = (total_entries + page_size - 1) / page_size;
+                
+                (0..page_count)
+                    .map(|page_idx| {
+                        let start_idx = page_idx * page_size;
+                        let end_idx = std::cmp::min(start_idx + page_size - 1, total_entries - 1);
+                        
+                        let start_entry = module.entries().nth(start_idx).unwrap();
+                        let end_entry = module.entries().nth(end_idx).unwrap();
+                        
+                        ModulePage {
+                            start: package.convert_to_json_entries(vec![(start_entry, module.get_info())], &bible).into_iter().next().unwrap(),
+                            end: package.convert_to_json_entries(vec![(end_entry, module.get_info())], &bible).into_iter().next().unwrap(),
+                            count: (end_idx - start_idx + 1) as u32,
+                        }
+                    })
+                    .collect_vec()
             });
 
             Some(serde_json::to_string(&response).unwrap())

@@ -32,7 +32,7 @@ export default function ModuleInfoPanel({
         view_history.push({
             type: "module_inspector",
             module: info.id,
-            entry: null,
+            selector: null,
         })
     }, [view_history, info.id])
 

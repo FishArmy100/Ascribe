@@ -132,7 +132,7 @@ export function get_handle_ref_clicked_callback(
 			view_history.push({
 				type: "module_inspector",
 				module: href.module,
-				entry: href.entry_id,
+				selector: { type: "entry", index: href.entry_id},
 			})
 		}
 		else 

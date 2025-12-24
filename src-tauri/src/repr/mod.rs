@@ -6,6 +6,7 @@ pub mod entry;
 pub mod html_text;
 pub mod module_info;
 pub mod searching;
+pub mod module_config;
 
 pub use strongs::*;
 pub use verse::*;

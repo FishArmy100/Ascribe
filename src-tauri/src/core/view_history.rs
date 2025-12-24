@@ -80,6 +80,20 @@ impl ViewHistory
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case", tag = "type")]
+pub enum EntrySelector 
+{
+    Page
+    {
+        index: u32,
+    },
+    Entry
+    {
+        id: EntryId,
+    },
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case", tag = "type")]
 pub enum ViewHistoryEntry
@@ -105,13 +119,13 @@ pub enum ViewHistoryEntry
     ModuleInspector
     {
         module: ModuleId,
-        entry: Option<EntryId>,
+        selector: Option<EntrySelector>,
     },
     ModuleWordSearch
     {
         query: WordSearchQueryJson,
-        page_index: u32,
         raw: Option<String>,
+        page_index: u32,
     }
 }
 

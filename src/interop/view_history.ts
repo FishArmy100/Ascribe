@@ -3,6 +3,14 @@ import { ChapterId } from "./bible";
 import { listen, UnlistenFn } from "@tauri-apps/api/event";
 import { WordSearchQuery } from "./searching";
 
+export type EntrySelector = |{
+    type: "page",
+    index: number,
+} |{
+    type: "entry",
+    id: number,
+}
+
 export type ChapterHistoryEntry = {
     type: 'chapter',
     chapter: ChapterId,
@@ -33,7 +41,7 @@ export type ModuleListEntry = {
 export type ModuleInspectorEntry = {
     type: "module_inspector",
     module: string,
-    entry: number | null,
+    selector: EntrySelector | null,
 }
 
 export type ModuleWordSearchEntry = {

@@ -1,10 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react"
-import { StrongsDefEntry, StrongsNumber, fetch_backend_strongs_defs, format_strongs } from "@interop/bible/strongs"
+import { StrongsNumber, fetch_backend_strongs_defs, format_strongs } from "@interop/bible/strongs"
 import { Box, Divider, Popover, Stack, Typography, useTheme } from "@mui/material"
 import { HRefSrc, HtmlText, Node } from "@interop/html_text";
 import { HtmlTextRenderer } from "@components/HtmlTextRenderer";
 import SmallerTextSection from "@components/SmallerTextSection";
 import * as utils from "@utils";
+import { StrongsDefEntry } from "@interop/module_entry";
 
 export type StrongsPopoverProps = {
     pos: { top: number, left: number } | null,
@@ -15,7 +16,7 @@ export type StrongsPopoverProps = {
 export default function StrongsPopover({
     pos,
     strongs,
-    on_close,
+    on_close, 
 }: StrongsPopoverProps): React.ReactElement
 {
     utils.pretty_print_json({});

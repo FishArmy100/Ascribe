@@ -1,18 +1,11 @@
 import { invoke } from "@tauri-apps/api/core";
 import { HtmlText } from "../html_text";
+import { StrongsDefEntry } from "@interop/module_entry";
 
 export type StrongsLang = "hebrew" | "greek";
 export type StrongsNumber = {
     language: StrongsLang,
     number: number,
-}
-
-export type StrongsDefEntry = {
-    module: string,
-    strongs_ref: string,
-    word: String,
-    definition: HtmlText,
-    id: number,
 }
 
 export function parse_strongs(input: string): StrongsNumber 

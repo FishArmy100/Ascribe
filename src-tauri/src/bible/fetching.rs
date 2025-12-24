@@ -382,7 +382,7 @@ impl PackageEx for Package
     }
 }
 
-fn get_first_verse(id: &RefId) -> (VerseId, Option<&ModuleId>)
+pub fn get_first_verse(id: &RefId) -> (VerseId, Option<&ModuleId>)
 {
     let bible = id.bible.as_ref().clone();
     let atom = match &id.id {

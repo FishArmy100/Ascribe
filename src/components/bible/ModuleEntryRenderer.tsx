@@ -1,31 +1,31 @@
 import React from "react"
 import { ModuleEntry, ReferenceData } from "@interop/module_entry"
 import { Typography } from "@mui/material"
-import { format_ref_id } from "./RefIdRenderer"
 import { OsisBook } from "@interop/bible"
 import { HRefSrc, HtmlText, HtmlTextHelper, Node } from "@interop/html_text"
 import { HtmlTextRenderer } from "../HtmlTextRenderer"
-import { Atom, RefId } from "@interop/bible/ref_id"
+import { Atom, RefId, RefIdFormatter, use_format_ref_id } from "@interop/bible/ref_id"
+import { use_module_configs } from "@components/providers/ModuleConfigProvider"
 
 export type ModuleEntryRendererProps = {
     entry: ModuleEntry,
-    name_mapper: (osis: OsisBook) => string,
     on_ref_clicked: (id: HRefSrc) => void,
 }
 
 export default function ModuleEntryRenderer({
     entry,
-    name_mapper,
     on_ref_clicked,
 }: ModuleEntryRendererProps): React.ReactElement
 {
+    const configs = use_module_configs();
+    const formatter = use_format_ref_id();
     if (entry.type === "commentary")
     {
         return <ReferenceEntryRenderer
             note={entry.comment}
             references={entry.references}
-            name_mapper={name_mapper}
             on_ref_clicked={on_ref_clicked}
+            bible={configs.commentary_configs[entry.module].bible ?? null}
             name={null}
         />
     }
@@ -42,10 +42,11 @@ export default function ModuleEntryRenderer({
     }
     else if (entry.type === "notebook_note")
     {
+
         return <ReferenceEntryRenderer
             note={entry.content}
             references={entry.references}
-            name_mapper={name_mapper}
+            bible={configs.notebook_configs[entry.module].bible ?? null}
             on_ref_clicked={on_ref_clicked}
             name={entry.name}
         />
@@ -66,7 +67,7 @@ export default function ModuleEntryRenderer({
         return (
             <HtmlTextRenderer 
                 on_href_click={on_ref_clicked} 
-                content={get_x_ref_html(entry.targets, entry.note, name_mapper)}
+                content={get_x_ref_html(entry.targets, entry.note, formatter, configs.xref_configs[entry.module].bible ?? null)}
             />
         )
     }
@@ -75,7 +76,7 @@ export default function ModuleEntryRenderer({
         return (
             <HtmlTextRenderer 
                 on_href_click={on_ref_clicked} 
-                content={get_x_ref_html(entry.refs, entry.note, name_mapper)}
+                content={get_x_ref_html(entry.refs, entry.note, formatter, configs.xref_configs[entry.module].bible ?? null)}
             />
         )
     }
@@ -86,12 +87,12 @@ export default function ModuleEntryRenderer({
     }
 }
 
-function get_x_ref_html(targets: ReferenceData[], note: HtmlText | null, name_mapper: (osis: OsisBook) => string): HtmlText
+function get_x_ref_html(targets: ReferenceData[], note: HtmlText | null, formatter: RefIdFormatter, bible: string | null): HtmlText
 {
     let items = targets.map((v, i): Node => ({
         type: "list_item",
         content: [
-            { type: "anchor", href: { type: "ref_id", id: v.id }, content: [{ type: "text", text: `[${format_ref_id(v.id, name_mapper)}]` }] },
+            { type: "anchor", href: { type: "ref_id", id: v.id }, content: [{ type: "text", text: `[${formatter(v.id, bible)}]` }] },
             { type: "text", text: `: "${v.preview_text}"` },
         ]
     }))
@@ -124,7 +125,7 @@ type ReferenceEntryRendererProps = {
     name: string | null,
     note: HtmlText | null,
     references: RefId[],
-    name_mapper: (book: OsisBook) => string,
+    bible: string | null,
     on_ref_clicked: (id: HRefSrc) => void,
 }
 
@@ -132,15 +133,16 @@ function ReferenceEntryRenderer({
     name,
     note,
     references,
-    name_mapper,
+    bible,
     on_ref_clicked,
 }: ReferenceEntryRendererProps): React.ReactElement
 {
+    const formatter = use_format_ref_id();
     let content: HtmlText = {
         nodes: [
             ...references.map((r): Node => ({
                 type: "anchor",
-                content: [{ type: "text", text: `[${pretty_print_ref_id(r, name_mapper)}]` }],
+                content: [{ type: "text", text: `[${formatter(r, bible)}]` }],
                 href: { type: "ref_id", id: r }
             }))
         ]
@@ -167,60 +169,4 @@ function ReferenceEntryRenderer({
         content={content}
         on_href_click={on_ref_clicked}
     />
-}
-
-function pretty_print_ref_id(id: RefId, mapper: (book: OsisBook) => string): string 
-{
-    let inner = id.id;
-    let bible = id.bible;
-    let version_text = bible ? ` (${bible})` : "";
-
-    if (inner.type === "single")
-    {
-        return pretty_print_atom(inner.atom, mapper) + version_text;
-    }
-    else 
-    {
-        let a = inner.from;
-        let b = inner.to;
-        if (a.type === "book" && b.type === "book" && a.book === b.book)
-        {
-            return mapper(a.book) + version_text;
-        }
-        else if (a.type === "chapter" && b.type === "chapter" && a.book === b.book)
-        {
-            return `${mapper(a.book)} ${a.chapter}-${b.chapter}` + version_text
-        }
-        else if (a.type === "verse" && b.type === "verse" || a.type === "word" && b.type === "word")
-        {
-            if (a.book === b.book && a.chapter === b.chapter)
-            {
-                return `${mapper(a.book)} ${a.chapter}:${a.verse}-${b.verse}` + version_text;
-            }
-            else if (a.book === b.book)
-            {
-                return `${mapper(a.book)} ${a.chapter}:${a.verse}-${b.chapter}:${b.verse}` + version_text;
-            }
-        }
-        
-        let a_str = pretty_print_atom(a, mapper);
-        let b_str = pretty_print_atom(b, mapper);
-        return `${a_str}-${b_str}` + version_text;
-    }
-}
-
-function pretty_print_atom(atom: Atom, mapper: (book: OsisBook) => string): string
-{
-    if (atom.type === "book")
-    {
-        return mapper(atom.book)
-    }
-    else if (atom.type === "chapter")
-    {
-        return `${mapper(atom.book)} ${atom.chapter}`
-    }
-    else
-    {
-        return `${mapper(atom.book)} ${atom.chapter}:${atom.verse}`
-    }
 }

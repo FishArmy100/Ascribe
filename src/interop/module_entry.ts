@@ -1,11 +1,11 @@
 import { invoke } from "@tauri-apps/api/core"
 import { ChapterId, OsisBook, VerseId } from "./bible"
-import { RefId } from "./bible/ref_id"
+import { RefId, RefIdFormatter } from "./bible/ref_id"
 import { format_strongs, StrongsNumber } from "./bible/strongs"
 import { HtmlText } from "./html_text"
 import { get_module_display_name, ModuleInfo, ModuleInfoMap } from "./module_info"
-import { format_ref_id } from "@components/bible/RefIdRenderer"
 import { shorten_string } from "@utils/index"
+import { ModuleConfigContextType } from "@components/providers/ModuleConfigProvider"
 
 export type ReferenceData = {
     preview_text: string,
@@ -53,7 +53,7 @@ export type DictionaryEntry = {
     term: string,
 }
 
-export type XrefDirectedEntry = {
+export type XRefDirectedEntry = {
     type: "xref_directed",
     module: string,
     id: number,
@@ -62,7 +62,7 @@ export type XrefDirectedEntry = {
     note: HtmlText | null,
 }
 
-export type XrefMutualEntry = {
+export type XRefMutualEntry = {
     type: "xref_mutual",
     module: string,
     id: number,
@@ -98,11 +98,11 @@ export type ReadingsEntry = {
     readings: RefId[],
 }
 
-export type ModuleEntry = StrongsDefEntry | StrongsLinkEntry | CommentaryEntry | DictionaryEntry | XrefDirectedEntry | XrefMutualEntry | NotebookNoteEntry | NotebookHighlightEntry | ReadingsEntry
+export type ModuleEntry = StrongsDefEntry | StrongsLinkEntry | CommentaryEntry | DictionaryEntry | XRefDirectedEntry | XRefMutualEntry | NotebookNoteEntry | NotebookHighlightEntry | ReadingsEntry
 
-export function get_module_entry_title(entry: ModuleEntry, modules: ModuleInfoMap, name_mapper: (osis: OsisBook) => string): string 
+export function get_module_entry_title(entry: ModuleEntry, module_infos: ModuleInfoMap, configs: ModuleConfigContextType, ref_id_formatter: RefIdFormatter): string 
 {
-    let info = modules[entry.module];
+    let info = module_infos[entry.module];
     if (info === undefined)
     {
         console.error(`Module ${entry.id} does not exist`)
@@ -119,16 +119,23 @@ export function get_module_entry_title(entry: ModuleEntry, modules: ModuleInfoMa
             return module_display_name;
         case "commentary":
         {
-            const references = entry.references.map(r => format_ref_id(r, name_mapper)).join(", ");
+            const config = configs.commentary_configs[info.id]!;
+            const references = entry.references.map(r => ref_id_formatter(r, config.bible ?? null)).join(", ");
             return `${module_display_name}: ${shorten_string(references, 20)}`
         }
         case "dictionary":
             return `${module_display_name}: ${entry.term}`
         case "xref_directed":
-            return `${module_display_name}: ${format_ref_id(entry.source, name_mapper)}`
+        {
+            const config = configs.xref_configs[info.id]!;
+            return `${module_display_name}: ${ref_id_formatter(entry.source, config.bible ?? null)}`   
+        }
         case "xref_mutual":
-            const references = entry.refs.map(r => format_ref_id(r.id, name_mapper)).join(", ");
+        {
+            const config = configs.xref_configs[info.id]!;
+            const references = entry.refs.map(r => ref_id_formatter(r.id, config.bible ?? null)).join(", ");
             return `${module_display_name}: ${shorten_string(references, 20)}`;
+        }
         case "notebook_note":
         {
             if (entry.name)
@@ -198,4 +205,50 @@ export async function fetch_backend_book_entries(bible: string, book: OsisBook):
     }).then(s => {
         return JSON.parse(s)
     })
+}
+
+export async function fetch_backend_entry_index(module: string, entry: number): Promise<number | null>
+{
+    return await invoke<string>("run_bible_command", {
+        command: {
+            type: "get_entry_index",
+            module,
+            entry,
+        }
+    }).then(s => {
+        return JSON.parse(s) as number | null;
+    });
+}
+
+export async function fetch_backend_module_entries(module: string, page_size: number, page_index: number): Promise<ModuleEntry[]>
+{
+    return await invoke<string>("run_bible_command", {
+        command: {
+            type: "fetch_module_entries",
+            module,
+            page_size,
+            page_index,
+        }
+    }).then(s => {
+        return JSON.parse(s) as ModuleEntry[];
+    });
+}
+
+export type ModulePage = {
+    start: ModuleEntry,
+    end: ModuleEntry,
+    count: number,
+}
+
+export async function fetch_backend_module_pages(module: string, page_size: number): Promise<ModulePage[]>
+{
+    return await invoke<string>("run_bible_command", {
+        command: {
+            type: "fetch_module_pages",
+            module,
+            page_size,
+        }
+    }).then(s => {
+        return JSON.parse(s) as ModulePage[];
+    });
 }

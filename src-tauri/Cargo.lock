@@ -336,8 +336,8 @@ checksum = "72b3254f16251a8381aa12e40e3c4d2f0199f8c6508fbecb9d91f575e0fbb8c6"
 
 [[package]]
 name = "biblio_json"
-version = "0.1.2"
-source = "git+https://github.com/FishArmy100/biblio_json?branch=ascribe-html-update#341e4ff5326a02d80d967f0eea3e38d576330872"
+version = "0.1.5"
+source = "git+https://github.com/FishArmy100/biblio_json?branch=ascribe-html-update#678fdb6ccc755dcb08728bdb4e8cae6db6142740"
 dependencies = [
  "bimap",
  "bincode",
