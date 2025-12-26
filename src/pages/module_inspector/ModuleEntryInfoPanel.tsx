@@ -1,4 +1,4 @@
-import RefIdRenderer, { format_ref_id } from "@components/bible/RefIdRenderer";
+import RefIdRenderer from "@components/bible/RefIdRenderer";
 import { format_strongs } from "@interop/bible/strongs";
 import { HRefSrc } from "@interop/html_text";
 import { CommentaryEntry, DictionaryEntry, ModuleEntry, ReadingsEntry, StrongsDefEntry, XRefDirectedEntry, XRefMutualEntry } from "@interop/module_entry";
@@ -12,7 +12,8 @@ import { use_module_configs } from "@components/providers/ModuleConfigProvider";
 import { OsisBook, use_selected_bibles } from "@interop/bible";
 import { shorten_string } from "@utils/index";
 import { HtmlTextRenderer } from "@components/HtmlTextRenderer";
-import { RefId } from "@interop/bible/ref_id";
+import { RefId, use_format_ref_id } from "@interop/bible/ref_id";
+import { use_view_history } from "@components/providers/ViewHistoryProvider";
 
 export type ModuleEntryInfoPanelProps = {
     entry: ModuleEntry,
@@ -65,107 +66,59 @@ function CommentaryEntryPanel({
     on_href_clicked,
 }: CommentaryEntryPanelProps): React.ReactElement
 {
-    const theme = useTheme();
-    const [is_open, set_is_open] = useState(false);
     const { module_infos } = use_module_infos();
-
-    const expand_image = is_open ? images.angle_up : images.angle_down;
-    const expand_text = is_open ? "Collapse module information" : "Expand module information";
-    const { get_book_display_name } = use_bible_infos();
     const { commentary_configs } = use_module_configs();
-    const { bible: selected_bible } = use_selected_bibles();
+    const commentary_bible = commentary_configs[entry.module].bible ?? null;
+    const format_ref_id = use_format_ref_id();
+    const view_history = use_view_history();
     
     const module = module_infos[entry.module]!;
     let title = entry.references.map(r => {
-        const bible = 
-            r.bible ?? 
-            (module.module_type === "commentary" ? commentary_configs[entry.module].bible ?? null : null) ??
-            selected_bible.id;
-
-        return format_ref_id(r, b => get_book_display_name(bible, b));
+        return format_ref_id(r, commentary_bible);
     }).join("; ");
 
     title = shorten_string(title, 30);
+
+    const on_title_click = entry.references.length === 1 && (() => {
+
+    })
 
     const handle_ref_id_click = useCallback((r: RefId) => {
         on_href_clicked({
             type: "ref_id",
             id: r,
         })
-    }, [on_href_clicked])
+    }, [on_href_clicked]);
 
     return (
-        <Paper
-            sx={{
-                padding: 2,
-            }}
-        >
-            <Stack
-                direction="row"
-                gap={1}
-                sx={{
-                    alignItems: "center"
-                }}
-            >
-                <ImageButton 
-                    image={expand_image}
-                    tooltip={expand_text}
-                    on_click={() => set_is_open(!is_open)}
-                />
-                <Typography
-                    variant="body1"
-                    fontWeight="bold"
-                >
-                    {title}
-                </Typography>
-            </Stack>
-            <Collapse
-                in={is_open}
-                timeout="auto"
-            >
-                <Divider sx={{ mt: 1, mb: 1 }}/>
-                <Box
-                    sx={{
-                        borderRadius: theme.spacing(1),
-                        borderColor: theme.palette.divider,
-                        borderStyle: "solid",
-                        borderWidth: theme.spacing(1 / 8),
-                        padding: 2,
-                        mb: 1,
-                    }}
-                >
-                    <HtmlTextRenderer
-                        on_href_click={on_href_clicked}
-                        content={entry.comment}
-                    /> 
-                </Box>
-                <Stack>
-                    {entry.references.map((r, i) => (
-                        <Box
-                            key={i}
-                            sx={{
-                                width: "fit-content"
-                            }}
-                        >
-                            <RefIdRenderer
-                                ref_id={r}
-                                name_mapper={book => {
-                                    const bible =
-                                        r.bible ??
-                                        (module.module_type === "commentary" ? commentary_configs[entry.module].bible ?? null : null) ??
-                                        selected_bible.id;
-                                    return get_book_display_name(bible, book);
-                                }}
-                                on_click={handle_ref_id_click}
-                            />
-                        </Box>
-                    )).flatMap((item, index, arr) => {
-                        return index < arr.length - 1 ? [item, (<span key={index + "s"}>; </span>)] : [item]
-                    })}
-                </Stack>
-            </Collapse>
-        </Paper>
-    )
+        <ModuleEntryInfoPanelBase 
+            title={title}
+            body={
+                <HtmlTextRenderer
+                    on_href_click={on_href_clicked}
+                    content={entry.comment}
+                /> 
+            }
+            footer={
+                entry.references.map((r, i) => (
+                    <Box
+                        key={i}
+                        sx={{
+                            width: "fit-content"
+                        }}
+                    >
+                        <RefIdRenderer
+                            ref_id={r}
+                            bible={module.module_type === "commentary" ? commentary_configs[entry.module].bible ?? null : null}
+                            on_click={handle_ref_id_click}
+                        />
+                    </Box>
+                )).flatMap((item, index, arr) => {
+                    return index < arr.length - 1 ? [item, (<span key={index + "s"}>; </span>)] : [item]
+                })
+            }
+        />
+    );
 }
 
 type DictionaryEntryPanelProps = {
@@ -226,4 +179,86 @@ function XRefMutualEntryPanel({
 }: XRefMutualEntryPanelProps): React.ReactElement
 {
     return <></>
+}
+
+type ModuleEntryInfoPanelBaseProps = {
+    title: string,
+    body: React.ReactNode | null,
+    footer: React.ReactNode | null,
+    on_title_click?: () => void
+}
+
+function ModuleEntryInfoPanelBase({
+    title,
+    body,
+    footer,
+    on_title_click
+}: ModuleEntryInfoPanelBaseProps): React.ReactElement
+{
+    const [is_open, set_is_open] = useState(false);
+
+    const theme = useTheme();
+    const expand_image = is_open ? images.angle_up : images.angle_down;
+    const expand_text = is_open ? "Collapse module information" : "Expand module information";
+
+    return (
+        <Paper
+            sx={{
+                padding: 2,
+            }}
+        >
+            <Stack
+                direction="row"
+                gap={1}
+                sx={{
+                    alignItems: "center"
+                }}
+            >
+                <ImageButton 
+                    image={expand_image}
+                    tooltip={expand_text}
+                    on_click={() => set_is_open(!is_open)}
+                />
+                <Typography
+                    variant="body1"
+                    fontWeight="bold"
+                    className={on_title_click ? "animated-underline" : undefined}
+                    sx={{
+                        cursor: on_title_click ? "animated-underline" : undefined,
+                    }}
+                    onClick={on_title_click ?? undefined}
+                >
+                    {title}
+                </Typography>
+            </Stack>
+            <Collapse
+                in={is_open}
+                timeout="auto"
+            >
+                {body && (
+                    <Stack direction="column">
+                        <Divider sx={{ mt: 1, mb: 1 }}/>
+                        <Box
+                            sx={{
+                                borderRadius: theme.spacing(1),
+                                borderColor: theme.palette.divider,
+                                borderStyle: "solid",
+                                borderWidth: theme.spacing(1 / 8),
+                                padding: 2,
+                                mb: 1,
+                            }}
+                        >
+                            {body}
+                        </Box>
+                    </Stack>
+                )}
+                {footer && (
+                    <Stack direction="column">
+                        <Divider />
+                        {footer}
+                    </Stack>
+                )}
+            </Collapse>
+        </Paper>
+    )
 }

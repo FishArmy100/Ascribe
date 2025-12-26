@@ -4,10 +4,11 @@ import React, { useCallback, useEffect, useState } from "react";
 import { MODULE_INSPECTOR_PAGE_SIZE } from "./ModuleInspectorPage";
 import { Box, Typography, useTheme } from "@mui/material";
 import Tooltip from "@components/core/Tooltip";
-import { number } from "framer-motion";
 import { use_view_history } from "@components/providers/ViewHistoryProvider";
 import { use_deep_copy } from "@utils/index";
 import { format_strongs } from "@interop/bible/strongs";
+import { RefIdFormatter, use_format_ref_id } from "@interop/bible/ref_id";
+import { ModuleConfigContextType, use_module_configs } from "@components/providers/ModuleConfigProvider";
 
 export type ModuleInspectorPaginatorProps = {
     entry: ModuleInspectorEntry,
@@ -21,6 +22,15 @@ export default function ModuleInspectorPaginator({
     const [page_index, set_page_index] = useState<number | null>(null);
     const view_history = use_view_history();
     const deep_copy = use_deep_copy();
+    const formatter = use_format_ref_id();
+    const configs = use_module_configs();
+    const theme = useTheme();    
+
+    const handle_page_clicked = useCallback((page: number) => {
+        const copy = deep_copy(entry);
+        copy.selector = { type: "page", index: page }
+        view_history.push(copy)
+    }, [view_history, entry]);
 
     useEffect(() => {
         let is_mounted = true;
@@ -55,20 +65,12 @@ export default function ModuleInspectorPaginator({
         return () => {
             is_mounted = false;
         }
-    });
+    }, [entry]);
 
     if (!pages)
     {
         return <></>
     }
-
-    const theme = useTheme();
-
-    const handle_page_clicked = useCallback((page: number) => {
-        const copy = deep_copy(entry);
-        copy.selector = { type: "page", index: page }
-        view_history.push(copy)
-    }, [view_history, entry]);
 
     return (
         <Box
@@ -89,8 +91,8 @@ export default function ModuleInspectorPaginator({
                 }}
             >
                 {pages.map((p, i) => {
-                    const start_name = format_entry_title(p.start);
-                    const end_name = format_entry_title(p.end);
+                    const start_name = format_entry_title(p.start, formatter, configs);
+                    const end_name = format_entry_title(p.end, formatter, configs);
                     const title = `${start_name}-${end_name}`;
                     return (
                         <Tooltip
@@ -130,11 +132,11 @@ export default function ModuleInspectorPaginator({
     )
 }
 
-function format_entry_title(entry: ModuleEntry): string 
+function format_entry_title(entry: ModuleEntry, formatter: RefIdFormatter, configs: ModuleConfigContextType): string 
 {
     if (entry.type === "commentary")
     {
-        
+        return formatter(entry.references[0], configs.commentary_configs[entry.module].bible ?? null)
     }
     else if (entry.type === "dictionary")
     {
@@ -146,11 +148,11 @@ function format_entry_title(entry: ModuleEntry): string
     }
     else if (entry.type === "notebook_note")
     {
-
+        return formatter(entry.references[0], configs.notebook_configs[entry.module].bible ?? null)
     }
     else if (entry.type === "readings")
     {
-
+        return "TODO:"
     }
     else if (entry.type === "strongs_def")
     {
@@ -158,10 +160,15 @@ function format_entry_title(entry: ModuleEntry): string
     }
     else if (entry.type === "xref_directed")
     {
-
+        return formatter(entry.source, configs.xref_configs[entry.module].bible ?? null)
     }
     else if (entry.type === "xref_mutual")
     {
-
+        return formatter(entry.refs[0].id, configs.xref_configs[entry.module].bible ?? null)
+    }
+    else 
+    {
+        console.error("Invalid entry type");
+        return ""
     }
 }

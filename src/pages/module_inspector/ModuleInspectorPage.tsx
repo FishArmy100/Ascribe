@@ -1,14 +1,16 @@
 import { ModuleInspectorEntry } from "@interop/view_history"
-import { Box, Stack, useTheme } from "@mui/material"
+import { Box, Divider, Stack, useTheme } from "@mui/material"
 import React, { useEffect, useState } from "react"
 import ModuleInspectorPageToolbar from "./ModuleInspectorToolbar"
 import { use_module_infos } from "@components/providers/ModuleInfoProvider"
-import { fetch_backend_module_entries, ModuleEntry } from "@interop/module_entry"
+import { fetch_backend_entry_index, fetch_backend_module_entries, ModuleEntry } from "@interop/module_entry"
 import { LoadingSpinner } from "../LoadingSpinner"
 import ModuleEntryInfoPanel from "./ModuleEntryInfoPanel"
 import { get_handle_ref_clicked_callback } from "../page_utils"
 import { use_bible_display_settings } from "@components/providers/BibleDisplaySettingsProvider"
 import { use_view_history } from "@components/providers/ViewHistoryProvider"
+import ModuleInspectorPaginator from "./ModuleInspectorPaginator"
+import { Footer } from "@components/index"
 
 export const MODULE_INSPECTOR_PAGE_SIZE = 50;
 
@@ -26,25 +28,51 @@ export default function ModuleInspectorPage({
     const [entries, set_entries] = useState<ModuleEntry[] | null>(null);
     const { bible_version_state, set_bible_version_state } = use_bible_display_settings();
     const view_history = use_view_history();
+    const [page_index, set_page_index] = useState<number | null>(null);
     
 
     useEffect(() => {
-        let is_mounted = true;
-        const fetch_entries = async () => {
-            const fetched = await fetch_backend_module_entries(entry.module, MODULE_INSPECTOR_PAGE_SIZE, 0);
+        const fetch_page_index = async () => {
+            let index = 0;
 
-            if (is_mounted)
-            {
-                set_entries(fetched)
+            if (entry.selector?.type === "page") {
+                index = entry.selector.index;
+            } else if (entry.selector?.type === "entry") {
+                const entry_index =
+                    (await fetch_backend_entry_index(entry.module, entry.selector.id)) ?? 0;
+                index = Math.floor(entry_index / MODULE_INSPECTOR_PAGE_SIZE);
             }
-        }
+
+            set_page_index(index);
+        };
+
+        fetch_page_index();
+    }, [entry.module, entry.selector]);
+
+    useEffect(() => {
+        if (page_index === null) return;
+
+        let is_mounted = true;
+
+        const fetch_entries = async () => {
+            const fetched = await fetch_backend_module_entries(
+                entry.module,
+                MODULE_INSPECTOR_PAGE_SIZE,
+                page_index
+            );
+
+            if (is_mounted) {
+                set_entries(fetched);
+            }
+        };
 
         fetch_entries();
 
         return () => {
             is_mounted = false;
-        }
-    });
+        };
+    }, [entry.module, page_index]);
+
 
     const handle_ref_clicked = get_handle_ref_clicked_callback(set_bible_version_state, bible_version_state, view_history, () => {
         // set_popover_data(null)
@@ -70,10 +98,14 @@ export default function ModuleInspectorPage({
                             key={i}
                         />
                     ))}
+                    
+                    <ModuleInspectorPaginator entry={entry}/>
                 </Stack>
             ) : (
                 <LoadingSpinner />
             )}
+            
+            <Footer />
         </Box>
     )
 }

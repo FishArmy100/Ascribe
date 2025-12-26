@@ -19,10 +19,20 @@ export type VerseId = {
     verse: number,
 }
 
-export function use_display_verse(): (id: VerseId, bible_id: string) => string 
+export function use_format_verse_id(): (id: VerseId, bible: string | null) => string 
 {
-    const { get_book_display_name } = use_bible_infos();
-    return (id: VerseId, bible_id: string) => `${get_book_display_name(bible_id, id.book)} ${id.chapter}:${id.verse}`;
+    const { get_bible_display_name, get_book_display_name } = use_bible_infos();
+    const { bible_version_state } = use_bible_display_settings();
+    return (id: VerseId, bible: string | null) => {
+        const display_bible_id = bible ?? bible_version_state.bible_version;
+        const formatted = `${get_book_display_name(display_bible_id, id.book)} ${id.chapter}:${id.verse}`;
+        if (bible !== bible_version_state.bible_version)
+        {
+            return formatted + ` (${get_bible_display_name(display_bible_id)})`;
+        }
+
+        return formatted;
+    };
 }
 
 export type WordId = {

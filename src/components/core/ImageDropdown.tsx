@@ -78,7 +78,7 @@ export default function ImageDropdown<T>({
             <style>
                 {`
                     .dropdown-button:hover .dropdown-content {
-                        position: relative
+                        position: absolute;
                         opacity: 1;
                         visibility: visible;
                         pointer-events: auto;

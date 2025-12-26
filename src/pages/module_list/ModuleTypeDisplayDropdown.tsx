@@ -78,6 +78,9 @@ export default function ModuleTypeDisplayDropdown({
                             options_copy.show_bibles = !options_copy.show_bibles;
                             set_options(options_copy)
                         }}
+                        on_right_click={() => {
+                            set_options(enable_only("show_bibles"))
+                        }}
                     />
                     <DisplayOption 
                         value={options.show_commentaries}
@@ -86,6 +89,9 @@ export default function ModuleTypeDisplayDropdown({
                         on_click={() => {
                             options_copy.show_commentaries = !options_copy.show_commentaries;
                             set_options(options_copy)
+                        }}
+                        on_right_click={() => {
+                            set_options(enable_only("show_commentaries"))
                         }}
                     />
                     <DisplayOption 
@@ -96,6 +102,9 @@ export default function ModuleTypeDisplayDropdown({
                             options_copy.show_cross_refs = !options_copy.show_cross_refs;
                             set_options(options_copy)
                         }}
+                        on_right_click={() => {
+                            set_options(enable_only("show_cross_refs"))
+                        }}
                     />
                     <DisplayOption 
                         value={options.show_notebooks}
@@ -104,6 +113,9 @@ export default function ModuleTypeDisplayDropdown({
                         on_click={() => {
                             options_copy.show_notebooks = !options_copy.show_notebooks;
                             set_options(options_copy)
+                        }}
+                        on_right_click={() => {
+                            set_options(enable_only("show_notebooks"))
                         }}
                     />
                     <DisplayOption 
@@ -114,6 +126,9 @@ export default function ModuleTypeDisplayDropdown({
                             options_copy.show_readings = !options_copy.show_readings;
                             set_options(options_copy)
                         }}
+                        on_right_click={() => {
+                            set_options(enable_only("show_readings"))
+                        }}
                     />
                     <DisplayOption 
                         value={options.show_strongs_defs}
@@ -122,6 +137,9 @@ export default function ModuleTypeDisplayDropdown({
                         on_click={() => {
                             options_copy.show_strongs_defs = !options_copy.show_strongs_defs;
                             set_options(options_copy)
+                        }}
+                        on_right_click={() => {
+                            set_options(enable_only("show_strongs_defs"))
                         }}
                     />
                     <Divider sx={{ mb: 1, }}/>
@@ -165,13 +183,15 @@ type DisplayOptionProps = {
     tooltip: string,
     label: string,
     on_click: () => void,
+    on_right_click: () => void,
 }
 
 function DisplayOption({
     value,
     tooltip,
     label,
-    on_click
+    on_click,
+    on_right_click
 }: DisplayOptionProps): React.ReactElement
 {
     return (
@@ -184,6 +204,10 @@ function DisplayOption({
                 tooltip={value ? `Disable ${tooltip}` : `Enable ${tooltip}`}
             >
                 <FormControlLabel
+                    onContextMenu={e => {
+                        on_right_click();
+                        e.preventDefault();
+                    }}
                     label={
                         <Typography 
                             component="span" 
@@ -196,6 +220,10 @@ function DisplayOption({
                         <Checkbox
                             checked={value}
                             onChange={on_click}
+                            onContextMenu={e => {
+                                on_right_click();
+                                e.preventDefault();
+                            }}
                         />
                     }
                     labelPlacement="end"
@@ -203,4 +231,18 @@ function DisplayOption({
             </Tooltip>
         </Box>
     )
+}
+
+function enable_only(
+    key: keyof ModuleDisplayOptions,
+): ModuleDisplayOptions {
+    return {
+        show_bibles: false,
+        show_commentaries: false,
+        show_readings: false,
+        show_strongs_defs: false,
+        show_notebooks: false,
+        show_cross_refs: false,
+        [key]: true,
+    };
 }

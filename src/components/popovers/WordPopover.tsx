@@ -13,6 +13,8 @@ import { use_module_infos } from "@components/providers/ModuleInfoProvider";
 import { get_module_display_name } from "@interop/module_info";
 import { use_bible_infos } from "@components/providers/BibleInfoProvider";
 import { use_bible_display_settings } from "@components/providers/BibleDisplaySettingsProvider";
+import { use_module_configs } from "@components/providers/ModuleConfigProvider";
+import { use_format_ref_id } from "@interop/bible/ref_id";
 
 export type WordPopoverProps = {
     bible_id: string | null,
@@ -35,8 +37,10 @@ export default function WordPopover({
     const [verse_render_data, set_verse_render_data] = useState<VerseRenderData | null>(null);
     const { bible_infos } = use_bible_infos();
     const { bible_version_state } = use_bible_display_settings()
-    const bible_version = bible_id ? bible_infos[bible_id] : bible_infos[bible_version_state.bible_version]
-    const name_mapper = (b: OsisBook) => get_book_display_name(b, bible_version);
+    const bible_version = bible_id ? bible_infos[bible_id] : bible_infos[bible_version_state.bible_version];
+    const configs = use_module_configs();
+    const formatter = use_format_ref_id();
+
 
     useEffect(() => {
         if (word !== null)
@@ -54,16 +58,18 @@ export default function WordPopover({
 
     // do a .? here, just to make sure that in the rare case that it thinks everything is fetched properly, and it is still null
     const title = verse_render_data && word ? verse_render_data.words[word.word - 1]?.word ?? null : null;
-    const entries = module_entries?.map((e): PopoverEntryData => ({
-        title: get_module_entry_title(e, module_infos, name_mapper),
-        body: (
-            <ModuleEntryRenderer
-                entry={e}
-                name_mapper={name_mapper}
-                on_ref_clicked={on_ref_clicked}
-            />
-        )
-    })) ?? [];
+    const entries = module_entries?.map((e): PopoverEntryData => {
+
+        return {
+            title: get_module_entry_title(e, module_infos, configs, formatter),
+            body: (
+                <ModuleEntryRenderer
+                    entry={e}
+                    on_ref_clicked={on_ref_clicked}
+                />
+            )
+        }
+    }) ?? [];
  
     return <PopoverBase
         title={`"${title}"`}
