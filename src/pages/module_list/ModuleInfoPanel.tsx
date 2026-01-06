@@ -28,13 +28,13 @@ export default function ModuleInfoPanel({
 
     const is_expandable = info.description != undefined || info.license != undefined || info.data_source != undefined || info.pub_year != undefined;
 
-    const on_module_click = useCallback(() => {
+    const on_module_click = info.module_type !== "bible" ? useCallback(() => {
         view_history.push({
             type: "module_inspector",
             module: info.id,
             selector: null,
         })
-    }, [view_history, info.id])
+    }, [view_history, info.id]) : undefined;
 
     return (
         <Paper
@@ -66,9 +66,9 @@ export default function ModuleInfoPanel({
                     <Typography
                         variant="body1"
                         fontWeight="bold"
-                        className="animated-underline"
+                        className={ on_module_click ? "animated-underline" : undefined}
                         sx={{
-                            cursor: "pointer",
+                            cursor: on_module_click ? "pointer" : "default",
                         }}
                         onClick={on_module_click}
                     >

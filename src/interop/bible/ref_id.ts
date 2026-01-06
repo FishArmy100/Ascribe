@@ -18,6 +18,42 @@ export type Atom =
     | { type: "verse", book: OsisBook, chapter: number, verse: number }
     | { type: "word", book: OsisBook, chapter: number, verse: number, word: number }
 
+export function get_atom_chapter(atom: Atom): number | null
+{
+    if (atom.type === "chapter" || atom.type === "verse" || atom.type === "word")
+    {
+        return atom.chapter;
+    }
+    else
+    {
+        return null;
+    }
+}
+
+export function get_atom_verse(atom: Atom): number | null
+{
+    if (atom.type === "verse" || atom.type === "word")
+    {
+        return atom.verse;
+    }
+    else
+    {
+        return null;
+    }
+}
+
+export function get_atom_word(atom: Atom): number | null
+{
+    if (atom.type === "word")
+    {
+        return atom.word;
+    }
+    else
+    {
+        return null;
+    }
+}
+
 
 export type RefIdFormatter = (id: RefId, bible: string | null) => string;
 

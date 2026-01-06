@@ -86,7 +86,7 @@ impl PackageEx for Package
                     
                     strongs_word.strongs.iter().map(|s| {
                         strongs_defs.iter().filter_map(|defs| {
-                            defs.get_def(s).map(|d| (d, info.clone()))
+                            defs.get_def(s).map(|d| (d, Module::StrongsDefs(defs.clone()).get_info()))
                         })
                     }).flatten().map(|(d, id)| (ModuleEntry::StrongsDef(d), id)).collect_vec()
                 },

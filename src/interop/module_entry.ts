@@ -98,7 +98,24 @@ export type ReadingsEntry = {
     readings: RefId[],
 }
 
-export type ModuleEntry = StrongsDefEntry | StrongsLinkEntry | CommentaryEntry | DictionaryEntry | XRefDirectedEntry | XRefMutualEntry | NotebookNoteEntry | NotebookHighlightEntry | ReadingsEntry
+export type VerseEntry = {
+    type: "verse",
+    module: string,
+    verse_id: VerseId,
+    words: VerseWord[],
+    id: number,
+}
+
+export type VerseWord = {
+    red: boolean | null,
+    italics: boolean | null,
+    begin_punc: string | null,
+    end_punc: string | null,
+    text: string,
+}
+
+export type ModuleEntry = 
+    StrongsDefEntry | StrongsLinkEntry | CommentaryEntry | DictionaryEntry | XRefDirectedEntry | XRefMutualEntry | NotebookNoteEntry | NotebookHighlightEntry | ReadingsEntry | VerseEntry
 
 export function get_module_entry_title(entry: ModuleEntry, module_infos: ModuleInfoMap, configs: ModuleConfigContextType, ref_id_formatter: RefIdFormatter): string 
 {
@@ -151,6 +168,23 @@ export function get_module_entry_title(entry: ModuleEntry, module_infos: ModuleI
             return `${module_display_name}: ${entry.name}`
         case "readings":
             return module_display_name
+        case "verse":
+        {
+            const verse_ref_id: RefId = {
+                bible: null,
+                id: {
+                    type: "single",
+                    atom: {
+                        type: "verse",
+                        book: entry.verse_id.book,
+                        chapter: entry.verse_id.chapter,
+                        verse: entry.verse_id.verse,
+                    }
+                }
+            }
+
+            return ref_id_formatter(verse_ref_id, configs.bible_configs[entry.module].id);
+        }
     }
 }
 

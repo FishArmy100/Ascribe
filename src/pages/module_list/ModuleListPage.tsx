@@ -20,6 +20,7 @@ export default function ModuleListPage(): React.ReactElement
         show_notebooks: true,
         show_readings: true,
         show_strongs_defs: true,
+        show_dictionaries: true,
     });
 
     const view_history = use_view_history();
@@ -38,6 +39,10 @@ export default function ModuleListPage(): React.ReactElement
                 return true
             }
             else if (display_options.show_cross_refs && m.module_type === "cross_refs")
+            {
+                return true;
+            }
+            else if (display_options.show_dictionaries && m.module_type === "dictionary")
             {
                 return true;
             }

@@ -7,7 +7,7 @@ import Tooltip from "@components/core/Tooltip";
 import { use_view_history } from "@components/providers/ViewHistoryProvider";
 import { use_deep_copy } from "@utils/index";
 import { format_strongs } from "@interop/bible/strongs";
-import { RefIdFormatter, use_format_ref_id } from "@interop/bible/ref_id";
+import { RefId, RefIdFormatter, use_format_ref_id } from "@interop/bible/ref_id";
 import { ModuleConfigContextType, use_module_configs } from "@components/providers/ModuleConfigProvider";
 
 export type ModuleInspectorPaginatorProps = {
@@ -165,6 +165,23 @@ function format_entry_title(entry: ModuleEntry, formatter: RefIdFormatter, confi
     else if (entry.type === "xref_mutual")
     {
         return formatter(entry.refs[0].id, configs.xref_configs[entry.module].bible ?? null)
+    }
+    else if (entry.type === "verse")
+    {
+        const verse_ref_id: RefId = {
+            bible: null,
+            id: {
+                type: "single",
+                atom: {
+                    type: "verse",
+                    book: entry.verse_id.book,
+                    chapter: entry.verse_id.chapter,
+                    verse: entry.verse_id.verse,
+                }
+            }
+        }
+
+        return formatter(verse_ref_id, configs.bible_configs[entry.module].id);
     }
     else 
     {

@@ -7,6 +7,7 @@ import { BUTTON_PADDING } from "@components/core/ImageButton";
 import { use_deep_copy } from "@utils/index";
 
 export type ModuleDisplayOptions = {
+    show_dictionaries: boolean,
     show_bibles: boolean,
     show_commentaries: boolean,
     show_readings: boolean,
@@ -107,6 +108,18 @@ export default function ModuleTypeDisplayDropdown({
                         }}
                     />
                     <DisplayOption 
+                        value={options.show_dictionaries}
+                        label="Cross References"
+                        tooltip="showing cross references"
+                        on_click={() => {
+                            options_copy.show_dictionaries = !options_copy.show_dictionaries;
+                            set_options(options_copy)
+                        }}
+                        on_right_click={() => {
+                            set_options(enable_only("show_dictionaries"))
+                        }}
+                    />
+                    <DisplayOption 
                         value={options.show_notebooks}
                         label="Notebooks"
                         tooltip="showing notebook modules"
@@ -159,6 +172,7 @@ export default function ModuleTypeDisplayDropdown({
                                     show_notebooks: true,
                                     show_readings: true,
                                     show_strongs_defs: true,
+                                    show_dictionaries: true,
                                 })
                             }}
                         />
@@ -243,6 +257,7 @@ function enable_only(
         show_strongs_defs: false,
         show_notebooks: false,
         show_cross_refs: false,
+        show_dictionaries: false,
         [key]: true,
     };
 }

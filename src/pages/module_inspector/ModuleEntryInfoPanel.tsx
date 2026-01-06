@@ -1,19 +1,18 @@
 import RefIdRenderer from "@components/bible/RefIdRenderer";
-import { format_strongs } from "@interop/bible/strongs";
 import { HRefSrc } from "@interop/html_text";
 import { CommentaryEntry, DictionaryEntry, ModuleEntry, ReadingsEntry, StrongsDefEntry, XRefDirectedEntry, XRefMutualEntry } from "@interop/module_entry";
 import React, { useCallback, useState } from "react";
 import * as images from "@assets";
 import { Box, Collapse, Divider, Paper, Stack, Typography, useTheme } from "@mui/material";
 import { ImageButton } from "@components/index";
-import { use_bible_infos } from "@components/providers/BibleInfoProvider";
 import { use_module_infos } from "@components/providers/ModuleInfoProvider";
 import { use_module_configs } from "@components/providers/ModuleConfigProvider";
-import { OsisBook, use_selected_bibles } from "@interop/bible";
-import { shorten_string } from "@utils/index";
+import { OsisBook } from "@interop/bible";
+import { shorten_string, use_deep_copy } from "@utils/index";
 import { HtmlTextRenderer } from "@components/HtmlTextRenderer";
-import { RefId, use_format_ref_id } from "@interop/bible/ref_id";
+import { get_atom_chapter, get_atom_verse, RefId, use_format_ref_id } from "@interop/bible/ref_id";
 import { use_view_history } from "@components/providers/ViewHistoryProvider";
+import { use_bible_display_settings } from "@components/providers/BibleDisplaySettingsProvider";
 
 export type ModuleEntryInfoPanelProps = {
     entry: ModuleEntry,
@@ -78,10 +77,9 @@ function CommentaryEntryPanel({
     }).join("; ");
 
     title = shorten_string(title, 30);
-
-    const on_title_click = entry.references.length === 1 && (() => {
-
-    })
+    const on_title_click = entry.references.length === 1 ? 
+        (() => view_history.push_ref_id(entry.references[0])) 
+        : undefined;
 
     const handle_ref_id_click = useCallback((r: RefId) => {
         on_href_clicked({
@@ -93,6 +91,7 @@ function CommentaryEntryPanel({
     return (
         <ModuleEntryInfoPanelBase 
             title={title}
+            on_title_click={on_title_click}
             body={
                 <HtmlTextRenderer
                     on_href_click={on_href_clicked}
@@ -128,9 +127,45 @@ type DictionaryEntryPanelProps = {
 
 function DictionaryEntryPanel({
     entry,
+    on_href_clicked,
 }: DictionaryEntryPanelProps): React.ReactElement
 {
-    return <></>
+    const view_history = use_view_history();
+    
+    const title = entry.term.charAt(0).toLocaleUpperCase() + entry.term.substring(1);
+
+    const handle_title_clicked = useCallback(() => {
+        view_history.push({
+            type: "word_search",
+            query: {
+                ranges: [],
+                root: {
+                    type: "word",
+                    word: entry.term
+                }
+            },
+            page_index: 0,
+            raw: entry.term,
+        });
+    }, [entry, view_history]);
+
+    const handle_href_click = useCallback((r: HRefSrc) => {
+        on_href_clicked(r)
+    }, [on_href_clicked]);
+
+
+    return (
+        <ModuleEntryInfoPanelBase
+            title={title}
+            on_title_click={handle_title_clicked}
+            body={
+                <HtmlTextRenderer
+                    on_href_click={handle_href_click}
+                    content={entry.definition}
+                />
+            }
+        />
+    )
 }
 
 type ReadingsEntryPanelProps = {
@@ -142,7 +177,7 @@ function ReadingsEntryPanel({
     entry
 }: ReadingsEntryPanelProps): React.ReactElement
 {
-    return <></>
+    return <></> 
 }
 
 type StrongsDefEntryPanelProps = {
@@ -184,7 +219,7 @@ function XRefMutualEntryPanel({
 type ModuleEntryInfoPanelBaseProps = {
     title: string,
     body: React.ReactNode | null,
-    footer: React.ReactNode | null,
+    footer?: React.ReactNode,
     on_title_click?: () => void
 }
 
@@ -224,7 +259,7 @@ function ModuleEntryInfoPanelBase({
                     fontWeight="bold"
                     className={on_title_click ? "animated-underline" : undefined}
                     sx={{
-                        cursor: on_title_click ? "animated-underline" : undefined,
+                        cursor: "pointer",
                     }}
                     onClick={on_title_click ?? undefined}
                 >
