@@ -10,7 +10,7 @@ import ModuleInspectorPage from "./pages/module_inspector/ModuleInspectorPage";
 export default function App(): React.ReactElement
 {
 	const view_history = use_view_history();
-	let current = view_history.get_current().current;
+	let current = view_history.get_current();
 	if (current.type === "chapter" || current.type === "verse")
 	{
 		return <BiblePage entry={current}/>;

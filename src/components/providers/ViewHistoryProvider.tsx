@@ -7,19 +7,25 @@ import { use_deep_copy } from "@utils/index";
 import { get_backend_bible_display_settings, OsisBook, set_backend_bible_display_settings } from "@interop/bible";
 
 const DEFAULT_VIEW_HISTORY_INFO: ViewHistoryInfo = {
-    current: {
-        type: 'chapter',
-        chapter: {
-            book: 'Gen',
-            chapter: 1,
+    all: [
+        {
+            type: 'chapter',
+            chapter: {
+                book: 'Gen',
+                chapter: 1,
+            }
         }
-    },
+    ],
     index: 0,
     count: 1,
 }
 
 export type ViewHistoryContextType = {
-    get_current: () => ViewHistoryInfo,
+    get_current: () => ViewHistoryEntry,
+    get_count: () => number,
+    get_all: () => ViewHistoryEntry[],
+    get_index: () => number,
+    set_index: (index: number) => Promise<void>,
     advance: () => Promise<void>,
     retreat: () => Promise<void>,
     push: (e: ViewHistoryEntry) => Promise<void>,
@@ -51,7 +57,13 @@ export function ViewHistoryProvider({
         }
     }, []);
 
-    const get_current = (): ViewHistoryInfo => current ?? DEFAULT_VIEW_HISTORY_INFO;
+    const get_current = (): ViewHistoryEntry => current ? current.all[current.index] : DEFAULT_VIEW_HISTORY_INFO.all[0];
+
+    const get_count = () => current ? current.count : DEFAULT_VIEW_HISTORY_INFO.count;
+
+    const get_index = () => current ? current.index : DEFAULT_VIEW_HISTORY_INFO.index;
+
+    const get_all = () => current ? current.all : DEFAULT_VIEW_HISTORY_INFO.all
     
     const advance = async () => {
         return view_history.advance_backend_view_history();
@@ -65,8 +77,12 @@ export function ViewHistoryProvider({
         return view_history.push_backend_view_history_entry(e);
     }
 
+    const set_index = async (index: number) => {
+        return view_history.set_backend_view_history_index(index);
+    }
+
     return (
-        <ViewHistoryContext.Provider value={{ get_current, advance, retreat, push, push_ref_id }}>
+        <ViewHistoryContext.Provider value={{ get_current, get_count, get_index, set_index, get_all, advance, retreat, push, push_ref_id }}>
             {children}
         </ViewHistoryContext.Provider>
     )

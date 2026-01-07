@@ -20,7 +20,7 @@ export const BiblePageToolbar = React.memo(function BiblePageToolbar({
 {
     const view_history = use_view_history();
 	const { bible: selected_bible } = bible.use_selected_bibles()
-	const placeholder = get_placeholder_text(view_history.get_current().current, selected_bible);
+	const placeholder = get_placeholder_text(view_history.get_current(), selected_bible);
 
 	const on_select_callback = useCallback((c: bible.ChapterId) => {
 		view_history.push({
@@ -57,13 +57,13 @@ export const BiblePageToolbar = React.memo(function BiblePageToolbar({
 			<ImageButton
 				image={images.arrow_turn_left}
 				tooltip="To previous page"
-				disabled={view_history.get_current().index === 0}
+				disabled={view_history.get_index() === 0}
 				on_click={() => view_history.retreat()}
 			/>
 			<ImageButton
 				image={images.arrow_turn_right}
 				tooltip="To next page"
-				disabled={view_history.get_current().index >= view_history.get_current().count - 1}
+				disabled={view_history.get_index() >= view_history.get_count() - 1}
 				on_click={() => view_history.advance()}
 			/>
 			<ImageButton

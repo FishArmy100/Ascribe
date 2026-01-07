@@ -95,13 +95,13 @@ export default function BiblePage({
 
 	const handle_chapter_navigation = useCallback((type: "next" | "previous") => {
 		const current_page = view_history.get_current();
-		if (current_page.current.type !== "verse" && current_page.current.type !== "chapter") {
+		if (current_page.type !== "verse" && current_page.type !== "chapter") {
 			return;
 		}
 
 		const chapter = type === "next"
-			? bible.increment_chapter(selected_bibles.bible, current_page.current.chapter)
-			: bible.decrement_chapter(selected_bibles.bible, current_page.current.chapter);
+			? bible.increment_chapter(selected_bibles.bible, current_page.chapter)
+			: bible.decrement_chapter(selected_bibles.bible, current_page.chapter);
 
 		view_history.push({
 			type: "chapter",

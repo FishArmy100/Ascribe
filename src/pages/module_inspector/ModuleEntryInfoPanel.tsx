@@ -1,5 +1,5 @@
 import RefIdRenderer from "@components/bible/RefIdRenderer";
-import { HRefSrc } from "@interop/html_text";
+import { HRefSrc, HtmlText, Node } from "@interop/html_text";
 import { CommentaryEntry, DictionaryEntry, ModuleEntry, ReadingsEntry, StrongsDefEntry, XRefDirectedEntry, XRefMutualEntry } from "@interop/module_entry";
 import React, { useCallback, useState } from "react";
 import * as images from "@assets";
@@ -13,6 +13,7 @@ import { HtmlTextRenderer } from "@components/HtmlTextRenderer";
 import { get_atom_chapter, get_atom_verse, RefId, use_format_ref_id } from "@interop/bible/ref_id";
 import { use_view_history } from "@components/providers/ViewHistoryProvider";
 import { use_bible_display_settings } from "@components/providers/BibleDisplaySettingsProvider";
+import { format_strongs } from "@interop/bible/strongs";
 
 export type ModuleEntryInfoPanelProps = {
     entry: ModuleEntry,
@@ -99,22 +100,26 @@ function CommentaryEntryPanel({
                 /> 
             }
             footer={
-                entry.references.map((r, i) => (
-                    <Box
-                        key={i}
-                        sx={{
-                            width: "fit-content"
-                        }}
-                    >
-                        <RefIdRenderer
-                            ref_id={r}
-                            bible={module.module_type === "commentary" ? commentary_configs[entry.module].bible ?? null : null}
-                            on_click={handle_ref_id_click}
-                        />
-                    </Box>
-                )).flatMap((item, index, arr) => {
-                    return index < arr.length - 1 ? [item, (<span key={index + "s"}>; </span>)] : [item]
-                })
+                <Stack direction="row" flexWrap="wrap">
+                {
+                    entry.references.map((r, i) => (
+                        <Box
+                            key={i}
+                            sx={{
+                                width: "fit-content"
+                            }}
+                        >
+                            <RefIdRenderer
+                                ref_id={r}
+                                bible={module.module_type === "commentary" ? commentary_configs[entry.module].bible ?? null : null}
+                                on_click={handle_ref_id_click}
+                            />
+                        </Box>
+                    )).flatMap((item, index, arr) => {
+                        return index < arr.length - 1 ? [item, (<span key={index + "s"}>; </span>)] : [item]
+                    })
+                }
+                </Stack>
             }
         />
     );
@@ -174,10 +179,69 @@ type ReadingsEntryPanelProps = {
 }
 
 function ReadingsEntryPanel({
-    entry
+    entry,
+    on_href_clicked,
 }: ReadingsEntryPanelProps): React.ReactElement
 {
-    return <></> 
+    const format_ref_id = use_format_ref_id();
+    const { readings_configs } = use_module_configs();
+    const config = readings_configs[entry.module];
+    const format = config.format;
+
+    const days = [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+    ];
+
+    let title: string;
+
+    if (format.type === "daily")
+    {
+        title = `Day ${entry.index + 1}`;
+    }
+    else if (format.type === "weekly")
+    {
+        title = `${days[entry.index % 7]}, Week ${Math.floor(entry.index / 7) + 1}`
+    }
+    else if (format.type === "yearly")
+    {
+        title = `Day ${entry.index % 365 + 1}, Year ${Math.floor(entry.index / 365) + 1}`
+    }
+    else 
+    {
+        title = "ERROR"
+    }
+
+    const html_content: HtmlText = {
+        nodes: [
+            {
+                type: "list",
+                ordered: true,
+                items: [
+                    ...entry.readings
+                        .map((e): Node => ({ type: "anchor", href: { type: "ref_id", id: e }, content: [{ type: "text", text: format_ref_id(e, null) }] }))
+                        .map((e): Node => ({ type: "list_item", content: [e] }))
+                ]
+            }
+        ]
+    }
+
+    return (
+        <ModuleEntryInfoPanelBase 
+            title={title}
+            body={
+                <HtmlTextRenderer
+                    on_href_click={on_href_clicked}
+                    content={html_content}
+                />
+            }
+        />
+    )
 }
 
 type StrongsDefEntryPanelProps = {
@@ -187,9 +251,40 @@ type StrongsDefEntryPanelProps = {
 
 function StrongsDefsEntryPanel({
     entry,
+    on_href_clicked,
 }: StrongsDefEntryPanelProps): React.ReactElement
 {
-    return <></>
+    const view_history = use_view_history();
+
+    const on_title_click = useCallback(() => {
+        view_history.push({
+            type: "word_search",
+            query: {
+                ranges: [],
+                root: {
+                    type: "strongs",
+                    strongs: entry.strongs_ref,
+                }
+            },
+            page_index: 0,
+            raw: format_strongs(entry.strongs_ref)
+        });
+    }, [view_history, entry]);
+
+    const title = format_strongs(entry.strongs_ref);
+
+    return (
+        <ModuleEntryInfoPanelBase 
+            title={title}
+            on_title_click={on_title_click}
+            body={
+                <HtmlTextRenderer
+                    on_href_click={on_href_clicked}
+                    content={entry.definition}
+                />
+            }
+        />
+    )
 }
 
 type XRefDirectedEntryPanelProps = {
@@ -199,9 +294,60 @@ type XRefDirectedEntryPanelProps = {
 
 function XRefDirectedEntryPanel({
     entry,
+    on_href_clicked,
 }: XRefDirectedEntryPanelProps): React.ReactElement
 {
-    return <></>
+    const { module_infos } = use_module_infos();
+    const { xref_configs } = use_module_configs();
+    const xref_bible = xref_configs[entry.module].bible ?? null;
+    const format_ref_id = use_format_ref_id();
+
+    const title = format_ref_id(entry.source, xref_bible);
+    const module = module_infos[entry.module]!;
+
+    const handle_ref_id_click = useCallback((r: RefId) => {
+        on_href_clicked({
+            type: "ref_id",
+            id: r,
+        })
+    }, [on_href_clicked]);
+
+    return (
+        <ModuleEntryInfoPanelBase 
+            title={title}
+            on_title_click={() => handle_ref_id_click(entry.source)}
+            body={
+                entry.note && (
+                    <HtmlTextRenderer
+                        on_href_click={on_href_clicked}
+                        content={entry.note}
+                    />
+                )
+            }
+            footer={
+                <Stack direction="row" flexWrap="wrap"> 
+                {
+                    entry.targets.map((r, i) => (
+                        <Box
+                            key={i}
+                            sx={{
+                                width: "fit-content"
+                            }}
+                        >
+                            <RefIdRenderer
+                                ref_id={r.id}
+                                bible={module.module_type === "cross_refs" ? xref_configs[entry.module].bible ?? null : null}
+                                on_click={handle_ref_id_click}
+                            />
+                        </Box>
+                    )).flatMap((item, index, arr) => {
+                        return index < arr.length - 1 ? [item, (<span key={index + "s"}>;&nbsp;</span>)] : [item]
+                    })
+                }
+                </Stack>
+            }
+        />
+    )
 }
 
 type XRefMutualEntryPanelProps = {
@@ -211,14 +357,74 @@ type XRefMutualEntryPanelProps = {
 
 function XRefMutualEntryPanel({
     entry,
+    on_href_clicked,
 }: XRefMutualEntryPanelProps): React.ReactElement
 {
-    return <></>
+    const { module_infos } = use_module_infos();
+    const { xref_configs } = use_module_configs();
+    const xref_bible = xref_configs[entry.module].bible ?? null;
+    const format_ref_id = use_format_ref_id();
+    const view_history = use_view_history();
+
+    let title = entry.refs.map(r => {
+        return format_ref_id(r.id, xref_bible);
+    }).join("; ");
+
+    title = shorten_string(title, 30);
+    const on_title_click = entry.refs.length === 1 ? 
+        (() => view_history.push_ref_id(entry.refs[0].id)) 
+        : undefined;
+    
+    const module = module_infos[entry.module]!;
+
+    const handle_ref_id_click = useCallback((r: RefId) => {
+        on_href_clicked({
+            type: "ref_id",
+            id: r,
+        })
+    }, [on_href_clicked]);
+
+    return (
+        <ModuleEntryInfoPanelBase 
+            title={title}
+            on_title_click={on_title_click}
+            body={
+                entry.note && (
+                    <HtmlTextRenderer
+                        on_href_click={on_href_clicked}
+                        content={entry.note}
+                    />
+                )
+            }
+            footer={
+                <Stack direction="row" flexWrap="wrap">
+                {
+                    entry.refs.map((r, i) => (
+                        <Box
+                            key={i}
+                            sx={{
+                                width: "fit-content"
+                            }}
+                        >
+                            <RefIdRenderer
+                                ref_id={r.id}
+                                bible={module.module_type === "cross_refs" ? xref_configs[entry.module].bible ?? null : null}
+                                on_click={handle_ref_id_click}
+                            />
+                        </Box>
+                    )).flatMap((item, index, arr) => {
+                        return index < arr.length - 1 ? [item, (<span key={index + "s"}>; </span>)] : [item]
+                    })
+                }
+                </Stack>
+            }
+        />
+    )
 }
 
 type ModuleEntryInfoPanelBaseProps = {
     title: string,
-    body: React.ReactNode | null,
+    body?: React.ReactNode,
     footer?: React.ReactNode,
     on_title_click?: () => void
 }
@@ -289,8 +495,8 @@ function ModuleEntryInfoPanelBase({
                 )}
                 {footer && (
                     <Stack direction="column">
-                        <Divider />
-                        {footer}
+                        <Divider sx={{ mt: 1, mb: 1 }}/>
+                        <Box>{footer}</Box>
                     </Stack>
                 )}
             </Collapse>

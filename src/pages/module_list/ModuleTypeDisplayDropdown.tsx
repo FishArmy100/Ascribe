@@ -62,6 +62,7 @@ export default function ModuleTypeDisplayDropdown({
                     transition: "opacity 0.2s ease, visibility 0.2s ease",
                     width: "fit-content",
                     boxSizing: "border-box",
+                    zIndex: 1000,
                 }}
                 className="dropdown-content"
             >

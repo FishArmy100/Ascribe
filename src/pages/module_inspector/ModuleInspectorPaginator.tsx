@@ -152,7 +152,7 @@ function format_entry_title(entry: ModuleEntry, formatter: RefIdFormatter, confi
     }
     else if (entry.type === "readings")
     {
-        return "TODO:"
+        return (entry.index + 1).toString()
     }
     else if (entry.type === "strongs_def")
     {

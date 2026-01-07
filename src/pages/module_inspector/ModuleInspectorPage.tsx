@@ -1,5 +1,5 @@
 import { ModuleInspectorEntry } from "@interop/view_history"
-import { Box, Divider, Stack, useTheme } from "@mui/material"
+import { Box, Divider, Stack, Typography, useTheme } from "@mui/material"
 import React, { useEffect, useState } from "react"
 import ModuleInspectorPageToolbar from "./ModuleInspectorToolbar"
 import { use_module_infos } from "@components/providers/ModuleInfoProvider"
@@ -91,6 +91,18 @@ export default function ModuleInspectorPage({
                         mb: `calc(100vh - (${theme.spacing(14)}))`,
                     }}
                 >
+                    <Typography 
+                        variant="h4"
+                        fontWeight="bold"
+                        textAlign="center"
+                        sx={{
+                            mt: 2,
+                            mb: 2,
+                        }}
+                    >
+                        {module_infos[entry.module]!.name}
+                    </Typography>
+                    <Divider />
                     {entries.map((e, i) => (
                         <ModuleEntryInfoPanel 
                             entry={e}

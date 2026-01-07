@@ -61,7 +61,7 @@ export type ViewHistoryEntry =
     | ModuleWordSearchEntry
 
 export type ViewHistoryInfo = {
-    current: ViewHistoryEntry,
+    all: ViewHistoryEntry[],
     index: number,
     count: number,
 };
@@ -117,6 +117,16 @@ export async function get_backend_view_history_info(): Promise<ViewHistoryInfo>
     }).then(view_history_info => {
         return JSON.parse(view_history_info);
     });
+}
+
+export async function set_backend_view_history_index(index: number): Promise<void>
+{
+    return await invoke("run_view_history_command", {
+        command: {
+            type: "set_index",
+            index: index,
+        }
+    })
 }
 
 export function listen_view_history_changed(listener: (e: ViewHistoryChangedEvent) => void): Promise<UnlistenFn>
