@@ -50,7 +50,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             settings::run_settings_command,
             bible::bible_cmd::run_bible_command,
-            searching::test_search,
+            searching::push_module_search_to_view_history,
             searching::push_search_to_view_history,
             view_history::run_view_history_command,
             tts::tts_cmd::run_tts_command,
