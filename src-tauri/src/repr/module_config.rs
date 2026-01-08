@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use biblio_json::{core::{OsisBook, lang::Language}, modules::{ExternalModuleData, Module, ModuleId, bible::BibleModule, readings::ReadingsFormat}};
+use biblio_json::{core::{OsisBook, lang::Language}, modules::{ExternalModuleData, Module, ModuleId, readings::ReadingsFormat}};
 use serde::{Deserialize, Serialize};
 
 use crate::repr::HtmlTextJson;

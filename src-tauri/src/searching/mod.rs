@@ -1,6 +1,7 @@
 pub mod search_type;
 pub mod word_search_engine;
 pub mod word_search_parsing;
+pub mod context;
 
 use std::sync::Mutex;
 
