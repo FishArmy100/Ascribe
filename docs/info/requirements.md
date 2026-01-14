@@ -1,9 +1,11 @@
 # Ascribe Requirements
+
 Approximately all of the requirements for the Ascribe Bible Study application version 1.0, though may be up for change as of 0/19/2025
 
-## Table of Contents:
+## Table of Contents
+
 - [Ascribe Requirements](#ascribe-requirements)
-  - [Table of Contents:](#table-of-contents)
+  - [Table of Contents](#table-of-contents)
   - [General](#general)
   - [General Layout](#general-layout)
     - [Core Components](#core-components)
@@ -18,15 +20,14 @@ Approximately all of the requirements for the Ascribe Bible Study application ve
     - [Search Syntax](#search-syntax)
     - [Search Page](#search-page)
   - [Audio Player](#audio-player)
-    - [General](#general-1)
-    - [Layout](#layout)
+    - [Audio Player Layout (out of date)](#audio-player-layout-out-of-date)
     - [Behavior](#behavior)
   - [Settings Page](#settings-page)
-  - [Notebook Page](#notebook-page)
-    - [Layout](#layout-1)
-  - [Notebook Editor Page](#notebook-editor-page)
+  - [Module List Page](#module-list-page)
+    - [Module List Page Layout](#module-list-page-layout)
     - [Create Notebook Modal](#create-notebook-modal)
-    - [Notebook Editor](#notebook-editor)
+  - [Module Inspector Page](#module-inspector-page)
+    - [Module Entry Information](#module-entry-information)
     - [Note Editor](#note-editor)
     - [Highlight Editor](#highlight-editor)
   - [Side Note Editor](#side-note-editor)
@@ -41,93 +42,116 @@ Approximately all of the requirements for the Ascribe Bible Study application ve
   - [Highlight Picker](#highlight-picker)
   - [Word Picker](#word-picker)
   - [Verse Picker](#verse-picker)
+  - [Chapter Picker](#chapter-picker)
+  - [Book Picker](#book-picker)
   - [Strongs Picker](#strongs-picker)
   - [HTMLText Editor](#htmltext-editor)
   - [Help Page?](#help-page)
-    - [Layout](#layout-2)
-    - [Sections](#sections)
+    - [Help Page Layout](#help-page-layout)
+    - [Help Page Sections](#help-page-sections)
 
 <!-- ======================================================================================================== -->
 
 ## General
-- [ ] Multiple windows? 
-  - [ ] At least, should support multiple instances of the application running at the same time
 
+- [ ] Multiple windows?
+  - [ ] At least, should support multiple instances of the application running at the same time
+- [ ] Multiple Tabs
+  - [ ] Each tab supports its own history
+  - [ ] Can move tabs between window instances
+  - [ ] Dragging a tab to a blank area will create a new window, with that associated tab
+  - [ ] Something like a typical web browser
 
 <!-- ======================================================================================================== -->
 
 ## General Layout
+
 The general layout we can keep pretty similar to old version, though would be good to make a few tweaks regarding style
 
 ### Core Components
-- [ ] Image Button
+
+- [x] Image Button
 - [ ] Image Dropdown
 - [ ] Text Dropdown
-- [ ] Value slider
+- [x] Value slider
 - [ ] Info Popup (Alert, etc)
-- [ ] Search Bar
+- [x] Search Bar
 
 ### Header
+
 The header comprises a sticky top bar with buttons, dropdowns, and sometimes a search input at the top of the page. Most of the more complex settings (indicated in **bold**) are right aligned, whereas all the other buttons are left aligned
 
 - [ ] Options (dependent on Page)
-  - [ ] Bible Page
-    - [ ] Chapter Selector
-    - [ ] Search Bar
-    - [ ] Previous Section
-    - [ ] Next Section
-    - [ ] Audio Player
-    - [ ] Version Selector (???)
-    - [ ] **Verse Render Settings**
-    - [ ] **Misc Dropdown**
-  - [ ] Search Page
-    - [ ] Chapter Selector
-    - [ ] Search Bar
-    - [ ] Previous Section
-    - [ ] Next Section
-    - [ ] Audio Player
-    - [ ] **Verse Render Settings**
-    - [ ] **Misc Dropdown**
+  - [x] Bible Page
+    - [x] Chapter Selector
+    - [x] Search Bar
+    - [x] Previous Section
+    - [x] Next Section
+    - [x] Audio Player
+    - [x] Version Selector
+    - [x] **Verse Render Settings**
+    - [x] **Misc Dropdown**
+  - [x] Search Page
+    - [x] Chapter Selector
+    - [x] Search Bar
+    - [x] Previous Section
+    - [x] Next Section
+    - [x] **Verse Render Settings**
+    - [x] **Misc Dropdown**
   - [ ] Settings Page
-    - [ ] Back Button
-    - [ ] **Misc Dropdown**
+    - [x] Back Button
+    - [x] **Misc Dropdown**
   - [ ] Daily Readings Page
     - [ ] Version Selector
     - [ ] Back Button
     - [ ] **Misc Dropdown**
-  - [ ] Notebooks Page
-    - [ ] Back Button
-    - [ ] New Notebook
+  - [ ] Module List Page
+    - [x] Search Bar
+    - [x] Previous Section
+    - [x] Next Section
     - [ ] Upload `biblio_json` module
-    - [ ] **Misc Dropdown**
+    - [x] **Misc Dropdown**
+  - [ ] Module Inspector Page
+    - [x] Search Bar
+    - [x] Previous Section
+    - [x] Next Section
+    - [x] **Misc Dropdown**
   - [ ] Notebook Editor Page
     - [ ] Back Button
     - [ ] New Highlight Button
     - [ ] New Note Button
     - [ ] **Misc Dropdown**
+  - [ ] Edit Note Page
+    - [ ] Back Button
+    - [ ] **Misc Dropdown**
+  - [ ] Edit Highlight Page
+    - [ ] Back Button
+    - [ ] **Misc Dropdown**
   - [ ] Help Page?
     - [ ] Back Button
     - [ ] **Misc Dropdown**
 - [ ] **Misc Dropdown**
-  - [ ] Settings
+  - [x] Settings
   - [ ] Daily Readings
-  - [ ] Notebooks
+  - [x] Modules
   - [ ] Help Page?
   - [ ] Highlight Editor
   - [ ] Sync Button? (possibly change location)
 - [ ] **Verse Render Settings**
   - [ ] Red letter
-  - [ ] Strong's
+  - [x] Strong's
   - [ ] Footnotes
-  - [ ] Use Parallel
-  - [ ] Version Selector
+  - [x] Use Parallel
+  - [x] Version Selector
 
 ### Body
+
 The body is formed of two primary categories: single and split view. Split view is used exclusively(???) for note editing and is not available in mobile, as it would not fit properly on the view screen. If required, it would switch between the two different views
 
 It also contains a footer with the text: "&copy; Ascribe (year)"
 
 ### Context Menus
+
 - [ ] Main
   - [ ] For pages:
     - [ ] Bible page
@@ -138,121 +162,127 @@ It also contains a footer with the text: "&copy; Ascribe (year)"
 
 <!-- ======================================================================================================== -->
 
-
 ## Bible
+
 Core section of Ascribe, renders as a full page or partial page depending on if currently editing a note, or if on mobile. We can pretty much just copy & paste what we have for the old version
 
 ### Versions
+
 - [ ] Required:
-  - [ ] KJV
+  - [x] KJV
   - [ ] BBE
   - [ ] YLT
-  - [ ] ASV
+  - [x] ASV
   - [ ] SpaRV
+  - [ ] (a Swahili Version)
 - [ ] Nice to Have:
   - [ ] ESV
   - [ ] NKJV
   - [ ] NASB
 
 ### Interface
+
 - [ ] Chapter View
-  - [ ] Displays current chapter
-  - [ ] Each verse displayed in a numbered list
-    - [ ] Number can be clicked to show an [inspector](#verse-picker)
+  - [x] Displays current chapter
+  - [x] Each verse displayed in a numbered list
+    - [x] Number can be clicked to show an [inspector](#verse-picker)
   - [ ] View Settings?
     - [ ] All verses inline
     - [ ] Red letter enable
-    - [ ] Strong's numbers enable (if available for the version)
+    - [x] Strong's numbers enable (if available for the version)
   - [ ] Special rendering for Gods name?
   - [ ] Verse words:
     - [ ] Displays highlights
     - [ ] Displays notes
     - [ ] Displays footnotes?
-    - [ ] Can display Strong's if enabled and can be clicked to show an [inspector](#strongs-picker)
-    - [ ] Can be clicked to show an [inspector](#word-picker)
-  - [ ] Scrollable content area
-  - [ ] Next/Previous chapter buttons
-    - [ ] Are cyclic: Rev 22 <-> Gen 1
+    - [x] Can display Strong's if enabled and can be clicked to show an [inspector](#strongs-picker)
+    - [x] Can be clicked to show an [inspector](#word-picker)
+  - [x] Scrollable content area
+  - [x] Next/Previous chapter buttons
+    - [x] Are cyclic: Rev 22 <-> Gen 1
 - [ ] Parallels
   - [ ] Can enable to user to display two different bible versions
     - [ ] Only available if it fits the users space
-    - [ ] Scroll synced
-- [ ] Chapter Selector (same as old)
-  - [ ] Toggle selected book
-  - [ ] Select chapter in number grid
-  - [ ] Resides in the header bar
-
+    - [x] Scroll synced
+- [x] Chapter Selector (same as old)
+  - [x] Toggle selected book
+  - [x] Select chapter in number grid
+  - [x] Resides in the header bar
 
 <!-- ======================================================================================================== -->
 
 ## Searching
+
 When searching, will either send the user to a search results page, if they are searching for a section of words or to the Bible page, if the searched value is a verse/Bible section
 
 ### Advanced Search Settings
+
 A small dropdown on the search bar, that makes it a bit easier for the user to enter in search criteria
 
 ### Search Syntax
+
 The search syntax should cover all major use cases, and the more esoteric ones as well, that the typical Bible study student should come across
+
 - Format
   - [ ] Bible Section
-    - [ ] In the format `prefix? book chapter ":"? start_verse?("-" verse)?`
-    - [ ] The book will attempt to be found based on the algorithm implemented in the old version
-  - [ ] Words
-    - [ ] Exact Phrase
-      - [ ] Words wrapped in `"`
-    - [ ] Exact Words
+    - [x] In the format `prefix? book chapter ":"? start_verse?("-" verse)?`
+    - [x] The book will attempt to be found based on the algorithm implemented in the old version
+  - [x] Words
+    - [x] Exact Phrase
+      - [x] Words wrapped in `"`
+    - [x] Exact Words
     - [ ] Approximate Phrase
-    - [ ] Search in Notebooks
+    - [ ] Search in Notebooks/Modules
       - [ ] Limit to specific notebook
       - [ ] Titles or inner text?
-  - [ ] Strong's Number
-    - [ ] Basic Strong's number syntax: `[HG]\d+`
+  - [x] Strong's Number
+    - [x] Basic Strong's number syntax: `[HG]\d+`
   - [ ] Regular Expression?
-  - [ ] Search in Section
-    - [ ] Section syntax definition:
-      - [ ] In book chapter range `s_prefix? s_book s_chapter? "-" e_prefix? e_book e_chapter?`
-      - [ ] In chapter verse range `prefix? book chapter ":"? start_verse?("-" verse)?`
-      - [ ] Any verse range `ranges_prefix? s_book s_chapter? (":" e_verse)? "-" e_prefix? e_book e_chapter? (":" e_verse)?`
-    - [ ] Section search syntax: `"|" range (";" range)* "|" search_term` (possibly change in the future)
-- [ ] General Algorithm
-  - [ ] The algorithm will attempt to find all verses that match the search criteria
-  - [ ] Possible multi-verse search (???)
-  - [ ] It will look inside the Current bible version (not the parallel one)
-
+  - [x] Search in Section
+    - [x] Section syntax definition:
+      - [x] In book chapter range `s_prefix? s_book s_chapter? "-" e_prefix? e_book e_chapter?`
+      - [x] In chapter verse range `prefix? book chapter ":"? start_verse?("-" verse)?`
+      - [x] Any verse range `ranges_prefix? s_book s_chapter? (":" e_verse)? "-" e_prefix? e_book e_chapter? (":" e_verse)?`
+    - [x] Section search syntax: `"|" range (";" range)* "|" search_term` (possibly change in the future)
+- [x] General Algorithm
+  - [x] The algorithm will attempt to find all verses that match the search criteria
+  - [x] Possible multi-verse search (???)
+  - [x] It will look inside the Current bible version (not the parallel one)
 
 ### Search Page
+
 The search page is pretty much the same as the old version, though just improving on general looks and layout. *For future*: Need to put a setting somewhere for how many verse results are displayed at any given time. Should be a dropdown, and not custom
 
-- [ ] Search Results
-  - [ ] Bible Verse
-    - [ ] Displays the verse, with all rendering steps that Bible uses
-    - [ ] Displays a reference tag
-      - [ ] When clicked, goes to the reference
-  - [ ] Note in notebook
+- [x] Search Results
+  - [x] Bible Verse
+    - [x] Displays the verse, with all rendering steps that Bible uses
+    - [x] Displays a reference tag
+      - [x] When clicked, goes to the reference
+  - [ ] Module Results
     - [ ] Displays a small section of text from inside the notebook, around the searched term
     - [ ] Displays a reference tag that allows the user to Go to the thing
 - [ ] Layout
-  - [ ] Is a scrollable content area, similar to the Bible page
-  - [ ] Title
-    - [ ] Indicates how many verses were found
-    - [ ] Displays a basic error message if something went wrong
-  - [ ] Results
-    - [ ] An vertical list of results
-  - [ ] Section selector
-    - [ ] Results divided into sections of x
-    - [ ] Switch between results sections
-
+  - [x] Is a scrollable content area, similar to the Bible page
+  - [x] Title
+    - [x] Indicates how many verses were found
+    - [x] Displays a basic error message if something went wrong
+  - [x] Results
+    - [x] An vertical list of results
+  - [x] Section selector
+    - [x] Results divided into sections of x
+    - [x] Switch between results sections
 
 <!-- ======================================================================================================== -->
 ## Audio Player
+
 Similar to the old version, with behavior, however with improved looks
 
-### General
 - [ ] Generates on backend from biblical text
 - [ ] Audio version is based on what the current Bible version is selected
 - [ ] Audio player toggle located in the top bar on specific pages (see [Header](#header))
 
-### Layout
+### Audio Player Layout (out of date)
+
 - [ ] Position
   - [ ]  Docked at the bottom of the screen
   - [ ]  Can be shrunk?
@@ -281,6 +311,7 @@ Similar to the old version, with behavior, however with improved looks
     - [ ] Limited based on the version of the Bible selected? (by language)
 
 ### Behavior
+
 - [ ] Selection
   - [ ] Section
     - [ ] Start chapter
@@ -301,6 +332,7 @@ Similar to the old version, with behavior, however with improved looks
 
 <!-- ======================================================================================================== -->
 ## Settings Page
+
 - [ ] Sound Effects
   - [ ] Volume
     - [ ] Slider
@@ -309,10 +341,10 @@ Similar to the old version, with behavior, however with improved looks
     - [ ] Page turning
     - [ ] Button clicking
 - [ ] Display
-  - [ ] Font selection
-  - [ ] UI scale slider
-    - [ ] Slider
-    - [ ] Reset button
+  - [x] Font selection
+  - [x] UI scale slider
+    - [x] Slider
+    - [x] Reset button
 - [ ] Cloud
   - [ ] States
     - [ ] Cloud Sync Enabled
@@ -320,29 +352,53 @@ Similar to the old version, with behavior, however with improved looks
     - [ ] Cloud Sync Disabled
       - [ ] Switch Accounts
       - [ ] Signout
+- [ ] Theme Editor
+  - [ ] Settings 
+    - [ ] Primary Color
+    - [ ] Secondary Color
+    - [ ] Background Main
+    - [ ] Background Secondary
+    - [ ] Primary Text
+    - [ ] Secondary Text
+    - [ ] Hover Color
+  - [ ] Color Selector for all
+    - [ ] Is clamped to a range?
+    - [ ] Automatically generates main, dark, light
+  - [ ] Preview Theme
+- [ ] Theme Selector
+  - [ ] Light
+  - [ ] Dark
+  - [ ] Custom theme list
 - [ ] Advanced
   - [ ] Clear search history (see [Page History](#page-history))
   - [ ] Open save location
 
 <!-- ======================================================================================================== -->
-## Notebook Page
-The notebook page has two different components. One is the main display, which shows all of the notebooks that have been created, and also `biblio_json` modules, as well as an individual notebook editor (see [Notebook Editor Page](#notebook-editor-page)), which allows the user to see all of the notebook entries, and search through them
+## Module List Page
 
-### Layout
-- [ ] Displays a list of notebooks with some basic data about them
+The Module List Page shows all of the `biblio_json` modules that are loaded and Notebooks that have been created. Each module can be inspected via the [Module Inspector Page](#module-inspector-page).
+
+***Note***: We may want to split this into two pages, one for the notebooks and one for the modules
+
+### Module List Page Layout
+
+- [ ] Displays a list of modules with some basic data about them
   - [ ] Info
-    - [ ] Name
-    - [ ] Description
-      - [ ] Brief HTML encoded description
-      - [ ] Expand/Reduce size if long
+    - [x] Name
+    - [x] Module Type
+    - [ ] Is Enabled (for viewing in popovers)
+    - [x] Description
+      - [x] Brief HTML encoded description
+      - [x] Expand/Reduce size if long
     - [ ] Highlight colors?
-      - [ ] List of all the highlights inside the 
+      - [ ] List of all the highlights inside the
     - [ ] Count of notes?
     - [ ] Word count?
+    - [ ] Size?
   - [ ] Actions
-    - [ ] Edit
-      - [ ] Opens the [Notebook Editor Page](#notebook-editor-page)
-      - [ ] Disabled if is a builtin module, or an uploaded non note module
+    - [ ] Inspect
+      - [ ] Click on the name of the Module
+      - [ ] Opens the [Notebook Editor Page](#module-inspector-page)
     - [ ] Delete
       - [ ] With confirm menu
       - [ ] Possibly cache deleted notebooks, for retrieval?
@@ -353,12 +409,8 @@ The notebook page has two different components. One is the main display, which s
   - [ ] Upload `biblio_json` module
   - [ ] New notebook
 
-
-<!-- ======================================================================================================== -->
-## Notebook Editor Page
-Is the editor page when clicking on the Edit notebook button on the [Notebook Page](#notebook-page). Displays sections for the highlights and notes separately, with togglable sections like with the search page. Also enables searching though notes using a search bar.
-
 ### Create Notebook Modal
+
 - [ ] Name
   - [ ] Shows error if invalid
 - [ ] [HTMLText Editor](#htmltext-editor) for the description
@@ -366,31 +418,64 @@ Is the editor page when clicking on the Edit notebook button on the [Notebook Pa
   - [ ] Create notebook
   - [ ] Cancel
 
-### Notebook Editor
-- [ ] Groups
-  - [ ] Highlight Group
-  - [ ] Note Group
-- [ ] Displays
-  - [ ] Highlight Display
-    - [ ] Color bar
-    - [ ] Title
-    - [ ] Priority
-    - [ ] Expandable description if long
-  - [ ] Note Display
-    - [ ] Title (if found)
-    - [ ] Expandable note body
-    - [ ] References
-  - [ ] Both:
-    - [ ] Edit button
-      - [ ] Opens corresponding editor as a popup modal
-    - [ ] Delete
-      - [ ] Opens a confirm menu
-      - [ ] Caches deleted data?
-    - [ ] Move to different notebook
-      - [ ] Opens confirm menu?
-      - [ ] Shows display for selecting notebook
+<!-- ======================================================================================================== -->
+## Module Inspector Page
+
+Allows the user to inspect individual entries. Is typically navigated to from the  [Module List Page](#module-list-page). It displays all the information for a module based on the selected type. For notebooks, it allows the editing of highlights, and notes, for all other module types, is view only. It also does not display information for Bible modules.
+
+***Note***: We may want to split this into two pages, one for the notebooks and one for the modules
+
+### Module Entry Information
+- [x] Module Types
+  - [x] Dictionary Entry
+    - [x] Definition
+    - [x] Aliases
+  - [x] Cross Reference
+    - [x] Mutual
+      - [x] Note (if any)
+      - [x] All references
+    - [x] Directed
+      - [x] Source reference (as title)
+      - [x] Note (if any)
+      - [x] All target references
+  - [x] Strongs Definition
+    - [x] Strongs number (as title)
+    - [x] Definition
+  - [x] Commentary Entry
+    - [x] Comment
+    - [x] References
+  - [x] Readings Day
+    - [x] Day/Date as title
+    - [x] List of readings
+  - [ ] Notebook Entry
+    - [ ] Note
+      - [ ] Edit button (opens the [Note Editor](#note-editor))
+      - [ ] Delete button
+      - [ ] Title (if any)
+      - [ ] Content
+      - [ ] References
+    - [ ] Highlight
+      - [ ] Edit button (opens the [Highlight Editor](#highlight-editor))
+      - [ ] Delete button
+      - [ ] Title
+      - [ ] Color
+      - [ ] Description (if any)
+      - [ ] Priority
+      - [ ] References?
+        - [ ] Cool if could see all uses
+- [ ] Searching
+  - [ ] Can search for all entries in a given module, using the searcher
+  - [ ] Has a follows the same [search syntax](#search-syntax) as the [Search Page](#search-page) uses, with a few changes
+    - [ ] References act as ranges for locations, like notes. i.e.: all notes in this range
+    - [ ] Strongs references target links to strongs references, not necessarily textual content
+- [x] General
+  - [x] Is a tabbed view, similar to the [Search Page](#search-page)
+  - [ ] If it is a notebook page, extra settings
+    - [ ] Create Note
+    - [ ] Create Highlight
 
 ### Note Editor
+
 - [ ] Data
   - [ ] Optional title
     - [ ] Displays error if invalid
@@ -401,6 +486,7 @@ Is the editor page when clicking on the Edit notebook button on the [Notebook Pa
   - [ ] References are shown with location and words, with the ability to delete them
 
 ### Highlight Editor
+
 - [ ] Data
   - [ ] Title
     - [ ] Displays error if invalid
@@ -410,9 +496,9 @@ Is the editor page when clicking on the Edit notebook button on the [Notebook Pa
 - [ ] Layout
   - [ ] Similar to the current highlight editor, though general improved visuals
 
-
 <!-- ======================================================================================================== -->
 ## Side Note Editor
+
 Specifically used when in the Bible or search page, and want to create a note. Can highlight a segment of text with the cursor, then the [Highlight Picker](#highlight-picker) will appear, allowing the user to create a note for that section. The user can also right click, and create a blank note with no attached references.
 
 - [ ] Divider
@@ -434,11 +520,14 @@ Specifically used when in the Bible or search page, and want to create a note. C
     - [ ] Can be deleted by button
 
 ### Device Differences
+
 Smaller devices will not be able to see the side note editor, and will instead toggle between the editor, and the Bible or search page they are currently on. This would take the place of the collapse buttons.
 
 <!-- ======================================================================================================== -->
 ## Daily Readings Page
+
 Similar to the old one, but preferably a better layout
+
 - [ ] Calendar selector
   - [ ] Shows current month as the calendar
   - [ ] Can select month as a dropdown
@@ -458,6 +547,7 @@ Similar to the old one, but preferably a better layout
 
 <!-- ======================================================================================================== -->
 ## Cloud Sync
+
 Allows the user to sign into their google account, and sync across device application instances with Google Drive. Possibly enable one drive in the future.
 
 - [ ] Signin interface
@@ -471,19 +561,23 @@ Allows the user to sign into their google account, and sync across device applic
 
 <!-- ======================================================================================================== -->
 ## Platforms
+
 Different platforms will display different layouts, depending on there size. All platforms of the same size should look the same however
 
 ### Large Screen
+
 Ie: Macs, PC's, Linux, etc
 
 No Change
 
 ### Medium Screen
+
 Ie: IPads, Tablets, etc
 
 No Change?
 
 ### Small Screen
+
 Ie: IPhones, Android, Pixels, etc
 
 - [ ] Side editors will be swapped out for togglable sections (see [Device Differences](#device-differences))
@@ -492,9 +586,9 @@ Ie: IPhones, Android, Pixels, etc
   - [ ] Layout will be changed to make more sense for the device
 - [ ] Locked in vertical mode (like Blue Letter Bible)
 
-
 <!-- ======================================================================================================== -->
 ## Page History
+
 - [ ] Stores the navigation history of the user
   - [ ] Only count specific pages
     - [ ] Search pages
@@ -509,14 +603,15 @@ Ie: IPhones, Android, Pixels, etc
 
 <!-- ======================================================================================================== -->
 ## Highlight Picker
+
 When highlighting a section of text in either the Bible page or the search page, will open so the user can either highlight a passage, or create a note at that location. Pretty much the same as the current implementation, however a change to the create note option.
 
 - [ ] Highlights
-  - [ ] Recents
+  - [ ] Recent
     - [ ] Stores up to x number of recent highlights
     - [ ] Saved across sessions
     - [ ] When highlight deleted, cleared
-  - [ ] Highlight area 
+  - [ ] Highlight area
     - [ ] Shows all available highlights
     - [ ] Shows option for creating a new highlight
   - [ ] Erase area
@@ -535,39 +630,44 @@ When highlighting a section of text in either the Bible page or the search page,
 
 <!-- ======================================================================================================== -->
 ## Word Picker
+
 User can click on a word to look into it more. this is similar to how [seethebible](seethebible.com) does it, but with either a sidebar option, or a popup modal.
 
-- [ ] Sidebar
-  - [ ] Is not displayed if the side editor is active (ie: editing a note)
-  - [ ] Cannot be displayed on small screen devices
-  - [ ] Displays the word
-  - [ ] Display highlights
-    - [ ] Automatically collapsed, only show name and color
-    - [ ] Can be expanded
-      - [ ] Description
-      - [ ] Priority
-      - [ ] Notebook
-    - [ ] Can click edit (opens highlight editor)
-  - [ ] Displays notes
-    - [ ] Collapsible if large
-    - [ ] Shows title if exists
-    - [ ] References can be displayed
-    - [ ] Has edit button
-  - [ ] Resalable to percentage of the screen, either direction
-    - [ ] Has a minimum size
-  - [ ] Is scrollable
-- [ ] Popup Modal
-  - [ ] Movable around the screen
-  - [ ] Contains same information as sidebar
-  - [ ] Can be resized
-  - [ ] Is scrollable
+- [ ] Format
+  - [ ] A popup modal with a list of entries
+    - [ ] For all enabled modules which have a reference for that word
+    - [ ] Only track for words, the [Verse Picker](#verse-picker), the [Chapter Picker](#chapter-picker), and the [Book Picker](#book-picker) work for their own data respectively
+  - [ ] Scrollable if module entries extend beyond current size
+  - [ ] Moveable?
+    - [ ] Clicked and dragged around the viewable area
+    - [ ] Clamped to area of the screen
+  - [ ] Resizable?
+    - [ ] Has a minimum/maximum size
+- [ ] Entries
+  - [ ] Different data for each module entry
+  - [ ] Displays it the same way that the [Module Entry Display](#module-entry-information) shows
+  - [ ] Includes a way to edit notes and highlights?
 
 <!-- ======================================================================================================== -->
 ## Verse Picker
-Displays similar information to the word picker, but shows entries for the entire verse and not just one word
+
+Displays similar information to the word picker, but shows entries for the entire verse and not just one word. Is accessed when clicking on one of the verses of the chapter content (see the [Bible Page](#bible))
+
+
+<!-- ======================================================================================================== -->
+## Chapter Picker
+
+Displays similar information to the word picker, but shows entries for the entire chapter and not just one word. Is accessed when clicking on the book of a [Bible Page](#bible)
+
+
+<!-- ======================================================================================================== -->
+## Book Picker
+
+Displays similar information to the word picker, but shows entries for the entire book and not just one word. Is accessed when clicking on the chapter of a [Bible Page](#bible)
 
 <!-- ======================================================================================================== -->
 ## Strongs Picker
+
 Is like the Word picker, but only displays information for the strongs number, no other information
 
 - [ ] Display
@@ -578,6 +678,7 @@ Is like the Word picker, but only displays information for the strongs number, n
 
 <!-- ======================================================================================================== -->
 ## HTMLText Editor
+
 Is A WYSIWYG editor for the `biblio_json` HTML text format, used for notes and highlights
 
 - [ ] Buttons
@@ -601,13 +702,15 @@ Is A WYSIWYG editor for the `biblio_json` HTML text format, used for notes and h
   - [ ] For all lists as normal
   - [ ] Ctrl+Z/Ctrl+Y
 
-
 <!-- ======================================================================================================== -->
 ## Help Page?
+
 TBD
 
-### Layout
+### Help Page Layout
+
 TBD
 
-### Sections
+### Help Page Sections
+
 TBD

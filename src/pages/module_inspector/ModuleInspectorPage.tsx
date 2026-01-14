@@ -1,16 +1,18 @@
 import { ModuleInspectorEntry } from "@interop/view_history"
-import { Box, Divider, Stack, Typography, useTheme } from "@mui/material"
-import React, { useEffect, useState } from "react"
+import { Box, Divider, Stack, Theme, Typography, useTheme } from "@mui/material"
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import ModuleInspectorPageToolbar from "./ModuleInspectorToolbar"
 import { use_module_infos } from "@components/providers/ModuleInfoProvider"
 import { fetch_backend_entry_index, fetch_backend_module_entries, ModuleEntry } from "@interop/module_entry"
 import { LoadingSpinner } from "../LoadingSpinner"
-import ModuleEntryInfoPanel from "./ModuleEntryInfoPanel"
+import { ModuleEntryInfoPanel } from "./ModuleEntryInfoPanel"
 import { get_handle_ref_clicked_callback } from "../page_utils"
 import { use_bible_display_settings } from "@components/providers/BibleDisplaySettingsProvider"
 import { use_view_history } from "@components/providers/ViewHistoryProvider"
 import ModuleInspectorPaginator from "./ModuleInspectorPaginator"
 import { Footer } from "@components/index"
+import { HRefSrc } from "@interop/html_text"
+import { ModuleInfoMap } from "@interop/module_info"
 
 export const MODULE_INSPECTOR_PAGE_SIZE = 50;
 
@@ -18,7 +20,7 @@ export type ModuleInspectorPageProps = {
     entry: ModuleInspectorEntry,
 }
 
-export default function ModuleInspectorPage({
+export function ModuleInspectorPage({
     entry
 }: ModuleInspectorPageProps): React.ReactElement
 {
@@ -78,6 +80,46 @@ export default function ModuleInspectorPage({
         // set_popover_data(null)
     });
 
+    const handle_ref_clicked_ref = useRef(handle_ref_clicked);
+    useEffect(() => {
+        handle_ref_clicked_ref.current = handle_ref_clicked;
+    }, [handle_ref_clicked]);
+
+    const ref_clicked_callback = useCallback((href: HRefSrc) => {
+        handle_ref_clicked_ref.current(href)
+    }, [handle_ref_clicked_ref]);
+
+
+    console.log("Painting Module Inspector Page...");
+
+    return (
+        <ModuleInspectorPageContent 
+            entries={entries}
+            module_infos={module_infos}
+            handle_ref_clicked={ref_clicked_callback}
+            theme={theme}
+            inspector_entry={entry}
+        />
+    )
+}
+
+type ModuleInspectorPageContentProps = {
+    entries: ModuleEntry[] | null,
+    module_infos: ModuleInfoMap,
+    handle_ref_clicked: (href: HRefSrc) => void,
+    theme: Theme,
+    inspector_entry: ModuleInspectorEntry,
+}
+
+const ModuleInspectorPageContent = React.memo(function ModuleInspectorPageContent({
+    entries,
+    module_infos,
+    handle_ref_clicked,
+    theme,
+    inspector_entry,
+}: ModuleInspectorPageContentProps): React.ReactElement
+{
+    console.log("Painting Content...");
     return (
         <Box>
             <ModuleInspectorPageToolbar />
@@ -100,7 +142,7 @@ export default function ModuleInspectorPage({
                             mb: 2,
                         }}
                     >
-                        {module_infos[entry.module]!.name}
+                        {module_infos[inspector_entry.module]!.name}
                     </Typography>
                     <Divider />
                     {entries.map((e, i) => (
@@ -111,7 +153,7 @@ export default function ModuleInspectorPage({
                         />
                     ))}
                     
-                    <ModuleInspectorPaginator entry={entry}/>
+                    <ModuleInspectorPaginator entry={inspector_entry}/>
                 </Stack>
             ) : (
                 <LoadingSpinner />
@@ -120,4 +162,14 @@ export default function ModuleInspectorPage({
             <Footer />
         </Box>
     )
-}
+}, (prev, next) => {
+    // The inspector entry is change, and the entries are changed. 
+    // We do not need to include the inspector_entry in this check, as that is not the primary thing being rendered, 
+    // and triggers too many re-renders
+
+    console.log("Checking should paint...");
+
+    return prev.entries === next.entries && 
+           prev.handle_ref_clicked === next.handle_ref_clicked && 
+           prev.module_infos === next.module_infos;
+})

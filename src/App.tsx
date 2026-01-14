@@ -5,7 +5,7 @@ import { use_view_history } from "@components/providers/ViewHistoryProvider";
 import SearchPage from "./pages/search_page/SearchPage";
 import SettingsPage from "./pages/settings_page/SettingsPage";
 import ModuleListPage from "./pages/module_list/ModuleListPage";
-import ModuleInspectorPage from "./pages/module_inspector/ModuleInspectorPage";
+import { ModuleInspectorPage } from "./pages/module_inspector/ModuleInspectorPage";
 
 export default function App(): React.ReactElement
 {

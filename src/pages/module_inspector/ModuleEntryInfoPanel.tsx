@@ -20,7 +20,7 @@ export type ModuleEntryInfoPanelProps = {
     on_href_clicked: (ref: HRefSrc) => void,
 }
 
-export default function ModuleEntryInfoPanel({
+export const ModuleEntryInfoPanel = React.memo(function ModuleEntryInfoPanel({
     entry,
     on_href_clicked
 }: ModuleEntryInfoPanelProps): React.ReactElement
@@ -54,7 +54,13 @@ export default function ModuleEntryInfoPanel({
         console.error(`Unimplemented entry type ${entry.type}`)
         return <></>
     }
-}
+}, (prev, next) => {
+    const module_same = prev.entry.module === next.entry.module;
+    const id_same = prev.entry.id === next.entry.id;
+    const on_click_same = prev.on_href_clicked === next.on_href_clicked;
+
+    return module_same && id_same && on_click_same;
+})
 
 type CommentaryEntryPanelProps = {
     entry: CommentaryEntry,
@@ -475,6 +481,7 @@ function ModuleEntryInfoPanelBase({
             <Collapse
                 in={is_open}
                 timeout="auto"
+                unmountOnExit
             >
                 {body && (
                     <Stack direction="column">
