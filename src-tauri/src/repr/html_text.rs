@@ -1,4 +1,4 @@
-use biblio_json::{html_text::{HtmlText, ast::{AssetIdName, HRefSrc, HeadingLevel, Node}}, modules::{ExternalModuleData, ModuleId}};
+use biblio_json::{html_text::{HtmlText, ast::{HRefSrc, HeadingLevel, Node}}, modules::{ExternalModuleData, ModuleId}};
 use serde::{Deserialize, Serialize};
 
 use crate::repr::{StrongsNumberJson, ref_id::RefIdJson};

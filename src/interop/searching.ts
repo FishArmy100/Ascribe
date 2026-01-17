@@ -8,6 +8,11 @@ export async function backend_push_search_to_view_history(str: string): Promise<
     return await invoke("push_search_to_view_history", { input_str: str });
 }
 
+export async function backend_push_module_word_search_to_view_history(str: string, searched_modules: string[] | null): Promise<string | null>
+{
+    return await invoke("push_module_word_search_to_view_history", { input_str: str, searched_modules: searched_modules })
+}
+
 export type WordSearchResult = |{
     type: "ok",
     hits: SearchHit[]
@@ -28,13 +33,9 @@ export async function run_backend_search_query(query: WordSearchQuery): Promise<
     })
 }
 
-export type RenderedWordSearchResult = |{
-    type: "ok",
+export type RenderedWordSearchResult = {
     verses: RenderedVerseContent[],
     hits: SearchHit[],
-} |{
-    type: "error",
-    error: string,
 }
 
 export type BackendRenderWordSearchQueryArgs = {

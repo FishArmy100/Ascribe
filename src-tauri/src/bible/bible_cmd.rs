@@ -5,15 +5,15 @@ use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use tauri::{Emitter, State};
 
-use crate::{bible::{BIBLE_VERSION_CHANGED_EVENT_NAME, BibleDisplaySettings, BibleInfo, BibleVersionChangedEvent, BiblioJsonPackageHandle, fetching::PackageEx, render::{RenderSearchArgs, fetch_verse_render_data, render_verses, render_word_search_verses}}, core::app::AppState, repr::{module_config::ModuleConfigJson, searching::{SearchHitJson, WordSearchQueryJson}, *}, searching::word_search_engine::WordSearchQuery};
+use crate::{bible::{BIBLE_VERSION_CHANGED_EVENT_NAME, BibleDisplaySettings, BibleInfo, BibleVersionChangedEvent, BiblioJsonPackageHandle, fetching::PackageEx, render::{RenderSearchArgs, fetch_verse_render_data, render_verses, render_word_search_verses}}, core::app::AppState, repr::{module_config::ModuleConfigJson, searching::WordSearchQueryJson, *}, searching::{VerseWordSearchHit, module_searching::WordSearchMode, word_search_engine::WordSearchQuery}};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case", tag = "type")]
-pub enum WordSearchResult
+pub enum VerseWordSearchResult
 {
     Ok 
     {
-        hits: Vec<SearchHitJson>,
+        hits: Vec<VerseWordSearchHit>,
     },
     Error 
     {
@@ -80,7 +80,9 @@ pub enum BibleCommand
     },
     RunWordSearchQuery
     {
-        query: WordSearchQueryJson
+        query: WordSearchQueryJson,
+        modules: Vec<ModuleId>,
+        mode: WordSearchMode,
     },
     RenderWordSearchQuery
     {
@@ -104,8 +106,15 @@ pub enum BibleCommand
     FetchModulePages
     {
         module: ModuleId,
-        page_size: usize,
+        page_size: u32,
     },
+    RunModuleWordSearch 
+    {
+        modules: Vec<ModuleId>,
+        query: WordSearchQueryJson,
+        page_size: u32,
+        page_index: u32,
+    }
 }
 
 #[tauri::command(rename_all = "snake_case")]
@@ -221,17 +230,15 @@ pub fn run_bible_command(
 
             Some(serde_json::to_string(&response).unwrap())
         },
-        BibleCommand::RunWordSearchQuery { query } => {
+        BibleCommand::RunWordSearchQuery { query, modules, mode } => {
             let query: WordSearchQuery = query.into();
             let response = package.visit(|p| {
-                match query.run_query(p)
-                {
-                    Ok(ok) => WordSearchResult::Ok { hits: ok.into_iter().map(Into::into).collect() },
-                    Err(error) => WordSearchResult::Error { error: error.to_string() },
-                }
+                // query.run_query(p, &modules, mode)
+                todo!()
             });
 
-            Some(serde_json::to_string(&response).unwrap())
+            todo!()
+            // Some(serde_json::to_string(&response).unwrap())
         },
         BibleCommand::RenderWordSearchQuery { query, show_strongs, page_index, page_size } => {
             let query: WordSearchQuery = query.into();
@@ -294,12 +301,12 @@ pub fn run_bible_command(
                 };
                 
                 let total_entries = module.entries().count();
-                let page_count = (total_entries + page_size - 1) / page_size;
+                let page_count = (total_entries + page_size as usize - 1) / page_size as usize;
                 
                 (0..page_count)
                     .map(|page_idx| {
-                        let start_idx = page_idx * page_size;
-                        let end_idx = std::cmp::min(start_idx + page_size - 1, total_entries - 1);
+                        let start_idx = page_idx * page_size as usize;
+                        let end_idx = std::cmp::min(start_idx + page_size as usize - 1, total_entries - 1);
                         
                         let start_entry = module.entries().nth(start_idx).unwrap();
                         let end_entry = module.entries().nth(end_idx).unwrap();
@@ -314,6 +321,9 @@ pub fn run_bible_command(
             });
 
             Some(serde_json::to_string(&response).unwrap())
+        }
+        BibleCommand::RunModuleWordSearch { modules, query, page_size, page_index } => {
+            todo!()
         }
     }
 }

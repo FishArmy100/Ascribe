@@ -2,13 +2,24 @@ pub mod search_type;
 pub mod word_search_engine;
 pub mod word_search_parsing;
 pub mod context;
+pub mod module_searching;
 
 use std::sync::Mutex;
 
 use biblio_json::{core::OsisBook, modules::{ModuleId, bible::BibleModule}};
+use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, State};
 
-use crate::{bible::{BiblioJsonPackageHandle, book::ResolveBookNameError}, core::{app::AppState, view_history::{ViewHistoryEntry, update_view_history}}, repr::ChapterIdJson, searching::{search_type::SearchType, word_search_engine::WordQueryParseError}};
+use crate::{bible::{BiblioJsonPackageHandle, book::ResolveBookNameError}, core::{app::AppState, view_history::{ViewHistoryEntry, update_view_history}}, repr::{ChapterIdJson, VerseIdJson}, searching::{search_type::SearchType, word_search_engine::WordQueryParseError}};
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub struct VerseWordSearchHit
+{
+    pub bible: ModuleId,
+    pub verse: VerseIdJson,
+    pub hits: Vec<u32>,
+}
 
 #[derive(Debug, Clone)]
 pub enum SearchParseError
@@ -147,7 +158,7 @@ pub fn push_search_to_view_history(
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn push_module_search_to_view_history(
+pub fn push_module_word_search_to_view_history(
     input_str: &str, 
     searched_modules: Option<Vec<ModuleId>>,
 

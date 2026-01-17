@@ -6,6 +6,7 @@ import SearchPage from "./pages/search_page/SearchPage";
 import SettingsPage from "./pages/settings_page/SettingsPage";
 import ModuleListPage from "./pages/module_list/ModuleListPage";
 import { ModuleInspectorPage } from "./pages/module_inspector/ModuleInspectorPage";
+import ModuleWordSearchPage from "./pages/module_word_search/ModuleWordSearchPage";
 
 export default function App(): React.ReactElement
 {
@@ -30,6 +31,10 @@ export default function App(): React.ReactElement
 	else if (current.type === "module_inspector")
 	{
 		return <ModuleInspectorPage entry={current}/>
+	}
+	else if (current.type === "module_word_search")
+	{
+		return <ModuleWordSearchPage entry={current} />
 	}
 	else
 	{

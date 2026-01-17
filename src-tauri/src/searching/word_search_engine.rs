@@ -1,10 +1,10 @@
 use std::num::NonZeroU32;
 
-use biblio_json::{Package, core::{Atom, OsisBook, RefIdInner, StrongsNumber, VerseId, VerseRangeIter}, modules::{Module, ModuleId, bible::BibleModule}};
+use biblio_json::{Package, core::{Atom, OsisBook, RefId, RefIdInner, StrongsNumber, VerseId}, modules::{Module, ModuleId, bible::BibleModule}};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 
-use crate::{bible::ref_id_parsing::{RefIdParseError, parse_ref_ids}, searching::{context::{SearchContext, VerseSearchContext}, word_search_parsing::WordSearchParser}};
+use crate::{bible::ref_id_parsing::{RefIdParseError, parse_ref_ids}, searching::{context::SearchContext, module_searching::{self, ModuleSearchHit, WordSearchMode}, word_search_parsing::WordSearchParser}};
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
@@ -37,6 +37,26 @@ impl WordSearchRange
                     end: Self::end_atom(to, &module)
                 }
             },
+        }
+    }
+
+    pub fn to_ref_id(&self) -> RefId
+    {
+        RefId
+        {
+            bible: Some(self.bible.clone()),
+            id: RefIdInner::Range { 
+                from: Atom::Verse { 
+                    book: self.start.book, 
+                    chapter: self.start.chapter, 
+                    verse: self.start.verse 
+                }, 
+                to: Atom::Verse {
+                    book: self.end.book,
+                    chapter: self.end.chapter,
+                    verse: self.end.verse,
+                } 
+            }
         }
     }
 
@@ -89,12 +109,11 @@ impl WordSearchRange
 pub struct WordSearchQuery
 {
     pub ranges: Vec<WordSearchRange>,
-    pub root: WordSearchPart,
+    pub root: Option<WordSearchPart>,
 }
-
 impl WordSearchQuery  
 {
-    pub fn new(ranges: Vec<WordSearchRange>, root: WordSearchPart) -> Self
+    pub fn new(ranges: Vec<WordSearchRange>, root: Option<WordSearchPart>) -> Self
     {
         Self {
             ranges,
@@ -114,8 +133,17 @@ impl WordSearchQuery
                     WordSearchRange::from_ref_id(id.id, bible_id, package)
                 }).collect_vec();
 
-            let root = WordSearchParser::new(segments[1]).parse()
-                .map_err(|e| WordQueryParseError::ParseError(e))?;
+            let root = if !segments[1].chars().all(char::is_whitespace)
+            {
+                let part = WordSearchParser::new(segments[1]).parse()
+                    .map_err(|e| WordQueryParseError::ParseError(e))?;
+
+                Some(part)
+            }
+            else 
+            {
+                None
+            };
 
             return Ok(Self {
                 ranges,
@@ -125,8 +153,17 @@ impl WordSearchQuery
 
         if segments.len() == 1
         {
-            let root = WordSearchParser::new(segments[0]).parse()
-                .map_err(|e| WordQueryParseError::ParseError(e))?;
+            let root = if !segments[0].chars().all(char::is_whitespace)
+            {
+                let part = WordSearchParser::new(segments[0]).parse()
+                    .map_err(|e| WordQueryParseError::ParseError(e))?;
+
+                Some(part)
+            }
+            else 
+            {
+                None
+            };
 
             return Ok(Self {
                 ranges: vec![],
@@ -136,65 +173,10 @@ impl WordSearchQuery
         
         Err(WordQueryParseError::InvalidFormat(text.into()))
     }
-
-    pub fn run_query(&self, package: &Package) -> Result<Vec<SearchHit>, SearchError>
-    {
-        let hits = self.ranges.iter()
-            .map(|range| Self::run_query_on_range(package, range, &self.root))
-            .collect::<Result<Vec<Vec<SearchHit>>, SearchError>>()?
-            .into_iter()
-            .flatten()
-            .collect();
-
-        Ok(hits)
-    }
     
-    fn run_query_on_range(package: &Package, range: &WordSearchRange, root: &WordSearchPart) -> Result<Vec<SearchHit>, SearchError>
+    pub fn run_query<'s, 'a, 'b>(&'s self, package: &'a Package, modules: &'b [ModuleId], mode: WordSearchMode) -> Vec<ModuleSearchHit<'a>>
     {
-        let bible = match package.get_mod(&range.bible).map(Module::as_bible).flatten() {
-            Some(s) => s,
-            None => return Err(SearchError::UnknownBible { 
-                bible: range.bible.get().to_owned() 
-            })
-        };
-
-        let links = package.modules.values()
-            .filter_map(Module::as_strongs_links)
-            .find(|l| l.config.bible == bible.config.id);
-        
-        if !bible.source.book_infos.iter().any(|i| i.osis_book == range.start.book)
-        {
-            return Err(SearchError::BibleDoesNotContainBook { 
-                book: range.start.book, 
-                bible: range.bible.get().to_owned() 
-            });
-        }
-
-        if !bible.source.book_infos.iter().any(|i| i.osis_book == range.end.book)
-        {
-            return Err(SearchError::BibleDoesNotContainBook { 
-                book: range.end.book, 
-                bible: range.bible.get().to_owned() 
-            });
-        }
-
-        let hits = VerseRangeIter::from_verses(&bible.source.book_infos, range.start, range.end).filter_map(|v_id| {
-            let verse = bible.source.verses.get(&v_id).unwrap();
-            let strongs = links.as_ref().map(|l| l.get_links(&v_id)).flatten();
-
-            root.run_on_context(&VerseSearchContext {
-                verse,
-                strongs
-            }).map(|hits| {
-                SearchHit { 
-                    bible: bible.config.id.clone(), 
-                    verse: verse.verse_id, 
-                    hit_indexes: hits 
-                }
-            })
-        }).collect_vec();
-
-        Ok(hits)
+        module_searching::search_modules(package, modules, self, mode)
     }
 }
 
@@ -356,14 +338,6 @@ impl WordSearchPart
             _ => false,
         }
     }
-}
-
-#[derive(Debug, Clone)]
-pub struct SearchHit
-{
-    pub bible: ModuleId,
-    pub verse: VerseId,
-    pub hit_indexes: Vec<u32>,
 }
 
 #[derive(Debug)]

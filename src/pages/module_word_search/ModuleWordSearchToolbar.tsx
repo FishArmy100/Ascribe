@@ -8,7 +8,7 @@ import * as images from "@assets";
 import ClosestBibleViewHistoryButton from "@components/ClosestBibleViewHistoryButton";
 
 
-export default function ModuleInspectorToolbar(): React.ReactElement
+export default function ModuleWordSearchToolbar(): React.ReactElement
 {
     const view_history = use_view_history();
 

@@ -1,4 +1,5 @@
 use biblio_json::{core::{StrongsNumber, WordRange}, html_text::{HtmlText, ast::{HRefSrc, Node}}, modules::{bible::Verse, strongs::StrongsLinkEntry}};
+use itertools::Itertools;
 
 pub trait SearchContext {
     /// Number of searchable tokens
@@ -90,6 +91,48 @@ impl HtmlSearchContext
         }
 
         HtmlSearchContext { tokens }
+    }
+}
+
+pub struct StringSearchContext
+{
+    tokens: Vec<String>,
+}
+
+impl SearchContext for StringSearchContext
+{
+    fn len(&self) -> usize 
+    {
+        self.tokens.len()
+    }
+
+    fn token_text(&self, index: usize) -> &str 
+    {
+        &self.tokens[index]
+    }
+
+    fn token_strongs(&self, _: usize) -> Option<&[StrongsNumber]> 
+    {
+        None
+    }
+}
+
+impl StringSearchContext
+{
+    pub fn new(s: &str) -> Self 
+    {
+        let tokens = s.split_whitespace()
+            .map(|ss| ss.chars()
+                .filter(|c| c.is_alphanumeric())
+                .map(|c| c.to_lowercase())
+                .flatten()
+                .collect::<String>()
+            ).collect_vec();
+        
+        Self 
+        {
+            tokens
+        }
     }
 }
 
