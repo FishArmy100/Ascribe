@@ -32,7 +32,6 @@ export function ModuleInspectorPage({
     const view_history = use_view_history();
     const [page_index, set_page_index] = useState<number | null>(null);
     
-
     useEffect(() => {
         const fetch_page_index = async () => {
             let index = 0;
@@ -89,9 +88,6 @@ export function ModuleInspectorPage({
         handle_ref_clicked_ref.current(href)
     }, [handle_ref_clicked_ref]);
 
-
-    console.log("Painting Module Inspector Page...");
-
     return (
         <ModuleInspectorPageContent 
             entries={entries}
@@ -119,10 +115,9 @@ const ModuleInspectorPageContent = React.memo(function ModuleInspectorPageConten
     inspector_entry,
 }: ModuleInspectorPageContentProps): React.ReactElement
 {
-    console.log("Painting Content...");
     return (
         <Box>
-            <ModuleInspectorPageToolbar />
+            <ModuleInspectorPageToolbar module={inspector_entry.module} />
             {entries ? ( 
                 <Stack
                     gap={2}
@@ -166,8 +161,6 @@ const ModuleInspectorPageContent = React.memo(function ModuleInspectorPageConten
     // The inspector entry is change, and the entries are changed. 
     // We do not need to include the inspector_entry in this check, as that is not the primary thing being rendered, 
     // and triggers too many re-renders
-
-    console.log("Checking should paint...");
 
     return prev.entries === next.entries && 
            prev.handle_ref_clicked === next.handle_ref_clicked && 

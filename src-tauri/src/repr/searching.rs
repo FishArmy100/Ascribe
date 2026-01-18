@@ -1,7 +1,7 @@
-use biblio_json::modules::ModuleId;
+use biblio_json::{Package, modules::ModuleId};
 use serde::{Deserialize, Serialize};
 
-use crate::{repr::{StrongsNumberJson, VerseIdJson}, searching::word_search_engine::{WordSearchPart, WordSearchQuery, WordSearchRange}};
+use crate::{bible::fetching::PackageEx, repr::{ModuleEntryJson, StrongsNumberJson, VerseIdJson}, searching::{module_searching::ModuleSearchHit, word_search_engine::{WordSearchPart, WordSearchQuery, WordSearchRange}}};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct WordSearchQueryJson
@@ -277,6 +277,30 @@ impl From<&WordSearchRangeJson> for WordSearchRange
             bible: value.bible.clone(),
             start: value.start.into(),
             end: value.end.into(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ModuleSearchHitJson
+{
+    pub entry: ModuleEntryJson,
+    pub module: ModuleId,
+    pub body_hits: Vec<u32>,
+    pub title_hits: Vec<u32>,
+}
+
+impl ModuleSearchHitJson
+{
+    pub fn new(package: &Package, hit: ModuleSearchHit, bible: &ModuleId) -> Self 
+    {
+        let info = package.get_mod(&hit.entry_ref.module).unwrap().get_info();
+        let entry = package.convert_to_json_entries(vec![(hit.entry, info)], bible).into_iter().next().unwrap();
+        Self {
+            entry,
+            module: hit.entry_ref.module,
+            body_hits: hit.body_hits,
+            title_hits: hit.title_hits,
         }
     }
 }

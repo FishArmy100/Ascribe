@@ -5,21 +5,7 @@ use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use tauri::{Emitter, State};
 
-use crate::{bible::{BIBLE_VERSION_CHANGED_EVENT_NAME, BibleDisplaySettings, BibleInfo, BibleVersionChangedEvent, BiblioJsonPackageHandle, fetching::PackageEx, render::{RenderSearchArgs, fetch_verse_render_data, render_verses, render_word_search_verses}}, core::app::AppState, repr::{module_config::ModuleConfigJson, searching::WordSearchQueryJson, *}, searching::{VerseWordSearchHit, module_searching::WordSearchMode, word_search_engine::WordSearchQuery}};
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case", tag = "type")]
-pub enum VerseWordSearchResult
-{
-    Ok 
-    {
-        hits: Vec<VerseWordSearchHit>,
-    },
-    Error 
-    {
-        error: String
-    }
-}
+use crate::{bible::{BIBLE_VERSION_CHANGED_EVENT_NAME, BibleDisplaySettings, BibleInfo, BibleVersionChangedEvent, BiblioJsonPackageHandle, fetching::PackageEx, render::{RenderSearchArgs, fetch_verse_render_data, render_verses, render_word_search_verses}}, core::app::AppState, repr::{module_config::ModuleConfigJson, searching::{ModuleSearchHitJson, WordSearchQueryJson}, *}, searching::{VerseWordSearchHit, module_searching::WordSearchMode, word_search_engine::WordSearchQuery}};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -28,6 +14,14 @@ pub struct ModulePage
     pub start: ModuleEntryJson,
     pub end: ModuleEntryJson,
     pub count: u32,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub struct ModuleSearchResult
+{
+    pub hits: Vec<ModuleSearchHitJson>,
+    pub total_count: u32,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -78,11 +72,14 @@ pub enum BibleCommand
         show_strongs: bool,
         bible: ModuleId,
     },
-    RunWordSearchQuery
+    RunModuleWordSearch
     {
         query: WordSearchQueryJson,
         modules: Vec<ModuleId>,
         mode: WordSearchMode,
+
+        page_index: u32,
+        page_size: u32,
     },
     RenderWordSearchQuery
     {
@@ -108,13 +105,6 @@ pub enum BibleCommand
         module: ModuleId,
         page_size: u32,
     },
-    RunModuleWordSearch 
-    {
-        modules: Vec<ModuleId>,
-        query: WordSearchQueryJson,
-        page_size: u32,
-        page_index: u32,
-    }
 }
 
 #[tauri::command(rename_all = "snake_case")]
@@ -230,15 +220,29 @@ pub fn run_bible_command(
 
             Some(serde_json::to_string(&response).unwrap())
         },
-        BibleCommand::RunWordSearchQuery { query, modules, mode } => {
+        BibleCommand::RunModuleWordSearch { query, modules, mode, page_size, page_index } => {
+            let bible = app_state.lock().unwrap().bible_version_state.bible_version.clone();
             let query: WordSearchQuery = query.into();
+
+            let start = page_size as usize * page_index as usize;
+
             let response = package.visit(|p| {
-                // query.run_query(p, &modules, mode)
-                todo!()
+                let hits = query.run_query(p, &modules, mode);
+                let total_count = hits.len() as u32;
+                
+                let hits = hits.into_iter()
+                    .skip(start)
+                    .take(page_size as usize)
+                    .map(|h| ModuleSearchHitJson::new(p, h, &bible))
+                    .collect_vec();
+
+                ModuleSearchResult {
+                    hits,
+                    total_count,
+                }
             });
 
-            todo!()
-            // Some(serde_json::to_string(&response).unwrap())
+            Some(serde_json::to_string(&response).unwrap())
         },
         BibleCommand::RenderWordSearchQuery { query, show_strongs, page_index, page_size } => {
             let query: WordSearchQuery = query.into();
@@ -321,9 +325,6 @@ pub fn run_bible_command(
             });
 
             Some(serde_json::to_string(&response).unwrap())
-        }
-        BibleCommand::RunModuleWordSearch { modules, query, page_size, page_index } => {
-            todo!()
         }
     }
 }

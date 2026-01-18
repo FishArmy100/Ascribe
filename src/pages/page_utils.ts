@@ -1,12 +1,37 @@
-import { ViewHistoryContextType } from "@components/providers/ViewHistoryProvider";
+import { use_bible_display_settings } from "@components/providers/BibleDisplaySettingsProvider";
+import { use_view_history, ViewHistoryContextType } from "@components/providers/ViewHistoryProvider";
 import * as bible from "@interop/bible";
 import { HRefSrc } from "@interop/html_text";
+import { useCallback, useEffect, useRef } from "react";
+
+export function use_handle_href_clicked_callback(): (href: HRefSrc) => void 
+{
+	const { bible_version_state, set_bible_version_state } = use_bible_display_settings();
+	const view_history = use_view_history();
+	const handle_ref_clicked = get_handle_ref_clicked_callback(
+		set_bible_version_state, 
+		bible_version_state, 
+		view_history, 
+		() => {}
+	);
+
+	const handle_ref_clicked_ref = useRef(handle_ref_clicked);
+	useEffect(() => {
+		handle_ref_clicked_ref.current = handle_ref_clicked;
+	}, [handle_ref_clicked]);
+
+	const ref_clicked_callback = useCallback((href: HRefSrc) => {
+		handle_ref_clicked_ref.current(href)
+	}, [handle_ref_clicked_ref]);
+
+	return ref_clicked_callback;
+}
 
 export function get_handle_ref_clicked_callback(
 	set_bible_version_state: (s: bible.BibleDisplaySettings) => Promise<void>,
 	bible_version_state: bible.BibleDisplaySettings,
 	view_history: ViewHistoryContextType,
-	on_click: () => void)
+	on_click: () => void): (href: HRefSrc) => void
 {
 	return (href: HRefSrc) => 
 	{

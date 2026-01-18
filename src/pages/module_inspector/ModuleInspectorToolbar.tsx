@@ -6,9 +6,15 @@ import { Divider } from "@mui/material";
 import React from "react";
 import * as images from "@assets";
 import ClosestBibleViewHistoryButton from "@components/ClosestBibleViewHistoryButton";
+import { backend_push_module_word_search_to_view_history } from "@interop/searching";
 
+export type ModuleInspectorPageToolbarProps = {
+    module: string,
+}
 
-export default function ModuleInspectorToolbar(): React.ReactElement
+export default function ModuleInspectorToolbar({
+    module,
+}: ModuleInspectorPageToolbarProps): React.ReactElement
 {
     const view_history = use_view_history();
 
@@ -21,7 +27,23 @@ export default function ModuleInspectorToolbar(): React.ReactElement
                 orientation="vertical" 
                 flexItem 
             />
-            <SearchBar value="Hi there" on_search={async () => { return { is_error: false, error_message: null }; }} />  
+            <SearchBar value="Hi there" on_search={async (term: string) => { 
+                const error = await backend_push_module_word_search_to_view_history(term, [module]);
+                if (error !== null)
+                {
+                    return {
+                        is_error: true,
+                        error_message: error
+                    }
+                }
+                else 
+                {
+                    return {
+                        is_error: false,
+                        error_message: null,
+                    }
+                }
+            }} />  
             <Divider 
                 orientation="vertical" 
                 flexItem 

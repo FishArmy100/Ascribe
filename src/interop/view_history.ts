@@ -46,7 +46,7 @@ export type ModuleInspectorEntry = {
 
 export type ModuleWordSearchEntry = {
     type: "module_word_search",
-    searched_modules: string[] | null,
+    searched_modules: string[],
     query: WordSearchQuery,
     page_index: number,
     raw: string | null,

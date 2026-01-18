@@ -160,7 +160,7 @@ pub fn push_search_to_view_history(
 #[tauri::command(rename_all = "snake_case")]
 pub fn push_module_word_search_to_view_history(
     input_str: &str, 
-    searched_modules: Option<Vec<ModuleId>>,
+    searched_modules: Vec<ModuleId>,
 
     package: State<'_, BiblioJsonPackageHandle>, 
     app_state: State<'_, Mutex<AppState>>,

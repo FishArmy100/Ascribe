@@ -128,7 +128,7 @@ pub enum ViewHistoryEntry
     },
     ModuleWordSearch
     {
-        searched_modules: Option<Vec<ModuleId>>,
+        searched_modules: Vec<ModuleId>,
         query: WordSearchQueryJson,
         raw: Option<String>,
         page_index: u32,
