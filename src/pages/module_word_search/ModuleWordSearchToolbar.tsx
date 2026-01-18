@@ -3,14 +3,34 @@ import { use_view_history } from "@components/providers/ViewHistoryProvider";
 import SubMenuDropdown from "@components/SubMenuDropdown";
 import TopBar from "@components/TopBar";
 import { Divider } from "@mui/material";
-import React from "react";
+import React, { useMemo } from "react";
 import * as images from "@assets";
 import ClosestBibleViewHistoryButton from "@components/ClosestBibleViewHistoryButton";
+import { ModuleWordSearchEntry } from "@interop/view_history";
+import { backend_push_module_word_search_to_view_history, pretty_print_word_search_query } from "@interop/searching";
+import { use_bible_infos } from "@components/providers/BibleInfoProvider";
 
+export type ModuleWordSearchToolbarProps = {
+    entry: ModuleWordSearchEntry,
+}
 
-export default function ModuleWordSearchToolbar(): React.ReactElement
+export default function ModuleWordSearchToolbar({
+    entry,
+}: ModuleWordSearchToolbarProps): React.ReactElement
 {
     const view_history = use_view_history();
+    const { get_bible_display_name, get_book_display_name } = use_bible_infos()
+
+    const search_value = useMemo(() => {
+        if (entry.raw !== null)
+        {
+            return entry.raw;
+        }
+        else 
+        {
+            return pretty_print_word_search_query(entry.query, get_book_display_name, get_bible_display_name);
+        }
+    }, [entry])
 
     return (
         <TopBar
@@ -21,7 +41,23 @@ export default function ModuleWordSearchToolbar(): React.ReactElement
                 orientation="vertical" 
                 flexItem 
             />
-            <SearchBar value="Hi there" on_search={async () => { return { is_error: false, error_message: null }; }} />  
+            <SearchBar value={search_value} on_search={async (term: string) => { 
+                const error = await backend_push_module_word_search_to_view_history(term, entry.searched_modules);
+                if (error !== null)
+                {
+                    return {
+                        is_error: true,
+                        error_message: error
+                    }
+                }
+                else 
+                {
+                    return {
+                        is_error: false,
+                        error_message: null,
+                    }
+                }
+            }} />  
             <Divider 
                 orientation="vertical" 
                 flexItem 

@@ -77,7 +77,7 @@ const ModuleWordSearchPageContent = React.memo(function ModuleInspectorPageConte
 {
     return (
         <Box>
-            <ModuleWordSearchToolbar />
+            <ModuleWordSearchToolbar entry={search_entry} />
             {entries ? ( 
                 <Stack
                     gap={2}

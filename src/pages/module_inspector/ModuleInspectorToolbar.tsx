@@ -27,7 +27,7 @@ export default function ModuleInspectorToolbar({
                 orientation="vertical" 
                 flexItem 
             />
-            <SearchBar value="Hi there" on_search={async (term: string) => { 
+            <SearchBar value={""} on_search={async (term: string) => { 
                 const error = await backend_push_module_word_search_to_view_history(term, [module]);
                 if (error !== null)
                 {
