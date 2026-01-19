@@ -2,13 +2,13 @@ import { ModuleWordSearchEntry } from "@interop/view_history"
 import { Box, Divider, Stack, Theme, Typography, useTheme } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import ModuleWordSearchToolbar from "./ModuleWordSearchToolbar";
-import { ModuleEntryInfoPanel } from "../module_inspector/ModuleEntryInfoPanel";
+import { ModuleEntryInfoPanel } from "../ModuleEntryInfoPanel";
 import { ModuleEntry } from "@interop/module_entry";
 import { HRefSrc } from "@interop/html_text";
-import { LoadingSpinner } from "../LoadingSpinner";
+import { LoadingSpinner } from "../../LoadingSpinner";
 import { Footer } from "@components/index";
 import ModuleWordSearchPaginator from "./ModuleWordSearchPageinator";
-import { use_handle_href_clicked_callback } from "../page_utils";
+import { use_handle_href_clicked_callback } from "../../page_utils";
 import { run_backend_module_search_query } from "@interop/searching";
 
 export const MODULE_WORD_SEARCH_PAGE_SIZE = 50;
