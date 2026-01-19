@@ -1,7 +1,7 @@
 import { ImageButton, SearchBar } from "@components/index";
 import TopBar from "@components/TopBar";
 import * as images from "@assets";
-import React, { useCallback } from "react";
+import React from "react";
 import { use_view_history } from "@components/providers/ViewHistoryProvider";
 import SubMenuDropdown from "@components/SubMenuDropdown";
 import { Divider } from "@mui/material";
@@ -11,18 +11,16 @@ import ClosestBibleViewHistoryButton from "@components/ClosestBibleViewHistoryBu
 export type ModuleListPageToolbarProps = {
     display_options: ModuleDisplayOptions,
     set_display_options: (options: ModuleDisplayOptions) => void,
+    on_searching: (value: string) => void,
 }
 
 export default function ModuleListPageToolbar({
     display_options,
-    set_display_options
+    set_display_options,
+    on_searching,
 }: ModuleListPageToolbarProps): React.ReactElement
 {
     const view_history = use_view_history();
-
-    const handle_back_clicked = useCallback(() => {
-        view_history.retreat()
-    }, [view_history]);
 
     return (
         <TopBar
@@ -33,12 +31,23 @@ export default function ModuleListPageToolbar({
                 orientation="vertical" 
                 flexItem 
             />
-            <SearchBar value="Hi there" on_search={async () => { return { is_error: false, error_message: null }; }} />
+            <SearchBar 
+                placeholder="Search..."
+                on_search={async (value: string) => {
+                    on_searching(value);
+
+                    return {
+                        is_error: false,
+                        error_message: null,
+                    }
+                }}
+            />
 
             <ModuleTypeDisplayDropdown 
                 options={display_options}
                 set_options={set_display_options}
             />
+
             <Divider 
                 orientation="vertical" 
                 flexItem 

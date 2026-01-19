@@ -5,24 +5,49 @@ import SearchMoreButton from "./SearchMoreButton";
 import { BUTTON_SIZE } from "../core/ImageButton";
 
 export type SearchBarProps = {
-    on_search: (term: string) => Promise<{ is_error: boolean, error_message: string | null }>,
-    value: string,
+    on_search?: (term: string) => Promise<{ is_error: boolean, error_message: string | null }>,
+    value?: string,
+    placeholder?: string,
+    on_update_value?: (value: string) => void,
 }
 
 export default function SearchBar({
     on_search,
-    value
+    value,
+    placeholder,
+    on_update_value,
 }: SearchBarProps): React.ReactElement
 {
     const theme = useTheme();
 
-    const [search_value, set_search_value] = useState(value);
+    const [search_value, set_search_value] = useState<string>(value ?? "");
+    const [error_text, set_error_text] = useState<string | null>(null);
 
     React.useEffect(() => {
-        set_search_value(value);
+        if (value !== undefined)
+        {
+            set_search_value(value);
+        }
     }, [value]);
 
-    const [error_text, set_error_text] = useState<string | null>(null);
+    const update_value = (new_value: string) => {
+        set_search_value(new_value);
+        on_update_value?.(new_value);
+
+        if (error_text)
+        {
+            set_error_text(null)
+        }
+    }
+
+    const perform_search = () => {
+        on_search?.(search_value).then(r => {
+            if (r.is_error)
+            {
+                set_error_text(r.error_message ?? "Error when searching");
+            }
+        })
+    }
 
     return (
         <Box
@@ -35,6 +60,7 @@ export default function SearchBar({
                 <TextField
                     variant="outlined"
                     value={search_value}
+                    placeholder={placeholder}
                     sx={{
                         width: (theme) => theme.spacing(15),
                         transition: "width 0.3s ease-in-out",
@@ -76,35 +102,17 @@ export default function SearchBar({
                             },
                         }
                     }}
-                    onChange={e => {
-                        set_search_value(e.target.value);
-                        if (error_text)
-                        {
-                            set_error_text(null);
-                        }
-                    }}
+                    onChange={e => update_value(e.target.value)}
                     onKeyDown={(e) => {
                         if (e.key === "Enter")
                         {
-                            on_search(search_value).then(r => {
-                                if (r.is_error)
-                                {
-                                    set_error_text(r.error_message ?? "Error when searching")
-                                }
-                            });
+                            perform_search();
                         }
                     }}
                     error={error_text !== null}
                 />
                 <SearchButton
-                    on_click={() => {
-                        on_search(search_value).then(r => {
-                            if (r.is_error)
-                            {
-                                set_error_text(r.error_message ?? "Error when searching")
-                            }
-                        });
-                    }}
+                    on_click={perform_search}
                 />
             </Stack>
             <Box sx={{

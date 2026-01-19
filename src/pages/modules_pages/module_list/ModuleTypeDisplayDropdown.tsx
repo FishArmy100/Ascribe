@@ -110,8 +110,8 @@ export default function ModuleTypeDisplayDropdown({
                     />
                     <DisplayOption 
                         value={options.show_dictionaries}
-                        label="Cross References"
-                        tooltip="showing cross references"
+                        label="Dictionaries"
+                        tooltip="showing dictionaries"
                         on_click={() => {
                             options_copy.show_dictionaries = !options_copy.show_dictionaries;
                             set_options(options_copy)

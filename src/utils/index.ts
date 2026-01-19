@@ -56,3 +56,38 @@ export function use_deep_copy(): <T>(input: T) => T
     return useMemo(() => rfdc(), [])
 }
 
+/**
+ * Normalizes, and checks to see if each string part of the term is contained in the searched
+ * @param term The string being used for searching
+ * @param searched The string being searched
+ * @returns 
+ */
+export function search_string(term: string, searched: string): boolean
+{
+    const term_parts = normalize_string(term).split(/\s/).sort((a, b) => a.length - b.length);
+    const searched_parts = normalize_string(searched).split(/\s/).sort((a, b) => a.length - b.length);
+
+    for (const part of term_parts) 
+    {
+        let found = searched_parts.find(s => s.startsWith(part));
+        if (found === undefined)
+        {
+            return false;
+        }
+        else 
+        {
+            searched_parts.remove(found);
+        }
+    }
+
+    return true;
+}
+
+export function normalize_string(str: string): string 
+{
+    return str
+        .toLowerCase()
+        .replace(/[^\w\s]/g, "")
+        .trim();
+}
+

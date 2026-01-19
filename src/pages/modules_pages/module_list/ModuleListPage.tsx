@@ -1,6 +1,6 @@
 import { ModuleInspectorEntry } from "@interop/view_history"
 import { Box, Stack, useTheme } from "@mui/material"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import ModuleListPageToolbar from "./ModuleListPageToolbar"
 import { get_handle_ref_clicked_callback } from "../../page_utils"
 import { use_bible_display_settings } from "@components/providers/BibleDisplaySettingsProvider"
@@ -9,6 +9,7 @@ import { use_module_infos } from "@components/providers/ModuleInfoProvider"
 import ModuleInfoPanel from "./ModuleInfoPanel"
 import { Footer } from "@components/index"
 import { ModuleDisplayOptions } from "./ModuleTypeDisplayDropdown"
+import * as utils from "@utils";
 
 export default function ModuleListPage(): React.ReactElement
 {
@@ -22,6 +23,8 @@ export default function ModuleListPage(): React.ReactElement
         show_strongs_defs: true,
         show_dictionaries: true,
     });
+
+    const [module_word_filter, set_module_word_filter] = useState<string | null>(null);
 
     const view_history = use_view_history();
     const { module_infos } = use_module_infos();
@@ -63,6 +66,16 @@ export default function ModuleListPage(): React.ReactElement
                 return false;
             }
         })
+        .filter(m => {
+            if (module_word_filter !== null)
+            {
+                return utils.search_string(module_word_filter ?? "", m.name)
+            }
+            else 
+            {
+                return true;
+            }
+        })
         .sort((a, b) => a.name.localeCompare(b.name))
 
     const handle_ref_clicked = get_handle_ref_clicked_callback(set_bible_version_state, bible_version_state, view_history, () => {});
@@ -73,6 +86,16 @@ export default function ModuleListPage(): React.ReactElement
             <ModuleListPageToolbar 
                 display_options={display_options} 
                 set_display_options={set_display_options}
+                on_searching={f => {
+                    if (f === "")
+                    {
+                        set_module_word_filter(null)
+                    }
+                    else 
+                    {
+                        set_module_word_filter(f);
+                    }
+                }}
             /> 
 
             <Stack

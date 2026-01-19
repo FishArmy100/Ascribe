@@ -4,7 +4,7 @@ use biblio_json::{Package, core::{StrongsNumber, VerseId}, modules::ModuleId};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 
-use crate::{bible::render::{WordRenderData, WrapTagArgs, fetch_verse_render_data, verse_renderer::RenderedVerseContent, wrap_tag}, searching::{VerseWordSearchHit, module_searching::{ModuleSearchHit, WordSearchMode}, word_search_engine::{WordSearchPart, WordSearchQuery}}};
+use crate::{bible::render::{WordRenderData, WrapTagArgs, fetch_verse_render_data, verse_renderer::RenderedVerseContent, wrap_tag}, searching::{VerseWordSearchHit, module_searching::WordSearchMode, word_search_engine::{WordSearchPart, WordSearchQuery}}};
 
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
