@@ -54,6 +54,8 @@ export default function ModuleWordSearchPaginator({
         view_history.push(copy)
     }, [view_history, entry]);
 
+    if (pages.length === 1) return <></>
+
     return (
         <Box
             sx={{

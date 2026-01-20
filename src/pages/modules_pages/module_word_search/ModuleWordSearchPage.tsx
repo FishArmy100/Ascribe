@@ -1,6 +1,6 @@
 import { ModuleWordSearchEntry } from "@interop/view_history"
 import { Box, Divider, Stack, Theme, Typography, useTheme } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import ModuleWordSearchToolbar from "./ModuleWordSearchToolbar";
 import { ModuleEntryInfoPanel } from "../ModuleEntryInfoPanel";
 import { ModuleEntry } from "@interop/module_entry";
@@ -10,6 +10,8 @@ import { Footer } from "@components/index";
 import ModuleWordSearchPaginator from "./ModuleWordSearchPageinator";
 import { use_handle_href_clicked_callback } from "../../page_utils";
 import { run_backend_module_search_query } from "@interop/searching";
+import { use_module_infos } from "@components/providers/ModuleInfoProvider";
+import { search_string } from "@utils/index";
 
 export const MODULE_WORD_SEARCH_PAGE_SIZE = 50;
 
@@ -75,6 +77,19 @@ const ModuleWordSearchPageContent = React.memo(function ModuleInspectorPageConte
     search_entry,
 }: ModuleWordSearchPageContentProps): React.ReactElement
 {
+    const { module_infos } = use_module_infos();
+    const module_titles = useMemo(() => {
+        const name = search_entry.searched_modules.map(m => module_infos[m]!.name).join(", ");
+        if (search_entry.searched_modules.length === 1)
+        {
+            return "Module: " + name
+        }
+        else 
+        {
+            return "Modules: " + name;
+        }
+    }, [module_infos])
+
     return (
         <Box>
             <ModuleWordSearchToolbar entry={search_entry} />
@@ -88,17 +103,31 @@ const ModuleWordSearchPageContent = React.memo(function ModuleInspectorPageConte
                         mb: `calc(100vh - (${theme.spacing(14)}))`,
                     }}
                 >
-                    <Typography 
-                        variant="h4"
-                        fontWeight="bold"
-                        textAlign="center"
-                        sx={{
-                            mt: 2,
-                            mb: 2,
-                        }}
-                    >
-                        {search_entry.raw}
-                    </Typography>
+                    <Box>
+                        <Typography
+                            variant="h4"
+                            fontWeight="bold"
+                            textAlign="center"
+                            sx={{
+                                mt: 2,
+                                mb: 0,
+                            }}
+                        >
+                            "{search_entry.raw}"
+                        </Typography>
+                        <br/>
+                        <Typography
+                            variant="h6"
+                            fontWeight="bold"
+                            textAlign="center"
+                            sx={{
+                                mt: 0,
+                                mb: 2,
+                            }}
+                        >
+                            {module_titles}
+                        </Typography>
+                    </Box>
                     <Divider />
                     {entries.map((e, i) => (
                         <ModuleEntryInfoPanel 

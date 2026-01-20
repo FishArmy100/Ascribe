@@ -67,7 +67,7 @@ export default function ModuleInspectorPaginator({
         }
     }, [entry]);
 
-    if (!pages)
+    if (!pages || pages.length === 1)
     {
         return <></>
     }
