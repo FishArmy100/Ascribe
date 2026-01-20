@@ -31,7 +31,7 @@ pub struct WordRenderData
     pub index: u32,
 }
 
-pub fn fetch_verse_render_data(package: &Package, verses: &[VerseId], bible: &ModuleId) -> Vec<VerseRenderData>
+pub fn fetch_verse_render_data(package: &Package, verses: &[VerseId], bible: &ModuleId, shown_modules: &HashSet<ModuleId>) -> Vec<VerseRenderData>
 {
     let bible = package.get_mod(bible).and_then(Module::as_bible).unwrap();
     
@@ -39,7 +39,7 @@ pub fn fetch_verse_render_data(package: &Package, verses: &[VerseId], bible: &Mo
         let words = &bible.source.verses.get(v).unwrap().words;
         let word_count = words.len();
         let word_ids = (1..=word_count).map(|w| (*v, NonZeroU32::new(w as u32).unwrap())).collect_vec();
-        let words_have_data: HashSet<_> = package.fetch_words_have_entries(&word_ids, &bible.config.id).into_iter().collect();
+        let words_have_data: HashSet<_> = package.fetch_words_have_entries(&word_ids, &bible.config.id, shown_modules).into_iter().collect();
         
         let words = words.iter().enumerate().map(|(i, w)| {
             let i = i as u32;

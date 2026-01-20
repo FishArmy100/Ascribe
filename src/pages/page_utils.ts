@@ -6,7 +6,7 @@ import { useCallback, useEffect, useRef } from "react";
 
 export function use_handle_href_clicked_callback(): (href: HRefSrc) => void 
 {
-	const { bible_version_state, set_bible_version_state } = use_bible_display_settings();
+	const { bible_display_settings: bible_version_state, set_bible_display_settings: set_bible_version_state } = use_bible_display_settings();
 	const view_history = use_view_history();
 	const handle_ref_clicked = get_handle_ref_clicked_callback(
 		set_bible_version_state, 

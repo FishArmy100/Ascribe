@@ -36,7 +36,7 @@ export default function WordPopover({
     const [module_entries, set_module_entries] = useState<ModuleEntry[] | null>(null);
     const [verse_render_data, set_verse_render_data] = useState<VerseRenderData | null>(null);
     const { bible_infos } = use_bible_infos();
-    const { bible_version_state } = use_bible_display_settings()
+    const { bible_display_settings: bible_version_state } = use_bible_display_settings()
     const bible_version = bible_id ? bible_infos[bible_id] : bible_infos[bible_version_state.bible_version];
     const configs = use_module_configs();
     const formatter = use_format_ref_id();

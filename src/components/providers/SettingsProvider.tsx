@@ -44,10 +44,6 @@ export function AppSettingsProvider({ children }: SettingsProviderProps): React.
         };
     }, []);
 
-    useEffect(() => {
-        localStorage.setItem("settings", JSON.stringify(settings));
-    }, [settings]);
-
     const set_settings = async (s: AppSettings) => {
         return await set_backend_settings(s)
     };

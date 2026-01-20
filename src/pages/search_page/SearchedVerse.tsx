@@ -23,7 +23,7 @@ export default function SearchedVerse({
     const theme = useTheme();
     const verse = render_data.id;
     const { get_bible_display_name, get_book_display_name } = use_bible_infos();
-    const { bible_version_state } = use_bible_display_settings();
+    const { bible_display_settings: bible_version_state } = use_bible_display_settings();
     const view_history = use_view_history();
 
     const book_name = get_book_display_name(render_data.bible, verse.book);

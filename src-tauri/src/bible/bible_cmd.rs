@@ -140,16 +140,16 @@ pub fn run_bible_command(
         },
         BibleCommand::GetBibleDisplaySettings => {
             let state = app_state.lock().unwrap();
-            Some(serde_json::to_string(&state.bible_version_state).unwrap())
+            Some(serde_json::to_string(&state.bible_display_settings).unwrap())
         },
         BibleCommand::SetBibleDisplaySettings { version_state } => {
             let mut state = app_state.lock().unwrap();
-            let old = state.bible_version_state.clone();
-            state.bible_version_state = version_state;
+            let old = state.bible_display_settings.clone();
+            state.bible_display_settings = version_state;
 
             app_handle.emit(BIBLE_VERSION_CHANGED_EVENT_NAME, BibleVersionChangedEvent {
                 old: old,
-                new: state.bible_version_state.clone(),
+                new: state.bible_display_settings.clone(),
             }).unwrap();
             None
         },
@@ -221,7 +221,7 @@ pub fn run_bible_command(
             Some(serde_json::to_string(&response).unwrap())
         },
         BibleCommand::RunModuleWordSearch { query, modules, mode, page_size, page_index } => {
-            let bible = app_state.lock().unwrap().bible_version_state.bible_version.clone();
+            let bible = app_state.lock().unwrap().bible_display_settings.bible_version.clone();
             let query: WordSearchQuery = query.into();
 
             let start = page_size as usize * page_index as usize;
@@ -277,7 +277,7 @@ pub fn run_bible_command(
             Some(serde_json::to_string(&response).unwrap())
         }
         BibleCommand::FetchModuleEntries { module, page_size, page_index } => {
-            let bible = app_state.lock().unwrap().bible_version_state.bible_version.clone();
+            let bible = app_state.lock().unwrap().bible_display_settings.bible_version.clone();
 
             let start = (page_index * page_size) as usize;
 
@@ -298,7 +298,7 @@ pub fn run_bible_command(
             Some(serde_json::to_string(&response).unwrap())
         }
         BibleCommand::FetchModulePages { module, page_size } => {
-            let bible = app_state.lock().unwrap().bible_version_state.bible_version.clone();
+            let bible = app_state.lock().unwrap().bible_display_settings.bible_version.clone();
             let response = package.visit(|package| {
                 let Some(module) = package.get_mod(&module) else {
                     return vec![]

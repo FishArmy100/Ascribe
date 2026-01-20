@@ -4,9 +4,9 @@ pub mod render;
 pub mod fetching;
 pub mod ref_id_parsing;
 
-use std::{sync::{Arc, RwLock}, thread::spawn};
+use std::{collections::HashSet, sync::{Arc, RwLock}, thread::spawn};
 
-use biblio_json::{self, Package, modules::{ModuleId, bible::BookInfo}};
+use biblio_json::{self, Package, modules::{ModuleId, ModuleType, bible::BookInfo}};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use tauri::{Emitter, Manager, utils::platform::resource_dir};
@@ -76,17 +76,28 @@ pub struct BibleDisplaySettings
     pub parallel_version: ModuleId,
     pub parallel_enabled: bool,
     pub show_strongs: bool,
+    pub shown_modules: HashSet<ModuleId>,
 }
 
-impl Default for BibleDisplaySettings
+impl BibleDisplaySettings
 {
-    fn default() -> Self 
+    pub fn new(package: &Package) -> Self 
     {
-        Self { 
+        let shown_modules = package.modules.values().map(|m| m.get_info()).filter_map(|i| match i.module_type {
+            ModuleType::Commentary => Some(i.id),
+            ModuleType::CrossRefs => Some(i.id),
+            ModuleType::Dictionary => Some(i.id),
+            ModuleType::Notebook => Some(i.id),
+            ModuleType::StrongsDefs => Some(i.id),
+            _ => None,
+        }).collect();
+
+        Self {
             bible_version: ModuleId::new("kjv_eng".to_string()), 
             parallel_version: ModuleId::new("kjv_eng".to_string()), 
             parallel_enabled: false,
             show_strongs: false,
+            shown_modules,
         }
     }
 }

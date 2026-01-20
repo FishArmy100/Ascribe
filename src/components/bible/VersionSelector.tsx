@@ -11,7 +11,7 @@ export default function VersionSelector(): React.ReactElement
 {
     const theme = useTheme();
     
-    const { bible_version_state, set_bible_version_state } = use_bible_display_settings();
+    const { bible_display_settings: bible_version_state, set_bible_display_settings: set_bible_version_state } = use_bible_display_settings();
     const { bible_version, parallel_version, parallel_enabled, show_strongs } = bible_version_state;
 
     const { bible_infos } = use_bible_infos();

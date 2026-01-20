@@ -28,7 +28,7 @@ export default function ChapterPicker({ on_select }: ChapterPickerProps): React.
     const { settings } = use_settings();
     const [is_open, set_open] = useState(false);
     const { bible_infos } = use_bible_infos();
-    const { bible_version_state } = use_bible_display_settings();
+    const { bible_display_settings: bible_version_state } = use_bible_display_settings();
     const [expanded_book, set_expanded_book] = useState<OsisBook | null>(null);
     const theme = useTheme();
     const padding = use_top_bar_padding(theme);

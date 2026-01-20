@@ -27,7 +27,7 @@ export default function BiblePage({
 	const theme = useTheme();
 	const view_history = use_view_history();
 	const selected_bibles = bible.use_selected_bibles();
-	const { bible_version_state, set_bible_version_state } = use_bible_display_settings();
+	const { bible_display_settings: bible_version_state, set_bible_display_settings: set_bible_version_state } = use_bible_display_settings();
 	const show_strongs = bible_version_state.show_strongs;
 
 	const current_chapter = entry.chapter;

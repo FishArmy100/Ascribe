@@ -13,7 +13,7 @@ import * as utils from "@utils";
 
 export default function ModuleListPage(): React.ReactElement
 {
-    const { bible_version_state, set_bible_version_state } = use_bible_display_settings();
+    const { bible_display_settings: bible_version_state, set_bible_display_settings: set_bible_version_state } = use_bible_display_settings();
     const [display_options, set_display_options] = useState<ModuleDisplayOptions>({
         show_bibles: true,
         show_commentaries: true,

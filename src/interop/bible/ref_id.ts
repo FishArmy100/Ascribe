@@ -60,7 +60,7 @@ export type RefIdFormatter = (id: RefId, bible: string | null) => string;
 export function use_format_ref_id(): (id: RefId, bible: string | null) => string 
 {
     const { get_bible_display_name, get_book_display_name } = use_bible_infos();
-    const { bible_version_state } = use_bible_display_settings();
+    const { bible_display_settings: bible_version_state } = use_bible_display_settings();
 
     return (id: RefId, bible: string | null): string => {
         const display_bible_id = id.bible ?? bible ?? bible_version_state.bible_version;

@@ -8,11 +8,11 @@ use crate::repr::ModuleEntryJson;
 pub trait PackageEx
 {
     fn convert_to_json_entries<'a>(&'a self, fetched: Vec<(ModuleEntry<'a>, ModuleInfo)>, bible: &ModuleId) -> Vec<ModuleEntryJson>;
-    fn fetch_word_entries(&self, verse: VerseId, word: NonZeroU32, bible: &ModuleId) -> Vec<ModuleEntryJson>;
-    fn fetch_verse_entries(&self, verse: VerseId, bible: &ModuleId) -> Vec<ModuleEntryJson>;
-    fn fetch_chapter_entries(&self, chapter: ChapterId, bible: &ModuleId) -> Vec<ModuleEntryJson>;
-    fn fetch_book_entries(&self, book: OsisBook, bible: &ModuleId) -> Vec<ModuleEntryJson>;
-    fn fetch_words_have_entries(&self, words: &[(VerseId, NonZeroU32)], bible: &ModuleId) -> Vec<(VerseId, NonZeroU32)>;
+    fn fetch_word_entries(&self, verse: VerseId, word: NonZeroU32, bible: &ModuleId, shown_modules: &HashSet<ModuleId>) -> Vec<ModuleEntryJson>;
+    fn fetch_verse_entries(&self, verse: VerseId, bible: &ModuleId, shown_modules: &HashSet<ModuleId>) -> Vec<ModuleEntryJson>;
+    fn fetch_chapter_entries(&self, chapter: ChapterId, bible: &ModuleId, shown_modules: &HashSet<ModuleId>) -> Vec<ModuleEntryJson>;
+    fn fetch_book_entries(&self, book: OsisBook, bible: &ModuleId, shown_modules: &HashSet<ModuleId>) -> Vec<ModuleEntryJson>;
+    fn fetch_words_have_entries(&self, words: &[(VerseId, NonZeroU32)], bible: &ModuleId, shown_modules: &HashSet<ModuleId>) -> Vec<(VerseId, NonZeroU32)>;
 }
 
 impl PackageEx for Package
@@ -44,7 +44,7 @@ impl PackageEx for Package
         }).collect_vec()
     }
     
-    fn fetch_word_entries(&self, verse: VerseId, word: NonZeroU32, bible: &ModuleId) -> Vec<ModuleEntryJson>
+    fn fetch_word_entries(&self, verse: VerseId, word: NonZeroU32, bible: &ModuleId, shown_modules: &HashSet<ModuleId>) -> Vec<ModuleEntryJson>
     {
         let binding = self.get_mod(bible).as_ref().unwrap()
             .as_bible();
@@ -56,7 +56,7 @@ impl PackageEx for Package
 
         let strongs_defs = self.modules.values().filter_map(Module::as_strongs_defs).collect_vec();
 
-        let entries = self.modules.values().map(|module| {
+        let entries = self.modules.values().filter(|m| shown_modules.contains(m.id())).map(|module| {
             let info = module.get_info();
             match module
             {
@@ -117,9 +117,9 @@ impl PackageEx for Package
         self.convert_to_json_entries(entries, bible)
     }
     
-    fn fetch_verse_entries(&self, verse: VerseId, bible: &ModuleId) -> Vec<ModuleEntryJson> 
+    fn fetch_verse_entries(&self, verse: VerseId, bible: &ModuleId, shown_modules: &HashSet<ModuleId>) -> Vec<ModuleEntryJson> 
     {
-        let entries = self.modules.values().map(|module| {
+        let entries = self.modules.values().filter(|m| shown_modules.contains(m.id())).map(|module| {
             let info = module.get_info();
             match module 
             {
@@ -161,9 +161,9 @@ impl PackageEx for Package
         self.convert_to_json_entries(entries, bible)
     }
     
-    fn fetch_chapter_entries(&self, chapter: ChapterId, bible: &ModuleId) -> Vec<ModuleEntryJson> 
+    fn fetch_chapter_entries(&self, chapter: ChapterId, bible: &ModuleId, shown_modules: &HashSet<ModuleId>) -> Vec<ModuleEntryJson> 
     {
-        let entries = self.modules.values().map(|module| {
+        let entries = self.modules.values().filter(|m| shown_modules.contains(m.id())).map(|module| {
             let info = module.get_info();
             match module 
             {
@@ -202,9 +202,9 @@ impl PackageEx for Package
         self.convert_to_json_entries(entries, bible)
     }
     
-    fn fetch_book_entries(&self, book: OsisBook, bible: &ModuleId) -> Vec<ModuleEntryJson> 
+    fn fetch_book_entries(&self, book: OsisBook, bible: &ModuleId, shown_modules: &HashSet<ModuleId>) -> Vec<ModuleEntryJson> 
     {
-        let entries = self.modules.values().map(|module| {
+        let entries = self.modules.values().filter(|m| shown_modules.contains(m.id())).map(|module| {
             let info = module.get_info();
             match module 
             {
@@ -243,7 +243,7 @@ impl PackageEx for Package
         self.convert_to_json_entries(entries, bible)
     }
     
-    fn fetch_words_have_entries(&self, words: &[(VerseId, NonZeroU32)], bible: &ModuleId) -> Vec<(VerseId, NonZeroU32)> 
+    fn fetch_words_have_entries(&self, words: &[(VerseId, NonZeroU32)], bible: &ModuleId, shown_modules: &HashSet<ModuleId>) -> Vec<(VerseId, NonZeroU32)> 
     {
         let binding = self.get_mod(bible).as_ref().unwrap()
             .as_bible();
@@ -258,7 +258,7 @@ impl PackageEx for Package
             ((*v, *w), data)
         }).collect::<HashMap<_, _>>();
 
-        for module in self.modules.values() 
+        for module in self.modules.values().filter(|m| shown_modules.contains(m.id()))
         {
             match module
             {

@@ -30,7 +30,7 @@ export default function SearchPage({
     const [popover_data, set_popover_data] = useState<PopoverData | null>(null);
 
     const { bible_infos, get_bible_display_name, get_book_display_name } = use_bible_infos();
-    const { bible_version_state, set_bible_version_state } = use_bible_display_settings();
+    const { bible_display_settings: bible_version_state, set_bible_display_settings: set_bible_version_state } = use_bible_display_settings();
     const current_bible = bible_infos[bible_version_state.bible_version];
     const view_history = use_view_history();
 

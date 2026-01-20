@@ -22,7 +22,7 @@ export type VerseId = {
 export function use_format_verse_id(): (id: VerseId, bible: string | null) => string 
 {
     const { get_bible_display_name, get_book_display_name } = use_bible_infos();
-    const { bible_version_state } = use_bible_display_settings();
+    const { bible_display_settings: bible_version_state } = use_bible_display_settings();
     return (id: VerseId, bible: string | null) => {
         const display_bible_id = bible ?? bible_version_state.bible_version;
         const formatted = `${get_book_display_name(display_bible_id, id.book)} ${id.chapter}:${id.verse}`;
@@ -157,7 +157,7 @@ export type SelectedVersions = {
 export function use_selected_bibles(): SelectedVersions
 {
     const { bible_infos } = use_bible_infos();
-    const { bible_version_state } = use_bible_display_settings();
+    const { bible_display_settings: bible_version_state } = use_bible_display_settings();
 
     const bible_version = bible_infos[bible_version_state.bible_version];
     const parallel_version = bible_version_state.parallel_enabled ? bible_infos[bible_version_state.parallel_version] : null;
@@ -195,6 +195,7 @@ export type BibleDisplaySettings = {
     parallel_version: string,
     parallel_enabled: boolean,
     show_strongs: boolean,
+    shown_modules: string[],
 }
 
 export async function get_backend_bible_display_settings(): Promise<BibleDisplaySettings>

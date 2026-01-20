@@ -28,7 +28,7 @@ export function ModuleInspectorPage({
     const theme = useTheme();
 
     const [entries, set_entries] = useState<ModuleEntry[] | null>(null);
-    const { bible_version_state, set_bible_version_state } = use_bible_display_settings();
+    const { bible_display_settings: bible_version_state, set_bible_display_settings: set_bible_version_state } = use_bible_display_settings();
     const view_history = use_view_history();
     const [page_index, set_page_index] = useState<number | null>(null);
     

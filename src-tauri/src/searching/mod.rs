@@ -89,7 +89,7 @@ pub fn push_search_to_view_history(
 ) -> Option<String>
 {
     let mut app_state = app_state.lock().unwrap();
-    let current_bible = app_state.bible_version_state.bible_version.clone();
+    let current_bible = app_state.bible_display_settings.bible_version.clone();
     
     let bible_module = package.visit(|p| {
         p.get_mod(&current_bible)
@@ -168,7 +168,7 @@ pub fn push_module_word_search_to_view_history(
 ) -> Option<String>
 {
     let mut app_state = app_state.lock().unwrap();
-    let current_bible = app_state.bible_version_state.bible_version.clone();
+    let current_bible = app_state.bible_display_settings.bible_version.clone();
     
     let bible_module = package.visit(|p| {
         p.get_mod(&current_bible)

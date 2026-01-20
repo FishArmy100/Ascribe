@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use biblio_json::{Package, core::{StrongsNumber, VerseId}, modules::ModuleId};
 use itertools::Itertools;
@@ -22,11 +22,12 @@ pub struct RenderSearchArgs<'a>
     pub show_strongs: bool,
     pub page_index: u32,
     pub page_size: u32,
+    pub shown_modules: &'a HashSet<ModuleId>,
 }
 
 pub fn render_word_search_verses(args: RenderSearchArgs) -> RenderWordSearchResult
 {
-    let RenderSearchArgs { query, package, show_strongs, page_index, page_size } = args;
+    let RenderSearchArgs { query, package, show_strongs, page_index, page_size, shown_modules } = args;
 
     let modules = query.ranges.iter().map(|r| r.bible.clone()).collect_vec();
     let mut hits = query.run_query(package, &modules, WordSearchMode::Body).iter().map(|h| {
@@ -57,7 +58,7 @@ pub fn render_word_search_verses(args: RenderSearchArgs) -> RenderWordSearchResu
     }
 
     let mut rendered = grouped_hits.into_iter().map(|(id, group)| {
-        render_searched_hits(package, &group, args.query.root.as_ref(), &id, show_strongs)
+        render_searched_hits(package, &group, args.query.root.as_ref(), &id, show_strongs, shown_modules)
     }).flatten().collect_vec();
 
     sort_rendered_content(&mut rendered);
@@ -69,11 +70,11 @@ pub fn render_word_search_verses(args: RenderSearchArgs) -> RenderWordSearchResu
 }
 
 /// We assume all hits have the same `bible`
-fn render_searched_hits(package: &Package, hits: &[VerseWordSearchHit], query_root: Option<&WordSearchPart>, bible: &ModuleId, show_strongs: bool) -> Vec<RenderedVerseContent>
+fn render_searched_hits(package: &Package, hits: &[VerseWordSearchHit], query_root: Option<&WordSearchPart>, bible: &ModuleId, show_strongs: bool, shown_modules: &HashSet<ModuleId>) -> Vec<RenderedVerseContent>
 {
     let verses = hits.iter().map(|h| VerseId::from(h.verse)).collect_vec();
 
-    fetch_verse_render_data(package, &verses, bible).into_iter().zip_eq(hits).map(|(rd, hit)| {
+    fetch_verse_render_data(package, &verses, bible, shown_modules).into_iter().zip_eq(hits).map(|(rd, hit)| {
         if rd.failed
         {
             RenderedVerseContent {
