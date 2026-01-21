@@ -7,6 +7,9 @@ import React, { useCallback, useState } from "react";
 import * as images from "@assets";
 import Anchor from "@components/core/Anchor";
 import { use_view_history } from "@components/providers/ViewHistoryProvider";
+import { use_bible_display_settings } from "@components/providers/BibleDisplaySettingsProvider";
+import { use_deep_copy } from "@utils/index";
+import Checkbox from "@components/core/Checkbox";
 
 export type ModuleInfoPanelProps = {
     info: ModuleInfo,
@@ -20,7 +23,8 @@ export default function ModuleInfoPanel({
 {
     const theme = useTheme();
     const [is_open, set_is_open] = useState(false);
-
+    const { bible_display_settings, set_bible_display_settings } = use_bible_display_settings();
+    const deep_copy = use_deep_copy();
     const view_history = use_view_history();
 
     const expand_image = is_open ? images.angle_up : images.angle_down;
@@ -40,6 +44,24 @@ export default function ModuleInfoPanel({
             selector: null,
         });
     }, [view_history, info.id]);
+
+    const can_enable = info.module_type === "commentary" || 
+                info.module_type === "strongs_defs" || 
+                info.module_type === "cross_refs" || 
+                info.module_type === "notebook" || 
+                info.module_type === "dictionary";
+
+    const is_enabled = bible_display_settings.shown_modules.includes(info.id)
+    const on_toggle_enable_module = can_enable ? ((show: boolean) => {
+        const copy = deep_copy(bible_display_settings);
+        copy.shown_modules.remove(info.id);
+        if (show)
+        {
+            copy.shown_modules.push(info.id);
+        }
+
+        set_bible_display_settings(copy);
+    }) : undefined;
 
     return (
         <Paper
@@ -80,20 +102,43 @@ export default function ModuleInfoPanel({
                         {info.name} {info.short_name && `(${info.short_name})`}
                     </Typography>
                 </Stack>
-                <Typography
-                    variant="body1"
+                <Stack
+                    direction="row"
                     sx={{
-                        fontWeight: "bold",
-                        backgroundColor: theme.palette.primary.light,
-                        pt: 0.2,
-                        pb: 0.2,
-                        pl: 0.5,
-                        pr: 0.5,
-                        borderRadius: theme.spacing(1),
+                        alignItems: "center",
+                        padding: 1,
+                        gap: 2,
                     }}
                 >
-                    {format_module_name(info.module_type)}
-                </Typography>
+                    <Typography
+                        variant="body1"
+                        sx={{
+                            fontWeight: "bold",
+                            backgroundColor: theme.palette.primary.light,
+                            pt: 0.2,
+                            pb: 0.2,
+                            pl: 0.5,
+                            pr: 0.5,
+                            borderRadius: theme.spacing(1),
+                        }}
+                    >
+                        {format_module_name(info.module_type)}
+                    </Typography>
+                    {on_toggle_enable_module ? (
+                        <Checkbox
+                            value={is_enabled}
+                            set_value={on_toggle_enable_module}
+                            tooltip={ is_enabled ?  "Disable module" : "Enable module" }
+                        />
+                    ) : (
+                        <Checkbox 
+                            value={true}
+                            set_value={() => {}}
+                            tooltip="Cannot be disabled"
+                            disabled
+                        />
+                    )}
+                </Stack>
             </Stack>
             <Collapse
                 in={is_open}

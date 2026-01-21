@@ -29,7 +29,7 @@ export function use_handle_href_clicked_callback(): (href: HRefSrc) => void
 
 export function get_handle_ref_clicked_callback(
 	set_bible_version_state: (s: bible.BibleDisplaySettings) => Promise<void>,
-	bible_version_state: bible.BibleDisplaySettings,
+	bible_display_settings: bible.BibleDisplaySettings,
 	view_history: ViewHistoryContextType,
 	on_click: () => void): (href: HRefSrc) => void
 {
@@ -40,9 +40,10 @@ export function get_handle_ref_clicked_callback(
 		{
 			bible && set_bible_version_state({
 				bible_version: bible,
-				parallel_enabled: bible_version_state.parallel_enabled,
-				parallel_version: bible_version_state.parallel_version,
-				show_strongs: bible_version_state.show_strongs,
+				parallel_enabled: bible_display_settings.parallel_enabled,
+				parallel_version: bible_display_settings.parallel_version,
+				show_strongs: bible_display_settings.show_strongs,
+				shown_modules: bible_display_settings.shown_modules
 			});
 		};
 

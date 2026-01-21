@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import * as bible from "../../interop/bible";
-import { type BibleDisplaySettings } from "../../interop/bible";
+import { get_backend_biblio_json_package_initialized, type BibleDisplaySettings } from "../../interop/bible";
+import { get_backend_module_infos } from "@interop/module_info";
+import { listen } from "@tauri-apps/api/event";
 
 const DEFAULT_BIBLE_VERSION: BibleDisplaySettings = {
     bible_version: "kjv_eng",

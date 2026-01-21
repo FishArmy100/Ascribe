@@ -6,6 +6,7 @@ import { HtmlTextRenderer } from "@components/HtmlTextRenderer";
 import SmallerTextSection from "@components/SmallerTextSection";
 import * as utils from "@utils";
 import { StrongsDefEntry } from "@interop/module_entry";
+import { use_bible_display_settings } from "@components/providers/BibleDisplaySettingsProvider";
 
 export type StrongsPopoverProps = {
     pos: { top: number, left: number } | null,
@@ -21,11 +22,12 @@ export default function StrongsPopover({
 {
     utils.pretty_print_json({});
     const [strongs_defs, set_strongs_defs] = useState<StrongsDefEntry[] | null>(null);
+    const { bible_display_settings } = use_bible_display_settings();
 
     useEffect(() => {
         if (strongs !== null)
         {
-            fetch_backend_strongs_defs(strongs).then(defs => {
+            fetch_backend_strongs_defs(strongs, bible_display_settings.shown_modules).then(defs => {
                 set_strongs_defs(defs);
             }) 
         }

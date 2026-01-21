@@ -188,7 +188,7 @@ export function get_module_entry_title(entry: ModuleEntry, module_infos: ModuleI
     }
 }
 
-export async function fetch_backend_word_entries(bible: string, verse: VerseId, word: number): Promise<ModuleEntry[]>
+export async function fetch_backend_word_entries(bible: string, verse: VerseId, word: number, shown_modules: string[]): Promise<ModuleEntry[]>
 {
     return await invoke<string>("run_bible_command", {
         command: {
@@ -196,45 +196,49 @@ export async function fetch_backend_word_entries(bible: string, verse: VerseId, 
             verse: verse,
             word: word,
             bible: bible,
+            shown_modules,
         }
     }).then(s => {
         return JSON.parse(s);
     })
 }
 
-export async function fetch_backend_verse_entries(bible: string, verse: VerseId): Promise<ModuleEntry[]>
+export async function fetch_backend_verse_entries(bible: string, verse: VerseId, shown_modules: string[]): Promise<ModuleEntry[]>
 {
     return await invoke<string>("run_bible_command", {
         command: {
             type: "fetch_verse_entries",
             verse,
             bible,
+            shown_modules,
         }
     }).then(s => {
         return JSON.parse(s)
     })
 }
 
-export async function fetch_backend_chapter_entries(bible: string, chapter: ChapterId): Promise<ModuleEntry[]>
+export async function fetch_backend_chapter_entries(bible: string, chapter: ChapterId, shown_modules: string[]): Promise<ModuleEntry[]>
 {
     return await invoke<string>("run_bible_command", {
         command: {
             type: "fetch_chapter_entries",
             chapter,
             bible,
+            shown_modules,
         }
     }).then(s => {
         return JSON.parse(s)
     })
 }
 
-export async function fetch_backend_book_entries(bible: string, book: OsisBook): Promise<ModuleEntry[]>
+export async function fetch_backend_book_entries(bible: string, book: OsisBook, shown_modules: string[]): Promise<ModuleEntry[]>
 {
     return await invoke<string>("run_bible_command", {
         command: {
             type: "fetch_book_entries",
             book,
             bible,
+            shown_modules,
         }
     }).then(s => {
         return JSON.parse(s)

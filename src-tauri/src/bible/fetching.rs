@@ -54,9 +54,10 @@ impl PackageEx for Package
             .get(&verse).as_ref().unwrap()
             .words[word.get() as usize - 1].clone();
 
-        let strongs_defs = self.modules.values().filter_map(Module::as_strongs_defs).collect_vec();
+        let strongs_defs = self.modules.values().filter(|m| shown_modules.contains(m.id())).filter_map(Module::as_strongs_defs).collect_vec();
 
-        let entries = self.modules.values().filter(|m| shown_modules.contains(m.id())).map(|module| {
+        // Need to include strongs links here as a default, as otherwise it will not render
+        let entries = self.modules.values().filter(|m| shown_modules.contains(m.id()) || m.is_strongs_links()).map(|module| {
             let info = module.get_info();
             match module
             {
@@ -119,7 +120,8 @@ impl PackageEx for Package
     
     fn fetch_verse_entries(&self, verse: VerseId, bible: &ModuleId, shown_modules: &HashSet<ModuleId>) -> Vec<ModuleEntryJson> 
     {
-        let entries = self.modules.values().filter(|m| shown_modules.contains(m.id())).map(|module| {
+        // Need to include strongs links here as a default, as otherwise it will not render
+        let entries = self.modules.values().filter(|m| shown_modules.contains(m.id()) || m.is_strongs_links()).map(|module| {
             let info = module.get_info();
             match module 
             {
@@ -163,7 +165,8 @@ impl PackageEx for Package
     
     fn fetch_chapter_entries(&self, chapter: ChapterId, bible: &ModuleId, shown_modules: &HashSet<ModuleId>) -> Vec<ModuleEntryJson> 
     {
-        let entries = self.modules.values().filter(|m| shown_modules.contains(m.id())).map(|module| {
+        // Need to include strongs links here as a default, as otherwise it will not render
+        let entries = self.modules.values().filter(|m| shown_modules.contains(m.id()) || m.is_strongs_links()).map(|module| {
             let info = module.get_info();
             match module 
             {
@@ -204,7 +207,8 @@ impl PackageEx for Package
     
     fn fetch_book_entries(&self, book: OsisBook, bible: &ModuleId, shown_modules: &HashSet<ModuleId>) -> Vec<ModuleEntryJson> 
     {
-        let entries = self.modules.values().filter(|m| shown_modules.contains(m.id())).map(|module| {
+        // Need to include strongs links here as a default, as otherwise it will not render
+        let entries = self.modules.values().filter(|m| shown_modules.contains(m.id()) || m.is_strongs_links()).map(|module| {
             let info = module.get_info();
             match module 
             {
@@ -258,7 +262,11 @@ impl PackageEx for Package
             ((*v, *w), data)
         }).collect::<HashMap<_, _>>();
 
-        for module in self.modules.values().filter(|m| shown_modules.contains(m.id()))
+        
+        let has_defs = self.modules.values().any(|m| m.is_strongs_defs() && shown_modules.contains(m.id()));
+
+        // Need to include strongs links here as a default, as otherwise it will not render
+        for module in self.modules.values().filter(|m| shown_modules.contains(m.id()) || m.is_strongs_links())
         {
             match module
             {
@@ -307,7 +315,7 @@ impl PackageEx for Package
                     }
                 }),
                 Module::StrongsLinks(links) => {
-                    if links.config.bible != *bible { continue; }
+                    if links.config.bible != *bible || !has_defs { continue; }
 
                     let mut found_words = vec![];
                     for &(verse, word) in &no_entry_words

@@ -8,6 +8,7 @@ import ModuleEntryRenderer from "@components/bible/ModuleEntryRenderer";
 import PopoverBase from "./PopoverBase";
 import { use_module_configs } from "@components/providers/ModuleConfigProvider";
 import { use_format_ref_id } from "@interop/bible/ref_id";
+import { use_bible_display_settings } from "@components/providers/BibleDisplaySettingsProvider";
 
 export type VersePopoverProps = {
     verse: VerseId | null,
@@ -25,15 +26,15 @@ export default function VersePopover({
 {
     const { module_infos } = use_module_infos();
     const [module_entries, set_module_entries] = useState<ModuleEntry[] | null>(null);
-    const { bible: bible_version } = use_selected_bibles();
     const configs = use_module_configs();
     const format_ref_id = use_format_ref_id();
     const format_verse_id = use_format_verse_id();
+    const { bible_display_settings } = use_bible_display_settings();
 
     useEffect(() => {
         if (verse !== null)
         {
-            fetch_backend_verse_entries(bible_version.id, verse).then(entries => {
+            fetch_backend_verse_entries(bible_display_settings.bible_version, verse, bible_display_settings.shown_modules).then(entries => {
                 const filtered_entries = entries.filter(e => e.type !== "strongs_link")
                 set_module_entries(filtered_entries);
             })
@@ -50,7 +51,7 @@ export default function VersePopover({
         )
     })) ?? [];
 
-    const title = verse ? format_verse_id(verse, bible_version.id) : "";
+    const title = verse ? format_verse_id(verse, bible_display_settings.bible_version) : "";
     
     return <PopoverBase
         title={title}

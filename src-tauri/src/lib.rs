@@ -37,19 +37,14 @@ pub fn run() {
             app.manage(Mutex::new(TtsPlayer::new(app.path(), app.handle().clone())));
             app.manage(BiblioJsonPackageHandle::init(app.handle().clone()));
 
-            let package = app.state::<BiblioJsonPackageHandle>();
-
-            let bible_display_settings = package.visit(|p| {
-                BibleDisplaySettings::new(p)
-            });
-
             app.manage(Mutex::new(AppState {
                 settings: AppSettings::default(),
-                bible_display_settings,
+                bible_display_settings: BibleDisplaySettings::default(),
                 view_history: ViewHistory::new(),
             }));
 
             tts::add_sync_settings_listener(app.handle().clone());
+            BibleDisplaySettings::add_on_package_init_listener(app.handle().clone());
 
             Ok(())
         })

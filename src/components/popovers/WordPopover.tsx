@@ -36,8 +36,8 @@ export default function WordPopover({
     const [module_entries, set_module_entries] = useState<ModuleEntry[] | null>(null);
     const [verse_render_data, set_verse_render_data] = useState<VerseRenderData | null>(null);
     const { bible_infos } = use_bible_infos();
-    const { bible_display_settings: bible_version_state } = use_bible_display_settings()
-    const bible_version = bible_id ? bible_infos[bible_id] : bible_infos[bible_version_state.bible_version];
+    const { bible_display_settings } = use_bible_display_settings()
+    const bible_version = bible_id ? bible_infos[bible_id] : bible_infos[bible_display_settings.bible_version];
     const configs = use_module_configs();
     const formatter = use_format_ref_id();
 
@@ -45,12 +45,12 @@ export default function WordPopover({
     useEffect(() => {
         if (word !== null)
         {
-            fetch_backend_word_entries(bible_version.id, word.verse, word.word).then(entries => {
+            fetch_backend_word_entries(bible_version.id, word.verse, word.word, bible_display_settings.shown_modules).then(entries => {
                 const filtered_entries = entries.filter(e => e.type !== "strongs_link")
                 set_module_entries(filtered_entries);
             })
 
-            fetch_backend_verse_render_data([word.verse], bible_version.id).then(v => {
+            fetch_backend_verse_render_data([word.verse], bible_version.id, bible_display_settings.shown_modules).then(v => {
                 set_verse_render_data(v[0] ?? null);
             })
         }

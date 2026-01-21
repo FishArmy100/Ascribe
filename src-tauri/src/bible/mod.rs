@@ -4,12 +4,14 @@ pub mod render;
 pub mod fetching;
 pub mod ref_id_parsing;
 
-use std::{collections::HashSet, sync::{Arc, RwLock}, thread::spawn};
+use std::{collections::HashSet, sync::{Arc, Mutex, RwLock}, thread::spawn};
 
 use biblio_json::{self, Package, modules::{ModuleId, ModuleType, bible::BookInfo}};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
-use tauri::{Emitter, Manager, utils::platform::resource_dir};
+use tauri::{AppHandle, Emitter, Listener, Manager, utils::platform::resource_dir};
+
+use crate::core::app::AppState;
 
 pub const BIBLIO_JSON_PACKAGE_INITIALIZED_EVENT_NAME: &str = "bible-package-initialized";
 pub const BIBLE_VERSION_CHANGED_EVENT_NAME: &str = "bible-version-changed";
@@ -79,6 +81,19 @@ pub struct BibleDisplaySettings
     pub shown_modules: HashSet<ModuleId>,
 }
 
+impl Default for BibleDisplaySettings
+{
+    fn default() -> Self {
+        Self {
+            bible_version: ModuleId::new("kjv_eng".to_string()), 
+            parallel_version: ModuleId::new("kjv_eng".to_string()), 
+            parallel_enabled: false,
+            show_strongs: false,
+            shown_modules: HashSet::new(),
+        }
+    }
+}
+
 impl BibleDisplaySettings
 {
     pub fn new(package: &Package) -> Self 
@@ -99,6 +114,27 @@ impl BibleDisplaySettings
             show_strongs: false,
             shown_modules,
         }
+    }
+
+    pub fn add_on_package_init_listener(handle: AppHandle)
+    {
+        let handle_copy = handle.clone();
+        handle_copy.listen(BIBLIO_JSON_PACKAGE_INITIALIZED_EVENT_NAME, move |_| {
+            let app_state = handle.state::<Mutex<AppState>>();
+            let mut state = app_state.lock().unwrap();
+
+            let package = handle.state::<BiblioJsonPackageHandle>();
+
+            let old = state.bible_display_settings.clone();
+            state.bible_display_settings = package.visit(|p| {
+                Self::new(p)
+            });
+
+            handle.emit(BIBLE_VERSION_CHANGED_EVENT_NAME, BibleVersionChangedEvent {
+                old: old,
+                new: state.bible_display_settings.clone(),
+            }).unwrap();
+        });
     }
 }
 
