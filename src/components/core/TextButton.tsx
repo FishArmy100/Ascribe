@@ -1,17 +1,10 @@
+import { Button, SxProps, Theme, Typography, useTheme } from "@mui/material";
 import React from "react";
-import { Button, useTheme } from "@mui/material";
-import { use_settings } from "../providers/SettingsProvider";
-import { AppSettings } from "../../interop/settings";
-import { SxProps } from "@mui/material/styles";
-import { Theme } from "@mui/material/styles";
 import Tooltip from "./Tooltip";
+import { BUTTON_BORDER_RADIUS, BUTTON_PADDING, BUTTON_SIZE } from "./ImageButton";
 
-export const BUTTON_SIZE = 4;
-export const BUTTON_BORDER_RADIUS = 0.75;
-export const BUTTON_PADDING = 3 / 8;
-
-export type ImageButtonProps = {
-    image: string,
+export type TextButtonProps = {
+    text: string,
     tooltip: string,
     disabled?: boolean,
     active?: boolean,
@@ -19,17 +12,16 @@ export type ImageButtonProps = {
     sx?: SxProps<Theme>,
 }
 
-export default function ImageButton({
-    image,
+export default function TextButton({
+    text,
     tooltip,
     disabled,
     active,
     on_click,
     sx,
-}: ImageButtonProps): React.ReactElement
+}: TextButtonProps): React.ReactElement
 {
     const theme = useTheme();
-
     return (
         <Tooltip
             tooltip={tooltip}
@@ -44,9 +36,9 @@ export default function ImageButton({
                         borderWidth: (theme) => theme.spacing(1 / 8),
                         borderColor: theme.palette.divider,
                         borderStyle: "solid",
-                        width: (theme) => theme.spacing(BUTTON_SIZE),
+                        width: "fit-content",
                         height: (theme) => theme.spacing(BUTTON_SIZE),
-                        minWidth: (theme) => theme.spacing(BUTTON_SIZE),
+                        minWidth: "fit-content",
                         minHeight: (theme) => theme.spacing(BUTTON_SIZE),
                         cursor: disabled ? "not-allowed" : "pointer",
                         padding: BUTTON_PADDING,
@@ -57,22 +49,19 @@ export default function ImageButton({
                         ...sx,
                     }}
                 >
-                    <img
-                        src={image}
-                        alt=""
-                        style={{
-                            maxWidth: "100%",
-                            maxHeight: "100%",
-                            width: "auto",
-                            height: "auto",
-                            objectFit: "contain",
-                            boxSizing: "border-box",
+                    <Typography
+                        variant="body1"
+                        textAlign="center"
+                        sx={{
+                            color: theme.palette.common.black,
                             opacity: disabled ? 0.5 : 1,
                             filter: disabled ? "grayscale(100%)" : "none"
                         }}
-                    />
+                    >
+                        {text}
+                    </Typography>
                 </Button>
             </span>
         </Tooltip>
-    )
+    );
 }
