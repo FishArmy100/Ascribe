@@ -2,39 +2,51 @@ import { invoke } from "@tauri-apps/api/core";
 import { OsisBook, VerseId } from "./bible";
 import { StrongsNumber } from "./bible/strongs";
 import { RenderedVerseContent } from "./bible/render";
+import { ModuleEntry } from "./module_entry";
 
 export async function backend_push_search_to_view_history(str: string): Promise<string | null>
 {
     return await invoke("push_search_to_view_history", { input_str: str });
 }
 
-export type WordSearchResult = |{
-    type: "ok",
-    hits: SearchHit[]
-} |{
-    type: "error",
-    error: string,
+export async function backend_push_module_word_search_to_view_history(str: string, searched_modules: string[]): Promise<string | null>
+{
+    return await invoke("push_module_word_search_to_view_history", { input_str: str, searched_modules: searched_modules })
 }
 
-export async function run_backend_search_query(query: WordSearchQuery): Promise<WordSearchResult>
+export type ModuleSearchHit = {
+    entry: ModuleEntry,
+    module: string,
+    body_hits: number[],
+    title_hits: number[],
+}
+
+export type ModuleSearchResult = {
+    hits: ModuleSearchHit[],
+    total_count: number,
+}
+
+export type WordSearchMode = "title" | "body" | "title_and_body";
+
+export async function run_backend_module_search_query(query: WordSearchQuery, modules: string[], mode: WordSearchMode, page_size: number, page_index: number): Promise<ModuleSearchResult>
 {
     return await invoke<string>("run_bible_command", {
         command: {
-            type: "run_search_query",
+            type: "run_module_word_search",
             query,
+            modules,
+            mode,
+            page_size,
+            page_index,
         }
     }).then(s => {
-        return JSON.parse(s) as WordSearchResult;
+        return JSON.parse(s) as ModuleSearchResult;
     })
 }
 
-export type RenderedWordSearchResult = |{
-    type: "ok",
+export type RenderedWordSearchResult = {
     verses: RenderedVerseContent[],
     hits: SearchHit[],
-} |{
-    type: "error",
-    error: string,
 }
 
 export type BackendRenderWordSearchQueryArgs = {

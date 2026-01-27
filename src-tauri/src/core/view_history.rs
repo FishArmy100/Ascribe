@@ -1,6 +1,6 @@
 use std::{num::NonZeroU32, sync::Mutex};
 
-use biblio_json::core::{OsisBook, chapter_id::ChapterId};
+use biblio_json::{core::{OsisBook, chapter_id::ChapterId}, modules::{EntryId, ModuleId}};
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Emitter, State};
 
@@ -53,6 +53,11 @@ impl ViewHistory
         self.index
     }
 
+    pub fn set_index(&mut self, index: usize)
+    {
+        self.index = index.clamp(0, self.count() - 1);
+    }
+
     pub fn count(&self) -> usize
     {
         self.entries.len()
@@ -80,6 +85,20 @@ impl ViewHistory
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case", tag = "type")]
+pub enum EntrySelector 
+{
+    Page
+    {
+        index: u32,
+    },
+    Entry
+    {
+        id: EntryId,
+    },
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case", tag = "type")]
 pub enum ViewHistoryEntry
@@ -101,12 +120,25 @@ pub enum ViewHistoryEntry
         raw: Option<String>,
     },
     Settings,
+    ModuleList,
+    ModuleInspector
+    {
+        module: ModuleId,
+        selector: Option<EntrySelector>,
+    },
+    ModuleWordSearch
+    {
+        searched_modules: Vec<ModuleId>,
+        query: WordSearchQueryJson,
+        raw: Option<String>,
+        page_index: u32,
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ViewHistoryInfo
 {
-    pub current: ViewHistoryEntry,
+    pub all: Vec<ViewHistoryEntry>,
     pub index: u32,
     pub count: u32,
 }
@@ -116,7 +148,7 @@ impl ViewHistoryInfo
     pub fn from_history(history: &ViewHistory) -> Self 
     {
         Self {
-            current: history.get_current().clone(),
+            all: history.entries.clone(),
             index: history.index() as u32,
             count: history.count() as u32,
         }
@@ -142,6 +174,10 @@ pub enum ViewHistoryCommand
     Retreat,
     Advance,
     GetInfo,
+    SetIndex
+    {
+        index: u32,
+    }
 }
 
 #[tauri::command(rename_all = "snake_case")]
@@ -190,6 +226,15 @@ pub fn run_view_history_command(app_handle: AppHandle, app_state: State<'_, Mute
             let info = ViewHistoryInfo::from_history(&binding.view_history);
             Some(serde_json::to_string(&info).unwrap())
         },
+        ViewHistoryCommand::SetIndex { index } => {
+            let mut binding = app_state.lock().unwrap();
+            
+            update_view_history(&mut binding.view_history, &app_handle, |vh| {
+                vh.set_index(index as usize);
+            });
+
+            None
+        }
     }
 }
 

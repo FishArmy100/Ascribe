@@ -90,3 +90,7 @@ export { default as do_not_enter } from './images/light-do-not-enter.svg';
 export { default as google_drive } from './images/brands-google-drive.svg';
 export { default as cloud_upload } from './images/light-cloud-arrow-up.svg';
 export { default as vertical_dots } from './images/light-ellipsis-vertical.svg';
+export { default as magnifying_glass_folder } from './images/light-folder-magnifying-glass.svg';
+export { default as sliders } from './images/light-sliders.svg';
+export { default as book_arrow_up } from './images/light-book-arrow-up.svg';
+export { default as book_reader } from './images/light-book-open-reader.svg';

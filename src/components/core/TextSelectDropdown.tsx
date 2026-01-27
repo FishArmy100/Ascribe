@@ -4,7 +4,7 @@ import ImageButton from "./ImageButton"
 import Tooltip from "./Tooltip";
 import { TypographyVariant } from "@mui/material/styles";
 
-export const DROPDOWN_PADDING = 0.4;
+export const DROPDOWN_PADDING = 1;
 
 export type TextSelectDropdownOption<T> = {
     text: string,
@@ -80,8 +80,9 @@ export default function TextSelectDropdown<T>({
                         display: 'none', // Remove the ::before element
                     },
                     width: dropdown_width,
-                    height: theme.spacing(20),
+                    maxHeight: theme.spacing(20),
                     overflow: "auto",
+                    zIndex: 100,
                 }}
                 className="dropdown-content"
             >
@@ -131,7 +132,6 @@ export default function TextSelectDropdown<T>({
                         opacity: 1;
                         visibility: visible;
                         pointer-events: auto;
-                        z-index: 100;
                     }
                 `}
             </style>

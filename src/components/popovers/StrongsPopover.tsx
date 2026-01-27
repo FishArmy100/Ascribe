@@ -1,10 +1,12 @@
 import React, { useEffect, useMemo, useState } from "react"
-import { StrongsDefEntry, StrongsNumber, fetch_backend_strongs_defs, format_strongs } from "@interop/bible/strongs"
+import { StrongsNumber, fetch_backend_strongs_defs, format_strongs } from "@interop/bible/strongs"
 import { Box, Divider, Popover, Stack, Typography, useTheme } from "@mui/material"
 import { HRefSrc, HtmlText, Node } from "@interop/html_text";
 import { HtmlTextRenderer } from "@components/HtmlTextRenderer";
 import SmallerTextSection from "@components/SmallerTextSection";
 import * as utils from "@utils";
+import { StrongsDefEntry } from "@interop/module_entry";
+import { use_bible_display_settings } from "@components/providers/BibleDisplaySettingsProvider";
 
 export type StrongsPopoverProps = {
     pos: { top: number, left: number } | null,
@@ -15,16 +17,17 @@ export type StrongsPopoverProps = {
 export default function StrongsPopover({
     pos,
     strongs,
-    on_close,
+    on_close, 
 }: StrongsPopoverProps): React.ReactElement
 {
     utils.pretty_print_json({});
     const [strongs_defs, set_strongs_defs] = useState<StrongsDefEntry[] | null>(null);
+    const { bible_display_settings } = use_bible_display_settings();
 
     useEffect(() => {
         if (strongs !== null)
         {
-            fetch_backend_strongs_defs(strongs).then(defs => {
+            fetch_backend_strongs_defs(strongs, bible_display_settings.shown_modules).then(defs => {
                 set_strongs_defs(defs);
             }) 
         }

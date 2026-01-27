@@ -6,6 +6,6 @@ use super::settings::AppSettings;
 pub struct AppState
 {
     pub settings: AppSettings,
-    pub bible_version_state: BibleDisplaySettings,
+    pub bible_display_settings: BibleDisplaySettings,
     pub view_history: ViewHistory,
 }

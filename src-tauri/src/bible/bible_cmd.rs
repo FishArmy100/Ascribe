@@ -1,24 +1,27 @@
-use std::{num::NonZeroU32, sync::Mutex};
+use std::{collections::HashSet, num::NonZeroU32, sync::Mutex};
 
-use biblio_json::{core::{OsisBook, StrongsLang, StrongsNumber, VerseId}, modules::{Module, ModuleId}};
+use biblio_json::{core::{OsisBook, StrongsLang, StrongsNumber, VerseId}, modules::{EntryId, Module, ModuleId}};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use tauri::{Emitter, State};
 
-use crate::{bible::{BIBLE_VERSION_CHANGED_EVENT_NAME, BibleDisplaySettings, BibleInfo, BibleVersionChangedEvent, BiblioJsonPackageHandle, fetching::PackageEx, render::{RenderSearchArgs, fetch_verse_render_data, render_verses, render_word_search_verses}}, core::app::AppState, repr::{searching::{SearchHitJson, WordSearchQueryJson}, *}, searching::word_search_engine::WordSearchQuery};
+use crate::{bible::{BIBLE_VERSION_CHANGED_EVENT_NAME, BibleDisplaySettings, BibleInfo, BibleVersionChangedEvent, BiblioJsonPackageHandle, fetching::PackageEx, render::{RenderSearchArgs, fetch_verse_render_data, render_verses, render_word_search_verses}}, core::app::AppState, repr::{module_config::ModuleConfigJson, readings_date::ReadingsDateJson, searching::{ModuleSearchHitJson, WordSearchQueryJson}, *}, searching::{module_searching::WordSearchMode, word_search_engine::WordSearchQuery}};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case", tag = "type")]
-pub enum WordSearchResult
+#[serde(rename_all = "snake_case")]
+pub struct ModulePage
 {
-    Ok 
-    {
-        hits: Vec<SearchHitJson>,
-    },
-    Error 
-    {
-        error: String
-    }
+    pub start: ModuleEntryJson,
+    pub end: ModuleEntryJson,
+    pub count: u32,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub struct ModuleSearchResult
+{
+    pub hits: Vec<ModuleSearchHitJson>,
+    pub total_count: u32,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -37,41 +40,53 @@ pub enum BibleCommand
     {
         verses: Vec<VerseIdJson>,
         bible: ModuleId,
+        shown_modules: HashSet<ModuleId>,
     },
     FetchStrongsDefs 
     {
         strongs: StrongsNumberJson,
+        shown_modules: HashSet<ModuleId>,
     },
     FetchWordEntries
     {
         verse: VerseIdJson,
         word: NonZeroU32,
         bible: ModuleId,
+        shown_modules: HashSet<ModuleId>,
     },
     FetchVerseEntries 
     {
         verse: VerseIdJson,
         bible: ModuleId,
+        shown_modules: HashSet<ModuleId>,
     },
     FetchChapterEntries 
     {
         chapter: ChapterIdJson,
         bible: ModuleId,
+        shown_modules: HashSet<ModuleId>,
     },
     FetchBookEntries 
     {
         book: OsisBook,
         bible: ModuleId,
+        shown_modules: HashSet<ModuleId>,
     },
     RenderVerses 
     {
         verses: Vec<VerseIdJson>,
         show_strongs: bool,
         bible: ModuleId,
+        shown_modules: HashSet<ModuleId>,
     },
-    RunWordSearchQuery
+    RunModuleWordSearch
     {
-        query: WordSearchQueryJson
+        query: WordSearchQueryJson,
+        modules: Vec<ModuleId>,
+        mode: WordSearchMode,
+
+        page_index: u32,
+        page_size: u32,
     },
     RenderWordSearchQuery
     {
@@ -79,7 +94,31 @@ pub enum BibleCommand
         show_strongs: bool,
         page_index: u32,
         page_size: u32,
-    }
+        shown_modules: HashSet<ModuleId>,
+    },
+    FetchModuleConfigs,
+    GetEntryIndex
+    {
+        module: ModuleId,
+        entry: EntryId, 
+    },
+    FetchModuleEntries
+    {
+        module: ModuleId,
+        page_size: u32,
+        page_index: u32,
+    },
+    FetchModulePages
+    {
+        module: ModuleId,
+        page_size: u32,
+    },
+    FetchReading
+    {
+        module: ModuleId,
+        start_date: ReadingsDateJson,
+        selected_date: ReadingsDateJson,
+    },
 }
 
 #[tauri::command(rename_all = "snake_case")]
@@ -105,7 +144,7 @@ pub fn run_bible_command(
         },
         BibleCommand::FetchModuleInfos => {
             let modules = package.visit(|p| {
-                p.modules.values().map(|m| m.get_info()).collect_vec()
+                p.modules.values().map(|m| ModuleInfoJson::from(m.get_info())).collect_vec()
             });
 
             Some(serde_json::to_string(&modules).unwrap())
@@ -115,29 +154,29 @@ pub fn run_bible_command(
         },
         BibleCommand::GetBibleDisplaySettings => {
             let state = app_state.lock().unwrap();
-            Some(serde_json::to_string(&state.bible_version_state).unwrap())
+            Some(serde_json::to_string(&state.bible_display_settings).unwrap())
         },
         BibleCommand::SetBibleDisplaySettings { version_state } => {
             let mut state = app_state.lock().unwrap();
-            let old = state.bible_version_state.clone();
-            state.bible_version_state = version_state;
+            let old = state.bible_display_settings.clone();
+            state.bible_display_settings = version_state;
 
             app_handle.emit(BIBLE_VERSION_CHANGED_EVENT_NAME, BibleVersionChangedEvent {
                 old: old,
-                new: state.bible_version_state.clone(),
+                new: state.bible_display_settings.clone(),
             }).unwrap();
             None
         },
-        BibleCommand::FetchVerseRenderData { verses, bible } => {
+        BibleCommand::FetchVerseRenderData { verses, bible, shown_modules } => {
             let verses = verses.iter().map(|v| v.into()).collect_vec();
 
             let response = package.visit(|p| {
-                fetch_verse_render_data(p, &verses, &bible)
+                fetch_verse_render_data(p, &verses, &bible, &shown_modules)
             });
 
             Some(serde_json::to_string(&response).unwrap())
         },
-        BibleCommand::FetchStrongsDefs { strongs } => {
+        BibleCommand::FetchStrongsDefs { strongs, shown_modules } => {
             let strongs = StrongsNumber {
                 lang: match strongs.language {
                     StrongsLanguageJson::Hebrew => StrongsLang::Hebrew,
@@ -148,66 +187,79 @@ pub fn run_bible_command(
 
             let response = package.visit(|p| {
                 p.modules.values()
-                    .filter_map(|m| m.as_strongs_defs())
-                    .filter_map(|defs| defs.get_def(&strongs)
+                    .filter(|m| shown_modules.contains(m.id()))
+                    .filter_map(|m| m.as_strongs_defs().map(|d| (d, m.get_info())))
+                    .filter_map(|(defs, info)| defs.get_def(&strongs)
                         .map(|d| {
-                            StrongsDefEntryJson::new(d, defs.config.name.clone())
+                            StrongsDefEntryJson::new(d, &info)
                         }))
                     .collect_vec()
             });
 
             Some(serde_json::to_string(&response).unwrap())
         },
-        BibleCommand::FetchWordEntries { verse, word, bible } => {
+        BibleCommand::FetchWordEntries { verse, word, bible, shown_modules } => {
             let response = package.visit(|p | {
-                p.fetch_word_entries(verse.into(), word, &bible)
+                p.fetch_word_entries(verse.into(), word, &bible, &shown_modules)
             });
 
             Some(serde_json::to_string(&response).unwrap())
         },
-        BibleCommand::FetchVerseEntries { verse, bible } => {
+        BibleCommand::FetchVerseEntries { verse, bible, shown_modules } => {
             let response = package.visit(|p | {
-                p.fetch_verse_entries(verse.into(), &bible)
+                p.fetch_verse_entries(verse.into(), &bible, &shown_modules)
             });
 
             Some(serde_json::to_string(&response).unwrap())
         }
-        BibleCommand::FetchChapterEntries { chapter, bible } => {
+        BibleCommand::FetchChapterEntries { chapter, bible, shown_modules } => {
             let response = package.visit(|p | {
-                p.fetch_chapter_entries(chapter.into(), &bible)
+                p.fetch_chapter_entries(chapter.into(), &bible, &shown_modules)
             });
 
             Some(serde_json::to_string(&response).unwrap())
         },
-        BibleCommand::FetchBookEntries { book, bible } => {
+        BibleCommand::FetchBookEntries { book, bible, shown_modules } => {
             let response = package.visit(|p | {
-                p.fetch_book_entries(book, &bible)
+                p.fetch_book_entries(book, &bible, &shown_modules)
             });
 
             Some(serde_json::to_string(&response).unwrap())
         }
-        BibleCommand::RenderVerses { verses, show_strongs, bible } => {
+        BibleCommand::RenderVerses { verses, show_strongs, bible, shown_modules } => {
             let verses = verses.iter().map(|v| VerseId::from(v)).collect_vec();
             
             let response = package.visit(|p| {
-                render_verses(p, &verses, &bible, show_strongs)
+                render_verses(p, &verses, &bible, show_strongs, &shown_modules)
             });
 
             Some(serde_json::to_string(&response).unwrap())
         },
-        BibleCommand::RunWordSearchQuery { query } => {
+        BibleCommand::RunModuleWordSearch { query, modules, mode, page_size, page_index } => {
+            let bible = app_state.lock().unwrap().bible_display_settings.bible_version.clone();
             let query: WordSearchQuery = query.into();
+
+            let start = page_size as usize * page_index as usize;
+
             let response = package.visit(|p| {
-                match query.run_query(p)
-                {
-                    Ok(ok) => WordSearchResult::Ok { hits: ok.into_iter().map(Into::into).collect() },
-                    Err(error) => WordSearchResult::Error { error: error.to_string() },
+                let hits = query.run_query(p, &modules, mode);
+                let total_count = hits.len() as u32;
+                
+                let hits = hits.into_iter()
+                    .skip(start)
+                    .take(page_size as usize)
+                    .map(|h| ModuleSearchHitJson::new(p, h, &bible))
+                    .collect_vec();
+
+                ModuleSearchResult {
+                    hits,
+                    total_count,
                 }
             });
 
             Some(serde_json::to_string(&response).unwrap())
         },
-        BibleCommand::RenderWordSearchQuery { query, show_strongs, page_index, page_size } => {
+        BibleCommand::RenderWordSearchQuery { query, show_strongs, page_index, page_size, shown_modules } => {
             let query: WordSearchQuery = query.into();
             let response = package.visit(|package| {
                 render_word_search_verses(RenderSearchArgs {
@@ -215,10 +267,89 @@ pub fn run_bible_command(
                     package, 
                     show_strongs, 
                     page_index, 
-                    page_size
+                    page_size,
+                    shown_modules: &shown_modules,
                 })
             });
 
+            Some(serde_json::to_string(&response).unwrap())
+        },
+        BibleCommand::FetchModuleConfigs => {
+            let response = package.visit(|package| {
+                package.modules.values()
+                    .map(|m| ModuleConfigJson::new(m))
+                    .collect_vec()
+            });
+
+            Some(serde_json::to_string(&response).unwrap())
+        },
+        BibleCommand::GetEntryIndex { module, entry } => {
+            let response = package.visit(|package| {
+                package.get_mod(&module).unwrap().entries()
+                    .find_position(|e| e.id() == entry)
+                    .map(|(i, _)| i as u32)
+            });
+
+            Some(serde_json::to_string(&response).unwrap())
+        }
+        BibleCommand::FetchModuleEntries { module, page_size, page_index } => {
+            let bible = app_state.lock().unwrap().bible_display_settings.bible_version.clone();
+
+            let start = (page_index * page_size) as usize;
+
+            let response = package.visit(|package| {
+                let Some(module) = package.get_mod(&module) else {
+                    return vec![]
+                };
+                
+                let entries = module.entries()
+                    .skip(start)
+                    .take(page_size as usize)
+                    .map(|e| (e, module.get_info()))
+                    .collect_vec();
+
+                package.convert_to_json_entries(entries, &bible)
+            });
+
+            Some(serde_json::to_string(&response).unwrap())
+        }
+        BibleCommand::FetchModulePages { module, page_size } => {
+            let bible = app_state.lock().unwrap().bible_display_settings.bible_version.clone();
+            let response = package.visit(|package| {
+                let Some(module) = package.get_mod(&module) else {
+                    return vec![]
+                };
+                
+                let total_entries = module.entries().count();
+                let page_count = (total_entries + page_size as usize - 1) / page_size as usize;
+                
+                (0..page_count)
+                    .map(|page_idx| {
+                        let start_idx = page_idx * page_size as usize;
+                        let end_idx = std::cmp::min(start_idx + page_size as usize - 1, total_entries - 1);
+                        
+                        let start_entry = module.entries().nth(start_idx).unwrap();
+                        let end_entry = module.entries().nth(end_idx).unwrap();
+                        
+                        ModulePage {
+                            start: package.convert_to_json_entries(vec![(start_entry, module.get_info())], &bible).into_iter().next().unwrap(),
+                            end: package.convert_to_json_entries(vec![(end_entry, module.get_info())], &bible).into_iter().next().unwrap(),
+                            count: (end_idx - start_idx + 1) as u32,
+                        }
+                    })
+                    .collect_vec()
+            });
+
+            Some(serde_json::to_string(&response).unwrap())
+        }
+        BibleCommand::FetchReading { module, start_date, selected_date } => {
+            let response = package.visit(|p| {
+                let readings_module = p.get_mod(&module).and_then(Module::as_readings).unwrap();
+                readings_module.get_reading(*start_date, *selected_date).map(|r| {
+                    r.readings.clone()
+                })
+            });
+            
             Some(serde_json::to_string(&response).unwrap())
         }
     }

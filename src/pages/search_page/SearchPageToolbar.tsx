@@ -56,13 +56,13 @@ export const SearchPageToolbar = React.memo(function SearchPageToolbar({
                 <ImageButton
                     image={images.arrow_turn_left}
                     tooltip="To previous page"
-                    disabled={view_history.get_current().index === 0}
+                    disabled={view_history.get_index() === 0}
                     on_click={() => view_history.retreat()}
                 />
                 <ImageButton
                     image={images.arrow_turn_right}
                     tooltip="To next page"
-                    disabled={view_history.get_current().index >= view_history.get_current().count - 1}
+                    disabled={view_history.get_index() >= view_history.get_count() - 1}
                     on_click={() => view_history.advance()}
                 />
                 <SubMenuDropdown />

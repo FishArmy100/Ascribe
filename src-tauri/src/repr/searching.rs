@@ -1,13 +1,13 @@
-use biblio_json::modules::ModuleId;
+use biblio_json::{Package, modules::ModuleId};
 use serde::{Deserialize, Serialize};
 
-use crate::{repr::{StrongsNumberJson, VerseIdJson}, searching::word_search_engine::{SearchHit, WordSearchPart, WordSearchQuery, WordSearchRange}};
+use crate::{bible::fetching::PackageEx, repr::{ModuleEntryJson, StrongsNumberJson, VerseIdJson}, searching::{module_searching::ModuleSearchHit, word_search_engine::{WordSearchPart, WordSearchQuery, WordSearchRange}}};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct WordSearchQueryJson
 {
     pub ranges: Vec<WordSearchRangeJson>,
-    pub root: WordSearchPartJson,
+    pub root: Option<WordSearchPartJson>,
 }
 
 impl From<WordSearchQuery> for WordSearchQueryJson
@@ -16,7 +16,7 @@ impl From<WordSearchQuery> for WordSearchQueryJson
     {
         Self {
             ranges: value.ranges.into_iter().map(Into::into).collect(),
-            root: value.root.into()
+            root: value.root.map(Into::into)
         }
     }
 }
@@ -27,7 +27,7 @@ impl From<&WordSearchQuery> for WordSearchQueryJson
     {
         Self {
             ranges: value.ranges.clone().into_iter().map(Into::into).collect(),
-            root: value.root.clone().into()
+            root: value.root.clone().map(Into::into)
         }
     }
 }
@@ -38,7 +38,7 @@ impl From<WordSearchQueryJson> for WordSearchQuery
     {
         Self {
             ranges: value.ranges.into_iter().map(Into::into).collect(),
-            root: value.root.into(),
+            root: value.root.map(Into::into),
         }    
     }
 }
@@ -49,7 +49,7 @@ impl From<&WordSearchQueryJson> for WordSearchQuery
     {
         Self {
             ranges: value.ranges.clone().into_iter().map(Into::into).collect(),
-            root: value.root.clone().into(),
+            root: value.root.clone().map(Into::into),
         }    
     }
 }
@@ -282,57 +282,25 @@ impl From<&WordSearchRangeJson> for WordSearchRange
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct SearchHitJson
+pub struct ModuleSearchHitJson
 {
-    pub bible: ModuleId,
-    pub verse: VerseIdJson,
-    pub hit_indexes: Vec<u32>,
+    pub entry: ModuleEntryJson,
+    pub module: ModuleId,
+    pub body_hits: Vec<u32>,
+    pub title_hits: Vec<u32>,
 }
 
-impl From<SearchHit> for SearchHitJson
+impl ModuleSearchHitJson
 {
-    fn from(value: SearchHit) -> Self 
+    pub fn new(package: &Package, hit: ModuleSearchHit, bible: &ModuleId) -> Self 
     {
+        let info = package.get_mod(&hit.entry_ref.module).unwrap().get_info();
+        let entry = package.convert_to_json_entries(vec![(hit.entry, info)], bible).into_iter().next().unwrap();
         Self {
-            verse: value.verse.into(),
-            hit_indexes: value.hit_indexes,
-            bible: value.bible,
-        }
-    }
-}
-
-impl From<&SearchHit> for SearchHitJson
-{
-    fn from(value: &SearchHit) -> Self 
-    {
-        Self {
-            verse: value.verse.into(),
-            hit_indexes: value.hit_indexes.clone(),
-            bible: value.bible.clone(),
-        }
-    }
-}
-
-impl From<SearchHitJson> for SearchHit
-{
-    fn from(value: SearchHitJson) -> Self 
-    {
-        Self {
-            verse: value.verse.into(),
-            hit_indexes: value.hit_indexes,
-            bible: value.bible,
-        }
-    }
-}
-
-impl From<&SearchHitJson> for SearchHit
-{
-    fn from(value: &SearchHitJson) -> Self 
-    {
-        Self {
-            verse: value.verse.into(),
-            hit_indexes: value.hit_indexes.clone(),
-            bible: value.bible.clone(),
+            entry,
+            module: hit.entry_ref.module,
+            body_hits: hit.body_hits,
+            title_hits: hit.title_hits,
         }
     }
 }

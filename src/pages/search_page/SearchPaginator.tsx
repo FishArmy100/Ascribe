@@ -1,6 +1,6 @@
 import Tooltip from "@components/core/Tooltip";
 import { use_view_history } from "@components/providers/ViewHistoryProvider";
-import { use_display_verse, use_selected_bibles } from "@interop/bible";
+import { use_format_verse_id, use_selected_bibles } from "@interop/bible";
 import { SearchHit } from "@interop/searching"
 import { WordSearchHistoryEntry } from "@interop/view_history";
 import { Box, Typography, useTheme } from "@mui/material";
@@ -19,7 +19,7 @@ export default function SearchPaginator({
     entry,
 }: SearchPaginatorProps): React.ReactElement
 {
-    const display_verse = use_display_verse();
+    const display_verse = use_format_verse_id();
     const bible = use_selected_bibles().bible;
     const theme = useTheme();
     const view_history = use_view_history();

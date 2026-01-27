@@ -1,6 +1,5 @@
 import { get_backend_biblio_json_package_initialized } from "@interop/bible";
-import { ModuleInfoMap } from "@interop/module_entry";
-import { get_backend_module_infos, ModuleInfo } from "@interop/module_info";
+import { get_backend_module_infos, ModuleInfo, ModuleInfoMap } from "@interop/module_info";
 import { listen } from "@tauri-apps/api/event";
 import React, { createContext, useContext, useEffect, useState } from "react";
 

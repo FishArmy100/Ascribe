@@ -9,6 +9,7 @@ pub mod bible;
 pub mod searching;
 pub mod repr;
 pub mod tts;
+pub mod commands;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -35,13 +36,15 @@ pub fn run() {
             init_espeak(app.path());
             app.manage(Mutex::new(TtsPlayer::new(app.path(), app.handle().clone())));
             app.manage(BiblioJsonPackageHandle::init(app.handle().clone()));
+
             app.manage(Mutex::new(AppState {
                 settings: AppSettings::default(),
-                bible_version_state: BibleDisplaySettings::default(),
+                bible_display_settings: BibleDisplaySettings::default(),
                 view_history: ViewHistory::new(),
             }));
 
             tts::add_sync_settings_listener(app.handle().clone());
+            BibleDisplaySettings::add_on_package_init_listener(app.handle().clone());
 
             Ok(())
         })
@@ -49,10 +52,11 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             settings::run_settings_command,
             bible::bible_cmd::run_bible_command,
-            searching::test_search,
+            searching::push_module_word_search_to_view_history,
             searching::push_search_to_view_history,
             view_history::run_view_history_command,
             tts::tts_cmd::run_tts_command,
+            commands::open,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

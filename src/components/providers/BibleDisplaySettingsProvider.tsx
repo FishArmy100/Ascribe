@@ -1,17 +1,20 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import * as bible from "../../interop/bible";
-import { type BibleDisplaySettings } from "../../interop/bible";
+import { get_backend_biblio_json_package_initialized, type BibleDisplaySettings } from "../../interop/bible";
+import { get_backend_module_infos } from "@interop/module_info";
+import { listen } from "@tauri-apps/api/event";
 
 const DEFAULT_BIBLE_VERSION: BibleDisplaySettings = {
-    bible_version: "KJV",
-    parallel_version: "KJV",
+    bible_version: "kjv_eng",
+    parallel_version: "kjv_eng",
     parallel_enabled: false,
     show_strongs: false,
+    shown_modules: [],
 };
 
 type BibleDisplaySettingsContextType = {
-    bible_version_state: BibleDisplaySettings,
-    set_bible_version_state: (s: BibleDisplaySettings) => Promise<void>
+    bible_display_settings: BibleDisplaySettings,
+    set_bible_display_settings: (s: BibleDisplaySettings) => Promise<void>
 }
 
 const BibleDisplaySettingsContext = createContext<BibleDisplaySettingsContextType | undefined>(undefined);
@@ -36,15 +39,11 @@ export function BibleDisplaySettingsProvider({ children }: BibleVersionProviderP
         };
     }, []);
 
-    useEffect(() => {
-        localStorage.setItem("bible-version", JSON.stringify(bible_display_settings));
-    }, [bible_display_settings]);
-
     return (
         <BibleDisplaySettingsContext.Provider 
             value={{ 
-                bible_version_state: bible_display_settings, 
-                set_bible_version_state: bible.set_backend_bible_display_settings 
+                bible_display_settings: bible_display_settings, 
+                set_bible_display_settings: bible.set_backend_bible_display_settings 
             }}
         >
             {children}

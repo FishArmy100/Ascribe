@@ -5,6 +5,7 @@ import { BibleDisplaySettingsProvider } from "./BibleDisplaySettingsProvider";
 import { ViewHistoryProvider } from "./ViewHistoryProvider";
 import { TtsPlayerProvider } from "./TtsPlayerProvider";
 import { ModuleInfoProvider } from "./ModuleInfoProvider";
+import { ModuleConfigProvider } from "./ModuleConfigProvider";
 
 const PROVIDER_NODES: ((children: React.ReactNode) => React.ReactNode)[] = [
     c => <AppSettingsProvider>{c}</AppSettingsProvider>,
@@ -12,7 +13,8 @@ const PROVIDER_NODES: ((children: React.ReactNode) => React.ReactNode)[] = [
     c => <BibleDisplaySettingsProvider>{c}</BibleDisplaySettingsProvider>,
     c => <ViewHistoryProvider>{c}</ViewHistoryProvider>,
     c => <TtsPlayerProvider>{c}</TtsPlayerProvider>,
-    c => <ModuleInfoProvider>{c}</ModuleInfoProvider>
+    c => <ModuleInfoProvider>{c}</ModuleInfoProvider>,
+    c => <ModuleConfigProvider>{c}</ModuleConfigProvider>,
 ];
 
 export default function AppProviders({ 

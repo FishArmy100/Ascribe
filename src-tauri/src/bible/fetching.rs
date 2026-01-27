@@ -1,23 +1,23 @@
 use std::{collections::{HashMap, HashSet}, num::NonZeroU32};
 
-use biblio_json::{Package, core::{Atom, ChapterId, OsisBook, RefId, RefIdInner, VerseId, WordRange}, modules::{Module, ModuleEntry, ModuleId, notebook::NotebookEntry, xrefs::XRefEntry}};
+use biblio_json::{Package, core::{Atom, ChapterId, OsisBook, RefId, RefIdInner, VerseId, WordRange}, modules::{Module, ModuleEntry, ModuleId, ModuleInfo, notebook::NotebookEntry, xrefs::XRefEntry}};
 use itertools::Itertools;
 
 use crate::repr::ModuleEntryJson;
 
 pub trait PackageEx
 {
-    fn convert_to_json_entries<'a>(&'a self, fetched: Vec<(ModuleEntry<'a>, ModuleId)>, bible: &ModuleId) -> Vec<ModuleEntryJson>;
-    fn fetch_word_entries(&self, verse: VerseId, word: NonZeroU32, bible: &ModuleId) -> Vec<ModuleEntryJson>;
-    fn fetch_verse_entries(&self, verse: VerseId, bible: &ModuleId) -> Vec<ModuleEntryJson>;
-    fn fetch_chapter_entries(&self, chapter: ChapterId, bible: &ModuleId) -> Vec<ModuleEntryJson>;
-    fn fetch_book_entries(&self, book: OsisBook, bible: &ModuleId) -> Vec<ModuleEntryJson>;
-    fn fetch_words_have_entries(&self, words: &[(VerseId, NonZeroU32)], bible: &ModuleId) -> Vec<(VerseId, NonZeroU32)>;
+    fn convert_to_json_entries<'a>(&'a self, fetched: Vec<(ModuleEntry<'a>, ModuleInfo)>, bible: &ModuleId) -> Vec<ModuleEntryJson>;
+    fn fetch_word_entries(&self, verse: VerseId, word: NonZeroU32, bible: &ModuleId, shown_modules: &HashSet<ModuleId>) -> Vec<ModuleEntryJson>;
+    fn fetch_verse_entries(&self, verse: VerseId, bible: &ModuleId, shown_modules: &HashSet<ModuleId>) -> Vec<ModuleEntryJson>;
+    fn fetch_chapter_entries(&self, chapter: ChapterId, bible: &ModuleId, shown_modules: &HashSet<ModuleId>) -> Vec<ModuleEntryJson>;
+    fn fetch_book_entries(&self, book: OsisBook, bible: &ModuleId, shown_modules: &HashSet<ModuleId>) -> Vec<ModuleEntryJson>;
+    fn fetch_words_have_entries(&self, words: &[(VerseId, NonZeroU32)], bible: &ModuleId, shown_modules: &HashSet<ModuleId>) -> Vec<(VerseId, NonZeroU32)>;
 }
 
 impl PackageEx for Package
 {
-    fn convert_to_json_entries<'a>(&'a self, fetched: Vec<(ModuleEntry<'a>, ModuleId)>, bible: &ModuleId) -> Vec<ModuleEntryJson>
+    fn convert_to_json_entries<'a>(&'a self, fetched: Vec<(ModuleEntry<'a>, ModuleInfo)>, bible: &ModuleId) -> Vec<ModuleEntryJson>
     {
         let preview_renderer = |id: &RefId| -> String {
             let (verse, b) = get_first_verse(&id);
@@ -39,12 +39,12 @@ impl PackageEx for Package
                 .join(" ")
         };
 
-        fetched.into_iter().filter_map(|(e, module)| {
-            Some(ModuleEntryJson::new(e, module, preview_renderer))
+        fetched.into_iter().filter_map(|(e, info)| {
+            Some(ModuleEntryJson::new(e, &info, preview_renderer))
         }).collect_vec()
     }
     
-    fn fetch_word_entries(&self, verse: VerseId, word: NonZeroU32, bible: &ModuleId) -> Vec<ModuleEntryJson>
+    fn fetch_word_entries(&self, verse: VerseId, word: NonZeroU32, bible: &ModuleId, shown_modules: &HashSet<ModuleId>) -> Vec<ModuleEntryJson>
     {
         let binding = self.get_mod(bible).as_ref().unwrap()
             .as_bible();
@@ -54,14 +54,16 @@ impl PackageEx for Package
             .get(&verse).as_ref().unwrap()
             .words[word.get() as usize - 1].clone();
 
-        let strongs_defs = self.modules.values().filter_map(Module::as_strongs_defs).collect_vec();
+        let strongs_defs = self.modules.values().filter(|m| shown_modules.contains(m.id())).filter_map(Module::as_strongs_defs).collect_vec();
 
-        let entries = self.modules.values().map(|module| {
+        // Need to include strongs links here as a default, as otherwise it will not render
+        let entries = self.modules.values().filter(|m| shown_modules.contains(m.id()) || m.is_strongs_links()).map(|module| {
+            let info = module.get_info();
             match module
             {
                 Module::Dictionary(dictionary) => {
                     dictionary.find(&word_data.text)
-                        .map(|e| vec![(ModuleEntry::Dictionary(e), module.id().clone())])
+                        .map(|e| vec![(ModuleEntry::Dictionary(e), info)])
                         .unwrap_or_default()
                 },
                 Module::XRef(xrefs) => xrefs.entries.iter().filter(|e| {
@@ -73,7 +75,7 @@ impl PackageEx for Package
                         },
                     }
                 })
-                    .map(|e| (ModuleEntry::XRef(e), xrefs.config.id.clone()))
+                    .map(|e| (ModuleEntry::XRef(e), info.clone()))
                     .collect_vec(),
                 Module::StrongsLinks(links) => {
                     if links.config.bible != *bible { return vec![] }
@@ -85,14 +87,14 @@ impl PackageEx for Package
                     
                     strongs_word.strongs.iter().map(|s| {
                         strongs_defs.iter().filter_map(|defs| {
-                            defs.get_def(s).map(|d| (d, defs.config.id.clone()))
+                            defs.get_def(s).map(|d| (d, Module::StrongsDefs(defs.clone()).get_info()))
                         })
                     }).flatten().map(|(d, id)| (ModuleEntry::StrongsDef(d), id)).collect_vec()
                 },
                 Module::Commentary(commentary) => commentary.entries.iter().filter(|e| {
                     e.references.iter().any(|v| is_word_ref_id(v) && v.has_verse_word(verse, word))
                 })
-                    .map(|e| (ModuleEntry::Commentary(e), commentary.config.id.clone()))
+                    .map(|e| (ModuleEntry::Commentary(e), info.clone()))
                     .collect_vec(),
                 Module::Notebook(notebook) => notebook.entries.iter().filter(|e| {
                     match e 
@@ -107,18 +109,20 @@ impl PackageEx for Package
                         },
                     }
                 })
-                    .map(|e| (ModuleEntry::Notebook(e), notebook.config.id.clone()))
+                    .map(|e| (ModuleEntry::Notebook(e), info.clone()))
                     .collect_vec(),
                 _ => vec![]
             }
-        }).flatten().collect::<Vec<(ModuleEntry, ModuleId)>>();
+        }).flatten().collect::<Vec<(ModuleEntry, ModuleInfo)>>();
 
         self.convert_to_json_entries(entries, bible)
     }
     
-    fn fetch_verse_entries(&self, verse: VerseId, bible: &ModuleId) -> Vec<ModuleEntryJson> 
+    fn fetch_verse_entries(&self, verse: VerseId, bible: &ModuleId, shown_modules: &HashSet<ModuleId>) -> Vec<ModuleEntryJson> 
     {
-        let entries = self.modules.values().map(|module| {
+        // Need to include strongs links here as a default, as otherwise it will not render
+        let entries = self.modules.values().filter(|m| shown_modules.contains(m.id()) || m.is_strongs_links()).map(|module| {
+            let info = module.get_info();
             match module 
             {
                 Module::XRef(xrefs) => xrefs.entries.iter().filter(|e| {
@@ -130,12 +134,12 @@ impl PackageEx for Package
                         },
                     }
                 })
-                    .map(|e| (ModuleEntry::XRef(e), xrefs.config.id.clone()))
+                    .map(|e| (ModuleEntry::XRef(e), info.clone()))
                     .collect_vec(),
                 Module::Commentary(commentary) => commentary.entries.iter().filter(|e| {
                     e.references.iter().any(|v| v.is_verse() && v.has_verse(verse))
                 })
-                    .map(|e| (ModuleEntry::Commentary(e), commentary.config.id.clone()))
+                    .map(|e| (ModuleEntry::Commentary(e), info.clone()))
                     .collect_vec(),
                 Module::Notebook(notebook) => notebook.entries.iter().filter(|e| {
                     match e 
@@ -150,18 +154,20 @@ impl PackageEx for Package
                         },
                     }
                 })
-                    .map(|e| (ModuleEntry::Notebook(e), notebook.config.id.clone()))
+                    .map(|e| (ModuleEntry::Notebook(e), info.clone()))
                     .collect_vec(),
                 _ => vec![]
             }
-        }).flatten().collect::<Vec<(ModuleEntry, ModuleId)>>();
+        }).flatten().collect::<Vec<(ModuleEntry, ModuleInfo)>>();
 
         self.convert_to_json_entries(entries, bible)
     }
     
-    fn fetch_chapter_entries(&self, chapter: ChapterId, bible: &ModuleId) -> Vec<ModuleEntryJson> 
+    fn fetch_chapter_entries(&self, chapter: ChapterId, bible: &ModuleId, shown_modules: &HashSet<ModuleId>) -> Vec<ModuleEntryJson> 
     {
-        let entries = self.modules.values().map(|module| {
+        // Need to include strongs links here as a default, as otherwise it will not render
+        let entries = self.modules.values().filter(|m| shown_modules.contains(m.id()) || m.is_strongs_links()).map(|module| {
+            let info = module.get_info();
             match module 
             {
                 Module::XRef(xrefs) => xrefs.entries.iter().filter(|e| {
@@ -173,12 +179,12 @@ impl PackageEx for Package
                         },
                     }
                 })
-                .map(|e| (ModuleEntry::XRef(e), xrefs.config.id.clone()))
+                .map(|e| (ModuleEntry::XRef(e), info.clone()))
                 .collect_vec(),
                 Module::Commentary(commentary) => commentary.entries.iter().filter(|e| {
                     e.references.iter().any(|r| r.is_chapter() && r.has_chapter(chapter))
                 })
-                .map(|e| (ModuleEntry::Commentary(e), commentary.config.id.clone()))
+                .map(|e| (ModuleEntry::Commentary(e), info.clone()))
                 .collect_vec(),
                 Module::Notebook(notebook) => notebook.entries.iter().filter(|e| {
                     match e 
@@ -190,18 +196,20 @@ impl PackageEx for Package
                         },
                     }
                 })
-                .map(|e| (ModuleEntry::Notebook(e), notebook.config.id.clone()))
+                .map(|e| (ModuleEntry::Notebook(e), info.clone()))
                 .collect_vec(),
                 _ => vec![]
             }
-        }).flatten().collect::<Vec<(ModuleEntry, ModuleId)>>();
+        }).flatten().collect::<Vec<(ModuleEntry, ModuleInfo)>>();
 
         self.convert_to_json_entries(entries, bible)
     }
     
-    fn fetch_book_entries(&self, book: OsisBook, bible: &ModuleId) -> Vec<ModuleEntryJson> 
+    fn fetch_book_entries(&self, book: OsisBook, bible: &ModuleId, shown_modules: &HashSet<ModuleId>) -> Vec<ModuleEntryJson> 
     {
-        let entries = self.modules.values().map(|module| {
+        // Need to include strongs links here as a default, as otherwise it will not render
+        let entries = self.modules.values().filter(|m| shown_modules.contains(m.id()) || m.is_strongs_links()).map(|module| {
+            let info = module.get_info();
             match module 
             {
                 Module::XRef(xrefs) => xrefs.entries.iter().filter(|e| {
@@ -213,12 +221,12 @@ impl PackageEx for Package
                         },
                     }
                 })
-                .map(|e| (ModuleEntry::XRef(e), xrefs.config.id.clone()))
+                .map(|e| (ModuleEntry::XRef(e), info.clone()))
                 .collect_vec(),
                 Module::Commentary(commentary) => commentary.entries.iter().filter(|e| {
                     e.references.iter().any(|r| r.is_book() && r.has_book(book))
                 })
-                .map(|e| (ModuleEntry::Commentary(e), commentary.config.id.clone()))
+                .map(|e| (ModuleEntry::Commentary(e), info.clone()))
                 .collect_vec(),
                 Module::Notebook(notebook) => notebook.entries.iter().filter(|e| {
                     match e 
@@ -230,16 +238,16 @@ impl PackageEx for Package
                         },
                     }
                 })
-                .map(|e| (ModuleEntry::Notebook(e), notebook.config.id.clone()))
+                .map(|e| (ModuleEntry::Notebook(e), info.clone()))
                 .collect_vec(),
                 _ => vec![]
             }
-        }).flatten().collect::<Vec<(ModuleEntry, ModuleId)>>();
+        }).flatten().collect::<Vec<(ModuleEntry, ModuleInfo)>>();
 
         self.convert_to_json_entries(entries, bible)
     }
     
-    fn fetch_words_have_entries(&self, words: &[(VerseId, NonZeroU32)], bible: &ModuleId) -> Vec<(VerseId, NonZeroU32)> 
+    fn fetch_words_have_entries(&self, words: &[(VerseId, NonZeroU32)], bible: &ModuleId, shown_modules: &HashSet<ModuleId>) -> Vec<(VerseId, NonZeroU32)> 
     {
         let binding = self.get_mod(bible).as_ref().unwrap()
             .as_bible();
@@ -254,7 +262,11 @@ impl PackageEx for Package
             ((*v, *w), data)
         }).collect::<HashMap<_, _>>();
 
-        for module in self.modules.values() 
+        
+        let has_defs = self.modules.values().any(|m| m.is_strongs_defs() && shown_modules.contains(m.id()));
+
+        // Need to include strongs links here as a default, as otherwise it will not render
+        for module in self.modules.values().filter(|m| shown_modules.contains(m.id()) || m.is_strongs_links())
         {
             match module
             {
@@ -303,7 +315,7 @@ impl PackageEx for Package
                     }
                 }),
                 Module::StrongsLinks(links) => {
-                    if links.config.bible != *bible { continue; }
+                    if links.config.bible != *bible || !has_defs { continue; }
 
                     let mut found_words = vec![];
                     for &(verse, word) in &no_entry_words
@@ -378,7 +390,7 @@ impl PackageEx for Package
     }
 }
 
-fn get_first_verse(id: &RefId) -> (VerseId, Option<&ModuleId>)
+pub fn get_first_verse(id: &RefId) -> (VerseId, Option<&ModuleId>)
 {
     let bible = id.bible.as_ref().clone();
     let atom = match &id.id {

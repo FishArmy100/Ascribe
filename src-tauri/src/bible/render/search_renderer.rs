@@ -1,25 +1,18 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
-use biblio_json::{Package, core::StrongsNumber, modules::ModuleId};
+use biblio_json::{Package, core::{StrongsNumber, VerseId}, modules::ModuleId};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 
-use crate::{bible::render::{WordRenderData, WrapTagArgs, fetch_verse_render_data, verse_renderer::RenderedVerseContent, wrap_tag}, repr::searching::SearchHitJson, searching::word_search_engine::{SearchHit, WordSearchPart, WordSearchQuery}};
+use crate::{bible::render::{WordRenderData, WrapTagArgs, fetch_verse_render_data, verse_renderer::RenderedVerseContent, wrap_tag}, searching::{VerseWordSearchHit, module_searching::WordSearchMode, word_search_engine::{WordSearchPart, WordSearchQuery}}};
 
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case", tag = "type")]
-pub enum RenderWordSearchResult
+#[serde(rename_all = "snake_case")]
+pub struct RenderWordSearchResult
 {
-    Ok
-    {
-        verses: Vec<RenderedVerseContent>,
-        hits: Vec<SearchHitJson>,
-    },
-    Error 
-    {
-        error: String
-    }
+    pub verses: Vec<RenderedVerseContent>,
+    pub hits: Vec<VerseWordSearchHit>,
 }
 
 pub struct RenderSearchArgs<'a>
@@ -29,17 +22,22 @@ pub struct RenderSearchArgs<'a>
     pub show_strongs: bool,
     pub page_index: u32,
     pub page_size: u32,
+    pub shown_modules: &'a HashSet<ModuleId>,
 }
 
 pub fn render_word_search_verses(args: RenderSearchArgs) -> RenderWordSearchResult
 {
-    let RenderSearchArgs { query, package, show_strongs, page_index, page_size } = args;
+    let RenderSearchArgs { query, package, show_strongs, page_index, page_size, shown_modules } = args;
 
-    let mut hits = match query.run_query(package)
-    {
-        Ok(ok) => ok,
-        Err(e) => return RenderWordSearchResult::Error { error: e.to_string() }
-    };
+    let modules = query.ranges.iter().map(|r| r.bible.clone()).collect_vec();
+    let mut hits = query.run_query(package, &modules, WordSearchMode::Body).iter().map(|h| {
+        let verse_id = package.fetch_entry(h.entry_ref.clone()).unwrap().as_verse().unwrap().verse_id;
+        VerseWordSearchHit {
+            bible: h.entry_ref.module.clone(),
+            verse: verse_id.into(),
+            hits: h.body_hits.clone(),
+        }
+    }).collect_vec();
 
     sort_hits(&mut hits);
 
@@ -48,34 +46,35 @@ pub fn render_word_search_verses(args: RenderSearchArgs) -> RenderWordSearchResu
 
     if start >= hits.len()
     {
-        return RenderWordSearchResult::Ok { verses: vec![], hits: vec![] }
+        return RenderWordSearchResult { verses: vec![], hits: vec![] }
     }
 
     let rendered_hits = &mut hits[start..end];
 
-    let mut grouped_hits = HashMap::<ModuleId, Vec<SearchHit>>::new();
+    let mut grouped_hits = HashMap::<ModuleId, Vec<VerseWordSearchHit>>::new();
     for hit in rendered_hits.into_iter()
     {
         grouped_hits.entry(hit.bible.clone()).or_default().push(hit.clone());
     }
 
     let mut rendered = grouped_hits.into_iter().map(|(id, group)| {
-        render_searched_hits(package, &group, &args.query.root, &id, show_strongs)
+        render_searched_hits(package, &group, args.query.root.as_ref(), &id, show_strongs, shown_modules)
     }).flatten().collect_vec();
 
     sort_rendered_content(&mut rendered);
     
-    RenderWordSearchResult::Ok { 
+    RenderWordSearchResult { 
         verses: rendered, 
-        hits: hits.iter().map(Into::into).collect() 
+        hits,
     }
 }
 
 /// We assume all hits have the same `bible`
-fn render_searched_hits(package: &Package, hits: &[SearchHit], query_root: &WordSearchPart, bible: &ModuleId, show_strongs: bool) -> Vec<RenderedVerseContent>
+fn render_searched_hits(package: &Package, hits: &[VerseWordSearchHit], query_root: Option<&WordSearchPart>, bible: &ModuleId, show_strongs: bool, shown_modules: &HashSet<ModuleId>) -> Vec<RenderedVerseContent>
 {
-    let verses = hits.iter().map(|h| h.verse).collect_vec();
-    fetch_verse_render_data(package, &verses, bible).into_iter().zip_eq(hits).map(|(rd, hit)| {
+    let verses = hits.iter().map(|h| VerseId::from(h.verse)).collect_vec();
+
+    fetch_verse_render_data(package, &verses, bible, shown_modules).into_iter().zip_eq(hits).map(|(rd, hit)| {
         if rd.failed
         {
             RenderedVerseContent {
@@ -100,14 +99,14 @@ fn render_searched_hits(package: &Package, hits: &[SearchHit], query_root: &Word
     }).collect()
 }
 
-fn render_word(word: &WordRenderData, query_root: &WordSearchPart, hit: &SearchHit, show_strongs: bool) -> String 
+fn render_word(word: &WordRenderData, query_root: Option<&WordSearchPart>, hit: &VerseWordSearchHit, show_strongs: bool) -> String 
 {
-    let selected_word = hit.hit_indexes.contains(&word.index) && query_root.contains_word(&word.word);
-    let selected_strongs = if hit.hit_indexes.contains(&word.index) 
+    let selected_word = hit.hits.contains(&word.index) && query_root.as_ref().map(|r| r.contains_word(&word.word)).unwrap_or_default();
+    let selected_strongs = if hit.hits.contains(&word.index) 
     {
         word.strongs.iter()
             .map(|s| -> StrongsNumber { s.clone().into() })
-            .filter(|s| query_root.contains_strongs(s))
+            .filter(|s| query_root.as_ref().map(|r| r.contains_strongs(s)).unwrap_or_default())
             .collect_vec()
     } else { vec![] };
 
@@ -193,7 +192,7 @@ fn render_word(word: &WordRenderData, query_root: &WordSearchPart, hit: &SearchH
     })
 }
 
-fn sort_hits(hits: &mut [SearchHit])
+fn sort_hits(hits: &mut [VerseWordSearchHit])
 {
     hits.sort_by(|a, b| {
         let verse_a = a.verse;

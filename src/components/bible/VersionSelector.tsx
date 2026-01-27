@@ -5,15 +5,15 @@ import { use_bible_display_settings } from "../providers/BibleDisplaySettingsPro
 import { use_bible_infos } from "../providers/BibleInfoProvider";
 import { BUTTON_PADDING, BUTTON_SIZE } from "../core/ImageButton";
 import Tooltip from "../core/Tooltip";
+import DropdownBase from "@components/core/DropdownBase";
 
 
 export default function VersionSelector(): React.ReactElement
 {
-    const { settings } = use_settings();
     const theme = useTheme();
     
-    const { bible_version_state, set_bible_version_state } = use_bible_display_settings();
-    const { bible_version, parallel_version, parallel_enabled, show_strongs } = bible_version_state;
+    const { bible_display_settings, set_bible_display_settings: set_bible_version_state } = use_bible_display_settings();
+    const { bible_version, parallel_version, parallel_enabled, show_strongs, shown_modules } = bible_display_settings;
 
     const { bible_infos } = use_bible_infos();
     const [ is_open, set_is_open ] = useState(false);
@@ -25,57 +25,16 @@ export default function VersionSelector(): React.ReactElement
     const dropdown_padding = 1;
 
     return (
-        <Box className="dropdown-button">
-            <Tooltip
-                tooltip="Select bible version"
-            >
-                <Button
-                    sx={{
-                        backgroundColor: is_open ? theme.palette.secondary.main : theme.palette.primary.light,
-                        borderRadius: 1,
-                        borderWidth: 0,
-                        borderColor: theme.palette.grey[700],
-                        borderStyle: "solid",
-                        width: (theme) => theme.spacing(BUTTON_SIZE * 2),
-                        height: (theme) => theme.spacing(BUTTON_SIZE),
-                        minWidth: (theme) => theme.spacing(BUTTON_SIZE),
-                        minHeight: (theme) => theme.spacing(BUTTON_SIZE),
-                        padding: 1,
-                        "&.Mui-disabled": {
-                            cursor: "not-allowed",
-                            pointerEvents: "auto"
-                        }
-                    }}
-                    onClick={() => {
-                        set_is_open(!is_open);
-                    }}
-                >
-                    <Typography 
-                        variant="body1" 
-                        textAlign="center"
-                        sx={{
-                            color: theme.palette.common.black
-                        }}
-                    >
-                        {bible_infos[bible_version].display_name}
-                    </Typography>
-                </Button>
-            </Tooltip>
-            <Paper
-                sx={{
-                    position: "absolute",
-                    top: (theme) => `calc(100% - ${theme.spacing(BUTTON_PADDING)})`,
-                    left: dropdown_padding,
-                    padding: dropdown_padding,
-                    visibility: is_open ? "visible" : "hidden",
-                    opacity: is_open ? 1 : 0,
-                    pointerEvents: is_open ? "all" : "none",
-                    transition: "opacity 0.2s ease, visibility 0.2s ease",
-                    boxSizing: "border-box",
-                }}
-                className="dropdown-content"
-            >
-                <Box
+        <DropdownBase 
+            button={{
+                type: "text",
+                tooltip: "Select bible version",
+                text: bible_infos[bible_version].display_name,
+            }}
+            is_open={is_open}
+            on_click={() => set_is_open(!is_open)}
+        >
+            <Box
                     sx={{
                         width: "100%"
                     }}
@@ -94,6 +53,7 @@ export default function VersionSelector(): React.ReactElement
                                             parallel_version,
                                             parallel_enabled: e.target.checked,
                                             show_strongs,
+                                            shown_modules,
                                         })
                                     }
                                 />
@@ -137,6 +97,7 @@ export default function VersionSelector(): React.ReactElement
                                                 parallel_version,
                                                 parallel_enabled,
                                                 show_strongs,
+                                                shown_modules,
                                             });
                                         }}
                                         sx={{
@@ -204,6 +165,7 @@ export default function VersionSelector(): React.ReactElement
                                                 parallel_version: v,
                                                 parallel_enabled,
                                                 show_strongs,
+                                                shown_modules,
                                             });
                                         }}
                                         sx={{
@@ -252,6 +214,7 @@ export default function VersionSelector(): React.ReactElement
                                             parallel_version,
                                             parallel_enabled,
                                             show_strongs: e.target.checked,
+                                            shown_modules,
                                         })
                                     }
                                 />
@@ -260,16 +223,6 @@ export default function VersionSelector(): React.ReactElement
                         />
                     </Tooltip>
                 </Box>
-            </Paper>
-            <style>
-                {`
-                    .dropdown-button:hover .dropdown-content {
-                        opacity: 1;
-                        visibility: visible;
-                        pointer-events: auto;
-                    }
-                `}
-            </style>
-        </Box>
+        </DropdownBase>
     )
 }

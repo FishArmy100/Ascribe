@@ -3,6 +3,14 @@ import { ChapterId } from "./bible";
 import { listen, UnlistenFn } from "@tauri-apps/api/event";
 import { WordSearchQuery } from "./searching";
 
+export type EntrySelector = |{
+    type: "page",
+    index: number,
+} |{
+    type: "entry",
+    id: number,
+}
+
 export type ChapterHistoryEntry = {
     type: 'chapter',
     chapter: ChapterId,
@@ -26,14 +34,35 @@ export type SettingsHistoryEntry = {
     type: "settings",
 }
 
+export type ModuleListEntry = {
+    type: "module_list",
+}
+
+export type ModuleInspectorEntry = {
+    type: "module_inspector",
+    module: string,
+    selector: EntrySelector | null,
+}
+
+export type ModuleWordSearchEntry = {
+    type: "module_word_search",
+    searched_modules: string[],
+    query: WordSearchQuery,
+    page_index: number,
+    raw: string | null,
+}
+
 export type ViewHistoryEntry = 
     | ChapterHistoryEntry
     | VerseHistoryEntry
     | WordSearchHistoryEntry
     | SettingsHistoryEntry
+    | ModuleInspectorEntry
+    | ModuleListEntry
+    | ModuleWordSearchEntry
 
 export type ViewHistoryInfo = {
-    current: ViewHistoryEntry,
+    all: ViewHistoryEntry[],
     index: number,
     count: number,
 };
@@ -89,6 +118,16 @@ export async function get_backend_view_history_info(): Promise<ViewHistoryInfo>
     }).then(view_history_info => {
         return JSON.parse(view_history_info);
     });
+}
+
+export async function set_backend_view_history_index(index: number): Promise<void>
+{
+    return await invoke("run_view_history_command", {
+        command: {
+            type: "set_index",
+            index: index,
+        }
+    })
 }
 
 export function listen_view_history_changed(listener: (e: ViewHistoryChangedEvent) => void): Promise<UnlistenFn>

@@ -34,7 +34,7 @@ export default function AudioPlayer({
     const [user_value, set_user_value] = useState(0);
 
     const [is_expanded, set_is_expanded] = useState(false);
-    const current_version = use_bible_display_settings().bible_version_state.bible_version;
+    const current_version = use_bible_display_settings().bible_display_settings.bible_version;
     
     let generation_progress: number | null = null;
     let player_progress: number | null = null;

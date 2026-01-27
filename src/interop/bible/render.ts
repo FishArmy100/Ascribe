@@ -29,27 +29,29 @@ export type RenderedVerseContent = {
     bible: string,
 }
 
-export async function fetch_backend_verse_render_data(verses: VerseId[], bible: string,): Promise<VerseRenderData[]>
+export async function fetch_backend_verse_render_data(verses: VerseId[], bible: string, shown_modules: string[]): Promise<VerseRenderData[]>
 {
     return await invoke<string>("run_bible_command", {
         command: {
             type: "fetch_verse_render_data",
             verses,
             bible,
+            shown_modules,
         }
     }).then(r => {
         return JSON.parse(r) as VerseRenderData[];
     });
 }
 
-export async function backend_render_verses(verses: VerseId[], bible: string, show_strongs: boolean): Promise<RenderedVerseContent[]>
+export async function backend_render_verses(verses: VerseId[], bible: string, show_strongs: boolean, shown_modules: string[]): Promise<RenderedVerseContent[]>
 {
     return await invoke<string>("run_bible_command", {
         command: {
             type: "render_verses",
             verses,
             bible,
-            show_strongs
+            show_strongs,
+            shown_modules,
         }
     }).then(vs => {
         return JSON.parse(vs);

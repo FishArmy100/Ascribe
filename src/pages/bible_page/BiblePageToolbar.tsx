@@ -1,14 +1,13 @@
 import { Divider } from "@mui/material";
-import { ChapterPicker, ImageButton, ImageDropdown, SearchBar, TopBar, VersionSelector } from "../../components";
+import { ChapterPicker, ImageButton, SearchBar, TopBar, VersionSelector } from "../../components";
 import { use_view_history } from "../../components/providers/ViewHistoryProvider";
 import { ViewHistoryEntry } from "../../interop/view_history";
 import { backend_push_search_to_view_history } from "../../interop/searching";
 import * as bible from "../../interop/bible"
 import * as images from "../../assets";
-import * as tts from "../../interop/tts"
 import React, { useCallback, useEffect } from "react";
-import { listen_tts_event } from "../../interop/tts/events";
 import SubMenuDropdown from "@components/SubMenuDropdown";
+import ReadingsDisplay from "@components/readings_display/ReadingsDisplay";
 
 export type BiblePageToolbarProps = {
 	player_open: boolean,
@@ -22,7 +21,7 @@ export const BiblePageToolbar = React.memo(function BiblePageToolbar({
 {
     const view_history = use_view_history();
 	const { bible: selected_bible } = bible.use_selected_bibles()
-	const placeholder = get_placeholder_text(view_history.get_current().current, selected_bible);
+	const placeholder = get_placeholder_text(view_history.get_current(), selected_bible);
 
 	const on_select_callback = useCallback((c: bible.ChapterId) => {
 		view_history.push({
@@ -38,9 +37,9 @@ export const BiblePageToolbar = React.memo(function BiblePageToolbar({
 			<VersionSelector/>
 			<ChapterPicker on_select={on_select_callback}/>
 			<Divider 
-					orientation="vertical" 
-					flexItem 
-				/>
+				orientation="vertical" 
+				flexItem 
+			/>
 			<SearchBar 
 				on_search={async (term) => {
 					const error = await backend_push_search_to_view_history(term);
@@ -59,31 +58,28 @@ export const BiblePageToolbar = React.memo(function BiblePageToolbar({
 			<ImageButton
 				image={images.arrow_turn_left}
 				tooltip="To previous page"
-				disabled={view_history.get_current().index === 0}
+				disabled={view_history.get_index() === 0}
 				on_click={() => view_history.retreat()}
 			/>
 			<ImageButton
 				image={images.arrow_turn_right}
 				tooltip="To next page"
-				disabled={view_history.get_current().index >= view_history.get_current().count - 1}
+				disabled={view_history.get_index() >= view_history.get_count() - 1}
 				on_click={() => view_history.advance()}
 			/>
 			<ImageButton
 				image={images.volume_high}
 				tooltip="Play audio"
 				on_click={() => {
-					// tts.backend_request_tts({
-					// 	bible: "KJV",
-					// 	chapter: {
-					// 		book: "Gen",
-					// 		chapter: 1,
-					// 	},
-					// 	verse_range: null,
-					// });
 					on_click_player();
 				}}
 				active={player_open}
 			/>
+			<Divider 
+				orientation="vertical"
+				flexItem
+			/>
+			<ReadingsDisplay />
 
 			<SubMenuDropdown />
 		</TopBar>

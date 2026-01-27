@@ -27,8 +27,9 @@ export default function BiblePage({
 	const theme = useTheme();
 	const view_history = use_view_history();
 	const selected_bibles = bible.use_selected_bibles();
-	const { bible_version_state, set_bible_version_state } = use_bible_display_settings();
-	const show_strongs = bible_version_state.show_strongs;
+	const { bible_display_settings, set_bible_display_settings } = use_bible_display_settings();
+	const show_strongs = bible_display_settings.show_strongs;
+	const shown_modules = bible_display_settings.shown_modules;
 
 	const current_chapter = entry.chapter;
 	const bible_name = selected_bibles.bible.id;
@@ -69,9 +70,9 @@ export default function BiblePage({
 		const verse_ids = bible.get_chapter_verse_ids(selected_bibles.bible, current_chapter);
 
 		const fetch_verses = async () => {
-			const verses_promise = bible.backend_render_verse_words(verse_ids, bible_name, show_strongs);
+			const verses_promise = bible.backend_render_verse_words(verse_ids, bible_name, show_strongs, shown_modules);
 			const parallel_verses_promise = parallel_bible_name
-				? bible.backend_render_verse_words(verse_ids, parallel_bible_name, show_strongs)
+				? bible.backend_render_verse_words(verse_ids, parallel_bible_name, show_strongs, shown_modules)
 				: Promise.resolve(null);
 
 			const [verses, parallel_verses] = await Promise.all([
@@ -95,13 +96,13 @@ export default function BiblePage({
 
 	const handle_chapter_navigation = useCallback((type: "next" | "previous") => {
 		const current_page = view_history.get_current();
-		if (current_page.current.type !== "verse" && current_page.current.type !== "chapter") {
+		if (current_page.type !== "verse" && current_page.type !== "chapter") {
 			return;
 		}
 
 		const chapter = type === "next"
-			? bible.increment_chapter(selected_bibles.bible, current_page.current.chapter)
-			: bible.decrement_chapter(selected_bibles.bible, current_page.current.chapter);
+			? bible.increment_chapter(selected_bibles.bible, current_page.chapter)
+			: bible.decrement_chapter(selected_bibles.bible, current_page.chapter);
 
 		view_history.push({
 			type: "chapter",
@@ -160,7 +161,7 @@ export default function BiblePage({
 		})
 	}, []);
 
-	const handle_ref_clicked = get_handle_ref_clicked_callback(set_bible_version_state, bible_version_state, view_history, () => {
+	const handle_ref_clicked = get_handle_ref_clicked_callback(set_bible_display_settings, bible_display_settings, view_history, () => {
 		set_popover_data(null)
 	});
 

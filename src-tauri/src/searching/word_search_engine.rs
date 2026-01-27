@@ -1,10 +1,10 @@
 use std::num::NonZeroU32;
 
-use biblio_json::{Package, core::{Atom, OsisBook, RefIdInner, StrongsNumber, VerseId, VerseRangeIter, WordRange}, modules::{Module, ModuleId, bible::{BibleModule, Verse}, strongs::StrongsLinkEntry}};
+use biblio_json::{Package, core::{Atom, OsisBook, RefId, RefIdInner, StrongsNumber, VerseId}, modules::{Module, ModuleId, bible::BibleModule}};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 
-use crate::{bible::ref_id_parsing::{RefIdParseError, parse_ref_ids}, searching::word_search_parsing::WordSearchParser};
+use crate::{bible::ref_id_parsing::{RefIdParseError, parse_ref_ids}, searching::{context::SearchContext, module_searching::{self, ModuleSearchHit, WordSearchMode}, word_search_parsing::WordSearchParser}};
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
@@ -37,6 +37,26 @@ impl WordSearchRange
                     end: Self::end_atom(to, &module)
                 }
             },
+        }
+    }
+
+    pub fn to_ref_id(&self) -> RefId
+    {
+        RefId
+        {
+            bible: Some(self.bible.clone()),
+            id: RefIdInner::Range { 
+                from: Atom::Verse { 
+                    book: self.start.book, 
+                    chapter: self.start.chapter, 
+                    verse: self.start.verse 
+                }, 
+                to: Atom::Verse {
+                    book: self.end.book,
+                    chapter: self.end.chapter,
+                    verse: self.end.verse,
+                } 
+            }
         }
     }
 
@@ -89,12 +109,11 @@ impl WordSearchRange
 pub struct WordSearchQuery
 {
     pub ranges: Vec<WordSearchRange>,
-    pub root: WordSearchPart,
+    pub root: Option<WordSearchPart>,
 }
-
 impl WordSearchQuery  
 {
-    pub fn new(ranges: Vec<WordSearchRange>, root: WordSearchPart) -> Self
+    pub fn new(ranges: Vec<WordSearchRange>, root: Option<WordSearchPart>) -> Self
     {
         Self {
             ranges,
@@ -114,8 +133,17 @@ impl WordSearchQuery
                     WordSearchRange::from_ref_id(id.id, bible_id, package)
                 }).collect_vec();
 
-            let root = WordSearchParser::new(segments[1]).parse()
-                .map_err(|e| WordQueryParseError::ParseError(e))?;
+            let root = if !segments[1].chars().all(char::is_whitespace)
+            {
+                let part = WordSearchParser::new(segments[1]).parse()
+                    .map_err(|e| WordQueryParseError::ParseError(e))?;
+
+                Some(part)
+            }
+            else 
+            {
+                None
+            };
 
             return Ok(Self {
                 ranges,
@@ -125,8 +153,17 @@ impl WordSearchQuery
 
         if segments.len() == 1
         {
-            let root = WordSearchParser::new(segments[0]).parse()
-                .map_err(|e| WordQueryParseError::ParseError(e))?;
+            let root = if !segments[0].chars().all(char::is_whitespace)
+            {
+                let part = WordSearchParser::new(segments[0]).parse()
+                    .map_err(|e| WordQueryParseError::ParseError(e))?;
+
+                Some(part)
+            }
+            else 
+            {
+                None
+            };
 
             return Ok(Self {
                 ranges: vec![],
@@ -136,56 +173,10 @@ impl WordSearchQuery
         
         Err(WordQueryParseError::InvalidFormat(text.into()))
     }
-
-    pub fn run_query(&self, package: &Package) -> Result<Vec<SearchHit>, SearchError>
-    {
-        let hits = self.ranges.iter()
-            .map(|range| Self::run_query_on_range(package, range, &self.root))
-            .collect::<Result<Vec<Vec<SearchHit>>, SearchError>>()?
-            .into_iter()
-            .flatten()
-            .collect();
-
-        Ok(hits)
-    }
     
-    fn run_query_on_range(package: &Package, range: &WordSearchRange, root: &WordSearchPart) -> Result<Vec<SearchHit>, SearchError>
+    pub fn run_query<'s, 'a, 'b>(&'s self, package: &'a Package, modules: &'b [ModuleId], mode: WordSearchMode) -> Vec<ModuleSearchHit<'a>>
     {
-        let bible = match package.get_mod(&range.bible).map(Module::as_bible).flatten() {
-            Some(s) => s,
-            None => return Err(SearchError::UnknownBible { 
-                bible: range.bible.get().to_owned() 
-            })
-        };
-
-        let links = package.modules.values()
-            .filter_map(Module::as_strongs_links)
-            .find(|l| l.config.bible == bible.config.id);
-        
-        if !bible.source.book_infos.iter().any(|i| i.osis_book == range.start.book)
-        {
-            return Err(SearchError::BibleDoesNotContainBook { 
-                book: range.start.book, 
-                bible: range.bible.get().to_owned() 
-            });
-        }
-
-        if !bible.source.book_infos.iter().any(|i| i.osis_book == range.end.book)
-        {
-            return Err(SearchError::BibleDoesNotContainBook { 
-                book: range.end.book, 
-                bible: range.bible.get().to_owned() 
-            });
-        }
-
-        let hits = VerseRangeIter::from_verses(&bible.source.book_infos, range.start, range.end).filter_map(|v_id| {
-            let verse = bible.source.verses.get(&v_id).unwrap();
-            let strongs = links.as_ref().map(|l| l.get_links(&v_id)).flatten();
-
-            root.run_on_verse(verse, strongs, &bible.config.id)
-        }).collect_vec();
-
-        Ok(hits)
+        module_searching::search_modules(package, modules, self, mode)
     }
 }
 
@@ -204,209 +195,119 @@ pub enum WordSearchPart
 
 impl WordSearchPart
 {
-    pub fn run_on_verse(&self, verse: &Verse, strongs: Option<&StrongsLinkEntry>, bible: &ModuleId) -> Option<SearchHit>
+    pub fn run_on_context<C>(&self, ctx: &C) -> Option<Vec<u32>>
+        where C : SearchContext 
     {
         match self 
         {
-            WordSearchPart::Or(parts) => {
-                for p in parts 
+            WordSearchPart::Word(word) => 
+            {
+                let target = word.to_lowercase();
+                let mut hits = Vec::new();
+
+                for i in 0..ctx.len() 
                 {
-                    if let Some(hit) = p.run_on_verse(verse, strongs, bible)
+                    if ctx.token_text(i).to_lowercase() == target 
                     {
-                        return Some(hit)
+                        hits.push(i as u32);
                     }
                 }
 
-                None
-            },
-            WordSearchPart::And(parts) => {
-                let mut merged = Vec::<u32>::new();
-                for p in parts
-                {
-                    let hit = p.run_on_verse(verse, strongs, bible)?;
-                    merged.extend(hit.hit_indexes);
-                }
+                if hits.is_empty() { None } else { Some(hits) }
+            }
+            WordSearchPart::StartsWith(word) => 
+            {
+                let target = word.to_lowercase();
+                let hits = (0..ctx.len())
+                    .filter(|&i| ctx.token_text(i).to_lowercase().starts_with(&target))
+                    .map(|i| i as u32)
+                    .collect::<Vec<_>>();
 
+                if hits.is_empty() { None } else { Some(hits) }
+            }
+            WordSearchPart::EndsWith(word) => 
+            {
+                let target = word.to_lowercase();
+                let hits = (0..ctx.len())
+                    .filter(|&i| ctx.token_text(i).to_lowercase().ends_with(&target))
+                    .map(|i| i as u32)
+                    .collect::<Vec<_>>();
+
+                if hits.is_empty() { None } else { Some(hits) }
+            }
+            WordSearchPart::Strongs(num) => 
+            {
+                let hits = (0..ctx.len())
+                    .filter(|&i| {
+                        ctx.token_strongs(i)
+                            .map(|s| s.iter().any(|n| n == num))
+                            .unwrap_or(false)
+                    })
+                    .map(|i| i as u32)
+                    .collect::<Vec<_>>();
+
+                if hits.is_empty() { None } else { Some(hits) }
+            }
+            WordSearchPart::And(parts) => 
+            {
+                let mut merged = Vec::new();
+                for p in parts {
+                    merged.extend(p.run_on_context(ctx)?);
+                }
                 merged.sort_unstable();
                 merged.dedup();
-    
-                Some(SearchHit { 
-                    verse: verse.verse_id, 
-                    hit_indexes: merged,
-                    bible: bible.clone(),
-                })
-            },
-            WordSearchPart::Not(inner) => {
-                if inner.run_on_verse(verse, strongs, bible).is_none()
+                Some(merged)
+            }
+            WordSearchPart::Or(parts) => 
+            {
+                for p in parts 
                 {
-                    Some(SearchHit { 
-                        verse: verse.verse_id, 
-                        hit_indexes: vec![],
-                        bible: bible.clone(),
-                    })
+                    if let Some(h) = p.run_on_context(ctx) 
+                    {
+                        return Some(h);
+                    }
                 }
+                None
+            }
+            WordSearchPart::Not(inner) => 
+            {
+                if inner.run_on_context(ctx).is_none() 
+                {
+                    Some(vec![])
+                } 
                 else 
                 {
-                    None    
+                    None
                 }
-            },
-            WordSearchPart::Sequence(parts) => {
-                let mut all_hits: Vec<Vec<u32>> = vec![];
+            }
 
-                for p in parts {
-                    let Some(hit) = p.run_on_verse(verse, strongs, bible) else {
-                        return None
-                    };
-                    all_hits.push(hit.hit_indexes);
-                }
+            WordSearchPart::Sequence(parts) => 
+            {
+                let all_hits = parts
+                    .iter()
+                    .map(|p| p.run_on_context(ctx))
+                    .collect::<Option<Vec<_>>>()?;
 
-                let first_hits = all_hits.first()?;
-
-                'outer: for &start in first_hits
+                let first = &all_hits[0];
+                'outer: for &start in first 
                 {
-                    let mut current = start;
-
-                    for (seq_idx, hits_for_part) in all_hits.iter().enumerate()
+                    let mut cur = start;
+                    for hits in all_hits.iter().skip(1) 
                     {
-                        if seq_idx == 0
-                        {
-                            continue;
-                        }
-
-                        let needed = current + 1;
-
-                        if !hits_for_part.contains(&needed)
+                        let next = cur + 1;
+                        if !hits.contains(&next) 
                         {
                             continue 'outer;
                         }
 
-                        current = needed
+                        cur = next;
                     }
 
-                    let hit_indexes = (start..=current).collect_vec();
-
-                    return Some(SearchHit { 
-                        verse: verse.verse_id, 
-                        hit_indexes,
-                        bible: bible.clone(),
-                    });
+                    return Some((start..=cur).collect());
                 }
 
                 None
-            },
-            WordSearchPart::Strongs(strongs_number) => {
-                let strongs = strongs?;
-
-                let mut indexes = Vec::<u32>::new();
-
-                for sw in &strongs.words {
-                    let matches =
-                        sw.primary == Some(strongs_number.clone()) ||
-                        sw.strongs.iter().any(|n| *n == *strongs_number);
-
-                    if matches 
-                    {
-                        match sw.range 
-                        {
-                            WordRange::Single(i) => indexes.push(i.get() - 1),
-                            WordRange::Range(start, end) => 
-                            {
-                                for i in start.get()..=end.get() 
-                                {
-                                    indexes.push(i - 1);
-                                }
-                            }
-                        }
-                    }
-                }
-
-                if indexes.is_empty() {
-                    None
-                } 
-                else 
-                {
-                    Some(SearchHit {
-                        verse: verse.verse_id,
-                        hit_indexes: indexes,
-                        bible: bible.clone(),
-                    })
-                }
-            },
-            WordSearchPart::Word(word) => {
-                let target_lc = word.to_lowercase();
-                let mut indexes = Vec::<u32>::new();
-
-                for (i, w) in verse.words.iter().enumerate() 
-                {
-                    if w.text.to_lowercase() == target_lc 
-                    {
-                        indexes.push(i as u32);
-                    }
-                }
-
-                if indexes.is_empty() 
-                {
-                    None
-                } 
-                else 
-                {
-                    Some(SearchHit {
-                        verse: verse.verse_id,
-                        hit_indexes: indexes,
-                        bible: bible.clone(),
-                    })
-                }
-            },
-            WordSearchPart::StartsWith(word) => {
-                let target_lc = word.to_lowercase();
-                let mut indexes = Vec::<u32>::new();
-
-                for (i, w) in verse.words.iter().enumerate() 
-                {
-                    if w.text.to_lowercase().starts_with(&target_lc) 
-                    {
-                        indexes.push(i as u32);
-                    }
-                }
-
-                if indexes.is_empty() 
-                {
-                    None
-                } 
-                else 
-                {
-                    Some(SearchHit {
-                        verse: verse.verse_id,
-                        hit_indexes: indexes,
-                        bible: bible.clone(),
-                    })
-                }
-            },
-            WordSearchPart::EndsWith(word) => {
-                let target_lc = word.to_lowercase();
-                let mut indexes = Vec::<u32>::new();
-
-                for (i, w) in verse.words.iter().enumerate() 
-                {
-                    if w.text.to_lowercase().ends_with(&target_lc) 
-                    {
-                        indexes.push(i as u32);
-                    }
-                }
-
-                if indexes.is_empty() 
-                {
-                    None
-                } 
-                else 
-                {
-                    Some(SearchHit {
-                        verse: verse.verse_id,
-                        hit_indexes: indexes,
-                        bible: bible.clone(),
-                    })
-                }
-            },
+            }
         }
     }
     
@@ -437,14 +338,6 @@ impl WordSearchPart
             _ => false,
         }
     }
-}
-
-#[derive(Debug, Clone)]
-pub struct SearchHit
-{
-    pub bible: ModuleId,
-    pub verse: VerseId,
-    pub hit_indexes: Vec<u32>,
 }
 
 #[derive(Debug)]

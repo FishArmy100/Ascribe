@@ -1,18 +1,11 @@
 import { invoke } from "@tauri-apps/api/core";
 import { HtmlText } from "../html_text";
+import { StrongsDefEntry } from "@interop/module_entry";
 
 export type StrongsLang = "hebrew" | "greek";
 export type StrongsNumber = {
     language: StrongsLang,
     number: number,
-}
-
-export type StrongsDefEntry = {
-    module: string,
-    strongs_ref: string,
-    word: String,
-    definition: HtmlText,
-    id: number,
 }
 
 export function parse_strongs(input: string): StrongsNumber 
@@ -41,12 +34,13 @@ export function format_strongs(strongs_number: StrongsNumber): string
     return prefix + strongs_number.number
 }
 
-export async function fetch_backend_strongs_defs(strongs_number: StrongsNumber): Promise<StrongsDefEntry[]>
+export async function fetch_backend_strongs_defs(strongs_number: StrongsNumber, shown_modules: string[]): Promise<StrongsDefEntry[]>
 {
     return await invoke<string>("run_bible_command", {
         command: {
             type: "fetch_strongs_defs",
             strongs: strongs_number,
+            shown_modules,
         }
     }).then(s => {
         return JSON.parse(s) as StrongsDefEntry[];

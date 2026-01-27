@@ -1,13 +1,25 @@
 pub mod search_type;
 pub mod word_search_engine;
 pub mod word_search_parsing;
+pub mod context;
+pub mod module_searching;
 
 use std::sync::Mutex;
 
-use biblio_json::{core::OsisBook, modules::bible::BibleModule};
+use biblio_json::{core::OsisBook, modules::{ModuleId, bible::BibleModule}};
+use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, State};
 
-use crate::{bible::{BiblioJsonPackageHandle, book::ResolveBookNameError}, core::{app::AppState, view_history::{ViewHistoryEntry, update_view_history}}, repr::ChapterIdJson, searching::{search_type::SearchType, word_search_engine::WordQueryParseError}};
+use crate::{bible::{BiblioJsonPackageHandle, book::ResolveBookNameError}, core::{app::AppState, view_history::{ViewHistoryEntry, update_view_history}}, repr::{ChapterIdJson, VerseIdJson}, searching::{search_type::SearchType, word_search_engine::WordQueryParseError}};
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub struct VerseWordSearchHit
+{
+    pub bible: ModuleId,
+    pub verse: VerseIdJson,
+    pub hits: Vec<u32>,
+}
 
 #[derive(Debug, Clone)]
 pub enum SearchParseError
@@ -77,7 +89,7 @@ pub fn push_search_to_view_history(
 ) -> Option<String>
 {
     let mut app_state = app_state.lock().unwrap();
-    let current_bible = app_state.bible_version_state.bible_version.clone();
+    let current_bible = app_state.bible_display_settings.bible_version.clone();
     
     let bible_module = package.visit(|p| {
         p.get_mod(&current_bible)
@@ -146,14 +158,18 @@ pub fn push_search_to_view_history(
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn test_search(
+pub fn push_module_word_search_to_view_history(
     input_str: &str, 
+    searched_modules: Vec<ModuleId>,
+
     package: State<'_, BiblioJsonPackageHandle>, 
-    app_state: State<'_, Mutex<AppState>>
+    app_state: State<'_, Mutex<AppState>>,
+    handle: AppHandle,
 ) -> Option<String>
 {
-
-    let current_bible = app_state.lock().unwrap().bible_version_state.bible_version.clone();
+    let mut app_state = app_state.lock().unwrap();
+    let current_bible = app_state.bible_display_settings.bible_version.clone();
+    
     let bible_module = package.visit(|p| {
         p.get_mod(&current_bible)
             .unwrap()
@@ -172,7 +188,51 @@ pub fn test_search(
         Ok(ok) => ok,
         Err(err) => return err
     };
-
-    println!("Searched: \n{:#?}", parsed);
+    
+    match parsed
+    {
+        SearchType::Chapter { book, chapter } => {
+            update_view_history(&mut app_state.view_history, &handle, |vh| {
+                vh.push_entry(ViewHistoryEntry::Chapter { chapter: ChapterIdJson {
+                    book,
+                    chapter,
+                }})
+            });
+        },
+        SearchType::Verse { book, chapter, verse } => {
+            update_view_history(&mut app_state.view_history, &handle, |vh| {
+                vh.push_entry(ViewHistoryEntry::Verse { 
+                    chapter: ChapterIdJson {
+                        book,
+                        chapter,
+                    }, 
+                    start: verse, 
+                    end: None 
+                });
+            });
+        },
+        SearchType::VerseRange { book, chapter, verse_start, verse_end } => {
+            update_view_history(&mut app_state.view_history, &handle, |vh| {
+                vh.push_entry(ViewHistoryEntry::Verse { 
+                    chapter: ChapterIdJson {
+                        book,
+                        chapter,
+                    }, 
+                    start: verse_start, 
+                    end: Some(verse_end)
+                });
+            });
+        },
+        SearchType::WordSearch(query) => {
+            update_view_history(&mut app_state.view_history, &handle, |vh| {
+                vh.push_entry(ViewHistoryEntry::ModuleWordSearch { 
+                    query: query.into(),
+                    raw: Some(input_str.into()),
+                    page_index: 0,
+                    searched_modules,
+                });
+            });
+        },
+    }
     None
 }

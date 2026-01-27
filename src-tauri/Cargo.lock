@@ -122,6 +122,7 @@ dependencies = [
  "kira-pitcher",
  "lazy_static",
  "log",
+ "open",
  "piper-rs",
  "rayon",
  "regex",
@@ -335,8 +336,8 @@ checksum = "72b3254f16251a8381aa12e40e3c4d2f0199f8c6508fbecb9d91f575e0fbb8c6"
 
 [[package]]
 name = "biblio_json"
-version = "0.1.0"
-source = "git+https://github.com/FishArmy100/biblio_json?branch=ascribe-html-update#a02e484d6abc0dc124cff9d4864121e3e2739113"
+version = "0.1.6"
+source = "git+https://github.com/FishArmy100/biblio_json?branch=ascribe-html-update#08ef596008b17d316833b8366213c8ec398fa3c0"
 dependencies = [
  "bimap",
  "bincode",
@@ -3273,9 +3274,9 @@ checksum = "42f5e15c9953c5e4ccceeb2e7382a716482c34515315f7b03532b8b4e8393d2d"
 
 [[package]]
 name = "open"
-version = "5.3.2"
+version = "5.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e2483562e62ea94312f3576a7aca397306df7990b8d89033e18766744377ef95"
+checksum = "43bb73a7fa3799b198970490a51174027ba0d4ec504b03cd08caf513d40024bc"
 dependencies = [
  "dunce",
  "is-wsl",

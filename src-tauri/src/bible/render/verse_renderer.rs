@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use biblio_json::{Package, core::{StrongsNumber, VerseId}, modules::ModuleId};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
@@ -15,9 +17,9 @@ pub struct RenderedVerseContent
     pub word_count: u32,
 }
 
-pub fn render_verses(package: &Package, verses: &Vec<VerseId>, bible: &ModuleId, show_strongs: bool) -> Vec<RenderedVerseContent>
+pub fn render_verses(package: &Package, verses: &Vec<VerseId>, bible: &ModuleId, show_strongs: bool, shown_modules: &HashSet<ModuleId>) -> Vec<RenderedVerseContent>
 {
-    fetch_verse_render_data(package, verses, bible).into_iter().map(|rd| {
+    fetch_verse_render_data(package, verses, bible, shown_modules).into_iter().map(|rd| {
         if rd.failed
         {
             RenderedVerseContent {
