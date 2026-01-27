@@ -1,4 +1,4 @@
-import { Box, Paper, useTheme } from "@mui/material";
+import { Box, Paper, SxProps, Theme, useTheme } from "@mui/material";
 import React from "react"
 import ImageButton from "./ImageButton";
 import TextButton from "./TextButton";
@@ -8,10 +8,12 @@ export type DropdownButton = {
     type: "image",
     src: string,
     tooltip: string,
+    sx?: SxProps<Theme>,
 }| {
     type: "text",
     text: string,
     tooltip: string,
+    sx?: SxProps<Theme>,
 }
 
 export type DropdownBaseProps = {
@@ -19,6 +21,7 @@ export type DropdownBaseProps = {
     is_open: boolean,
     on_click: () => void,
     children: React.ReactNode,
+    disable_hover?: boolean,
 }
 
 export default function DropdownBase({
@@ -26,6 +29,7 @@ export default function DropdownBase({
     is_open,
     on_click,
     children,
+    disable_hover,
 }: DropdownBaseProps): React.ReactElement
 {
     const theme = useTheme();
@@ -39,6 +43,7 @@ export default function DropdownBase({
                 tooltip={button.tooltip}
                 active={is_open}
                 on_click={on_click}
+                sx={button.sx}
             />
         )
     }
@@ -50,6 +55,7 @@ export default function DropdownBase({
                 tooltip={button.tooltip}
                 active={is_open}
                 on_click={on_click}
+                sx={button.sx}
             />
         )
     }
@@ -57,9 +63,16 @@ export default function DropdownBase({
     return (
         <Box
             sx={{
-                position: "relative"
+                position: "relative",
+
+                ...(!disable_hover && {
+                    "&:hover > .dropdown-content": {
+                        opacity: 1,
+                        visibility: "visible",
+                        pointerEvents: "auto",
+                    },
+                }),
             }}
-            className="dropdown-button"
         >
             {button_element}
             <Paper
@@ -71,30 +84,21 @@ export default function DropdownBase({
                     visibility: is_open ? "visible" : "hidden",
                     opacity: is_open ? 1 : 0,
                     pointerEvents: is_open ? "all" : "none",
-                    transition: "opacity 0.2s ease, visibility 0.2s ease"
+                    transition: "opacity 0.2s ease, visibility 0.2s ease",
+
+                    "&::before": {
+                        content: '""',
+                        position: "absolute",
+                        top: theme.spacing(1),
+                        left: 0,
+                        right: 0,
+                        height: theme.spacing(1),
+                    },
                 }}
                 className="dropdown-content"
             >
                 {children}
             </Paper>
-            <style>
-                {`
-                    .dropdown-button:hover .dropdown-content {
-                        position: absolute;
-                        opacity: 1;
-                        visibility: visible;
-                        pointer-events: auto;
-                    }
-                    .dropdown-content::before {
-                        content: "";
-                        position: absolute;
-                        top: ${theme.spacing(1)};
-                        left: 0;
-                        right: 0;
-                        height: ${theme.spacing(1)};
-                    }
-                `}
-            </style>
         </Box>
     );
 }

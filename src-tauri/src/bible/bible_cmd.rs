@@ -5,7 +5,7 @@ use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use tauri::{Emitter, State};
 
-use crate::{bible::{BIBLE_VERSION_CHANGED_EVENT_NAME, BibleDisplaySettings, BibleInfo, BibleVersionChangedEvent, BiblioJsonPackageHandle, fetching::PackageEx, render::{RenderSearchArgs, fetch_verse_render_data, render_verses, render_word_search_verses}}, core::app::AppState, repr::{module_config::ModuleConfigJson, searching::{ModuleSearchHitJson, WordSearchQueryJson}, *}, searching::{module_searching::WordSearchMode, word_search_engine::WordSearchQuery}};
+use crate::{bible::{BIBLE_VERSION_CHANGED_EVENT_NAME, BibleDisplaySettings, BibleInfo, BibleVersionChangedEvent, BiblioJsonPackageHandle, fetching::PackageEx, render::{RenderSearchArgs, fetch_verse_render_data, render_verses, render_word_search_verses}}, core::app::AppState, repr::{module_config::ModuleConfigJson, readings_date::ReadingsDateJson, searching::{ModuleSearchHitJson, WordSearchQueryJson}, *}, searching::{module_searching::WordSearchMode, word_search_engine::WordSearchQuery}};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -112,6 +112,12 @@ pub enum BibleCommand
     {
         module: ModuleId,
         page_size: u32,
+    },
+    FetchReading
+    {
+        module: ModuleId,
+        start_date: ReadingsDateJson,
+        selected_date: ReadingsDateJson,
     },
 }
 
@@ -334,6 +340,16 @@ pub fn run_bible_command(
                     .collect_vec()
             });
 
+            Some(serde_json::to_string(&response).unwrap())
+        }
+        BibleCommand::FetchReading { module, start_date, selected_date } => {
+            let response = package.visit(|p| {
+                let readings_module = p.get_mod(&module).and_then(Module::as_readings).unwrap();
+                readings_module.get_reading(*start_date, *selected_date).map(|r| {
+                    r.readings.clone()
+                })
+            });
+            
             Some(serde_json::to_string(&response).unwrap())
         }
     }

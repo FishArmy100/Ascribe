@@ -7,6 +7,7 @@ import * as bible from "../../interop/bible"
 import * as images from "../../assets";
 import React, { useCallback, useEffect } from "react";
 import SubMenuDropdown from "@components/SubMenuDropdown";
+import ReadingsDisplay from "@components/readings_display/ReadingsDisplay";
 
 export type BiblePageToolbarProps = {
 	player_open: boolean,
@@ -74,6 +75,11 @@ export const BiblePageToolbar = React.memo(function BiblePageToolbar({
 				}}
 				active={player_open}
 			/>
+			<Divider 
+				orientation="vertical"
+				flexItem
+			/>
+			<ReadingsDisplay />
 
 			<SubMenuDropdown />
 		</TopBar>
