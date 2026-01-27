@@ -117,7 +117,7 @@ pub enum BibleCommand
     {
         module: ModuleId,
         start_date: ReadingsDateJson,
-        selected_date: ReadingsDateJson,
+        selected_date: ReadingsDateJson, 
     },
 }
 
