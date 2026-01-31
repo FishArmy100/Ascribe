@@ -2,7 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from "react"
 import { BibleInfo, get_backend_bible_infos, get_backend_biblio_json_package_initialized, OsisBook } from "../../interop/bible"
 import { listen } from "@tauri-apps/api/event";
 
-type BibleInfoMap = { [name: string]: BibleInfo };
+type BibleInfoMap = { [id: string]: BibleInfo };
 
 interface BibleInfoContextType
 {

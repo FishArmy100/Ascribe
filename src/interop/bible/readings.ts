@@ -20,6 +20,7 @@ export async function backend_fetch_reading(module: string, start_date: Readings
 {
     return await invoke<string>("run_bible_command", {
         command: {
+            type: "fetch_reading",
             module: module,
             start_date: start_date,
             selected_date: selected_date,

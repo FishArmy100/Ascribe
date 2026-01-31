@@ -54,6 +54,11 @@ export default function DatePicker({
                     label={label}
                     value={calendar_date}
                     onChange={on_date_set}
+                    slotProps={{
+                        popper: {
+                            disablePortal: true
+                        }
+                    }}
                 />
             </LocalizationProvider>
         </Box>

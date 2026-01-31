@@ -1,14 +1,42 @@
 import DropdownBase from "@components/core/DropdownBase";
-import dayjs, { Dayjs } from "dayjs"
 import * as images from "@assets"
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import DatePicker from "./DatePicker";
-import { ReadingsDate, to_readings_date } from "@interop/bible/readings";
+import { backend_fetch_reading, ReadingsDate, to_readings_date } from "@interop/bible/readings";
+import ReadingsChapterList from "./ReadingsChapterList";
+import { use_bible_display_settings } from "@components/providers/BibleDisplaySettingsProvider";
+import { RefId } from "@interop/bible/ref_id";
 
 export default function ReadingsDisplay(): React.ReactElement
 {
     const [is_open, set_is_open] = useState(false);
-    const [date, set_date] = useState<ReadingsDate>(to_readings_date(new Date()))
+    const [date, set_date] = useState<ReadingsDate>(to_readings_date(new Date()));
+
+    const start_date = useMemo(() => {
+        const year = new Date().getFullYear();
+        return to_readings_date(new Date(year, 0, 1));
+    }, []);
+
+    const { bible_display_settings } = use_bible_display_settings();
+
+    const [readings, set_readings] = useState<RefId[] | null>(null);
+
+    useEffect(() => {
+        let is_mounted = true;
+        const fetch_readings = async () => {
+            const readings = await backend_fetch_reading("robert_roberts_reading_plan", start_date, date);
+            console.log(readings);
+            if (is_mounted)
+            {
+                set_readings(readings);
+            }
+        }
+
+        fetch_readings();
+        return () => {
+            is_mounted = false;
+        }
+    }, [date])
 
     return (
         <DropdownBase
@@ -26,6 +54,10 @@ export default function ReadingsDisplay(): React.ReactElement
                 on_change={set_date}
                 date={date}
             />
+            {readings && <ReadingsChapterList 
+                readings={readings}
+                bible_id={bible_display_settings.bible_version}
+            />}
         </DropdownBase>
     )
 }

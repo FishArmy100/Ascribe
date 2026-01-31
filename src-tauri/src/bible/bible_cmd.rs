@@ -346,7 +346,7 @@ pub fn run_bible_command(
             let response = package.visit(|p| {
                 let readings_module = p.get_mod(&module).and_then(Module::as_readings).unwrap();
                 readings_module.get_reading(*start_date, *selected_date).map(|r| {
-                    r.readings.clone()
+                    r.readings.iter().map(|r| RefIdJson::from(r)).collect_vec()
                 })
             });
             
