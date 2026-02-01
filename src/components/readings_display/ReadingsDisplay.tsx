@@ -56,17 +56,23 @@ export default function ReadingsDisplay(): React.ReactElement
                 on_change={set_date}
                 date={date}
             />
-            
-            <ReadingsPlanSelector />
-            {readings && (
-                <>
-                    <Divider orientation="horizontal"/>
-                    <ReadingsChapterList 
-                        readings={readings}
-                        bible_id={bible_display_settings.bible_version}
-                    />
-                </>
-            )}
+            <Box
+                sx={{
+                    padding: 1
+                }}
+            >
+                {readings && (
+                    <>
+                        <Divider orientation="horizontal" sx={{ mt: 1, mb: 1 }}/>
+                        <ReadingsChapterList
+                            readings={readings}
+                            bible_id={bible_display_settings.bible_version}
+                        />
+                    </>
+                )}
+                <Divider orientation="horizontal" sx={{ mt: 1, mb: 1 }}/>
+                <ReadingsPlanSelector />
+            </Box>
         </DropdownBase>
     )
 }

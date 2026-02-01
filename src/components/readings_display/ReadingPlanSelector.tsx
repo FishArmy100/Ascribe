@@ -46,6 +46,10 @@ export default function ReadingsPlanSelector(): React.ReactElement
             is_open={is_open}
             on_click={() => set_is_open(!is_open)}
             content_z_index={2000}
+            panel_sx={{
+                boxSizing: "border-box",
+                width: "100%",
+            }}
         >
             <Stack>
                 {reading_plans.map((r, i) => {
@@ -60,6 +64,7 @@ export default function ReadingsPlanSelector(): React.ReactElement
                             onClick={() => on_select_plan(r.id)}
                             sx={{
                                 cursor: "pointer",
+                                width: "fit-content",
                             }}
                         >
                             {name}
