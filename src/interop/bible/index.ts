@@ -196,6 +196,7 @@ export type BibleDisplaySettings = {
     parallel_enabled: boolean,
     show_strongs: boolean,
     shown_modules: string[],
+    reading_plan: string,
 }
 
 export async function get_backend_bible_display_settings(): Promise<BibleDisplaySettings>

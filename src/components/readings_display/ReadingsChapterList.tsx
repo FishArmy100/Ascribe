@@ -29,9 +29,21 @@ export default function ReadingsChapterList({
         <Stack>
             {readings.map(r => get_reading_chapters(r.id, bible_infos[bible_id])).flatMap(cs => cs).map((r, i) => {
                 const text = format_readings_chapter(r, format_book);
+                const on_click = () => {
+                    go_to_readings_chapter(r, push_view_history_entry);
+                }
                 return (
                     <Typography
                         key={i}
+                        fontWeight="bold"
+                        component="span"
+                        className="animated-underline"
+                        onClick={on_click}
+                        sx={{
+                            width: "fit-content",
+                            cursor: "pointer",
+                            userSelect: "none"
+                        }}
                     >
                         {text}
                     </Typography>

@@ -43,7 +43,8 @@ export function get_handle_ref_clicked_callback(
 				parallel_enabled: bible_display_settings.parallel_enabled,
 				parallel_version: bible_display_settings.parallel_version,
 				show_strongs: bible_display_settings.show_strongs,
-				shown_modules: bible_display_settings.shown_modules
+				shown_modules: bible_display_settings.shown_modules,
+				reading_plan: bible_display_settings.reading_plan
 			});
 		};
 

@@ -22,6 +22,7 @@ export type DropdownBaseProps = {
     on_click: () => void,
     children: React.ReactNode,
     disable_hover?: boolean,
+    content_z_index?: number,
 }
 
 export default function DropdownBase({
@@ -30,6 +31,7 @@ export default function DropdownBase({
     on_click,
     children,
     disable_hover,
+    content_z_index
 }: DropdownBaseProps): React.ReactElement
 {
     const theme = useTheme();
@@ -85,6 +87,7 @@ export default function DropdownBase({
                     opacity: is_open ? 1 : 0,
                     pointerEvents: is_open ? "all" : "none",
                     transition: "opacity 0.2s ease, visibility 0.2s ease",
+                    zIndex: content_z_index,
 
                     "&::before": {
                         content: '""',

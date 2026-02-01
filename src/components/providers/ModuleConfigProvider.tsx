@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react"
 import { fetch_backend_module_configs, ModuleConfig, BibleConfig, NotebookConfig, StrongsDefConfig, StrongsLinksConfig, CommentaryConfig, DictionaryConfig, ReadingsConfig, XRefConfig } from "../../interop/module_config"
+import { get_backend_biblio_json_package_initialized } from "@interop/bible";
+import { listen } from "@tauri-apps/api/event";
 
 export type ModuleConfigMap<T extends ModuleConfig> = { [id: string]: T };
 
@@ -77,7 +79,18 @@ export function ModuleConfigProvider({
     }
 
     useEffect(() => {
-        fetch_context_value();
+        (async () => {
+            const alreadyReady = await get_backend_biblio_json_package_initialized();
+            if (alreadyReady) 
+            {
+                await fetch_context_value();
+            } 
+            else 
+            {
+                const unlisten = await listen("bible-package-initialized", fetch_context_value);
+                return () => unlisten();
+            }
+        })();
     }, []);
 
     return (

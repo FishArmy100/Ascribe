@@ -6,6 +6,8 @@ import { backend_fetch_reading, ReadingsDate, to_readings_date } from "@interop/
 import ReadingsChapterList from "./ReadingsChapterList";
 import { use_bible_display_settings } from "@components/providers/BibleDisplaySettingsProvider";
 import { RefId } from "@interop/bible/ref_id";
+import ReadingsPlanSelector from "./ReadingPlanSelector";
+import { Box, Divider } from "@mui/material";
 
 export default function ReadingsDisplay(): React.ReactElement
 {
@@ -24,7 +26,7 @@ export default function ReadingsDisplay(): React.ReactElement
     useEffect(() => {
         let is_mounted = true;
         const fetch_readings = async () => {
-            const readings = await backend_fetch_reading("robert_roberts_reading_plan", start_date, date);
+            const readings = await backend_fetch_reading(bible_display_settings.reading_plan, start_date, date);
             console.log(readings);
             if (is_mounted)
             {
@@ -36,7 +38,7 @@ export default function ReadingsDisplay(): React.ReactElement
         return () => {
             is_mounted = false;
         }
-    }, [date])
+    }, [date, bible_display_settings])
 
     return (
         <DropdownBase
@@ -54,10 +56,17 @@ export default function ReadingsDisplay(): React.ReactElement
                 on_change={set_date}
                 date={date}
             />
-            {readings && <ReadingsChapterList 
-                readings={readings}
-                bible_id={bible_display_settings.bible_version}
-            />}
+            
+            <ReadingsPlanSelector />
+            {readings && (
+                <>
+                    <Divider orientation="horizontal"/>
+                    <ReadingsChapterList 
+                        readings={readings}
+                        bible_id={bible_display_settings.bible_version}
+                    />
+                </>
+            )}
         </DropdownBase>
     )
 }
