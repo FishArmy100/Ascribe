@@ -54,6 +54,7 @@ export type BackendRenderWordSearchQueryArgs = {
     show_strongs: boolean,
     page_size: number,
     page_index: number,
+    shown_modules: string[],
 }
 
 export async function backend_render_word_search_query({
@@ -61,6 +62,7 @@ export async function backend_render_word_search_query({
     show_strongs,
     page_index,
     page_size,
+    shown_modules
 }: BackendRenderWordSearchQueryArgs): Promise<RenderedWordSearchResult>
 {
     return await invoke<string>("run_bible_command", {
@@ -70,6 +72,7 @@ export async function backend_render_word_search_query({
             show_strongs,
             page_index,
             page_size,
+            shown_modules,
         }
     }).then(result => {
         return JSON.parse(result) as RenderedWordSearchResult

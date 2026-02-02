@@ -30,8 +30,8 @@ export default function SearchPage({
     const [popover_data, set_popover_data] = useState<PopoverData | null>(null);
 
     const { bible_infos, get_bible_display_name, get_book_display_name } = use_bible_infos();
-    const { bible_display_settings: bible_version_state, set_bible_display_settings: set_bible_version_state } = use_bible_display_settings();
-    const current_bible = bible_infos[bible_version_state.bible_version];
+    const { bible_display_settings, set_bible_display_settings } = use_bible_display_settings();
+    const current_bible = bible_infos[bible_display_settings.bible_version];
     const view_history = use_view_history();
 
     useEffect(() => {
@@ -46,9 +46,10 @@ export default function SearchPage({
 
             const rendered = await searching.backend_render_word_search_query({ 
                 query: query,
-                show_strongs: bible_version_state.show_strongs,
+                show_strongs: bible_display_settings.show_strongs,
                 page_index: entry.page_index,
                 page_size: SEARCH_RESULT_DISPLAY_COUNT,
+                shown_modules: bible_display_settings.shown_modules
             });
 
             if (is_mounted)
@@ -62,7 +63,7 @@ export default function SearchPage({
         return () => {
             is_mounted = false;
         }
-    }, [entry, bible_version_state]);
+    }, [entry, bible_display_settings]);
 
     const handle_strongs_click = useCallback((e: { top: number, left: number }, s: StrongsNumber) => {
             set_popover_data({
@@ -165,7 +166,7 @@ export default function SearchPage({
 
     const theme = useTheme();
 
-    const handle_ref_clicked = get_handle_ref_clicked_callback(set_bible_version_state, bible_version_state, view_history, () => {
+    const handle_ref_clicked = get_handle_ref_clicked_callback(set_bible_display_settings, bible_display_settings, view_history, () => {
         set_popover_data(null)
     });
 

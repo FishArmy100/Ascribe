@@ -79,6 +79,7 @@ pub struct BibleDisplaySettings
     pub parallel_enabled: bool,
     pub show_strongs: bool,
     pub shown_modules: HashSet<ModuleId>,
+    pub reading_plan: ModuleId,
 }
 
 impl Default for BibleDisplaySettings
@@ -90,6 +91,7 @@ impl Default for BibleDisplaySettings
             parallel_enabled: false,
             show_strongs: false,
             shown_modules: HashSet::new(),
+            reading_plan: ModuleId::new("robert_roberts_reading_plan".to_string()),
         }
     }
 }
@@ -113,6 +115,7 @@ impl BibleDisplaySettings
             parallel_enabled: false,
             show_strongs: false,
             shown_modules,
+            reading_plan: ModuleId::new("robert_roberts_reading_plan".to_string()),
         }
     }
 

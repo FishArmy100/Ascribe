@@ -1,16 +1,12 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { BibleInfo, get_book_display_name, OsisBook, use_selected_bibles, WordId } from "@interop/bible";
+import React, { useEffect, useState } from "react";
+import { WordId } from "@interop/bible";
 import { fetch_backend_word_entries, get_module_entry_title, ModuleEntry } from "@interop/module_entry";
-import { Box, Collapse, Divider, ListItemButton, Popover, Stack, Typography, useTheme } from "@mui/material";
-import SmallerTextSection from "@components/SmallerTextSection";
 import { fetch_backend_verse_render_data, VerseRenderData } from "@interop/bible/render";
-import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import ModuleEntryRenderer from "@components/bible/ModuleEntryRenderer";
 import { HRefSrc } from "@interop/html_text";
 import PopoverBase from "./PopoverBase";
 import { PopoverEntryData } from "./PopoverEntry";
 import { use_module_infos } from "@components/providers/ModuleInfoProvider";
-import { get_module_display_name } from "@interop/module_info";
 import { use_bible_infos } from "@components/providers/BibleInfoProvider";
 import { use_bible_display_settings } from "@components/providers/BibleDisplaySettingsProvider";
 import { use_module_configs } from "@components/providers/ModuleConfigProvider";
@@ -72,7 +68,7 @@ export default function WordPopover({
     }) ?? [];
  
     return <PopoverBase
-        title={`"${title}"`}
+        title={title ? `"${title}"` : ""}
         pos={pos}
         on_close={on_close}
         entries={entries}

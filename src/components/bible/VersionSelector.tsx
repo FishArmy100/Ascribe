@@ -13,7 +13,7 @@ export default function VersionSelector(): React.ReactElement
     const theme = useTheme();
     
     const { bible_display_settings, set_bible_display_settings: set_bible_version_state } = use_bible_display_settings();
-    const { bible_version, parallel_version, parallel_enabled, show_strongs, shown_modules } = bible_display_settings;
+    const { bible_version, parallel_version, parallel_enabled, show_strongs, shown_modules, reading_plan } = bible_display_settings;
 
     const { bible_infos } = use_bible_infos();
     const [ is_open, set_is_open ] = useState(false);
@@ -54,6 +54,7 @@ export default function VersionSelector(): React.ReactElement
                                             parallel_enabled: e.target.checked,
                                             show_strongs,
                                             shown_modules,
+                                            reading_plan,
                                         })
                                     }
                                 />
@@ -98,6 +99,7 @@ export default function VersionSelector(): React.ReactElement
                                                 parallel_enabled,
                                                 show_strongs,
                                                 shown_modules,
+                                                reading_plan,
                                             });
                                         }}
                                         sx={{
@@ -166,6 +168,7 @@ export default function VersionSelector(): React.ReactElement
                                                 parallel_enabled,
                                                 show_strongs,
                                                 shown_modules,
+                                                reading_plan,
                                             });
                                         }}
                                         sx={{
@@ -215,6 +218,7 @@ export default function VersionSelector(): React.ReactElement
                                             parallel_enabled,
                                             show_strongs: e.target.checked,
                                             shown_modules,
+                                            reading_plan,
                                         })
                                     }
                                 />
