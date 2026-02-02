@@ -2,7 +2,7 @@ import DropdownBase from "@components/core/DropdownBase";
 import { use_bible_display_settings } from "@components/providers/BibleDisplaySettingsProvider";
 import { use_module_infos } from "@components/providers/ModuleInfoProvider";
 import { get_module_display_name } from "@interop/module_info";
-import { Stack, Typography } from "@mui/material";
+import { Box, Stack, Typography } from "@mui/material";
 import { use_deep_copy } from "@utils/index";
 import React, { useCallback, useMemo, useState } from "react";
 
@@ -51,24 +51,44 @@ export default function ReadingsPlanSelector(): React.ReactElement
                 width: "100%",
             }}
         >
-            <Stack>
+            <Stack
+                sx={{
+                    padding: 1,
+                    gap: theme => theme.spacing(1),
+                }}
+            >
                 {reading_plans.map((r, i) => {
                     const name = get_module_display_name(r);
                     const is_selected = bible_display_settings.reading_plan === r.id;
                     return (
-                        <Typography
+                        <Box
                             key={i}
-                            fontWeight={is_selected ? "bold" : undefined}
-                            component="span"
-                            className="animated-underline"
                             onClick={() => on_select_plan(r.id)}
                             sx={{
+                                padding: 1,
                                 cursor: "pointer",
-                                width: "fit-content",
+                                width: "100%",
+                                boxSizing: "border-box",
+                                transition: "background-color 0.3s ease",
+                                borderRadius: 1,
+                                borderColor: theme => theme.palette.divider,
+                                borderStyle: "solid",
+                                borderWidth: theme => theme.spacing(1 / 8),
+                                "&:hover": {
+                                    backgroundColor: theme => theme.palette.action.hover,
+                                }
                             }}
                         >
-                            {name}
-                        </Typography>
+                            <Typography
+                                fontWeight={is_selected ? "bold" : undefined}
+                                variant="body2"
+                                component="div"
+                                textAlign="center"
+                                width="100%"
+                            >
+                                {name}
+                            </Typography>
+                        </Box>
                     )
                 })}
             </Stack>

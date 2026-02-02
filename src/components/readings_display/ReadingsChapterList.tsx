@@ -1,7 +1,7 @@
 import { use_bible_infos } from "@components/providers/BibleInfoProvider";
 import { BibleInfo, ChapterId, OsisBook } from "@interop/bible";
 import { Atom, RefId, RefIdInner } from "@interop/bible/ref_id";
-import { Stack, Typography } from "@mui/material";
+import { Box, Stack, Typography } from "@mui/material";
 import React, { useCallback } from "react";
 import * as utils from "@utils";
 import { use_view_history } from "@components/providers/ViewHistoryProvider";
@@ -25,31 +25,57 @@ export default function ReadingsChapterList({
 
     const { push: push_view_history_entry } = use_view_history()
 
+    const chapters = readings.map(r => get_reading_chapters(r.id, bible_infos[bible_id])).flatMap(cs => cs);
+
     return (
-        <Stack>
-            {readings.map(r => get_reading_chapters(r.id, bible_infos[bible_id])).flatMap(cs => cs).map((r, i) => {
+        <Box
+            sx={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(2, 1fr)',
+                gap: 2,
+                justifyItems: 'start',
+                '& > :last-child:nth-of-type(2n + 1)': {
+                    gridColumn: '1 / -1',
+                    justifySelf: 'center',
+                },
+                '& > :last-child:nth-of-type(2n + 2)': {
+                    gridColumnStart: '2',
+                },
+            }}
+        >
+            {chapters.map((r, i) => {
                 const text = format_readings_chapter(r, format_book);
                 const on_click = () => {
                     go_to_readings_chapter(r, push_view_history_entry);
                 }
                 return (
-                    <Typography
+                    <Box
                         key={i}
-                        fontWeight="bold"
-                        component="span"
-                        className="animated-underline"
-                        onClick={on_click}
                         sx={{
-                            width: "fit-content",
-                            cursor: "pointer",
-                            userSelect: "none"
+                            boxSizing: "border-box",
+                            width: "100%",
+                            display: "flex",
+                            justifyContent: "center",
                         }}
                     >
-                        {text}
-                    </Typography>
+                        <Typography
+                            fontWeight="bold"
+                            component="div"
+                            className="animated-underline"
+                            onClick={on_click}
+                            sx={{
+                                width: "fit-content",
+                                cursor: "pointer",
+                                userSelect: "none",
+                                textAlign: "center",
+                            }}
+                        >
+                            {text}
+                        </Typography>
+                    </Box>
                 )
             })}
-        </Stack>
+        </Box>
     )
 }
 
