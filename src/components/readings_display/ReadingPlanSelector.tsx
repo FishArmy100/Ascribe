@@ -29,6 +29,8 @@ export default function ReadingsPlanSelector(): React.ReactElement
         set_bible_display_settings(copy);
     }, [bible_display_settings, set_bible_display_settings, deep_copy])
 
+    console.log(reading_plans);
+    console.log(bible_display_settings.reading_plan);
     const selected_reading_name = get_module_display_name(
         reading_plans.find(r => r.id === bible_display_settings.reading_plan)!
     );
