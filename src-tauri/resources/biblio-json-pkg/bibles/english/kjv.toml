@@ -1,0 +1,141 @@
+name = "King James Version"
+short_name = "KJV"
+id = "kjv_eng"
+description = """
+
+<h1>King James Bible (KJV)</h1>
+<p>
+    <em>Also called the Authorized Version</em>
+</p>
+
+<h2>Overview</h2>
+<p>
+    The <strong>King James Version (KJV)</strong> is an English translation of the Christian Bible,
+    first published in <strong>1611</strong>. Commissioned by <strong>King James I of England</strong>,
+    it was produced by about <strong>47 scholars</strong> across <strong>Oxford, Cambridge,</strong> and
+    <strong>Westminster</strong>. Known for its literary beauty and dignified style, the KJV has had a
+    lasting influence on English literature, religion, and culture.
+</p>
+
+<h2>Textual Basis & History</h2>
+<ul>
+    <li><strong>Old Testament:</strong> Based on the Hebrew <em>Masoretic Text</em>.</li>
+    <li><strong>New Testament:</strong> Based on the Greek <em>Textus Receptus</em>.</li>
+    <li><strong>Earlier influences:</strong> Builds on works of translators like <em>William Tyndale</em>
+        and the <em>Geneva Bible</em>.</li>
+    <li><strong>Revisions:</strong> Later editions standardized spelling and punctuation,
+        especially in <em>1762</em> and <em>1769</em>.</li>
+</ul>
+
+<h2>Structure</h2>
+<p>
+    The KJV usually contains the <strong>66-book Protestant canon</strong>:
+    <strong>39</strong> Old Testament books and <strong>27</strong> New Testament books.
+    The 1611 edition also included the <em>Apocrypha</em>, which later Protestant editions often omit.
+</p>
+
+<h2>Language & Style</h2>
+<ul>
+    <li><strong>Register:</strong> Early Modern English, formal and poetic.</li>
+    <li><strong>Pronouns:</strong> Uses forms like <em>thou, thee, thy</em>.</li>
+    <li><strong>Typography:</strong> Italics indicate supplied words for clarity.</li>
+    <li><strong>Features:</strong> Includes chapter and verse divisions, headings, and cross-references.</li>
+</ul>
+
+<h2>Impact & Use</h2>
+<p>
+    The KJV influenced English speech, literature, and hymnody for centuries. It is still widely read
+    for worship, study, and its traditional style. Many readers value it for both its historical and
+    literary qualities.
+</p>
+
+<h2>Common Editions</h2>
+<ul>
+    <li><strong>1611 First Edition:</strong> The original Authorized Version, usually with the Apocrypha.</li>
+    <li><strong>1769 Edition:</strong> Edited by Benjamin Blayney, this version standardized the text and
+        is the basis of most modern KJV printings.</li>
+</ul>
+
+<h2>Notes</h2>
+<ul>
+    <li><strong>Public Domain:</strong> The KJV text is public domain in most countries
+        (though some regions have special Crown copyright rules).</li>
+    <li><strong>Study Helps:</strong> Maps, concordances, and notes added to modern KJV editions
+        may still be copyrighted.</li>
+</ul>
+
+"""
+language = "en"
+data_source = "https://github.com/scrollmapper/bible_databases/tree/master/sources/en/KJV"
+
+
+book_aliases = "en"
+book_abbreviations = "en"
+
+[books]
+Gen = "Genesis"  
+Exod = "Exodus"  
+Lev = "Leviticus"  
+Num = "Numbers"  
+Deut = "Deuteronomy"  
+Josh = "Joshua"  
+Judg = "Judges"  
+Ruth = "Ruth"  
+1Sam = "1 Samuel"  
+2Sam = "2 Samuel"  
+1Kgs = "1 Kings"  
+2Kgs = "2 Kings"  
+1Chr = "1 Chronicles"  
+2Chr = "2 Chronicles"  
+Ezra = "Ezra"  
+Neh = "Nehemiah"  
+Esth = "Esther"  
+Job = "Job"  
+Ps = "Psalms"  
+Prov = "Proverbs"  
+Eccl = "Ecclesiastes"  
+Song = "Song of Solomon"  
+Isa = "Isaiah"  
+Jer = "Jeremiah"  
+Lam = "Lamentations"  
+Ezek = "Ezekiel"  
+Dan = "Daniel"  
+Hos = "Hosea"  
+Joel = "Joel"  
+Amos = "Amos"  
+Obad = "Obadiah"  
+Jonah = "Jonah"  
+Mic = "Micah"  
+Nah = "Nahum"  
+Hab = "Habakkuk"  
+Zeph = "Zephaniah"  
+Hag = "Haggai"  
+Zech = "Zechariah"  
+Mal = "Malachi"  
+Matt = "Matthew"  
+Mark = "Mark"  
+Luke = "Luke"  
+John = "John"  
+Acts = "Acts"  
+Rom = "Romans"  
+1Cor = "1 Corinthians"  
+2Cor = "2 Corinthians"  
+Gal = "Galatians"  
+Eph = "Ephesians"  
+Phil = "Philippians"  
+Col = "Colossians"  
+1Thess = "1 Thessalonians"  
+2Thess = "2 Thessalonians"  
+1Tim = "1 Timothy"  
+2Tim = "2 Timothy"
+Titus = "Titus"
+Phlm = "Philemon"
+Heb = "Hebrews"
+Jas = "James"
+1Pet = "1 Peter"
+2Pet = "2 Peter"
+1John = "1 John"
+2John = "2 John"
+3John = "3 John"
+Jude = "Jude"
+Rev = "Revelation"
