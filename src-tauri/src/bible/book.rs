@@ -7,7 +7,9 @@ use regex::Regex;
 
 lazy_static::lazy_static!
 {
-    static ref BOOK_NAME_REGEX: Regex = Regex::new("^(?P<prefix>\\d+\\s+)?(?P<book>[a-zA-Z\\s]*[a-zA-Z])$").unwrap();
+    static ref BOOK_NAME_REGEX: Regex = Regex::new(
+        r"^(?P<prefix>\d+\s+)?(?P<book>\p{L}[\p{L}\s]*\p{L})$"
+    ).unwrap();
 }
 
 #[derive(Debug)]
@@ -41,6 +43,7 @@ impl std::fmt::Display for ResolveBookNameError
 
 pub fn resolve_book_name(name: &str, module: &BibleModule) -> Result<OsisBook, ResolveBookNameError>
 {
+    println!("name: {}; module: {}", name, module.config.id);
     let Some(captures) = BOOK_NAME_REGEX.captures(name) else {
         return Err(ResolveBookNameError::InvalidInput)
     };
