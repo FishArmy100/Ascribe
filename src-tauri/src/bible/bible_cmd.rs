@@ -5,7 +5,7 @@ use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use tauri::{Emitter, State};
 
-use crate::{bible::{BIBLE_VERSION_CHANGED_EVENT_NAME, BibleDisplaySettings, BibleInfo, BibleVersionChangedEvent, BiblioJsonPackageHandle, fetching::PackageEx, render::{RenderSearchArgs, fetch_verse_render_data, render_verses, render_word_search_verses}}, core::app::AppState, repr::{module_config::ModuleConfigJson, readings_date::ReadingsDateJson, searching::{ModuleSearchHitJson, WordSearchQueryJson}, *}, searching::{module_searching::WordSearchMode, word_search_engine::WordSearchQuery}};
+use crate::{bible::{BIBLE_DISPLAY_SETTINGS_CHANGED_EVENT_NAME, BibleDisplaySettings, BibleInfo, BibleDisplaySettingsChangedEvent, BiblioJsonPackageHandle, fetching::PackageEx, render::{RenderSearchArgs, fetch_verse_render_data, render_verses, render_word_search_verses}}, core::app::AppState, repr::{module_config::ModuleConfigJson, readings_date::ReadingsDateJson, searching::{ModuleSearchHitJson, WordSearchQueryJson}, *}, searching::{module_searching::WordSearchMode, word_search_engine::WordSearchQuery}};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -161,7 +161,7 @@ pub fn run_bible_command(
             let old = state.bible_display_settings.clone();
             state.bible_display_settings = version_state;
 
-            app_handle.emit(BIBLE_VERSION_CHANGED_EVENT_NAME, BibleVersionChangedEvent {
+            app_handle.emit(BIBLE_DISPLAY_SETTINGS_CHANGED_EVENT_NAME, BibleDisplaySettingsChangedEvent {
                 old: old,
                 new: state.bible_display_settings.clone(),
             }).unwrap();
