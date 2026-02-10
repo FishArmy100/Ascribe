@@ -227,7 +227,7 @@ export type BibleVersionChangedEvent = {
 
 export function listen_bible_display_settings_changed(listener: (e: BibleVersionChangedEvent) => void): Promise<UnlistenFn>
 {
-    return listen<BibleVersionChangedEvent>("bible-version-changed", e => {
+    return listen<BibleVersionChangedEvent>("bible-display-settings-changed", e => {
         listener(e.payload)
     })
 }

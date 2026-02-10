@@ -14,7 +14,7 @@ use tauri::{AppHandle, Emitter, Listener, Manager, utils::platform::resource_dir
 use crate::core::app::AppState;
 
 pub const BIBLIO_JSON_PACKAGE_INITIALIZED_EVENT_NAME: &str = "bible-package-initialized";
-pub const BIBLE_DISPLAY_SETTINGS_CHANGED_EVENT_NAME: &str = "bible-version-changed";
+pub const BIBLE_DISPLAY_SETTINGS_CHANGED_EVENT_NAME: &str = "bible-display-settings-changed";
 pub const BIBLE_PACKAGE_PATH: &str = "resources/biblio-json-pkg";
 
 #[derive(Debug, Clone)]
