@@ -1,0 +1,44 @@
+{
+  "spa_Latn": {
+    "audio_player.tooltips.rewind": "Rebobina {{$time}} segundos",
+    "audio_player.tooltips.play": "Juego",
+    "audio_player.tooltips.pause": "Pausa",
+    "audio_player.tooltips.fast_forward": "Avancemos {{$time}} segundos",
+    "audio_player.tooltips.progress": "Deslizador de progreso",
+    "audio_player.tooltips.mute": "Audio silenciado",
+    "audio_player.tooltips.unmute": "Desactivar el silencio del audio",
+    "audio_player.tooltips.modify_volume": "Modificar volumen",
+    "audio_player.tooltips.reset_playback": "Reiniciar la velocidad de reproducción",
+    "audio_player.tooltips.modify_playback": "Modificar la velocidad de reproducción",
+    "audio_player.tooltips.correct_pitch": "Tono correcto del audio al cambiar la velocidad de reproducción",
+    "audio_player.tooltips.follow_verses": "Sigue los versos mientras tocas"
+  },
+  "swh_Latn": {
+    "audio_player.tooltips.rewind": "Rudisha nyuma sekunde {{$time}}",
+    "audio_player.tooltips.play": "Cheza",
+    "audio_player.tooltips.pause": "Sitisha",
+    "audio_player.tooltips.fast_forward": "Songa mbele kwa sekunde {{$time}}",
+    "audio_player.tooltips.progress": "Kitelezi cha maendeleo",
+    "audio_player.tooltips.mute": "Nyamazisha sauti",
+    "audio_player.tooltips.unmute": "Fungua sauti kunyamazisha",
+    "audio_player.tooltips.modify_volume": "Rekebisha sauti",
+    "audio_player.tooltips.reset_playback": "Weka upya kasi ya uchezaji",
+    "audio_player.tooltips.modify_playback": "Rekebisha kasi ya uchezaji",
+    "audio_player.tooltips.correct_pitch": "Sahihi sauti wakati wa kubadilisha kasi ya uchezaji",
+    "audio_player.tooltips.follow_verses": "Fuata mistari wakati wa kucheza"
+  },
+  "eng_Latn": {
+    "audio_player.tooltips.rewind": "Rewind {{$time}} seconds",
+    "audio_player.tooltips.play": "Play",
+    "audio_player.tooltips.pause": "Pause",
+    "audio_player.tooltips.fast_forward": "Fast forward {{$time}} seconds",
+    "audio_player.tooltips.progress": "Progress slider",
+    "audio_player.tooltips.mute": "Mute audio",
+    "audio_player.tooltips.unmute": "Unmute audio",
+    "audio_player.tooltips.modify_volume": "Modify volume",
+    "audio_player.tooltips.reset_playback": "Reset playback speed",
+    "audio_player.tooltips.modify_playback": "Modify playback speed",
+    "audio_player.tooltips.correct_pitch": "Correct audio pitch when changing playback speed",
+    "audio_player.tooltips.follow_verses": "Follow verses while playing"
+  }
+}
