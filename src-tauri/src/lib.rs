@@ -57,6 +57,7 @@ pub fn run() {
             view_history::run_view_history_command,
             tts::tts_cmd::run_tts_command,
             commands::open,
+            core::app_language::run_app_language_command,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

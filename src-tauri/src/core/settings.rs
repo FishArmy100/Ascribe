@@ -3,7 +3,7 @@ use std::{collections::HashMap, sync::Mutex};
 use serde::{Deserialize, Serialize};
 use tauri::{Emitter, State};
 
-use crate::{core::{app::AppState, theme::AppTheme}, tts::TtsSettings};
+use crate::{core::{app::AppState, app_language::get_default_language, theme::AppTheme}, tts::TtsSettings};
 
 pub const SETTINGS_CHANGED_EVENT_NAME: &str = "settings-changed";
 
@@ -58,6 +58,7 @@ pub struct AppSettings
     pub selected_theme: SelectedTheme,
     pub custom_themes: HashMap<String, AppTheme>,
     pub selected_font: SelectedFont,
+    pub selected_language: String,
 }
 
 impl Default for AppSettings
@@ -71,6 +72,7 @@ impl Default for AppSettings
             selected_theme: SelectedTheme::Light,
             custom_themes: HashMap::new(),
             selected_font: Default::default(),
+            selected_language: get_default_language(),
         }
     }
 }
