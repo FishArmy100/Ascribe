@@ -1,6 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { TtsSettings } from "./tts";
 import { AppTheme } from "src/theme";
+import { LangScriptCode } from "@fisharmy100/react-auto-i18n";
 
 export const SETTINGS_CHANGED_EVENT_NAME: string = "settings-changed";
 
@@ -22,6 +23,7 @@ export type AppSettings = {
     selected_theme: SelectedTheme,
     custom_themes: { [name: string]: AppTheme },
     selected_font: SelectedFont,
+    selected_language: LangScriptCode,
 }
 
 export type AppSettingsChangedEvent = {

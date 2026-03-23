@@ -64,7 +64,7 @@ fn iso1_to_iso3(code: &str) -> Option<&'static str>
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case", tag = "type")]
+#[serde(rename_all = "snake_case")]
 pub enum AppLanguageCommand
 {
     GetSupported,
