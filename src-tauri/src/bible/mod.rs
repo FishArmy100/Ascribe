@@ -6,7 +6,7 @@ pub mod ref_id_parsing;
 
 use std::{collections::HashSet, sync::{Arc, Mutex, RwLock}, thread::spawn};
 
-use biblio_json::{self, Package, modules::{Module, ModuleId, ModuleType, bible::BookInfo}};
+use biblio_json::{self, Package, modules::{ModuleId, ModuleType, bible::BookInfo}};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Emitter, Listener, Manager, utils::platform::resource_dir};
@@ -55,8 +55,6 @@ impl BiblioJsonPackageHandle
                     panic!("Package Loaded with errors {}:\n{}", e.len(), e.iter().map(|e| e.to_string()).join("\n---------------------------------------------\n"))
                 }
             };
-
-            let bibles = package.modules.values().filter_map(Module::as_bible).map(|b| b.config.name.clone()).collect_vec();
 
             *package_ref.try_write().unwrap() = Some(package);
             app_handle.emit(BIBLIO_JSON_PACKAGE_INITIALIZED_EVENT_NAME, ())
