@@ -13,6 +13,7 @@ import CorrectPitchCheckbox from "./CorrectPitchCheckbox";
 import FollowTextCheckbox from "./FollowTextCheckbox";
 import ExpandButton from "./ExpandButton";
 import { ChapterId } from "@interop/bible";
+import use_audio_player_tooltips from "./audio_player_tooltips";
 
 const FAST_FORWARD_TIME = 10;
 const REWIND_TIME = 10;
@@ -113,6 +114,8 @@ export default function AudioPlayer({
         generation_progress = v;
     }
 
+    const tooltips = use_audio_player_tooltips();
+
     return (
         <Box
             sx={{
@@ -158,7 +161,7 @@ export default function AudioPlayer({
                                 >
                                     <ImageButton
                                         image={images.angles_left}
-                                        tooltip={`Rewind ${REWIND_TIME}s`}
+                                        tooltip={tooltips.rewind(REWIND_TIME)}
                                         disabled={play_button_type === "generating"}
                                         on_click={handle_rewind}
                                     />
@@ -169,7 +172,7 @@ export default function AudioPlayer({
                                     />
                                     <ImageButton
                                         image={images.angles_right}
-                                        tooltip={`Fast forward ${FAST_FORWARD_TIME}s`}
+                                        tooltip={tooltips.fast_forward(FAST_FORWARD_TIME)}
                                         disabled={play_button_type === "generating"}
                                         on_click={handle_fast_forward}
                                     />
@@ -178,7 +181,7 @@ export default function AudioPlayer({
                                         min={0}
                                         max={1}
                                         step={0.0001}
-                                        tooltip="Progress slider"
+                                        tooltip={tooltips.progress}
                                         on_change={handle_user_change_progress}
                                         on_commit={handle_user_commit_progress}
                                         readonly={tts_player.player_state === "finished" || tts_player.player_state === "generating" || tts_player.player_state === "idle"}

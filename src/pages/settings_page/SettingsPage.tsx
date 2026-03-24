@@ -4,6 +4,7 @@ import { Box, Stack, Typography, useTheme } from "@mui/material";
 import UiScaleSlider from "./UiScaleSlider";
 import ThemeSelectorDropdown from "./ThemeSelectorDropdown";
 import FontSelectorDropdown from "./FontSelectorDropdown";
+import LanguageSelectionDropdown from "./LanguageSelectionDropdown";
 
 export default function SettingsPage(): React.ReactElement
 {
@@ -32,6 +33,7 @@ export default function SettingsPage(): React.ReactElement
                 <UiScaleSlider />
                 <ThemeSelectorDropdown />
                 <FontSelectorDropdown />
+                <LanguageSelectionDropdown />
             </Stack>
         </Box>
     )

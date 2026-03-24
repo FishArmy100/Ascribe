@@ -43,7 +43,6 @@ impl std::fmt::Display for ResolveBookNameError
 
 pub fn resolve_book_name(name: &str, module: &BibleModule) -> Result<OsisBook, ResolveBookNameError>
 {
-    println!("name: {}; module: {}", name, module.config.id);
     let Some(captures) = BOOK_NAME_REGEX.captures(name) else {
         return Err(ResolveBookNameError::InvalidInput)
     };

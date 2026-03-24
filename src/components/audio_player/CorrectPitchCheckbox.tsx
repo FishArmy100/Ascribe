@@ -1,6 +1,9 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { use_settings } from "../providers/SettingsProvider";
 import LabeledCheckbox from "../core/LabeledCheckbox";
+import use_audio_player_tooltips from "./audio_player_tooltips";
+import { useI18n } from "@fisharmy100/react-auto-i18n";
+import use_audio_player_labels from "./audio_player_labels";
 
 
 export default function CorrectPitchCheckbox(): React.ReactElement
@@ -12,14 +15,17 @@ export default function CorrectPitchCheckbox(): React.ReactElement
             s.tts_settings.correct_pitch = v;
             return s;
         })
-    }
+    };
+
+    const labels = use_audio_player_labels();
+    const tooltips = use_audio_player_tooltips();
 
     return (
         <LabeledCheckbox 
-            tooltip="Correct audio pitch when changing playback speed"
+            tooltip={tooltips.correct_pitch}
             value={value}
             set_value={handle_set_value}
-            label="Correct Pitch"
+            label={labels.correct_pitch}
         />
     )
 }

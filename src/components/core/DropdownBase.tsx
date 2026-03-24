@@ -2,7 +2,7 @@ import { Box, Paper, SxProps, Theme, useTheme } from "@mui/material";
 import React from "react"
 import ImageButton from "./ImageButton";
 import TextButton from "./TextButton";
-import { DROPDOWN_PADDING } from "./ImageDropdown";
+import { IMAGE_DROPDOWN_PADDING } from "./ImageDropdown";
 
 export type DropdownButton = {
     type: "image",
@@ -14,6 +14,9 @@ export type DropdownButton = {
     text: string,
     tooltip: string,
     sx?: SxProps<Theme>,
+}| {
+    type: "element",
+    element: React.ReactElement,
 }
 
 export type DropdownBaseProps = {
@@ -51,7 +54,7 @@ export default function DropdownBase({
             />
         )
     }
-    else
+    else if (button.type === "text")
     {
         button_element = (
             <TextButton 
@@ -62,6 +65,10 @@ export default function DropdownBase({
                 sx={button.sx}
             />
         )
+    }
+    else 
+    {
+        button_element = button.element;
     }
 
     return (
@@ -83,8 +90,8 @@ export default function DropdownBase({
                 sx={{
                     position: "absolute",
                     top: `100%`,
-                    left: (theme) => theme.spacing(-DROPDOWN_PADDING),
-                    padding: DROPDOWN_PADDING,
+                    left: (theme) => theme.spacing(-IMAGE_DROPDOWN_PADDING),
+                    padding: IMAGE_DROPDOWN_PADDING,
                     visibility: is_open ? "visible" : "hidden",
                     opacity: is_open ? 1 : 0,
                     pointerEvents: is_open ? "all" : "none",

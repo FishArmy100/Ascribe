@@ -1,6 +1,8 @@
 import React from "react";
 import { use_settings } from "../providers/SettingsProvider";
 import LabeledCheckbox from "../core/LabeledCheckbox";
+import use_audio_player_tooltips from "./audio_player_tooltips";
+import use_audio_player_labels from "./audio_player_labels";
 
 
 export default function FollowTextCheckbox(): React.ReactElement
@@ -14,12 +16,15 @@ export default function FollowTextCheckbox(): React.ReactElement
         })
     }
 
+    const tooltips = use_audio_player_tooltips();
+    const labels = use_audio_player_labels();
+
     return (
         <LabeledCheckbox 
-            tooltip="Follow verses while playing"
+            tooltip={tooltips.follow_text}
             value={value}
             set_value={handle_set_value}
-            label="Follow text"
+            label={labels.follow_text}
         />
     )
 }

@@ -1,5 +1,7 @@
 {
   "spa_Latn": {
+    "audio_player.labels.correct_pitch": "Tono correcto",
+    "audio_player.labels.follow_text": "Seguir texto",
     "audio_player.tooltips.rewind": "Rebobina {{$time}} segundos",
     "audio_player.tooltips.play": "Juego",
     "audio_player.tooltips.pause": "Pausa",
@@ -11,9 +13,16 @@
     "audio_player.tooltips.reset_playback": "Reiniciar la velocidad de reproducción",
     "audio_player.tooltips.modify_playback": "Modificar la velocidad de reproducción",
     "audio_player.tooltips.correct_pitch": "Tono correcto del audio al cambiar la velocidad de reproducción",
-    "audio_player.tooltips.follow_verses": "Sigue los versos mientras tocas"
+    "audio_player.tooltips.follow_verses": "Sigue los versos mientras tocas",
+    "audio_player.tooltips.expand_options": "Expandir opciones",
+    "audio_player.tooltips.percent_generated": "{{$percent}}% generado",
+    "settings_page.language_selection.button": "Cambiar el idioma actual",
+    "settings_page.language_selection.language_option": "Seleccionar el idioma {{$language}}",
+    "settings_page.language_selection.title": "Idioma: "
   },
   "swh_Latn": {
+    "audio_player.labels.correct_pitch": "Sauti sahihi",
+    "audio_player.labels.follow_text": "Fuata maandishi",
     "audio_player.tooltips.rewind": "Rudisha nyuma sekunde {{$time}}",
     "audio_player.tooltips.play": "Cheza",
     "audio_player.tooltips.pause": "Sitisha",
@@ -25,9 +34,16 @@
     "audio_player.tooltips.reset_playback": "Weka upya kasi ya uchezaji",
     "audio_player.tooltips.modify_playback": "Rekebisha kasi ya uchezaji",
     "audio_player.tooltips.correct_pitch": "Sahihi sauti wakati wa kubadilisha kasi ya uchezaji",
-    "audio_player.tooltips.follow_verses": "Fuata mistari wakati wa kucheza"
+    "audio_player.tooltips.follow_verses": "Fuata mistari wakati wa kucheza",
+    "audio_player.tooltips.expand_options": "Panua chaguzi",
+    "audio_player.tooltips.percent_generated": "{{$percent}}% Imezalishwa",
+    "settings_page.language_selection.button": "Badilisha lugha ya sasa",
+    "settings_page.language_selection.language_option": "Chagua lugha {{$language}}",
+    "settings_page.language_selection.title": "Lugha: "
   },
   "eng_Latn": {
+    "audio_player.labels.correct_pitch": "Correct pitch",
+    "audio_player.labels.follow_text": "Follow text",
     "audio_player.tooltips.rewind": "Rewind {{$time}} seconds",
     "audio_player.tooltips.play": "Play",
     "audio_player.tooltips.pause": "Pause",
@@ -39,6 +55,11 @@
     "audio_player.tooltips.reset_playback": "Reset playback speed",
     "audio_player.tooltips.modify_playback": "Modify playback speed",
     "audio_player.tooltips.correct_pitch": "Correct audio pitch when changing playback speed",
-    "audio_player.tooltips.follow_verses": "Follow verses while playing"
+    "audio_player.tooltips.follow_verses": "Follow verses while playing",
+    "audio_player.tooltips.expand_options": "Expand options",
+    "audio_player.tooltips.percent_generated": "{{$percent}}% Generated",
+    "settings_page.language_selection.button": "Change current language",
+    "settings_page.language_selection.language_option": "Select language {{$language}}",
+    "settings_page.language_selection.title": "Language: "
   }
 }

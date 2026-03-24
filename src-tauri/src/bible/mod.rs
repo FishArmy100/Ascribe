@@ -57,7 +57,6 @@ impl BiblioJsonPackageHandle
             };
 
             let bibles = package.modules.values().filter_map(Module::as_bible).map(|b| b.config.name.clone()).collect_vec();
-            println!("Bibles: {:#?}", bibles);
 
             *package_ref.try_write().unwrap() = Some(package);
             app_handle.emit(BIBLIO_JSON_PACKAGE_INITIALIZED_EVENT_NAME, ())

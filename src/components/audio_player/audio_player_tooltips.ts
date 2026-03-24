@@ -56,8 +56,19 @@ export default function use_audio_player_tooltips()
         follow_text: __t(
             "audio_player.tooltips.follow_verses",
             "Follow verses while playing",
-        )
-    }), [i18n]);
+        ),
+        expand_options: __t(
+            "audio_player.tooltips.expand_options",
+            "Expand options",
+        ),
+        percent_generated: (percent: string) => {
+            return __t(
+                "audio_player.tooltips.percent_generated",
+                "{{$percent}}% Generated",
+                { percent }
+            );
+        }
+    }), [i18n.locale]);
 
     return tooltips;
 }
