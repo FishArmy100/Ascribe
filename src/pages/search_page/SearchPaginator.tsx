@@ -6,6 +6,7 @@ import { WordSearchHistoryEntry } from "@interop/view_history";
 import { Box, Typography, useTheme } from "@mui/material";
 import React from "react"
 import rfdc from "rfdc";
+import use_search_page_strings from "./search_page_strings";
 
 export type SearchPaginatorProps = {
     hits: SearchHit[],
@@ -42,7 +43,8 @@ export default function SearchPaginator({
         chunks[chunks.length - 1].push(h);
     });
 
-    const chunk_ranges = chunks.map(c => ({ start: c[0].verse, end: c[c.length - 1].verse }))
+    const chunk_ranges = chunks.map(c => ({ start: c[0].verse, end: c[c.length - 1].verse }));
+    const strings = use_search_page_strings();
 
     const handle_page_clicked = (i: number) => {
         const entry_copy = deep_copy(entry);
@@ -75,7 +77,7 @@ export default function SearchPaginator({
                     return (
                         <Tooltip
                             key={i}
-                            tooltip={`Select range ${title}`}
+                            tooltip={strings.select_range_tooltip(title)}
                         >
                             <Box
                                 sx={{
