@@ -39,7 +39,6 @@ export function HtmlNodeRenderer({
     parent_variant,
 }: HtmlNodeRendererProps): React.ReactElement
 {
-    const theme = useTheme();
     if (node.type === "heading")
     {
         let component: "h4" | "h5" | "h6";

@@ -5,6 +5,7 @@ import { get_module_display_name } from "@interop/module_info";
 import { Box, Stack, Typography } from "@mui/material";
 import { use_deep_copy } from "@utils/index";
 import React, { useCallback, useMemo, useState } from "react";
+import use_readings_display_strings from "./readings_display_strings";
 
 export default function ReadingsPlanSelector(): React.ReactElement
 {
@@ -23,14 +24,14 @@ export default function ReadingsPlanSelector(): React.ReactElement
             );
     }, [module_infos]);
 
+    const strings = use_readings_display_strings();
+
     const on_select_plan = useCallback((plan: string) => {
         const copy = deep_copy(bible_display_settings);
         copy.reading_plan = plan;
         set_bible_display_settings(copy);
-    }, [bible_display_settings, set_bible_display_settings, deep_copy])
+    }, [bible_display_settings, set_bible_display_settings, deep_copy]);
 
-    console.log(reading_plans);
-    console.log(bible_display_settings.reading_plan);
     const selected_reading_name = get_module_display_name(
         reading_plans.find(r => r.id === bible_display_settings.reading_plan)!
     );
@@ -39,7 +40,7 @@ export default function ReadingsPlanSelector(): React.ReactElement
         <DropdownBase
             button={{
                 type: "text",
-                tooltip: "Select reading plan",
+                tooltip: strings.select_plan,
                 text: selected_reading_name,
                 sx: {
                     width: "100%"

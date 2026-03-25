@@ -4,9 +4,8 @@ import { use_settings } from "../providers/SettingsProvider";
 import * as images from "../../assets";
 import { BUTTON_BORDER_RADIUS, BUTTON_PADDING, BUTTON_SIZE } from "../core/ImageButton";
 import Tooltip from "../core/Tooltip";
+import use_search_bar_strings from "./search_bar_strings";
 
-
-const SEARCH_BUTTON_TOOLTIP = "Search"
 
 export type SearchButtonProps = {
     on_click?: (event: React.MouseEvent<HTMLButtonElement>) => void,
@@ -18,10 +17,11 @@ export default function SearchButton({
 {
     const { settings } = use_settings();
     const theme = useTheme();
+    const strings = use_search_bar_strings();
 
     return (
         <Tooltip
-            tooltip={SEARCH_BUTTON_TOOLTIP}
+            tooltip={strings.search_tooltip}
         >
             <Button
                 onClick={onClick}

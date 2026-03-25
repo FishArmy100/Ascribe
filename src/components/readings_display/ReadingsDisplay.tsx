@@ -8,6 +8,7 @@ import { use_bible_display_settings } from "@components/providers/BibleDisplaySe
 import { RefId } from "@interop/bible/ref_id";
 import ReadingsPlanSelector from "./ReadingPlanSelector";
 import { Box, Divider } from "@mui/material";
+import use_readings_display_strings from "./readings_display_strings";
 
 export default function ReadingsDisplay(): React.ReactElement
 {
@@ -18,6 +19,8 @@ export default function ReadingsDisplay(): React.ReactElement
         const year = new Date().getFullYear();
         return to_readings_date(new Date(year, 0, 1));
     }, []);
+
+    const strings = use_readings_display_strings();
 
     const { bible_display_settings } = use_bible_display_settings();
 
@@ -44,7 +47,7 @@ export default function ReadingsDisplay(): React.ReactElement
         <DropdownBase
             button={{
                 type: "image",
-                tooltip: is_open ? "Hide readings display" : "Show readings display",
+                tooltip: is_open ? strings.hide : strings.show,
                 src: images.book_reader,
             }}
             is_open={is_open}
@@ -52,7 +55,7 @@ export default function ReadingsDisplay(): React.ReactElement
             disable_hover
         >
             <DatePicker 
-                label="Pick a date"
+                label={strings.pick_date}
                 on_change={set_date}
                 date={date}
             />
