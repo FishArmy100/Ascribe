@@ -1,10 +1,11 @@
+import { use_app_i18n } from "@components/providers/LanguageProvider";
 import __t, { useI18n } from "@fisharmy100/react-auto-i18n";
 import { useMemo } from "react";
 
 
 export default function use_audio_player_tooltips()
 {
-    const i18n = useI18n();
+    const i18n = use_app_i18n();
     const tooltips = useMemo(() => ({
         rewind: (time: number) => __t(
             "audio_player.tooltips.rewind", 
@@ -68,7 +69,7 @@ export default function use_audio_player_tooltips()
                 { percent }
             );
         }
-    }), [i18n.locale]);
+    }), [i18n]);
 
     return tooltips;
 }

@@ -16,7 +16,7 @@ export type DropdownButton = {
     sx?: SxProps<Theme>,
 }| {
     type: "element",
-    element: React.ReactElement,
+    element_builder: (on_click: () => void) => React.ReactElement
 }
 
 export type DropdownBaseProps = {
@@ -68,7 +68,7 @@ export default function DropdownBase({
     }
     else 
     {
-        button_element = button.element;
+        button_element = button.element_builder(on_click);
     }
 
     return (

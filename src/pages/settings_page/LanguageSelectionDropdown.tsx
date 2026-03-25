@@ -1,9 +1,10 @@
 import DropdownBase from "@components/core/DropdownBase";
 import { use_settings } from "@components/providers/SettingsProvider";
-import __t, { getLangCode, getLocaleLangName, LangScriptCode, useI18n } from "@fisharmy100/react-auto-i18n";
+import __t, { getLangCode, getLocaleLangName, LangScriptCode } from "@fisharmy100/react-auto-i18n";
 import React, { useCallback, useMemo, useState } from "react";
 import LanguageButton from "./LanguageButton";
 import { Box, Paper, Stack, Typography, useTheme } from "@mui/material";
+import { use_app_i18n } from "@components/providers/LanguageProvider";
 
 
 export const LANGUAGE_DROPDOWN_PADDING = 0.4;
@@ -12,7 +13,7 @@ export default function LanguageSelectionDropdown(): React.ReactElement
 {
     const [is_open, set_is_open] = useState(false);
     const theme = useTheme();
-    const i18n = useI18n();
+    const i18n = use_app_i18n();
 
     const { update_settings } = use_settings()
 
@@ -37,7 +38,7 @@ export default function LanguageSelectionDropdown(): React.ReactElement
             "settings_page.language_selection.title",
             "Language: ",
         ),
-    }), [i18n.locale])
+    }), [i18n])
 
     return (
         <Paper
@@ -63,13 +64,14 @@ export default function LanguageSelectionDropdown(): React.ReactElement
                 <DropdownBase
                     button={{
                         type: "element",
-                        element: (
+                        element_builder: (on_click) => (
                             <Box sx={{ width: "100%" }}>
                                 <LanguageButton
                                     tooltip={strings.button}
-                                    language={i18n.locale}
+                                    language={i18n.locale()}
                                     active={is_open}
                                     sx={{ width: "100%" }}  // stretch to fill the Box
+                                    on_click={on_click}
                                 />
                             </Box>
                         )
@@ -89,15 +91,18 @@ export default function LanguageSelectionDropdown(): React.ReactElement
                             gap: theme => theme.spacing(1),
                         }}
                     >
-                        {i18n.getLocales().map((l, i) => {
-                            const is_selected = i18n.locale === l;
+                        {i18n.get_supported_locales().map((l, i) => {
+                            const is_selected = i18n.locale() === l;
                             const tooltip = strings.language_option(l);
                             return (
                                 <LanguageButton
                                     tooltip={tooltip}
                                     active={is_selected}
                                     language={l}
-                                    on_click={() => set_language(l)}
+                                    on_click={() => {
+                                        set_language(l);
+                                        set_is_open(false);
+                                    }}
                                     key={i}
                                     sx={{
                                         width: "100%"
