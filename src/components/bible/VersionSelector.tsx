@@ -50,7 +50,7 @@ export default function VersionSelector(): React.ReactElement
                     }}
                 >
                     <Tooltip
-                        tooltip={parallel_enabled ? "Disable parallel version" : "Enable parallel version"}
+                        tooltip={parallel_enabled ? tooltips.disable_parallel : tooltips.enable_parallel}
                     >
                         <FormControlLabel
                             label={labels.parallel}

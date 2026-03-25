@@ -27,7 +27,15 @@ export default function use_bible_tooltips()
         enable_strongs: __t(
             "bible.tooltips.enable_strongs",
             "Enable Strongs numbers",
-        )
+        ),
+        enable_parallel: __t(
+            "bible.tooltips.enable_parallel",
+            "Enable parallel version"
+        ),
+        disable_parallel: __t(
+            "bible.tooltips.disable_parallel",
+            "Disable parallel version"
+        ),
     }), [i18n]);
 
     return tooltips;

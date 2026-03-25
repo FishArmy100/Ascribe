@@ -16,7 +16,9 @@ export default function ClosestBibleViewHistoryButton(): React.ReactElement
 
     const handle_click = useCallback(() => {
         const entries = [...view_history.get_all()].reverse();
-        let index = entries.findIndex(e => e.type === "chapter" || e.type === "verse" || e.type === "word_search");
+        let reversedIndex = entries.findIndex(e => e.type === "chapter" || e.type === "verse" || e.type === "word_search");
+        const index = reversedIndex !== -1 ? entries.length - 1 - reversedIndex : -1;
+        
         if (index !== -1)
         {
             view_history.set_index(index)
