@@ -1,6 +1,6 @@
 use std::{collections::HashSet, num::NonZeroU32, sync::Mutex};
 
-use biblio_json::{core::{OsisBook, StrongsLang, StrongsNumber, VerseId}, modules::{EntryId, Module, ModuleId}};
+use biblio_json::{core::{OsisBook, StrongsLang, StrongsNumber, VerseId, lang::Language}, modules::{EntryId, Module, ModuleId}};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use tauri::{Emitter, State};
@@ -119,6 +119,10 @@ pub enum BibleCommand
         start_date: ReadingsDateJson,
         selected_date: ReadingsDateJson, 
     },
+    GetLanguageDefaultBible
+    {
+        language: String
+    }
 }
 
 #[tauri::command(rename_all = "snake_case")]
@@ -351,6 +355,18 @@ pub fn run_bible_command(
             });
             
             Some(serde_json::to_string(&response).unwrap())
+        },
+        BibleCommand::GetLanguageDefaultBible { language } => {
+            let lang = Language::new(&language).ok()?;
+
+            let response = package.visit(|package| {
+                package.modules.values()
+                    .filter_map(Module::as_bible)
+                    .find(|b| b.config.language == Some(lang))
+                    .map(|b| b.config.id.get().to_string())
+            });
+
+            response
         }
     }
 }
