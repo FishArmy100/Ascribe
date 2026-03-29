@@ -5,7 +5,8 @@ import React, { useCallback, useMemo, useState } from "react";
 import LanguageButton from "./LanguageButton";
 import { Box, Paper, Stack, Typography, useTheme } from "@mui/material";
 import { use_app_i18n } from "@components/providers/LanguageProvider";
-
+import { use_bible_display_settings } from "@components/providers/BibleDisplaySettingsProvider";
+import { backend_get_language_default_bible } from "@interop/bible";
 
 export const LANGUAGE_DROPDOWN_PADDING = 0.4;
 
@@ -15,13 +16,33 @@ export default function LanguageSelectionDropdown(): React.ReactElement
     const theme = useTheme();
     const i18n = use_app_i18n();
 
-    const { update_settings } = use_settings()
+    const { update_settings } = use_settings();
+    const { update_bible_display_settings } = use_bible_display_settings()
 
     const set_language = useCallback((language: LangScriptCode) => {
+        // Update the actual settings
         update_settings(s => {
             s.selected_language = language;
             return s;
-        })
+        });
+
+        // Set the bible
+        backend_get_language_default_bible(getLangCode(language)).then(b => {
+            if (b !== null)
+            {
+                update_bible_display_settings(ds => {
+
+                    // Swap if the parallel version is the same as the language version we are setting to
+                    if (ds.parallel_version === b)
+                    {
+                        ds.parallel_version = ds.bible_version
+                    }
+
+                    ds.bible_version = b;
+                    return ds;
+                })
+            }
+        });
     }, [update_settings]);
 
     const strings = useMemo(() => ({

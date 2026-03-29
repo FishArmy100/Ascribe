@@ -30,7 +30,6 @@ export default function ReadingsDisplay(): React.ReactElement
         let is_mounted = true;
         const fetch_readings = async () => {
             const readings = await backend_fetch_reading(bible_display_settings.reading_plan, start_date, date);
-            console.log(readings);
             if (is_mounted)
             {
                 set_readings(readings);
