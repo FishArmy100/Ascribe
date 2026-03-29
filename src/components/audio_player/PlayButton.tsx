@@ -2,6 +2,7 @@ import React from "react";
 import * as images from "../../assets"
 import ImageButton from "../core/ImageButton";
 import GenerationProgressIndicator from "./GenerationProgressIndicator";
+import use_audio_player_tooltips from "./audio_player_tooltips";
 
 export type PlayButtonType = "play" | "pause" | "generating";
 
@@ -17,6 +18,8 @@ export default function PlayButton({
     on_click
 }: PlayButtonProps): React.ReactElement
 {
+    const tooltips = use_audio_player_tooltips();
+
     if (type === "generating")
     {
         return <GenerationProgressIndicator progress={generation_progress ?? 0} />
@@ -26,7 +29,7 @@ export default function PlayButton({
         return (
             <ImageButton
                 image={images.play}
-                tooltip="Play"
+                tooltip={tooltips.play}
                 on_click={on_click}
             />
         )
@@ -36,7 +39,7 @@ export default function PlayButton({
         return (
             <ImageButton
                 image={images.pause}
-                tooltip="Play"
+                tooltip={tooltips.pause}
                 on_click={on_click}
             />
         )

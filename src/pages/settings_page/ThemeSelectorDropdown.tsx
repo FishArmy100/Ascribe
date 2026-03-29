@@ -4,6 +4,7 @@ import { SelectedTheme } from "@interop/settings";
 import { Paper, Stack, Typography, useTheme } from "@mui/material";
 import { use_deep_copy } from "@utils/index";
 import React, { useCallback, useMemo } from "react";
+import use_settings_page_strings from "./settings_page_strings";
 
 const THEME_SELECTOR_DROPDOWN_TITLE: string = "Theme: "
 
@@ -11,25 +12,26 @@ export default function ThemeSelectorDropdown(): React.ReactElement
 {
     const { settings, set_settings } = use_settings();
     const deep_copy = use_deep_copy();
+    const strings = use_settings_page_strings();
 
     const options = useMemo(() => {
         const options: TextSelectDropdownOption<SelectedTheme>[] = [];
 
         options.push({
-            text: "Light",
-            tooltip: "Select 'Light' theme",
+            text: strings.light_theme_name,
+            tooltip: strings.theme_option_tooltip(strings.light_theme_name),
             value: { type: "light" }
         });
 
         options.push({
-            text: "Dark",
-            tooltip: "Select 'Dark' theme",
+            text: strings.dark_theme_name,
+            tooltip: strings.theme_option_tooltip(strings.dark_theme_name),
             value: { type: "dark" }
         });
 
         const custom = Object.values(settings.custom_themes).map((o): TextSelectDropdownOption<SelectedTheme> => ({
             text: o.name,
-            tooltip: `Select '${o.name}' theme`,
+            tooltip: strings.theme_option_tooltip(o.name),
             value: { type: "custom", value: o.name }
         }))
 
@@ -37,7 +39,7 @@ export default function ThemeSelectorDropdown(): React.ReactElement
         options.sort((a, b) => a.text.localeCompare(b.text));
 
         return options;
-    }, [settings])
+    }, [settings, strings])
 
     const selected_index = useMemo(() => {
         const index = options.findIndex(o => {
@@ -95,11 +97,11 @@ export default function ThemeSelectorDropdown(): React.ReactElement
                     textAlign="center"
                     fontWeight="bold"
                 >
-                    {THEME_SELECTOR_DROPDOWN_TITLE}
+                    {strings.select_theme_title}
                 </Typography>
                 <TextSelectDropdown 
                     options={options}
-                    tooltip="Select Theme"
+                    tooltip={strings.select_theme_tooltip}
                     selected={selected_index}
                     on_select={handle_dropdown_select}
                     variant="h5"

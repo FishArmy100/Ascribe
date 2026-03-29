@@ -1,14 +1,11 @@
-import { fetch_backend_entry_index, fetch_backend_module_pages, ModuleEntry, ModulePage } from "@interop/module_entry";
-import { ModuleInspectorEntry, ModuleWordSearchEntry } from "@interop/view_history";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { ModuleWordSearchEntry } from "@interop/view_history";
+import React, { useCallback, useMemo } from "react";
 import { Box, Typography, useTheme } from "@mui/material";
 import Tooltip from "@components/core/Tooltip";
 import { use_view_history } from "@components/providers/ViewHistoryProvider";
 import { use_deep_copy } from "@utils/index";
-import { format_strongs } from "@interop/bible/strongs";
-import { RefId, RefIdFormatter, use_format_ref_id } from "@interop/bible/ref_id";
-import { ModuleConfigContextType, use_module_configs } from "@components/providers/ModuleConfigProvider";
 import { MODULE_WORD_SEARCH_PAGE_SIZE } from "./ModuleWordSearchPage";
+import use_module_pages_strings from "../module_pages_strings";
 
 export type ModuleWordSearchPaginatorProps = {
     entry: ModuleWordSearchEntry,
@@ -23,6 +20,7 @@ export default function ModuleWordSearchPaginator({
     const deep_copy  = use_deep_copy();
     const view_history = use_view_history();
     const theme = useTheme();
+    const strings = use_module_pages_strings();
 
     const pages = useMemo(() => {
         const count = Math.floor(result_total_count / MODULE_WORD_SEARCH_PAGE_SIZE);
@@ -79,7 +77,7 @@ export default function ModuleWordSearchPaginator({
                     return (
                         <Tooltip
                             key={i}
-                            tooltip={`Select range ${title}`}
+                            tooltip={strings.select_range_tooltip(title)}
                         >
                             <Box
                                 sx={{
@@ -112,62 +110,4 @@ export default function ModuleWordSearchPaginator({
             </Box>
         </Box>
     )
-}
-
-function format_entry_title(entry: ModuleEntry, formatter: RefIdFormatter, configs: ModuleConfigContextType): string 
-{
-    if (entry.type === "commentary")
-    {
-        return formatter(entry.references[0], configs.commentary_configs[entry.module].bible ?? null)
-    }
-    else if (entry.type === "dictionary")
-    {
-        return entry.term;
-    }
-    else if (entry.type === "notebook_highlight")
-    {
-        return entry.name;
-    }
-    else if (entry.type === "notebook_note")
-    {
-        return formatter(entry.references[0], configs.notebook_configs[entry.module].bible ?? null)
-    }
-    else if (entry.type === "readings")
-    {
-        return (entry.index + 1).toString()
-    }
-    else if (entry.type === "strongs_def")
-    {
-        return format_strongs(entry.strongs_ref);
-    }
-    else if (entry.type === "xref_directed")
-    {
-        return formatter(entry.source, configs.xref_configs[entry.module].bible ?? null)
-    }
-    else if (entry.type === "xref_mutual")
-    {
-        return formatter(entry.refs[0].id, configs.xref_configs[entry.module].bible ?? null)
-    }
-    else if (entry.type === "verse")
-    {
-        const verse_ref_id: RefId = {
-            bible: null,
-            id: {
-                type: "single",
-                atom: {
-                    type: "verse",
-                    book: entry.verse_id.book,
-                    chapter: entry.verse_id.chapter,
-                    verse: entry.verse_id.verse,
-                }
-            }
-        }
-
-        return formatter(verse_ref_id, configs.bible_configs[entry.module].id);
-    }
-    else 
-    {
-        console.error("Invalid entry type");
-        return ""
-    }
 }

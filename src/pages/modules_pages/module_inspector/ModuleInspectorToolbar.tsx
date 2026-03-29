@@ -7,6 +7,7 @@ import React from "react";
 import * as images from "@assets";
 import ClosestBibleViewHistoryButton from "@components/ClosestBibleViewHistoryButton";
 import { backend_push_module_word_search_to_view_history } from "@interop/searching";
+import use_module_pages_strings from "../module_pages_strings";
 
 export type ModuleInspectorPageToolbarProps = {
     module: string,
@@ -17,6 +18,7 @@ export default function ModuleInspectorToolbar({
 }: ModuleInspectorPageToolbarProps): React.ReactElement
 {
     const view_history = use_view_history();
+    const strings = use_module_pages_strings();
 
     return (
         <TopBar
@@ -27,36 +29,40 @@ export default function ModuleInspectorToolbar({
                 orientation="vertical" 
                 flexItem 
             />
-            <SearchBar value={""} on_search={async (term: string) => { 
-                const error = await backend_push_module_word_search_to_view_history(term, [module]);
-                if (error !== null)
-                {
-                    return {
-                        is_error: true,
-                        error_message: error
+            <SearchBar 
+                value={""} 
+                placeholder={strings.search_placeholder}
+                on_search={async (term: string) => { 
+                    const error = await backend_push_module_word_search_to_view_history(term, [module]);
+                    if (error !== null)
+                    {
+                        return {
+                            is_error: true,
+                            error_message: error
+                        }
                     }
-                }
-                else 
-                {
-                    return {
-                        is_error: false,
-                        error_message: null,
+                    else 
+                    {
+                        return {
+                            is_error: false,
+                            error_message: null,
+                        }
                     }
-                }
-            }} />  
+                }} 
+            />  
             <Divider 
                 orientation="vertical" 
                 flexItem 
             />          
             <ImageButton
                 image={images.arrow_turn_left}
-                tooltip="To previous page"
+                tooltip={strings.previous_page}
                 disabled={view_history.get_index() === 0}
                 on_click={() => view_history.retreat()}
             />
             <ImageButton
                 image={images.arrow_turn_right}
-                tooltip="To next page"
+                tooltip={strings.next_page}
                 disabled={view_history.get_index() >= view_history.get_count() - 1}
                 on_click={() => view_history.advance()}
             />

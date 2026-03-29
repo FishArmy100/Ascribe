@@ -3,7 +3,6 @@ import dayjs, { Dayjs } from 'dayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker as MuiDatePicker } from '@mui/x-date-pickers/DatePicker';
-import TextField from '@mui/material/TextField';
 import { ReadingsDate } from '@interop/bible/readings';
 import { use_deep_copy } from '@utils/index';
 import { Box } from '@mui/material';

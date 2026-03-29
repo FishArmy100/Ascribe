@@ -10,6 +10,7 @@ import { use_view_history } from "@components/providers/ViewHistoryProvider";
 import { use_bible_display_settings } from "@components/providers/BibleDisplaySettingsProvider";
 import { use_deep_copy } from "@utils/index";
 import Checkbox from "@components/core/Checkbox";
+import use_module_pages_strings from "../module_pages_strings";
 
 export type ModuleInfoPanelProps = {
     info: ModuleInfo,
@@ -26,9 +27,10 @@ export default function ModuleInfoPanel({
     const { bible_display_settings, set_bible_display_settings } = use_bible_display_settings();
     const deep_copy = use_deep_copy();
     const view_history = use_view_history();
+    const strings = use_module_pages_strings();
 
     const expand_image = is_open ? images.angle_up : images.angle_down;
-    const expand_text = is_open ? "Collapse module information" : "Expand module information";
+    const expand_text = is_open ? strings.collapse_module_tooltip : strings.expand_module_tooltip;
 
     const is_expandable = info.description != undefined || info.license != undefined || info.data_source != undefined || info.pub_year != undefined;
 
@@ -128,13 +130,13 @@ export default function ModuleInfoPanel({
                         <Checkbox
                             value={is_enabled}
                             set_value={on_toggle_enable_module}
-                            tooltip={ is_enabled ?  "Disable module" : "Enable module" }
+                            tooltip={ is_enabled ?  strings.disable_module_tooltip : strings.enable_module_tooltip }
                         />
                     ) : (
                         <Checkbox 
                             value={true}
                             set_value={() => {}}
-                            tooltip="Cannot be disabled"
+                            tooltip={strings.cannot_disable_tooltip}
                             disabled
                         />
                     )}
@@ -163,12 +165,13 @@ export default function ModuleInfoPanel({
                     </Box>
                 )}
                 {!info.description && <Divider sx={{ mb: 1 }} /> }
-                {info.license && <Typography><strong>License:</strong> {format_link(info.license)}</Typography>}
-                {info.data_source && <Typography><strong>Source:</strong> {format_link(info.data_source)}</Typography>}
-                {info.pub_year && <Typography><strong>Publication Year:</strong> {info.pub_year}</Typography>}
+                {info.license && <Typography><strong>{strings.license_title}:</strong> {format_link(info.license)}</Typography>}
+                {info.data_source && <Typography><strong>{strings.source_title}:</strong> {format_link(info.data_source)}</Typography>}
+                {info.pub_year && <Typography><strong>{strings.pub_year_title}:</strong> {info.pub_year}</Typography>}
+                {info.language && <Typography><strong>{strings.language}:</strong> {info.language}</Typography>}
                 {info.authors && (
                     <>
-                        <strong>Authors:</strong>
+                        <strong>{strings.authors_title}:</strong>
                         <List component="ul" sx={{ listStyleType: "disc", pl: 4, pt: 0, }}>
                             {info.authors.map((a, i) => <ListItem key={i} component="li" sx={{ display: "list-item", pl: 0, pt: 0 }}>{a}</ListItem>)}
                         </List>

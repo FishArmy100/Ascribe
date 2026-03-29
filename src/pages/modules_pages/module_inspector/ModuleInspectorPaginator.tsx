@@ -9,6 +9,7 @@ import { use_deep_copy } from "@utils/index";
 import { format_strongs } from "@interop/bible/strongs";
 import { RefId, RefIdFormatter, use_format_ref_id } from "@interop/bible/ref_id";
 import { ModuleConfigContextType, use_module_configs } from "@components/providers/ModuleConfigProvider";
+import use_module_pages_strings from "../module_pages_strings";
 
 export type ModuleInspectorPaginatorProps = {
     entry: ModuleInspectorEntry,
@@ -24,7 +25,8 @@ export default function ModuleInspectorPaginator({
     const deep_copy = use_deep_copy();
     const formatter = use_format_ref_id();
     const configs = use_module_configs();
-    const theme = useTheme();    
+    const theme = useTheme();
+    const strings = use_module_pages_strings();
 
     const handle_page_clicked = useCallback((page: number) => {
         const copy = deep_copy(entry);
@@ -97,7 +99,7 @@ export default function ModuleInspectorPaginator({
                     return (
                         <Tooltip
                             key={i}
-                            tooltip={`Select range ${title}`}
+                            tooltip={strings.select_range_tooltip(title)}
                         >
                             <Box
                                 sx={{

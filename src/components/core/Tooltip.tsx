@@ -23,6 +23,7 @@ export default function Tooltip({
                 popper: {
                     sx: {
                         pointerEvents: "none",
+                        zIndex: 1000000,
                     },
                     modifiers: [
                         {

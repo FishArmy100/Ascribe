@@ -12,6 +12,7 @@ import * as utils from "../../utils";
 import { use_top_bar_padding } from "../TopBar";
 import { AppSettings } from "../../interop/settings";
 import { Theme } from "@mui/material/styles";
+import use_bible_tooltips from "./bible_tooltips";
 
 const GRID_ITEM_SIZE = 4;
 const GRID_ITEM_COUNT_X = 6;
@@ -57,12 +58,14 @@ export default function ChapterPicker({ on_select }: ChapterPickerProps): React.
     }, []);
 
     const dropdown_width = get_grid_width(padding, settings);
+    const tooltips = use_bible_tooltips();
+    
 
     return (
         <Box sx={{ position: "relative" }} className="dropdown-button">
             <ImageButton
                 image={images.books}
-                tooltip="Select chapter"
+                tooltip={tooltips.select_chapter}
                 active={is_open}
                 on_click={() => set_open(!is_open)}
             />

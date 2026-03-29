@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import SearchButton from "./SearchButton";
 import SearchMoreButton from "./SearchMoreButton";
 import { BUTTON_SIZE } from "../core/ImageButton";
+import use_search_bar_strings from "./search_bar_strings";
 
 export type SearchBarProps = {
     on_search?: (term: string) => Promise<{ is_error: boolean, error_message: string | null }>,
@@ -22,6 +23,8 @@ export default function SearchBar({
 
     const [search_value, set_search_value] = useState<string>(value ?? "");
     const [error_text, set_error_text] = useState<string | null>(null);
+
+    const strings = use_search_bar_strings();
 
     React.useEffect(() => {
         if (value !== undefined)
@@ -44,7 +47,7 @@ export default function SearchBar({
         on_search?.(search_value).then(r => {
             if (r.is_error)
             {
-                set_error_text(r.error_message ?? "Error when searching");
+                set_error_text(r.error_message ?? strings.search_error);
             }
         })
     }

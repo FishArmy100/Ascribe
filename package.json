@@ -12,11 +12,12 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
+    "@fisharmy100/react-auto-i18n": "^1.0.0",
     "@mui/icons-material": "^7.3.2",
     "@mui/material": "^7.3.2",
     "@mui/x-date-pickers": "^8.27.0",
-    "@tauri-apps/api": "^2",
-    "@tauri-apps/plugin-opener": "^2",
+    "@tauri-apps/api": "^2.10.0",
+    "@tauri-apps/plugin-opener": "^2.5.3",
     "dayjs": "^1.11.19",
     "framer-motion": "^12.23.24",
     "npm": "^11.6.0",
@@ -26,8 +27,9 @@
     "vite-tsconfig-paths": "^5.1.4"
   },
   "devDependencies": {
+    "@fisharmy100/auto-i18n-cli": "^1.0.1",
     "@tanstack/react-virtual": "^3.13.12",
-    "@tauri-apps/cli": "^2",
+    "@tauri-apps/cli": "^2.3.0",
     "@types/node": "^24.10.1",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",

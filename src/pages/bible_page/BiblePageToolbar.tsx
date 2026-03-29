@@ -8,6 +8,7 @@ import * as images from "../../assets";
 import React, { useCallback, useEffect } from "react";
 import SubMenuDropdown from "@components/SubMenuDropdown";
 import ReadingsDisplay from "@components/readings_display/ReadingsDisplay";
+import use_bible_page_strings from "./bible_page_strings";
 
 export type BiblePageToolbarProps = {
 	player_open: boolean,
@@ -29,6 +30,8 @@ export const BiblePageToolbar = React.memo(function BiblePageToolbar({
 			chapter: c,
 		})
 	}, [view_history]);
+
+	const strings = use_bible_page_strings();
 
     return (
         <TopBar
@@ -57,19 +60,19 @@ export const BiblePageToolbar = React.memo(function BiblePageToolbar({
 			/>
 			<ImageButton
 				image={images.arrow_turn_left}
-				tooltip="To previous page"
+				tooltip={strings.nav_back_tooltip}
 				disabled={view_history.get_index() === 0}
 				on_click={() => view_history.retreat()}
 			/>
 			<ImageButton
 				image={images.arrow_turn_right}
-				tooltip="To next page"
+				tooltip={strings.nav_forward_tooltip}
 				disabled={view_history.get_index() >= view_history.get_count() - 1}
 				on_click={() => view_history.advance()}
 			/>
 			<ImageButton
 				image={images.volume_high}
-				tooltip="Play audio"
+				tooltip={strings.play_audio_tooltip}
 				on_click={() => {
 					on_click_player();
 				}}

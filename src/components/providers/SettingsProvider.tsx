@@ -14,6 +14,7 @@ const DEFAULT_APP_SETTINGS: AppSettings = {
         follow_text: true,
     },
     selected_font: "arial",
+    selected_language: "eng_Latn",
 }
 
 type AppSettingsContextType = {

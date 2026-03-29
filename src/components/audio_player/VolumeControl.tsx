@@ -4,6 +4,7 @@ import * as images from "../../assets";
 import ImageButton from "../core/ImageButton";
 import Slider from "../core/Slider";
 import { use_settings } from "../providers/SettingsProvider";
+import use_audio_player_tooltips from "./audio_player_tooltips";
 
 export default function VolumeControl(): React.ReactElement
 {
@@ -29,14 +30,15 @@ export default function VolumeControl(): React.ReactElement
         volume_image = images.volume_high;
     }
 
+    const tooltips = use_audio_player_tooltips();
     let tooltip: string;
     if (volume != 0)
     {
-        tooltip = "Mute audio";
+        tooltip = tooltips.mute;
     }
     else 
     {
-        tooltip = "Unmute audio";
+        tooltip = tooltips.unmute;
     }
 
     const handle_button_click = () => {
@@ -75,7 +77,7 @@ export default function VolumeControl(): React.ReactElement
                 min={0}
                 max={1}
                 step={0.0001}
-                tooltip="Modify volume"
+                tooltip={tooltips.modify_volume}
                 on_change={handle_slider_change}
             />
         </Stack>
