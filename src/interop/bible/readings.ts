@@ -16,8 +16,24 @@ export function to_readings_date(date: Date): ReadingsDate
     }
 }
 
+/**
+ * Returns true if `a` comes strictly before `b`.
+ */
+export function is_date_before(a: ReadingsDate, b: ReadingsDate): boolean {
+    if (a.year !== b.year) return a.year < b.year;
+    if (a.month !== b.month) return a.month < b.month;
+    return a.day < b.day;
+}
+
 export async function backend_fetch_reading(module: string, start_date: ReadingsDate, selected_date: ReadingsDate): Promise<RefId[]>
 {
+    // makes sure backend does not crash
+    if (!is_date_before(start_date, selected_date))
+    {
+        console.error("Error: `start_date` is after `selected_date`", start_date, selected_date);
+        return [];
+    }
+
     return await invoke<string>("run_bible_command", {
         command: {
             type: "fetch_reading",

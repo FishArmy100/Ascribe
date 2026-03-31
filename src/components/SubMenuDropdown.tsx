@@ -45,11 +45,11 @@ export default function SubMenuDropdown(): React.ReactElement
     return (
         <ImageDropdown<SubMenuType> 
             image={images.unordered_list}
-            tooltip="Menu"
+            tooltip={tooltips.menu}
             on_select={handle_selected}
             options={[
-                { image: images.gear_complex, tooltip: "Settings", value: "settings" },
-                { image: images.magnifying_glass_folder, tooltip: "View Modules", value: "module_inspector", },
+                { image: images.gear_complex, tooltip: tooltips.settings, value: "settings" },
+                { image: images.magnifying_glass_folder, tooltip: tooltips.module_inspector, value: "module_inspector", },
             ]}
         />
     )

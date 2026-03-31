@@ -15,10 +15,7 @@ export default function ReadingsDisplay(): React.ReactElement
     const [is_open, set_is_open] = useState(false);
     const [date, set_date] = useState<ReadingsDate>(to_readings_date(new Date()));
 
-    const start_date = useMemo(() => {
-        const year = new Date().getFullYear();
-        return to_readings_date(new Date(year, 0, 1));
-    }, []);
+    const start_date = to_readings_date(new Date(date.year, 0, 1)); // cant put this in a memo, because we NEED it to update at the same time as date, otherwise the reading will crash
 
     const strings = use_readings_display_strings();
 
