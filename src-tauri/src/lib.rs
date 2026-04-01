@@ -1,8 +1,5 @@
 use std::sync::Mutex;
-
-use itertools::Itertools;
 use tauri::Manager;
-
 use crate::{bible::{BibleDisplaySettings, BiblioJsonPackageHandle}, core::{app::AppState, settings::{self, AppSettings}, view_history::{self, ViewHistory}}, tts::{TtsPlayer, init_espeak, voices::AppVoices}};
 
 pub mod core;

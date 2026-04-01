@@ -1,4 +1,4 @@
-use crate::{bible::BibleDisplaySettings, core::view_history::ViewHistory, tts::voices::AppVoices};
+use crate::{bible::BibleDisplaySettings, core::view_history::ViewHistory};
 
 use super::settings::AppSettings;
 
