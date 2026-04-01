@@ -14,6 +14,7 @@ pub mod tts_cmd;
 pub mod player_thread;
 pub mod player_behavior;
 pub mod synth;
+pub mod voices;
 
 pub const TTS_SAMPLE_RATE: u32 = 22050;
 
