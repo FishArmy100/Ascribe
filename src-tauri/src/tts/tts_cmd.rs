@@ -85,7 +85,10 @@ pub fn run_tts_command(
             Some(serde_json::to_string(&response).unwrap())
         },
         TtsCommand::GetVoice { id } => todo!(),
-        TtsCommand::GetLanguageVoices { language } => todo!(),
+        TtsCommand::GetLanguageVoices { language } => {
+            let response = voices.voices_by_language(&language);
+            Some(serde_json::to_string(&response).unwrap())
+        },
         TtsCommand::GetCurrentVoice => todo!(),
         TtsCommand::SetCurrentVoice { id } => todo!(),
     }

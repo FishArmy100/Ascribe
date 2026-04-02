@@ -11,7 +11,7 @@ const VOICE_NAME_FILE_PATH: &str = "resources/tts-data/voices/voice_name_map.jso
 
 pub struct AppVoices
 {
-    voices: Vec<VoiceConfig>,
+    voices: HashMap<String, VoiceConfig>,
 }
 
 impl AppVoices
@@ -26,7 +26,8 @@ impl AppVoices
 
         let voices = configs_json.into_iter()
             .map(|json| VoiceConfig::new(json, resolver, &voices_name_map))
-            .collect_vec();
+            .map(|json| (json.id.clone(), json))
+            .collect::<HashMap<_, _>>();
 
         Self 
         {
@@ -34,9 +35,9 @@ impl AppVoices
         }
     }
 
-    pub fn voices(&self) -> &[VoiceConfig]
+    pub fn voices(&self) -> impl IntoIterator<Item = VoiceConfig>
     {
-        &self.voices
+        self.voices.values()
     }
 
     pub fn voices_by_language<'a>(&'a self, language: &str) -> Vec<&'a VoiceConfig>
