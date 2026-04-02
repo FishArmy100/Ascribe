@@ -1,4 +1,5 @@
 use std::sync::Mutex;
+use itertools::Itertools;
 use tauri::Manager;
 use crate::{bible::{BibleDisplaySettings, BiblioJsonPackageHandle}, core::{app::AppState, settings::{self, AppSettings}, view_history::{self, ViewHistory}}, tts::{TtsPlayer, init_espeak, voices::AppVoices}};
 
@@ -35,6 +36,9 @@ pub fn run() {
             app.manage(Mutex::new(TtsPlayer::new(app.path(), app.handle().clone())));
             app.manage(BiblioJsonPackageHandle::init(app.handle().clone()));
             app.manage(AppVoices::load(app.path()));
+
+            let voices = app.state::<AppVoices>();
+            println!("Voices: {:#?}", voices.voices().iter().map(|v| v.get_onnx_path(app.path())).collect_vec());
 
             app.manage(Mutex::new(AppState {
                 settings: AppSettings::default(),
