@@ -38,7 +38,7 @@ pub fn run() {
             app.manage(AppVoices::load(app.path()));
 
             let voices = app.state::<AppVoices>();
-            println!("Voices: {:#?}", voices.voices().iter().map(|v| v.get_onnx_path(app.path())).collect_vec());
+            println!("Voices: {:#?}", voices.voices().map(|v| v.get_onnx_path(app.path())).collect_vec());
 
             app.manage(Mutex::new(AppState {
                 settings: AppSettings::default(),

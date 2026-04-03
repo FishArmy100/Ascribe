@@ -1,5 +1,6 @@
 use std::sync::Mutex;
 
+use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use tauri::State;
 
@@ -81,10 +82,13 @@ pub fn run_tts_command(
             serde_json::to_string(&v).unwrap()
         }),
         TtsCommand::GetVoices => {
-            let response = voices.voices();
+            let response = voices.voices().collect_vec();
             Some(serde_json::to_string(&response).unwrap())
         },
-        TtsCommand::GetVoice { id } => todo!(),
+        TtsCommand::GetVoice { id } => {
+            let response = voices.get_voice(&id)?;
+            Some(serde_json::to_string(&response).unwrap())
+        },
         TtsCommand::GetLanguageVoices { language } => {
             let response = voices.voices_by_language(&language);
             Some(serde_json::to_string(&response).unwrap())

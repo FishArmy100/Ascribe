@@ -35,7 +35,12 @@ impl AppVoices
         }
     }
 
-    pub fn voices(&self) -> impl IntoIterator<Item = VoiceConfig>
+    pub fn get_voice<'a>(&'a self, id: &str) -> Option<&'a VoiceConfig>
+    {
+        self.voices.get(id)
+    }
+
+    pub fn voices(&self) -> impl Iterator<Item = &VoiceConfig>
     {
         self.voices.values()
     }
@@ -46,20 +51,21 @@ impl AppVoices
             return vec![];
         };
         
-        self.voices().iter().filter(|v| {
+        self.voices().filter(|v| {
             Language::new(&v.language.get_iso_639_1_code()).unwrap() == language
         }).collect_vec()
     }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub struct VoiceConfig 
 {
     pub id: String,
     pub name: String,
     pub onnx_path: String,
     pub config_path: String,
-    pub json: VoiceConfigJson,
+    pub inner: VoiceConfigJson,
 }
 
 impl VoiceConfig
@@ -88,7 +94,7 @@ impl VoiceConfig
             onnx_path,
             config_path,
             name,
-            json,
+            inner: json,
         }
     }
 }
@@ -99,11 +105,12 @@ impl Deref for VoiceConfig
 
     fn deref(&self) -> &Self::Target 
     {
-        &self.json
+        &self.inner
     }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub struct VoiceConfigJson
 {
     pub audio: VoiceConfigAudio,
@@ -176,6 +183,7 @@ impl VoiceConfigJson
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub struct VoiceConfigAudio 
 {
     pub sample_rate: u32,
@@ -183,12 +191,14 @@ pub struct VoiceConfigAudio
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub struct VoiceConfigEspeak 
 {
     pub voice: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub struct VoiceConfigInference 
 {
     pub noise_scale: f32,
@@ -197,6 +207,7 @@ pub struct VoiceConfigInference
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub struct VoiceConfigLanguage 
 {
     pub code: String,
