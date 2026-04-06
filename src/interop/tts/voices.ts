@@ -1,5 +1,6 @@
 import { LangCode } from "@fisharmy100/react-auto-i18n";
 import { invoke } from "@tauri-apps/api/core";
+import { PiperLangCode } from "./piper_lang";
 
 export interface VoiceConfigAudio 
 {
@@ -21,7 +22,7 @@ export interface VoiceConfigInference
 
 export interface VoiceConfigLanguage 
 {
-	readonly code: string;
+	readonly code: PiperLangCode;
 	readonly family: string;
 	readonly region: string;
 	readonly name_native: string;
@@ -107,4 +108,15 @@ export async function backend_set_current_voice(id: string): Promise<void>
             type: "set_current_voice"
         }
     }).then(() => {});
+}
+
+export async function backend_get_default_voice_id(): Promise<string>
+{
+    return await invoke<string>("run_tts_command", {
+        command: {
+            type: "get_default_voice_id",
+        },
+    }).then(json => {
+        return JSON.parse(json) as string;
+    })
 }

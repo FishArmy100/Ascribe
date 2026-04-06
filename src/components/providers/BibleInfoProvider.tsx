@@ -4,7 +4,7 @@ import { listen } from "@tauri-apps/api/event";
 
 type BibleInfoMap = { [id: string]: BibleInfo };
 
-interface BibleInfoContextType
+export interface BibleInfoContextType
 {
     readonly bible_infos: BibleInfoMap,
     readonly is_loaded: boolean,

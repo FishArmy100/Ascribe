@@ -204,6 +204,6 @@ export const TtsPlayerProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 export function use_tts_player() 
 {
     const ctx = useContext(TtsContext);
-    if (!ctx) throw new Error("useTtsPlayer must be used within a TtsPlayerProvider");
+    if (!ctx) throw new Error("use_tts_player must be used within a TtsPlayerProvider");
     return ctx;
 }

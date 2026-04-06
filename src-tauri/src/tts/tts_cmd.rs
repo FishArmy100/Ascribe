@@ -33,7 +33,7 @@ pub enum TtsCommand
     GetLanguageVoices { language: String },
     GetCurrentVoice,
     SetCurrentVoice { id: String },
-
+    GetDefaultVoiceId,
 }
 
 
@@ -95,5 +95,9 @@ pub fn run_tts_command(
         },
         TtsCommand::GetCurrentVoice => todo!(),
         TtsCommand::SetCurrentVoice { id } => todo!(),
+        TtsCommand::GetDefaultVoiceId => {
+            let response = voices.default_voice_id();
+            Some(serde_json::to_string(response).unwrap())
+        }
     }
 }

@@ -8,10 +8,12 @@ use crate::core::utils::get_uuid;
 
 const VOICES_PATH: &str = "resources/tts-data/voices";
 const VOICE_NAME_FILE_PATH: &str = "resources/tts-data/voices/voice_name_map.json";
+const DEFAULT_VOICE_NAME: &str = "Joe";
 
 pub struct AppVoices
 {
     voices: HashMap<String, VoiceConfig>,
+    default_voice_id: String,
 }
 
 impl AppVoices
@@ -23,15 +25,22 @@ impl AppVoices
         let voices_name_map_path = resolver.resolve(VOICE_NAME_FILE_PATH, BaseDirectory::Resource).unwrap();
         let content = fs::read_to_string(voices_name_map_path).unwrap();
         let voices_name_map = serde_json::from_str::<HashMap::<String, String>>(&content).unwrap();
-
+        
         let voices = configs_json.into_iter()
             .map(|json| VoiceConfig::new(json, resolver, &voices_name_map))
             .map(|json| (json.id.clone(), json))
             .collect::<HashMap<_, _>>();
+        
+        let default_voice_id = voices.values()
+            .find(|v| v.name == DEFAULT_VOICE_NAME)
+            .unwrap()
+            .id
+            .clone();
 
         Self 
         {
             voices,
+            default_voice_id,
         }
     }
 
@@ -54,6 +63,11 @@ impl AppVoices
         self.voices().filter(|v| {
             Language::new(&v.language.get_iso_639_1_code()).unwrap() == language
         }).collect_vec()
+    }
+
+    pub fn default_voice_id(&self) -> &str 
+    {
+        &self.default_voice_id
     }
 }
 

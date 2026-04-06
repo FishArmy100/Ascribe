@@ -14,6 +14,7 @@ import FollowTextCheckbox from "./FollowTextCheckbox";
 import ExpandButton from "./ExpandButton";
 import { ChapterId } from "@interop/bible";
 import use_audio_player_tooltips from "./audio_player_tooltips";
+import VoiceSelectDropdown from "./VoiceSelectDropdown";
 
 const FAST_FORWARD_TIME = 10;
 const REWIND_TIME = 10;
@@ -209,6 +210,7 @@ export default function AudioPlayer({
                                         <PlaybackControl/>
                                         <CorrectPitchCheckbox/>
                                         <FollowTextCheckbox/>
+                                        <VoiceSelectDropdown/>
                                     </Stack>
                                 </Collapse>
                             </Stack>
