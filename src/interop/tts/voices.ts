@@ -1,50 +1,6 @@
 import { LangCode } from "@fisharmy100/react-auto-i18n";
 import { invoke } from "@tauri-apps/api/core";
-import { PiperLangCode } from "./piper_lang";
-
-export interface VoiceConfigAudio 
-{
-	readonly sample_rate: number;
-	readonly quality: string;
-}
-
-export interface VoiceConfigEspeak 
-{
-	readonly voice: string;
-}
-
-export interface VoiceConfigInference 
-{
-	readonly noise_scale: number;
-	readonly length_scale: number;
-	readonly noise_w: number;
-}
-
-export interface VoiceConfigLanguage 
-{
-	readonly code: PiperLangCode;
-	readonly family: string;
-	readonly region: string;
-	readonly name_native: string;
-	readonly name_english: string;
-	readonly country_english: string;
-}
-
-export interface VoiceConfigJson 
-{
-	readonly audio: VoiceConfigAudio;
-	readonly espeak: VoiceConfigEspeak;
-	readonly inference: VoiceConfigInference;
-	readonly phoneme_type: string | null;
-	readonly phoneme_map: Readonly<Record<string, readonly number[]>>;
-	readonly phoneme_id_map: Readonly<Record<string, readonly number[]>>;
-	readonly num_symbols: number;
-	readonly num_speakers: number;
-	readonly speaker_id_map: Readonly<Record<string, readonly number[]>>;
-	readonly piper_version: string;
-	readonly language: VoiceConfigLanguage;
-	readonly dataset: string;
-}
+import { Language } from "@interop/language";
 
 export interface VoiceConfig 
 {
@@ -52,7 +8,7 @@ export interface VoiceConfig
 	readonly name: string;
 	readonly onnx_path: string;
 	readonly config_path: string;
-	readonly inner: VoiceConfigJson;
+	readonly language: Language;
 }
 
 export async function backend_get_voices(): Promise<VoiceConfig[]>

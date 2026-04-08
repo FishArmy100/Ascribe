@@ -2,9 +2,9 @@ use biblio_json::core::lang::Language;
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use tauri::{Runtime, path::{BaseDirectory, PathResolver}};
-use std::{collections::HashMap, fs, ops::Deref, path::{Path, PathBuf}};
+use std::{collections::HashMap, fs, path::{Path, PathBuf}};
 
-use crate::core::utils::get_uuid;
+use crate::{core::utils::get_uuid, repr::lang::LanguageJson};
 
 const VOICES_PATH: &str = "resources/tts-data/voices";
 const VOICE_NAME_FILE_PATH: &str = "resources/tts-data/voices/voice_name_map.json";
@@ -61,7 +61,7 @@ impl AppVoices
         };
         
         self.voices().filter(|v| {
-            Language::new(&v.language.get_iso_639_1_code()).unwrap() == language
+            v.language.alpha_3 == language.to_639_3()
         }).collect_vec()
     }
 
@@ -79,7 +79,8 @@ pub struct VoiceConfig
     pub name: String,
     pub onnx_path: String,
     pub config_path: String,
-    pub inner: VoiceConfigJson,
+
+    pub language: LanguageJson,
 }
 
 impl VoiceConfig
@@ -108,18 +109,8 @@ impl VoiceConfig
             onnx_path,
             config_path,
             name,
-            inner: json,
+            language: Language::new(&json.language.code).unwrap().into(),
         }
-    }
-}
-
-impl Deref for VoiceConfig
-{
-    type Target = VoiceConfigJson;
-
-    fn deref(&self) -> &Self::Target 
-    {
-        &self.inner
     }
 }
 
