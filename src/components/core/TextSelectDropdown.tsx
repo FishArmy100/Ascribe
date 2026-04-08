@@ -1,8 +1,8 @@
-import { Box, Paper, Stack, Typography, useTheme } from "@mui/material"
+import { Stack, Typography, useTheme } from "@mui/material"
 import React, { useState } from "react"
-import ImageButton from "./ImageButton"
 import Tooltip from "./Tooltip";
 import { TypographyVariant } from "@mui/material/styles";
+import DropdownBase, { DropdownPlacement } from "./DropdownBase";
 
 export const DROPDOWN_PADDING = 1;
 
@@ -20,6 +20,7 @@ export type TextSelectDropdownProps<T> = {
     variant: TypographyVariant,
     bold: boolean,
     width?: string,
+    placement?: DropdownPlacement,
 }
 
 export default function TextSelectDropdown<T>({
@@ -29,7 +30,8 @@ export default function TextSelectDropdown<T>({
     on_select,
     variant,
     bold,
-    width
+    width,
+    placement = "bottom"
 }: TextSelectDropdownProps<T>): React.ReactElement
 {
     const [is_open, set_open] = useState(false);
@@ -38,103 +40,88 @@ export default function TextSelectDropdown<T>({
     const dropdown_width = width ?? "max-content";
 
     return (
-        <Box
-            sx={{
-                position: "relative",
-                width: dropdown_width,
+        <DropdownBase
+            button={{
+                type: "element",
+                element_builder: (on_click) => (
+                    <Tooltip tooltip={tooltip}>
+                        <Typography
+                            variant={variant}
+                            fontWeight={bold ? "bold" : undefined}
+                            sx={{
+                                cursor: "pointer",
+                                backgroundColor: is_open
+                                    ? theme.palette.secondary.main
+                                    : theme.palette.primary.light,
+                                color: theme.palette.common.black,
+                                padding: DROPDOWN_PADDING,
+                                borderRadius: theme.spacing(DROPDOWN_PADDING),
+                                transition: "background-color 0.3s ease",
+                                textAlign: "center",
+                                whiteSpace: width === undefined ? "nowrap" : undefined,
+                                width: dropdown_width,
+                            }}
+                            onClick={on_click}
+                        >
+                            {title}
+                        </Typography>
+                    </Tooltip>
+                )
             }}
-            className="dropdown-button"
+            is_open={is_open}
+            on_click={() => set_open(prev => !prev)}
+            placement={placement}
+            panel_sx={{
+                width: dropdown_width,
+                maxHeight: theme.spacing(20),
+                overflow: "auto",
+                left: theme.spacing(-DROPDOWN_PADDING),
+                padding: DROPDOWN_PADDING,
+            }}
         >
-            <Tooltip tooltip={tooltip}>
-                <Typography
-                    variant={variant}
-                    fontWeight={bold ? "bold" : undefined}
-                    sx={{
-                        cursor: "pointer",
-                        backgroundColor: is_open ? theme.palette.secondary.main : theme.palette.primary.light,
-                        color: theme.palette.common.black,
-                        padding: DROPDOWN_PADDING,
-                        borderRadius: theme.spacing(DROPDOWN_PADDING),
-                        transition: "background-color 0.3s ease",
-                        textAlign: "center",
-                        whiteSpace: width === undefined ? "nowrap" : undefined
-                    }}
-                    onClick={() => {
-                        set_open(!is_open)
-                    }}
-                >
-                    {title}
-                </Typography>
-            </Tooltip>
-            <Paper
-                sx={{
-                    position: "absolute",
-                    top: `100%`,
-                    left: (theme) => theme.spacing(-DROPDOWN_PADDING),
-                    padding: DROPDOWN_PADDING,
-                    visibility: is_open ? "visible" : "hidden",
-                    opacity: is_open ? 1 : 0,
-                    pointerEvents: is_open ? "all" : "none",
-                    transition: "opacity 0.2s ease, visibility 0.2s ease",
-                    "&::before": {
-                        display: 'none', // Remove the ::before element
-                    },
-                    width: dropdown_width,
-                    maxHeight: theme.spacing(20),
-                    overflow: "auto",
-                    zIndex: 100,
-                }}
-                className="dropdown-content"
+            <Stack
+                direction="column"
+                gap={theme.spacing(DROPDOWN_PADDING)}
+                sx={{ paddingTop: 0 }}
             >
-                <Stack 
-                    direction="column"
-                    gap={(theme) => theme.spacing(DROPDOWN_PADDING)}
-                    sx={{ paddingTop: 0 }}
-                >
-                    {options.map((o, i) => {
-                        return (
-                            <Tooltip 
-                                tooltip={o.tooltip}
-                                key={i}
-                            >
-                                <Typography
-                                    variant={variant}
-                                    fontWeight={bold ? "bold" : undefined}
-                                    onClick={() => {
-                                        set_open(false);
-                                        on_select(o.value);
-                                    }}
-                                    sx={{
-                                        cursor: "pointer",
-                                        color: i === selected ? theme.palette.common.white : theme.palette.primary.main,
-                                        backgroundColor: i === selected ? theme.palette.primary.main : undefined,
-                                        transition: "background-color 0.3s ease",
-                                        "&:hover": {
-                                            backgroundColor: i === selected ? theme.palette.primary.dark : theme.palette.action.hover,
-                                        },
-                                        padding: DROPDOWN_PADDING,
-                                        borderRadius: theme.spacing(DROPDOWN_PADDING),
-                                        textAlign: "center",
-                                        whiteSpace: width === undefined ? "nowrap" : undefined
-                                    }}
-                                >
-                                    {o.text}
-                                </Typography>
-                            </Tooltip>
-                        )
-                    })}
-                </Stack>
-            </Paper>
-            <style>
-                {`
-                    .dropdown-button:hover .dropdown-content {
-                        position: absolute;
-                        opacity: 1;
-                        visibility: visible;
-                        pointer-events: auto;
-                    }
-                `}
-            </style>
-        </Box>
+                {options.map((o, i) => (
+                    <Tooltip tooltip={o.tooltip} key={i}>
+                        <Typography
+                            variant={variant}
+                            fontWeight={bold ? "bold" : undefined}
+                            onClick={() => {
+                                set_open(false);
+                                on_select(o.value);
+                            }}
+                            sx={{
+                                cursor: "pointer",
+                                color: i === selected
+                                    ? theme.palette.common.white
+                                    : theme.palette.primary.main,
+                                backgroundColor: i === selected
+                                    ? theme.palette.primary.main
+                                    : undefined,
+                                transition: "background-color 0.3s ease",
+                                "&:hover": {
+                                    backgroundColor: i === selected
+                                        ? theme.palette.primary.dark
+                                        : theme.palette.action.hover,
+                                },
+                                padding: DROPDOWN_PADDING,
+                                borderRadius: theme.spacing(DROPDOWN_PADDING),
+                                textAlign: "center",
+                                whiteSpace: width === undefined ? "nowrap" : undefined,
+                                
+                                borderWidth: theme.spacing(1 / 8),
+                                borderStyle: "solid",
+                                borderColor: theme.palette.grey[500],
+                            }}
+                        >
+                            {o.text}
+                        </Typography>
+                    </Tooltip>
+                ))}
+            </Stack>
+        </DropdownBase>
     );
 }

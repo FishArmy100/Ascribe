@@ -68,7 +68,16 @@ export default function use_audio_player_tooltips()
                 "{{$percent}}% Generated",
                 { percent }
             );
-        }
+        },
+        voice_select: __t(
+            "audio_player.tooltips.voice_select",
+            "Select Voice"
+        ),
+        voice_select_option: (option: string) => __t(
+            "audio_player.tooltips.expand_options",
+            "Select {{$option}} voice",
+            {option}
+        )
     }), [i18n]);
 
     return tooltips;

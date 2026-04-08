@@ -109,7 +109,7 @@ impl VoiceConfig
             onnx_path,
             config_path,
             name,
-            language: Language::new(&json.language.code).unwrap().into(),
+            language: Language::new(&json.language.code[0..2]).unwrap().into(),
         }
     }
 }
