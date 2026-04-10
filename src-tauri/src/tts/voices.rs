@@ -81,6 +81,7 @@ pub struct VoiceConfig
     pub config_path: String,
 
     pub language: LanguageJson,
+    pub sample_rate: u32,
 }
 
 impl VoiceConfig
@@ -101,8 +102,8 @@ impl VoiceConfig
         let name = name_map.get(&json.dataset)
             .expect(&format!("Dataset {} does not have a name alias", &json.dataset))
             .clone();
-
-        let id = get_uuid();
+        
+        let id = json.dataset.clone();
 
         Self {
             id,
@@ -110,6 +111,7 @@ impl VoiceConfig
             config_path,
             name,
             language: Language::new(&json.language.code[0..2]).unwrap().into(),
+            sample_rate: json.audio.sample_rate,
         }
     }
 }

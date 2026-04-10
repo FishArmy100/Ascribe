@@ -3,21 +3,19 @@ import TextButton from "@components/core/TextButton";
 import { use_bible_display_settings } from "@components/providers/BibleDisplaySettingsProvider";
 import { use_module_configs } from "@components/providers/ModuleConfigProvider";
 import { use_voices } from "@components/providers/TtsVoiceProvider";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import use_audio_player_tooltips from "./audio_player_tooltips";
 import { Stack } from "@mui/material";
 import TextSelectDropdown from "@components/core/TextSelectDropdown";
+import { use_settings } from "@components/providers/SettingsProvider";
 
 export default function VoiceSelectDropdown(): React.ReactElement
 {
     const voices = use_voices();
     const { bible_display_settings } = use_bible_display_settings();
     const tooltips = use_audio_player_tooltips();
-
-    const [voice_id, set_voice_id] = useState<string>(() => {
-        const vs = Object.values(voices.voices).filter(v => v !== undefined);
-        return vs[0].id;
-    });
+    
+    const { settings, update_settings} = use_settings();
     
     const { bible_configs } = use_module_configs();
 
@@ -26,8 +24,8 @@ export default function VoiceSelectDropdown(): React.ReactElement
     }, [bible_display_settings.bible_version, bible_configs]);
     
     const selected_voice = useMemo(() => {
-        return voices.voices[voice_id]!;
-    }, [voice_id, voices]);
+        return voices.voices[settings.tts_settings.current_voice]!;
+    }, [settings.tts_settings.current_voice, voices]);
 
     const selectable_voices = useMemo(() => {
         const selectable = Object.values(voices.voices)
@@ -43,6 +41,13 @@ export default function VoiceSelectDropdown(): React.ReactElement
             return selectable;
         }
     }, [bible_display_settings.bible_version, voices, selected_bible]);
+
+    const set_voice_id = useCallback((voice_id: string) => {
+        update_settings(s => {
+            s.tts_settings.current_voice = voice_id;
+            return s;
+        })
+    }, [update_settings])
 
     useEffect(() => {
         set_voice_id(selectable_voices[0].id);

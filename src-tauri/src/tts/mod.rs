@@ -6,7 +6,7 @@ use kira::{Frame, sound::static_sound::{StaticSoundData, StaticSoundSettings}, A
 use serde::{Serialize, Deserialize};
 use tauri::{Runtime, path::{BaseDirectory, PathResolver}, AppHandle, Emitter, Listener, Manager};
 
-use crate::{bible::BiblioJsonPackageHandle, core::settings::{SETTINGS_CHANGED_EVENT_NAME, SettingsChangedEvent}, repr::ChapterIdJson, tts::{events::*, player_thread::TtsPlayerThread, synth::SpeechSynth}};
+use crate::{bible::BiblioJsonPackageHandle, core::{settings::{SETTINGS_CHANGED_EVENT_NAME, SettingsChangedEvent}, utils::Shared}, repr::ChapterIdJson, tts::{events::*, player_thread::TtsPlayerThread, synth::SpeechSynth, voice_library::VoiceLib, voices::AppVoices}};
 use crate::core::utils;
 
 pub mod events;
@@ -15,8 +15,8 @@ pub mod player_thread;
 pub mod player_behavior;
 pub mod synth;
 pub mod voices;
+pub mod voice_library;
 
-pub const TTS_SAMPLE_RATE: u32 = 22050;
 
 pub fn init_espeak<R>(resolver: &PathResolver<R>)
     where R : Runtime
@@ -28,7 +28,7 @@ pub fn init_espeak<R>(resolver: &PathResolver<R>)
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, PartialOrd, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub struct TtsSettings
 {
@@ -36,6 +36,7 @@ pub struct TtsSettings
     pub playback_speed: f32,
     pub correct_pitch: bool,
     pub follow_text: bool,
+    pub current_voice: String,
 }
 
 impl Default for TtsSettings
@@ -47,6 +48,7 @@ impl Default for TtsSettings
             playback_speed: 1.0,
             correct_pitch: true,
             follow_text: true,
+            current_voice: "joe".into(),
         }
     }
 }
@@ -67,6 +69,7 @@ pub struct PassageAudioKey
     pub bible: ModuleId,
     pub chapter: ChapterId,
     pub verse_range: Option<(NonZeroU32, NonZeroU32)>,
+    pub voice: String,
 }
 
 impl PassageAudioKey
@@ -77,6 +80,7 @@ impl PassageAudioKey
             bible: other.bible,
             chapter: other.chapter.into(),
             verse_range: other.verse_range,
+            voice: other.voice,
         }
     }
 }
@@ -88,6 +92,7 @@ pub struct PassageAudioKeyJson
     pub bible: ModuleId,
     pub chapter: ChapterIdJson,
     pub verse_range: Option<(NonZeroU32, NonZeroU32)>,
+    pub voice: String,
 }
 
 pub struct VerseAudioData
@@ -123,12 +128,12 @@ impl PassageAudio
         };
 
 
-        chapter_intro.append(&mut vec![Frame::ZERO; (TTS_SAMPLE_RATE as f32 * CHAPTER_SILENCE_TIME).floor() as usize]); // appends a longer silence time to the chapter intro
+        chapter_intro.append(&mut vec![Frame::ZERO; (synth.sample_rate() as f32 * CHAPTER_SILENCE_TIME).floor() as usize]); // appends a longer silence time to the chapter intro
 
-        let intro_duration = chapter_intro.len() as f32 / TTS_SAMPLE_RATE as f32;
+        let intro_duration = chapter_intro.len() as f32 / synth.sample_rate() as f32;
 
         const SILENCE_TIME: f32 = 0.1;
-        let silence_length = (TTS_SAMPLE_RATE as f32 * SILENCE_TIME).floor() as usize;
+        let silence_length = (synth.sample_rate() as f32 * SILENCE_TIME).floor() as usize;
         let silence = vec![Frame::ZERO; silence_length];
 
         let verses = match key.verse_range {
@@ -183,7 +188,7 @@ impl PassageAudio
             .collect::<Vec<_>>();
 
         let clip_times = clips.iter()
-            .map(|c| c.len() as f32 / TTS_SAMPLE_RATE as f32)
+            .map(|c| c.len() as f32 / synth.sample_rate() as f32)
             .collect::<Vec<_>>();
 
         let mut result = vec![];
@@ -194,7 +199,7 @@ impl PassageAudio
         }
 
         let sound_data = StaticSoundData {
-            sample_rate: TTS_SAMPLE_RATE,
+            sample_rate: synth.sample_rate(),
             frames: result.into(),
             settings: StaticSoundSettings::default(),
             slice: None
@@ -231,7 +236,7 @@ pub struct TtsRequest
 pub struct TtsPlayer
 {
     manager: Arc<Mutex<AudioManager::<DefaultBackend>>>,
-    synthesizer: Arc<SpeechSynth>,
+    voice_lib: Shared<VoiceLib>,
     player: Option<TtsPlayerThread>,
     app_handle: AppHandle,
 
@@ -245,7 +250,7 @@ impl TtsPlayer
     pub fn new<R>(resolver: &PathResolver<R>, app_handle: AppHandle) -> Self
         where R : Runtime
     {
-        let synth = SpeechSynth::new(resolver);
+        let voice_lib = Shared::new(VoiceLib::new());
         let manager = AudioManager::<DefaultBackend>::new(AudioManagerSettings::default()).unwrap();
 
         let app_handle_inner = app_handle.clone();
@@ -259,7 +264,7 @@ impl TtsPlayer
         Self 
         {
             manager: Arc::new(Mutex::new(manager)),
-            synthesizer: Arc::new(synth),
+            voice_lib,
             player: None,
             app_handle,
 
@@ -269,7 +274,7 @@ impl TtsPlayer
         }
     }
 
-    pub fn request_tts(&mut self, package: BiblioJsonPackageHandle, key: PassageAudioKey) -> TtsRequest
+    pub fn request_tts(&mut self, voices: &AppVoices, package: BiblioJsonPackageHandle, key: PassageAudioKey) -> TtsRequest
     {
         let mut sources_binding = self.sources.lock().unwrap();
         
@@ -288,7 +293,7 @@ impl TtsPlayer
             sources_binding.insert(id.clone(), TtsSoundData::Generating);
 
             let sources = self.sources.clone();
-            let synth = self.synthesizer.clone();
+            let synth = self.voice_lib.get().get_synth(voices, &key.voice);
             let id_inner = id.clone();
             let app_handle = self.app_handle.clone();
 
@@ -318,8 +323,8 @@ impl TtsPlayer
         let binding = self.sources.lock().unwrap();
         if let Some(TtsSoundData::Generated(sound_data)) = binding.get(id)
         {
-            self.player = Some(TtsPlayerThread::new(self.manager.clone(), self.app_handle.clone(), sound_data.clone(), id.clone(), self.settings));
-            self.player.as_mut().unwrap().set_settings(self.settings);
+            self.player = Some(TtsPlayerThread::new(self.manager.clone(), self.app_handle.clone(), sound_data.clone(), id.clone(), self.settings.clone()));
+            self.player.as_mut().unwrap().set_settings(self.settings.clone());
             self.app_handle.emit(TTS_EVENT_NAME, TtsEvent::Set { id: id.clone() }).unwrap();
         }
     }
@@ -373,15 +378,15 @@ impl TtsPlayer
 
     pub fn set_settings(&mut self, settings: TtsSettings)
     {
-        self.settings = settings;
+        self.settings = settings.clone();
         if let Some(player) = &mut self.player
         {
-            player.set_settings(settings);
+            player.set_settings(settings.clone());
         }
     }
 
-    pub fn get_settings(&self) -> TtsSettings
+    pub fn get_settings(&self) -> &TtsSettings
     {
-        self.settings
+        &self.settings
     }
 }

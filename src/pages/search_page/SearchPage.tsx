@@ -2,7 +2,7 @@ import { WordSearchHistoryEntry } from "@interop/view_history"
 import React, { useCallback, useEffect, useState } from "react"
 import * as searching from "@interop/searching";
 import { Box, Divider, Typography, useTheme } from "@mui/material";
-import { SearchPageToolbar } from "src/pages/search_page/SearchPageToolbar";
+import { SearchPageToolbar } from "@src/pages/search_page/SearchPageToolbar";
 import { LoadingSpinner } from "../LoadingSpinner";
 import SearchPageContent from "./SearchPageContent";
 import { Footer } from "@components/index";

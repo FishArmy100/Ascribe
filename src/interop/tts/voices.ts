@@ -9,6 +9,7 @@ export interface VoiceConfig
 	readonly onnx_path: string;
 	readonly config_path: string;
 	readonly language: Language;
+    readonly sample_rate: number,
 }
 
 export async function backend_get_voices(): Promise<VoiceConfig[]>

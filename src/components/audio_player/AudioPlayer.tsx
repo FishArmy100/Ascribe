@@ -15,6 +15,7 @@ import ExpandButton from "./ExpandButton";
 import { ChapterId } from "@interop/bible";
 import use_audio_player_tooltips from "./audio_player_tooltips";
 import VoiceSelectDropdown from "./VoiceSelectDropdown";
+import { use_settings } from "@components/providers/SettingsProvider";
 
 const FAST_FORWARD_TIME = 10;
 const REWIND_TIME = 10;
@@ -31,6 +32,7 @@ export default function AudioPlayer({
 {
     const theme = useTheme();
     const tts_player = use_tts_player();
+    const { settings } = use_settings();
 
     const [user_setting_time, set_user_setting_time] = useState(false);
     const [user_value, set_user_value] = useState(0);
@@ -79,13 +81,14 @@ export default function AudioPlayer({
                 bible: current_version,
                 chapter: current_chapter,
                 verse_range: null,
+                voice: settings.tts_settings.current_voice,
             })
         }
         else 
         {
             tts_player.stop();
         }
-    }, [open, current_version, current_chapter.book, current_chapter.chapter])
+    }, [open, current_version, current_chapter.book, current_chapter.chapter, settings.tts_settings.current_voice])
 
     const handle_user_change_progress = (v: number) => {
         set_user_setting_time(true);

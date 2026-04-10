@@ -7,6 +7,7 @@ export type PassageAudioKey = {
     bible: string,
     chapter: ChapterId,
     verse_range: [number, number] | null,
+    voice: string
 }
 
 export type TtsRequest = {
@@ -19,6 +20,7 @@ export type TtsSettings = {
     playback_speed: number,
     correct_pitch: boolean,
     follow_text: boolean,
+    current_voice: string,
 }
 
 export async function backend_request_tts(key: PassageAudioKey): Promise<TtsRequest>
