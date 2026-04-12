@@ -536,11 +536,15 @@ Has the same functionality of the old one however now as a popup in the header b
   - [ ] When clicked off, will display what the current date is, if visible
 - [ ] Readings section
   - [x] Displays name of currently selected reading plan
-    - [ ] Preference saved across sessions
     - [x] Can switch what reading plan is selected
   - [x] Scripture Segments
     - [x] Each reference is clickable, and will go to that section
     - [x] All readings are broken into there individual chapters
+  - [ ] Tracking
+    - [ ] You can toggle a date for if you have read a particular section or not
+    - [ ] Reset for the reading (automatically each year?)
+    - [ ] Progress stored locally on machine
+    - [ ] Progress synced across machines
 
 <!-- ======================================================================================================== -->
 ## Cloud Sync
@@ -629,19 +633,22 @@ When highlighting a section of text in either the Bible page or the search page,
 User can click on a word to look into it more. this is similar to how [seethebible](seethebible.com) does it, but with either a sidebar option, or a popup modal.
 
 - [ ] Format
-  - [ ] A popup modal with a list of entries
-    - [ ] For all enabled modules which have a reference for that word
-    - [ ] Only track for words, the [Verse Picker](#verse-picker), the [Chapter Picker](#chapter-picker), and the [Book Picker](#book-picker) work for their own data respectively
-  - [ ] Scrollable if module entries extend beyond current size
-  - [ ] Moveable?
+  - [x] A popup modal with a list of entries
+    - [x] For all enabled modules which have a reference for that word
+    - [x] Only track for words, the [Verse Picker](#verse-picker), the [Chapter Picker](#chapter-picker), and the [Book Picker](#book-picker) work for their own data respectively
+  - [x] Scrollable if module entries extend beyond current size
+  - [x] Moveable?
     - [ ] Clicked and dragged around the viewable area
     - [ ] Clamped to area of the screen
   - [ ] Resizable?
     - [ ] Has a minimum/maximum size
-- [ ] Entries
-  - [ ] Different data for each module entry
-  - [ ] Displays it the same way that the [Module Entry Display](#module-entry-information) shows
+- [x] Entries
+  - [x] Different data for each module entry
+  - [x] Displays it the same way that the [Module Entry Display](#module-entry-information) shows
   - [ ] Includes a way to edit notes and highlights?
+- [x] Title
+  - [x] Displays the picked word
+  - [x] Can click on it to search for all instances of that word
 
 <!-- ======================================================================================================== -->
 ## Verse Picker
@@ -665,11 +672,11 @@ Displays similar information to the word picker, but shows entries for the entir
 
 Is like the Word picker, but only displays information for the strongs number, no other information
 
-- [ ] Display
-  - [ ] Shows Strongs Number at the top
-  - [ ] Shows definitions
-  - [ ] Shows derivation (if it has one)
-  - [ ] Has a search button to look up that strongs number
+- [x] Display
+  - [x] Shows Strongs Number at the top
+  - [x] Shows definitions
+  - [x] Shows derivation (if it has one)
+  - [x] Can click the title (strongs number) to search for all instances of it 
 
 <!-- ======================================================================================================== -->
 ## Custom Ctrl + F Popup

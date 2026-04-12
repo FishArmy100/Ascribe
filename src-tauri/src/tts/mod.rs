@@ -247,8 +247,7 @@ pub struct TtsPlayer
 
 impl TtsPlayer 
 {
-    pub fn new<R>(resolver: &PathResolver<R>, app_handle: AppHandle) -> Self
-        where R : Runtime
+    pub fn new(app_handle: AppHandle) -> Self
     {
         let voice_lib = Shared::new(VoiceLib::new());
         let manager = AudioManager::<DefaultBackend>::new(AudioManagerSettings::default()).unwrap();
