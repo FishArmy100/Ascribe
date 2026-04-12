@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { WordId } from "@interop/bible";
 import { fetch_backend_word_entries, get_module_entry_title, ModuleEntry } from "@interop/module_entry";
 import { fetch_backend_verse_render_data, VerseRenderData } from "@interop/bible/render";
@@ -11,6 +11,7 @@ import { use_bible_infos } from "@components/providers/BibleInfoProvider";
 import { use_bible_display_settings } from "@components/providers/BibleDisplaySettingsProvider";
 import { use_module_configs } from "@components/providers/ModuleConfigProvider";
 import { use_format_ref_id } from "@interop/bible/ref_id";
+import { use_view_history } from "@components/providers/ViewHistoryProvider";
 
 export type WordPopoverProps = {
     bible_id: string | null,
@@ -36,7 +37,7 @@ export default function WordPopover({
     const bible_version = bible_id ? bible_infos[bible_id] : bible_infos[bible_display_settings.bible_version];
     const configs = use_module_configs();
     const formatter = use_format_ref_id();
-
+    const view_history = use_view_history();
 
     useEffect(() => {
         if (word !== null)
@@ -53,7 +54,7 @@ export default function WordPopover({
     }, [word]);
 
     // do a .? here, just to make sure that in the rare case that it thinks everything is fetched properly, and it is still null
-    const title = verse_render_data && word ? verse_render_data.words[word.word - 1]?.word ?? null : null;
+    const rendered_word = verse_render_data && word ? verse_render_data.words[word.word - 1]?.word ?? null : null;
     const entries = module_entries?.map((e): PopoverEntryData => {
 
         return {
@@ -66,9 +67,28 @@ export default function WordPopover({
             )
         }
     }) ?? [];
+
+    const handle_title_clicked = useCallback(() => {
+        if (rendered_word !== null)
+        {
+            view_history.push({
+                type: "word_search",
+                query: {
+                    ranges: [],
+                    root: {
+                        type: "word",
+                        word: rendered_word
+                    }
+                },
+                page_index: 0,
+                raw: rendered_word,
+            })
+        }
+    }, [view_history, rendered_word]);
  
     return <PopoverBase
-        title={title ? `"${title}"` : ""}
+        title={rendered_word ? `"${rendered_word}"` : ""}
+        on_title_click={handle_title_clicked}
         pos={pos}
         on_close={on_close}
         entries={entries}

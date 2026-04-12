@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import PopoverEntry, { PopoverEntryData, PopoverEntryProps } from "./PopoverEntry";
 import { Box, Divider, Popover, Stack, Typography } from "@mui/material";
 import SmallerTextSection from "@components/SmallerTextSection";
@@ -6,6 +6,7 @@ import SmallerTextSection from "@components/SmallerTextSection";
 
 export type PopoverBaseProps = {
     title: string | null,
+    on_title_click?: (() => void),
     pos: {top: number, left: number} | null,
     on_close: () => void,
     entries: PopoverEntryData[],
@@ -13,6 +14,7 @@ export type PopoverBaseProps = {
 
 export default function PopoverBase({
     title,
+    on_title_click,
     pos,
     on_close,
     entries,
@@ -61,13 +63,18 @@ export default function PopoverBase({
     const is_open = useMemo(() => {
         return pos !== null;
     }, [pos, entries]);
+
+    const handle_close = useCallback(() => {
+        set_open_modules([]);
+        on_close();
+    }, [on_close, set_open_modules]);
     
     return (
         <Popover
             open={is_open}
             anchorPosition={corrected_pos ?? pos ?? undefined}
             anchorReference="anchorPosition"
-            onClose={on_close}
+            onClose={handle_close}
             disablePortal={false}
             anchorOrigin={{
                 vertical: "bottom",
@@ -107,18 +114,18 @@ export default function PopoverBase({
                             margin: 2,
                         }}
                     >
-                        <Typography
-                            variant="h5"
-                            textAlign="center"
-                            fontWeight="bold"
+                        <PopoverBaseTitle 
+                            title={title ?? ""}
+                            on_click={on_title_click}
                             key="title"
-                        >
-                            {title}
-                        </Typography>
-                        <Divider sx={{
-                            mt: (theme) => theme.spacing(1),
-                            mb: (theme) => theme.spacing(1),
-                        }}/>
+                        />
+                        <Divider 
+                            sx={{
+                                mt: (theme) => theme.spacing(1),
+                                mb: (theme) => theme.spacing(1),
+                            }}
+                            key="divider"
+                        />
                         {
                             <WordPopoverContent
                                 entries={entries}
@@ -131,6 +138,57 @@ export default function PopoverBase({
             </Box>
         </Popover>
     )
+}
+
+type PopoverBaseTitleProps = {
+    title: string,
+    on_click: (() => void) | undefined,
+}
+
+function PopoverBaseTitle({
+    title,
+    on_click
+}: PopoverBaseTitleProps): React.ReactElement
+{
+    if (on_click !== undefined)
+    {
+        return (
+            <Box
+                sx={{
+                    alignItems: "center",
+                    justifyContent: "center",
+                    display: "flex",
+                    mb: 1,
+                }}
+            >
+                <Typography
+                    variant="h5"
+                    textAlign="center"
+                    fontWeight="bold"
+                    className="animated-underline"
+                    sx={{
+                        cursor: "pointer",
+                        width: "min-content"
+                    }}
+                    onClick={on_click}
+                >
+                    {title}
+                </Typography>
+            </Box>
+        );
+    }
+    else 
+    {
+        return (
+            <Typography
+                variant="h5"
+                textAlign="center"
+                fontWeight="bold"
+            >
+                {title}
+            </Typography>
+        )
+    }
 }
 
 type WordPopoverContentProps = {

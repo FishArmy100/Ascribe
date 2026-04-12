@@ -20,16 +20,17 @@ const DEFAULT_VIEW_HISTORY_INFO: ViewHistoryInfo = {
     count: 1,
 }
 
-export type ViewHistoryContextType = {
-    get_current: () => ViewHistoryEntry,
-    get_count: () => number,
-    get_all: () => ViewHistoryEntry[],
-    get_index: () => number,
-    set_index: (index: number) => Promise<void>,
-    advance: () => Promise<void>,
-    retreat: () => Promise<void>,
-    push: (e: ViewHistoryEntry) => Promise<void>,
-    push_ref_id: (id: RefId) => Promise<void>,
+export interface ViewHistoryContextType 
+{
+    readonly get_current: () => ViewHistoryEntry,
+    readonly get_count: () => number,
+    readonly get_all: () => ViewHistoryEntry[],
+    readonly get_index: () => number,
+    readonly set_index: (index: number) => Promise<void>,
+    readonly advance: () => Promise<void>,
+    readonly retreat: () => Promise<void>,
+    readonly push: (e: ViewHistoryEntry) => Promise<void>,
+    readonly push_ref_id: (id: RefId) => Promise<void>,
 }
 
 const ViewHistoryContext = createContext<ViewHistoryContextType | null>(null);

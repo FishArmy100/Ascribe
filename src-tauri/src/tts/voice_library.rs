@@ -2,8 +2,6 @@ use std::{collections::HashMap, sync::Arc};
 
 use crate::tts::{synth::SpeechSynth, voices::AppVoices};
 
-
-
 pub struct VoiceLib
 {
     voices: HashMap<String, Arc<SpeechSynth>>,

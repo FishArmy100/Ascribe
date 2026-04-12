@@ -9,3 +9,9 @@ One possibility, is to have custom canvases, that act as popups for verses. This
 Drawn notes would be vector based, and overlaid over the background, with transparency enabled for given colors.
 
 Colors for drawing can be named and added to a notebook. They would technically be a third notebook entry type, though `biblio_json` may need to be modified to support custom file formats like this.
+
+### General Improvements
+- Click on popover title to search for it
+  - Strongs popover: Click on strongs to search for it
+  - Word popover: Click on word to search for it
+- 
