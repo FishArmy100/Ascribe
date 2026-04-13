@@ -2,4 +2,3 @@
 - Search page links not going to the proper references
 - Searched strongs numbers difficult to pick out
 - Search terms not being accepted
-- Stop trying to keep tabs open for the popovers

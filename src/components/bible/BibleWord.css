@@ -61,6 +61,7 @@
 
 .bible-strongs-link.searched {
     font-weight: bold;
+    font-style: italic;
 }
 
 .bible-strongs-link::after {
