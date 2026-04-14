@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use tauri::{Runtime, path::{BaseDirectory, PathResolver}};
 use std::{collections::HashMap, fs, path::{Path, PathBuf}};
 
-use crate::{core::utils::get_uuid, repr::lang::LanguageJson};
+use crate::repr::lang::LanguageJson;
 
 const VOICES_PATH: &str = "resources/tts-data/voices";
 const VOICE_NAME_FILE_PATH: &str = "resources/tts-data/voices/voice_name_map.json";

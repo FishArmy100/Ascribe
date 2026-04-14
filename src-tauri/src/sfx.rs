@@ -1,0 +1,78 @@
+use std::collections::HashMap;
+
+use kira::{AudioManager, AudioManagerSettings, DefaultBackend, sound::{SoundData, static_sound::StaticSoundData}};
+use serde::{Deserialize, Serialize};
+use tauri::{Runtime, State, path::{BaseDirectory, PathResolver}};
+
+use crate::core::utils::Shared;
+
+lazy_static::lazy_static!
+{
+    static ref ALL_SOUNDS: HashMap<&'static str, &'static str> = {
+        let mut map = HashMap::new();
+        map.insert("page_turn", "page_turn.mp3");
+        map
+    };
+}
+
+pub struct SfxPlayer
+{
+    manager: Shared<AudioManager<DefaultBackend>>,
+    sounds: HashMap<&'static str, StaticSoundData>
+}
+
+impl SfxPlayer
+{
+    pub fn new<R>(resolver: &PathResolver<R>) -> Self 
+        where R : Runtime
+    {
+        let sounds: HashMap<_, _> = ALL_SOUNDS.iter().map(|(name, path)| {
+            let path = resolver.resolve(format!("resources/sfx/{}", path), BaseDirectory::Resource).unwrap();
+            let sound = StaticSoundData::from_file(path).unwrap();
+            (*name, sound)
+        }).collect();
+
+        let manager = Shared::new(AudioManager::<DefaultBackend>::new(AudioManagerSettings::default()).unwrap());
+
+        Self 
+        {
+            sounds,
+            manager,
+        }
+    }
+
+    pub fn play(&self, sound: &str)
+    {
+        if let Some(sound) = self.sounds.get(sound)
+        {
+            let mut manager = self.manager.get();
+            manager.play(sound.clone()).unwrap();
+        }
+        else 
+        {
+            println!("Unknown sound: {}", sound)    
+        }
+    }
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case", tag = "type")]
+pub enum SfxCommand 
+{
+    Play 
+    {
+        name: String,
+    }
+}
+
+#[tauri::command(rename_all = "snake_case")]
+pub fn run_sfx_command(
+    player: State<'_, SfxPlayer>,
+    command: SfxCommand,
+)
+{
+    match command
+    {
+        SfxCommand::Play { name } => player.play(&name),
+    }
+}

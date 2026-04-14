@@ -4,7 +4,7 @@ use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Emitter, State};
 
-use crate::{bible::BiblioJsonPackageHandle, core::{app::AppState, settings::{AppSettings, SETTINGS_CHANGED_EVENT_NAME, SettingsChangedEvent}}, tts::{PassageAudioKey, PassageAudioKeyJson, TtsPlayer, voices::AppVoices}};
+use crate::{bible::BiblioJsonPackageHandle, core::{app::AppState, settings::{SETTINGS_CHANGED_EVENT_NAME, SettingsChangedEvent}}, tts::{PassageAudioKey, PassageAudioKeyJson, TtsPlayer, voices::AppVoices}};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case", tag = "type")]

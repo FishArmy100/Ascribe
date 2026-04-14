@@ -1,10 +1,7 @@
 ### Alpha Release Plan
 
 Steps:
-1. Reading Behavior
-   - Same features as old application
-   - Redesign to look better
-2. Sound Effects
+1. Sound Effects
    - Sounds
      - Button click
      - Word click
@@ -13,6 +10,9 @@ Steps:
    - Add volume slider to settings
      - Can be muted
    - Audio music mixer for readings?
+2. Reading Behavior
+   - Same features as old application
+   - Redesign to look better
 3. Improve Settings Page UI
    - Redesign to look better
    - Clear view history

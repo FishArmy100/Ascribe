@@ -1,6 +1,6 @@
 use std::sync::Mutex;
 use tauri::Manager;
-use crate::{bible::{BibleDisplaySettings, BiblioJsonPackageHandle}, core::{app::AppState, settings::{self, AppSettings}, view_history::{self, ViewHistory}}, tts::{TtsPlayer, init_espeak, voices::AppVoices}};
+use crate::{bible::{BibleDisplaySettings, BiblioJsonPackageHandle}, core::{app::AppState, settings::{self, AppSettings}, view_history::{self, ViewHistory}}, sfx::SfxPlayer, tts::{TtsPlayer, init_espeak, voices::AppVoices}};
 
 pub mod core;
 pub mod bible;
@@ -8,6 +8,7 @@ pub mod searching;
 pub mod repr;
 pub mod tts;
 pub mod commands;
+pub mod sfx;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -35,6 +36,7 @@ pub fn run() {
             app.manage(Mutex::new(TtsPlayer::new(app.handle().clone())));
             app.manage(BiblioJsonPackageHandle::init(app.handle().clone()));
             app.manage(AppVoices::load(app.path()));
+            app.manage(SfxPlayer::new(app.path()));
 
             app.manage(Mutex::new(AppState {
                 settings: AppSettings::default(),
@@ -57,6 +59,7 @@ pub fn run() {
             tts::tts_cmd::run_tts_command,
             commands::open,
             core::app_language::run_app_language_command,
+            sfx::run_sfx_command,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

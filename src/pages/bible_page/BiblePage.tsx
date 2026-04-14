@@ -182,9 +182,9 @@ export default function BiblePage({
 			
 			<NavigationButton 
 				direction="left"
-				onClick={handle_previous_chapter}
-				buttonWidth={button_width}
-				buttonSpacing={button_spacing}
+				on_click={handle_previous_chapter}
+				button_width={button_width}
+				button_spacing={button_spacing}
 			/>
 
 			<Box
@@ -219,9 +219,9 @@ export default function BiblePage({
 
 			<NavigationButton 
 				direction="right"
-				onClick={handle_next_chapter}
-				buttonWidth={button_width}
-				buttonSpacing={button_spacing}
+				on_click={handle_next_chapter}
+				button_width={button_width}
+				button_spacing={button_spacing}
 			/>
 
 			<Footer />

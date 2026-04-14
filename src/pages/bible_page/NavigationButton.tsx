@@ -3,18 +3,29 @@ import { ImageButton } from "@components/index";
 import { useTheme } from "@mui/material";
 import React from "react";
 import use_bible_page_strings from "./bible_page_strings";
+import { play_sfx } from "@interop/sfx";
+
+export type NavigationButtonProps = {
+	direction: 'left' | 'right';
+	on_click: () => void;
+	button_width: number;
+	button_spacing: number;
+}
 
 export const NavigationButton = React.memo(({
-	direction, onClick, buttonWidth, buttonSpacing
-}: {
-	direction: 'left' | 'right';
-	onClick: () => void;
-	buttonWidth: number;
-	buttonSpacing: number;
-}) => {
+	direction, 
+	on_click, 
+	button_width, 
+	button_spacing
+}: NavigationButtonProps) => {
 	const theme = useTheme();
 	const isLeft = direction === 'left';
 	const strings = use_bible_page_strings();
+
+	const handle_click = () => {
+		play_sfx("page_turn");
+		on_click();
+	}
 
 	return (
 		<ImageButton
@@ -23,13 +34,13 @@ export const NavigationButton = React.memo(({
 			sx={{
 				position: "fixed",
 				top: `calc(50% - 30vh / 2)`,
-				[isLeft ? 'left' : 'right']: theme.spacing(buttonSpacing),
+				[isLeft ? 'left' : 'right']: theme.spacing(button_spacing),
 				minHeight: "30vh",
 				height: "30vh",
-				minWidth: (theme) => theme.spacing(buttonWidth),
-				width: (theme) => theme.spacing(buttonWidth),
+				minWidth: (theme) => theme.spacing(button_width),
+				width: (theme) => theme.spacing(button_width),
 			}}
-			on_click={onClick} />
+			on_click={handle_click} />
 	);
 });
 NavigationButton.displayName = 'NavigationButton';
