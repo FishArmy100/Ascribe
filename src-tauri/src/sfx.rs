@@ -1,10 +1,10 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::Mutex};
 
-use kira::{AudioManager, AudioManagerSettings, DefaultBackend, sound::{SoundData, static_sound::StaticSoundData}};
+use kira::{AudioManager, AudioManagerSettings, DefaultBackend, sound::static_sound::StaticSoundData};
 use serde::{Deserialize, Serialize};
 use tauri::{Runtime, State, path::{BaseDirectory, PathResolver}};
 
-use crate::core::utils::Shared;
+use crate::core::{app::AppState, utils::Shared};
 
 lazy_static::lazy_static!
 {
@@ -41,7 +41,7 @@ impl SfxPlayer
         }
     }
 
-    pub fn play(&self, sound: &str)
+    pub fn play(&self, sound: &str, volume: f32)
     {
         if let Some(sound) = self.sounds.get(sound)
         {
@@ -68,11 +68,16 @@ pub enum SfxCommand
 #[tauri::command(rename_all = "snake_case")]
 pub fn run_sfx_command(
     player: State<'_, SfxPlayer>,
+    state: State<'_, Mutex<AppState>>,
     command: SfxCommand,
 )
 {
     match command
     {
-        SfxCommand::Play { name } => player.play(&name),
+        SfxCommand::Play { name } => {
+            let state = state.lock().unwrap();
+            let volume = state.settings.sfx_volume;
+            player.play(&name, volume)
+        },
     }
 }

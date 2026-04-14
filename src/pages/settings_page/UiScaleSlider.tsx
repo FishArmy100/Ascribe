@@ -29,12 +29,12 @@ export default function UiScaleSlider(): React.ReactElement
     }, [settings, set_settings]);
 
     const slider_value = Math.inv_lerp(0.5, 2, ui_scale_value);
-    const value_text = Math.round(ui_scale_value * 100) + "%"
+    const value_text = Math.round(ui_scale_value * 100) + "%";
 
     const handle_slider_value_changed = useCallback((value: number) => {
         value = Math.lerp(0.5, 2, value);
         set_ui_scale_value(value);
-    }, []);
+    }, [set_ui_scale_value]);
 
     const handle_slider_value_committed = useCallback(() => {
         const copy = deep_copy(settings);

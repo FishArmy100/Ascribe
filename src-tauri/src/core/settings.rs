@@ -54,6 +54,7 @@ impl Default for SelectedFont
 pub struct AppSettings
 {
     pub ui_scale: f32,
+    pub sfx_volume: f32,
     pub tts_settings: TtsSettings,
     pub selected_theme: SelectedTheme,
     pub custom_themes: HashMap<String, AppTheme>,
@@ -68,6 +69,7 @@ impl Default for AppSettings
         Self 
         { 
             ui_scale: 1.0,
+            sfx_volume: 1.0,
             tts_settings: TtsSettings::default(),
             selected_theme: SelectedTheme::Light,
             custom_themes: HashMap::new(),

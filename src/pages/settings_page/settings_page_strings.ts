@@ -43,7 +43,7 @@ export default function use_settings_page_strings()
         ),
         select_theme_tooltip: __t(
             "pages.settings.theme.tooltip",
-            "Select theme",
+            "Select Theme",
         ),
         ui_scale_title: __t(
             "pages.settings.ui_scale.title",
@@ -52,6 +52,18 @@ export default function use_settings_page_strings()
         reset_ui_scale_tooltip: __t(
             "pages.settings.ui_scale.tooltips.reset",
             "Reset Ui scale"
+        ),
+        sfx_volume_scale_title: __t(
+            "pages.settings.sfx_volume.title",
+            "Sound Effects Volume"
+        ),
+        sfx_mute_tooltip: __t(
+            "pages.settings.sfx_volume.tooltips.mute",
+            "Mute sound effects",
+        ),
+        sfx_unmute_tooltip: __t(
+            "pages.settings.sfx_volume.tooltips.unmute",
+            "Unmute sound effects",
         )
 
     }), [i18n]);

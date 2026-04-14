@@ -5,6 +5,7 @@ import UiScaleSlider from "./UiScaleSlider";
 import ThemeSelectorDropdown from "./ThemeSelectorDropdown";
 import FontSelectorDropdown from "./FontSelectorDropdown";
 import LanguageSelectionDropdown from "./LanguageSelectionDropdown";
+import SfxVolumeSlider from "./SfxVolumeSlider";
 
 export default function SettingsPage(): React.ReactElement
 {
@@ -31,6 +32,7 @@ export default function SettingsPage(): React.ReactElement
                     Settings
                 </Typography>
                 <UiScaleSlider />
+                <SfxVolumeSlider />
                 <ThemeSelectorDropdown />
                 <FontSelectorDropdown />
                 <LanguageSelectionDropdown />

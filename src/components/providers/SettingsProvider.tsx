@@ -5,6 +5,7 @@ import rfdc from "rfdc";
 
 const DEFAULT_APP_SETTINGS: AppSettings = {
     ui_scale: 1,
+    sfx_volume: 1,
     selected_theme: { type: "light" },
     custom_themes: {},
     tts_settings: {
