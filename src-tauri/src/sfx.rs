@@ -1,6 +1,6 @@
 use std::{collections::HashMap, sync::Mutex};
 
-use kira::{AudioManager, AudioManagerSettings, DefaultBackend, sound::static_sound::StaticSoundData};
+use kira::{AudioManager, AudioManagerSettings, Decibels, DefaultBackend, Tween, Tweenable, sound::static_sound::StaticSoundData};
 use serde::{Deserialize, Serialize};
 use tauri::{Runtime, State, path::{BaseDirectory, PathResolver}};
 
@@ -46,7 +46,9 @@ impl SfxPlayer
         if let Some(sound) = self.sounds.get(sound)
         {
             let mut manager = self.manager.get();
-            manager.play(sound.clone()).unwrap();
+            let mut handle = manager.play(sound.clone()).unwrap();
+            let decibels = Tweenable::interpolate(Decibels::SILENCE.as_amplitude(), Decibels::IDENTITY.as_amplitude(), volume as f64).log10() * 20.0;
+            handle.set_volume(decibels, Tween::default());
         }
         else 
         {
