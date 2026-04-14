@@ -3,7 +3,7 @@ authors = [ "Nate Craver" ]
 license = "MIT"
 
 [module_paths]
-bibles = "/bibles/*"
+bibles = "/bibles/**/*"
 dictionaries = "/dictionaries/*"
 xrefs = "/cross_references/*"
 strongs_defs = "/strongs/defs/*"

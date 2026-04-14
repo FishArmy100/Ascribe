@@ -4,6 +4,7 @@ import * as images from "../../assets";
 import ImageButton from "../core/ImageButton";
 import Slider from "../core/Slider";
 import { use_settings } from "../providers/SettingsProvider";
+import use_audio_player_tooltips from "./audio_player_tooltips";
 
 export default function PlaybackControl(): React.ReactElement
 {
@@ -34,8 +35,8 @@ export default function PlaybackControl(): React.ReactElement
     {
         speed_image = images.gauge_max;
     }
-
-    let tooltip = "Reset playback speed";
+    
+    const tooltips = use_audio_player_tooltips();
 
     const handle_button_click = () => {
         update_settings(s => {
@@ -64,7 +65,7 @@ export default function PlaybackControl(): React.ReactElement
         >
             <ImageButton
                 image={speed_image}
-                tooltip={tooltip}
+                tooltip={tooltips.reset_playback}
                 on_click={handle_button_click}
             />
             <Slider
@@ -72,7 +73,7 @@ export default function PlaybackControl(): React.ReactElement
                 min={0}
                 max={1}
                 step={0.0001}
-                tooltip="Modify playback speed"
+                tooltip={tooltips.modify_playback}
                 on_change={handle_slider_change}
             />
         </Stack>

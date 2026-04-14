@@ -1,11 +1,11 @@
 use std::{collections::HashSet, num::NonZeroU32, sync::Mutex};
 
-use biblio_json::{core::{OsisBook, StrongsLang, StrongsNumber, VerseId}, modules::{EntryId, Module, ModuleId}};
+use biblio_json::{core::{OsisBook, StrongsLang, StrongsNumber, VerseId, lang::Language}, modules::{EntryId, Module, ModuleId}};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use tauri::{Emitter, State};
 
-use crate::{bible::{BIBLE_VERSION_CHANGED_EVENT_NAME, BibleDisplaySettings, BibleInfo, BibleVersionChangedEvent, BiblioJsonPackageHandle, fetching::PackageEx, render::{RenderSearchArgs, fetch_verse_render_data, render_verses, render_word_search_verses}}, core::app::AppState, repr::{module_config::ModuleConfigJson, readings_date::ReadingsDateJson, searching::{ModuleSearchHitJson, WordSearchQueryJson}, *}, searching::{module_searching::WordSearchMode, word_search_engine::WordSearchQuery}};
+use crate::{bible::{BIBLE_DISPLAY_SETTINGS_CHANGED_EVENT_NAME, BibleDisplaySettings, BibleInfo, BibleDisplaySettingsChangedEvent, BiblioJsonPackageHandle, fetching::PackageEx, render::{RenderSearchArgs, fetch_verse_render_data, render_verses, render_word_search_verses}}, core::app::AppState, repr::{module_config::ModuleConfigJson, readings_date::ReadingsDateJson, searching::{ModuleSearchHitJson, WordSearchQueryJson}, *}, searching::{module_searching::WordSearchMode, word_search_engine::WordSearchQuery}};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -119,6 +119,10 @@ pub enum BibleCommand
         start_date: ReadingsDateJson,
         selected_date: ReadingsDateJson, 
     },
+    GetLanguageDefaultBible
+    {
+        language: String
+    }
 }
 
 #[tauri::command(rename_all = "snake_case")]
@@ -161,7 +165,7 @@ pub fn run_bible_command(
             let old = state.bible_display_settings.clone();
             state.bible_display_settings = version_state;
 
-            app_handle.emit(BIBLE_VERSION_CHANGED_EVENT_NAME, BibleVersionChangedEvent {
+            app_handle.emit(BIBLE_DISPLAY_SETTINGS_CHANGED_EVENT_NAME, BibleDisplaySettingsChangedEvent {
                 old: old,
                 new: state.bible_display_settings.clone(),
             }).unwrap();
@@ -351,6 +355,18 @@ pub fn run_bible_command(
             });
             
             Some(serde_json::to_string(&response).unwrap())
+        },
+        BibleCommand::GetLanguageDefaultBible { language } => {
+            let lang = Language::new(&language).ok()?;
+
+            let response = package.visit(|package| {
+                package.modules.values()
+                    .filter_map(Module::as_bible)
+                    .find(|b| b.config.language == Some(lang))
+                    .map(|b| b.config.id.get().to_string())
+            });
+
+            response
         }
     }
 }

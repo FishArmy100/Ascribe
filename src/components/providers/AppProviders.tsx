@@ -6,6 +6,8 @@ import { ViewHistoryProvider } from "./ViewHistoryProvider";
 import { TtsPlayerProvider } from "./TtsPlayerProvider";
 import { ModuleInfoProvider } from "./ModuleInfoProvider";
 import { ModuleConfigProvider } from "./ModuleConfigProvider";
+import AppI18nProvider from "./LanguageProvider";
+import TtsVoiceProvider from "./TtsVoiceProvider";
 
 const PROVIDER_NODES: ((children: React.ReactNode) => React.ReactNode)[] = [
     c => <AppSettingsProvider>{c}</AppSettingsProvider>,
@@ -15,6 +17,8 @@ const PROVIDER_NODES: ((children: React.ReactNode) => React.ReactNode)[] = [
     c => <TtsPlayerProvider>{c}</TtsPlayerProvider>,
     c => <ModuleInfoProvider>{c}</ModuleInfoProvider>,
     c => <ModuleConfigProvider>{c}</ModuleConfigProvider>,
+    c => <AppI18nProvider>{c}</AppI18nProvider>,
+    c => <TtsVoiceProvider>{c}</TtsVoiceProvider>
 ];
 
 export default function AppProviders({ 

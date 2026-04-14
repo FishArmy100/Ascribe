@@ -1,0 +1,3 @@
+Need to invoke this in project root:
+
+npx auto-i18n-cli -i "./src" -o "./src/assets/translations/translations.json" -s eng_Latn -l spa_Latn swh_Latn  -b azure --azureKey "..."

@@ -1,6 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { OsisBook } from "./bible";
 import { HtmlText } from "./html_text";
+import { Language } from "./language";
 
 export interface ExternalModuleData {
     aliases: Record<string, string>;
@@ -24,7 +25,7 @@ export interface BibleConfig {
   name: string;
   id: string;
   authors?: string[];
-  language?: string;
+  language?: Language;
   description?: HtmlText;
   data_source?: string;
   pub_year?: number;
@@ -40,7 +41,7 @@ export interface NotebookConfig {
   name: string;
   id: string;
   authors?: string[];
-  language?: string;
+  language?: Language;
   description?: HtmlText;
   data_source?: string;
   pub_year?: number;
@@ -53,7 +54,7 @@ export interface StrongsDefConfig {
   name: string;
   id: string;
   authors?: string[];
-  language?: string;
+  language?: Language;
   description?: HtmlText;
   data_source?: string;
   pub_year?: number;
@@ -68,7 +69,7 @@ export interface StrongsLinksConfig {
   short_name?: string;
   bible: string;
   authors?: string[];
-  language?: string;
+  language?: Language;
   description?: HtmlText;
   data_source?: string;
   pub_year?: number;
@@ -83,7 +84,7 @@ export interface CommentaryConfig {
   short_name?: string;
   bible?: string;
   authors?: string[];
-  language?: string;
+  language?: Language;
   description?: HtmlText;
   data_source?: string;
   pub_year?: number;
@@ -97,7 +98,7 @@ export interface DictionaryConfig {
     id: string;
     short_name?: string;
     authors?: string[];
-    language?: string;
+    language?: Language;
     description?: HtmlText;
     data_source?: string;
     pub_year?: number;
@@ -115,7 +116,7 @@ export interface ReadingsConfig {
     data_source?: string;
     pub_year?: number;
     license?: string;
-    language?: string;
+    language?: Language;
     format: ReadingsFormat;
     external: ExternalModuleData;
 }
@@ -126,7 +127,7 @@ export interface XRefConfig {
     id: string;
     short_name?: string;
     authors?: string[];
-    language?: string;
+    language?: Language;
     description?: HtmlText;
     data_source?: string;
     pub_year?: number;

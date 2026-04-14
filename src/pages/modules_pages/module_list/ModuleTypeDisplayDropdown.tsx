@@ -5,6 +5,7 @@ import * as images from "@assets";
 import { ImageButton } from "@components/index";
 import { BUTTON_PADDING } from "@components/core/ImageButton";
 import { use_deep_copy } from "@utils/index";
+import use_module_pages_strings from "../module_pages_strings";
 
 export type ModuleDisplayOptions = {
     show_dictionaries: boolean,
@@ -28,6 +29,7 @@ export default function ModuleTypeDisplayDropdown({
 {
     const deep_copy = use_deep_copy();
     const [ is_open, set_is_open ] = useState(false);
+    const strings = use_module_pages_strings();
 
     const dropdown_padding = 1;
 
@@ -40,16 +42,12 @@ export default function ModuleTypeDisplayDropdown({
                 position: "relative",
             }}
         >
-            <Tooltip
-                tooltip="Select bible version"
-            >
-                <ImageButton 
-                    image={images.sliders}
-                    tooltip="Module display settings"
-                    on_click={() => set_is_open(!is_open)}
-                    active={is_open}
-                />
-            </Tooltip>
+            <ImageButton 
+                image={images.sliders}
+                tooltip={strings.module_display_button_tooltip}
+                on_click={() => set_is_open(!is_open)}
+                active={is_open}
+            />
             <Paper
                 sx={{
                     position: "absolute",
@@ -74,8 +72,8 @@ export default function ModuleTypeDisplayDropdown({
                 >
                     <DisplayOption 
                         value={options.show_bibles}
-                        label="Bibles"
-                        tooltip="showing bible modules"
+                        label={strings.bible_option_title}
+                        tooltip={strings.bible_option_tooltip}
                         on_click={() => {
                             options_copy.show_bibles = !options_copy.show_bibles;
                             set_options(options_copy)
@@ -86,8 +84,8 @@ export default function ModuleTypeDisplayDropdown({
                     />
                     <DisplayOption 
                         value={options.show_commentaries}
-                        label="Commentaries"
-                        tooltip="showing commentary modules"
+                        label={strings.commentary_option_title}
+                        tooltip={strings.commentary_option_tooltip}
                         on_click={() => {
                             options_copy.show_commentaries = !options_copy.show_commentaries;
                             set_options(options_copy)
@@ -98,8 +96,8 @@ export default function ModuleTypeDisplayDropdown({
                     />
                     <DisplayOption 
                         value={options.show_cross_refs}
-                        label="Cross References"
-                        tooltip="showing cross references"
+                        label={strings.xrefs_option_title}
+                        tooltip={strings.xrefs_option_tooltip}
                         on_click={() => {
                             options_copy.show_cross_refs = !options_copy.show_cross_refs;
                             set_options(options_copy)
@@ -110,8 +108,8 @@ export default function ModuleTypeDisplayDropdown({
                     />
                     <DisplayOption 
                         value={options.show_dictionaries}
-                        label="Dictionaries"
-                        tooltip="showing dictionaries"
+                        label={strings.dictionaries_option_title}
+                        tooltip={strings.dictionaries_option_tooltip}
                         on_click={() => {
                             options_copy.show_dictionaries = !options_copy.show_dictionaries;
                             set_options(options_copy)
@@ -122,8 +120,8 @@ export default function ModuleTypeDisplayDropdown({
                     />
                     <DisplayOption 
                         value={options.show_notebooks}
-                        label="Notebooks"
-                        tooltip="showing notebook modules"
+                        label={strings.notebooks_option_title}
+                        tooltip={strings.notebooks_option_tooltip}
                         on_click={() => {
                             options_copy.show_notebooks = !options_copy.show_notebooks;
                             set_options(options_copy)
@@ -134,8 +132,8 @@ export default function ModuleTypeDisplayDropdown({
                     />
                     <DisplayOption 
                         value={options.show_readings}
-                        label="Readings"
-                        tooltip="showing reading modules"
+                        label={strings.readings_option_title}
+                        tooltip={strings.readings_option_tooltip}
                         on_click={() => {
                             options_copy.show_readings = !options_copy.show_readings;
                             set_options(options_copy)
@@ -146,8 +144,8 @@ export default function ModuleTypeDisplayDropdown({
                     />
                     <DisplayOption 
                         value={options.show_strongs_defs}
-                        label="Strong's Definitions"
-                        tooltip="showing Strong's definitions"
+                        label={strings.strongs_option_title}
+                        tooltip={strings.strongs_option_tooltip}
                         on_click={() => {
                             options_copy.show_strongs_defs = !options_copy.show_strongs_defs;
                             set_options(options_copy)
@@ -164,7 +162,7 @@ export default function ModuleTypeDisplayDropdown({
                     >
                         <ImageButton
                             image={images.arrows_rotate}
-                            tooltip="Reset display options"
+                            tooltip={strings.reset_options_tooltip}
                             on_click={() => {
                                 set_options({
                                     show_bibles: true,
@@ -209,6 +207,8 @@ function DisplayOption({
     on_right_click
 }: DisplayOptionProps): React.ReactElement
 {
+    const strings = use_module_pages_strings();
+
     return (
         <Box
             sx={{
@@ -216,7 +216,7 @@ function DisplayOption({
             }}
         >
             <Tooltip
-                tooltip={value ? `Disable ${tooltip}` : `Enable ${tooltip}`}
+                tooltip={value ? strings.disable_module_filter_tooltip(tooltip) : strings.enable_module_filter_tooltip(tooltip)}
             >
                 <FormControlLabel
                     onContextMenu={e => {

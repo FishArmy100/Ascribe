@@ -1,7 +1,7 @@
 import { use_bible_infos } from "@components/providers/BibleInfoProvider";
 import { BibleInfo, ChapterId, OsisBook } from "@interop/bible";
 import { Atom, RefId, RefIdInner } from "@interop/bible/ref_id";
-import { Box, Stack, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import React, { useCallback } from "react";
 import * as utils from "@utils";
 import { use_view_history } from "@components/providers/ViewHistoryProvider";

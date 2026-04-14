@@ -12,8 +12,10 @@ const DEFAULT_APP_SETTINGS: AppSettings = {
         playback_speed: 1,
         correct_pitch: true,
         follow_text: true,
+        current_voice: "joe",
     },
     selected_font: "arial",
+    selected_language: "eng_Latn",
 }
 
 type AppSettingsContextType = {

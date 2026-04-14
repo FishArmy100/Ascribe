@@ -8,16 +8,16 @@ import { use_bible_display_settings } from "@components/providers/BibleDisplaySe
 import { RefId } from "@interop/bible/ref_id";
 import ReadingsPlanSelector from "./ReadingPlanSelector";
 import { Box, Divider } from "@mui/material";
+import use_readings_display_strings from "./readings_display_strings";
 
 export default function ReadingsDisplay(): React.ReactElement
 {
     const [is_open, set_is_open] = useState(false);
     const [date, set_date] = useState<ReadingsDate>(to_readings_date(new Date()));
 
-    const start_date = useMemo(() => {
-        const year = new Date().getFullYear();
-        return to_readings_date(new Date(year, 0, 1));
-    }, []);
+    const start_date = to_readings_date(new Date(date.year, 0, 1)); // cant put this in a memo, because we NEED it to update at the same time as date, otherwise the reading will crash
+
+    const strings = use_readings_display_strings();
 
     const { bible_display_settings } = use_bible_display_settings();
 
@@ -27,7 +27,6 @@ export default function ReadingsDisplay(): React.ReactElement
         let is_mounted = true;
         const fetch_readings = async () => {
             const readings = await backend_fetch_reading(bible_display_settings.reading_plan, start_date, date);
-            console.log(readings);
             if (is_mounted)
             {
                 set_readings(readings);
@@ -44,7 +43,7 @@ export default function ReadingsDisplay(): React.ReactElement
         <DropdownBase
             button={{
                 type: "image",
-                tooltip: is_open ? "Hide readings display" : "Show readings display",
+                tooltip: is_open ? strings.hide : strings.show,
                 src: images.book_reader,
             }}
             is_open={is_open}
@@ -52,7 +51,7 @@ export default function ReadingsDisplay(): React.ReactElement
             disable_hover
         >
             <DatePicker 
-                label="Pick a date"
+                label={strings.pick_date}
                 on_change={set_date}
                 date={date}
             />

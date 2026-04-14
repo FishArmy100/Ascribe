@@ -332,8 +332,8 @@ impl WordSearchPart
             WordSearchPart::And(parts) => parts.iter().any(|p| p.contains_word(word)),
             WordSearchPart::Not(part) => part.contains_word(word),
             WordSearchPart::Sequence(parts) => parts.iter().any(|p| p.contains_word(word)),
-            WordSearchPart::StartsWith(pattern) => word.to_uppercase().starts_with(&pattern.to_lowercase()),
-            WordSearchPart::EndsWith(pattern) => word.to_uppercase().ends_with(&pattern.to_lowercase()),
+            WordSearchPart::StartsWith(pattern) => word.to_lowercase().starts_with(&pattern.to_lowercase()),
+            WordSearchPart::EndsWith(pattern) => word.to_lowercase().ends_with(&pattern.to_lowercase()),
             WordSearchPart::Word(w) => w.to_lowercase() == word.to_lowercase(),
             _ => false,
         }

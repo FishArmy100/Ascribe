@@ -2,7 +2,7 @@ import { WordSearchHistoryEntry } from "@interop/view_history"
 import React, { useCallback, useEffect, useState } from "react"
 import * as searching from "@interop/searching";
 import { Box, Divider, Typography, useTheme } from "@mui/material";
-import { SearchPageToolbar } from "src/pages/search_page/SearchPageToolbar";
+import { SearchPageToolbar } from "@src/pages/search_page/SearchPageToolbar";
 import { LoadingSpinner } from "../LoadingSpinner";
 import SearchPageContent from "./SearchPageContent";
 import { Footer } from "@components/index";
@@ -15,6 +15,7 @@ import { get_handle_ref_clicked_callback } from "../page_utils";
 import { StrongsNumber } from "@interop/bible/strongs";
 import { use_view_history } from "@components/providers/ViewHistoryProvider";
 import SearchPaginator from "./SearchPaginator";
+import use_search_page_strings from "./search_page_strings";
 
 const SEARCH_RESULT_DISPLAY_COUNT: number = 50;
 
@@ -33,6 +34,7 @@ export default function SearchPage({
     const { bible_display_settings, set_bible_display_settings } = use_bible_display_settings();
     const current_bible = bible_infos[bible_display_settings.bible_version];
     const view_history = use_view_history();
+    const strings = use_search_page_strings();
 
     useEffect(() => {
         let is_mounted = true;
@@ -96,7 +98,7 @@ export default function SearchPage({
             get_bible_display_name
         );
 
-        const title = get_search_title(raw, rendered_content.hits.length)
+        const title = strings.search_title(raw, rendered_content.hits.length)
         content = <>
             <Typography 
                 variant="h5"
@@ -149,7 +151,7 @@ export default function SearchPage({
             get_bible_display_name
         );
 
-        const title = get_search_title(raw, rendered_content.hits.length);
+        const title = strings.search_title(raw, rendered_content.hits.length);
 
         content = (
             <Box>
@@ -193,22 +195,6 @@ export default function SearchPage({
             />
         </Box>
     );
-}
-
-function get_search_title(raw: string, search_count: number): string
-{
-    if (search_count === 0)
-    {
-        return `No search results were found for: ${raw}`;
-    }
-    else if (search_count === 1)
-    {
-        return `Found a result for: ${raw}`;
-    }
-    else 
-    {
-        return `Found ${search_count} results for: ${raw}`;
-    }
 }
 
 function get_default_ranges(bible: BibleInfo): searching.WordSearchRange[]

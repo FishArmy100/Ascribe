@@ -2,6 +2,7 @@ import { Box, useTheme } from "@mui/material";
 import React from "react";
 import ImageButton, { BUTTON_SIZE } from "../core/ImageButton";
 import * as images from "../../assets";
+import use_audio_player_tooltips from "./audio_player_tooltips";
 
 export type ExpandButtonProps = {
     is_expanded: boolean,
@@ -14,6 +15,8 @@ export default function ExpandButton({
 }: ExpandButtonProps): React.ReactElement
 {
     const theme = useTheme();
+    const tooltips = use_audio_player_tooltips();
+
     return (
         <Box
             sx={{
@@ -29,7 +32,7 @@ export default function ExpandButton({
             <ImageButton
                 image={is_expanded ? images.angle_down : images.angle_up}
                 active={is_expanded}
-                tooltip="Expand options"
+                tooltip={tooltips.expand_options}
                 on_click={() => set_is_expanded(!is_expanded)}
                 sx={{
                     position: "relative",

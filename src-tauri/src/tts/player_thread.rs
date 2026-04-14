@@ -104,7 +104,7 @@ impl TtsPlayerThread
                     *sound_handle = manager.lock().unwrap().play(passage_audio_inner.sound_data.clone()).unwrap();
                     sound_handle.pause(Tween::default());
 
-                    let settings = *settings_inner.get();
+                    let settings = settings_inner.get();
                     let decibels = Tweenable::interpolate(Decibels::SILENCE.as_amplitude(), Decibels::IDENTITY.as_amplitude(), settings.volume as f64).log10() * 20.0;
                     sound_handle.set_volume(decibels, Tween::default());
                     sound_handle.set_playback_rate(PlaybackRate(settings.playback_speed as f64), Tween::default());

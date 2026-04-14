@@ -21,15 +21,15 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "forceConsistentCasingInFileNames": true,
-    "baseUrl": ".",
     "paths": {
-      "@components/*": ["src/components/*"],
-      "@components": ["src/components/index.ts"],
-      "@utils/*": ["src/utils/*"],
-      "@utils": ["src/utils/index.ts"],
-      "@interop/*": ["src/interop/*"],
-      "@assets": ["src/assets/index.ts"],
-      "@assets/*": ["src/assets/*"],
+      "@components/*": ["./src/components/*"],
+      "@components": ["./src/components/index.ts"],
+      "@utils/*": ["./src/utils/*"],
+      "@utils": ["./src/utils/index.ts"],
+      "@interop/*": ["./src/interop/*"],
+      "@assets": ["./src/assets/index.ts"],
+      "@assets/*": ["./src/assets/*"],
+      "@src/*": ["./src/*"],
 
     }
   },

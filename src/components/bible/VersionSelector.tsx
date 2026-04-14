@@ -1,11 +1,14 @@
 import { Box, Button, Checkbox, Divider, FormControlLabel, Paper, Stack, Typography, useTheme } from "@mui/material";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { use_settings } from "../providers/SettingsProvider";
 import { use_bible_display_settings } from "../providers/BibleDisplaySettingsProvider";
 import { use_bible_infos } from "../providers/BibleInfoProvider";
 import { BUTTON_PADDING, BUTTON_SIZE } from "../core/ImageButton";
 import Tooltip from "../core/Tooltip";
 import DropdownBase from "@components/core/DropdownBase";
+import use_bible_tooltips from "./bible_tooltips";
+import { use_app_i18n } from "@components/providers/LanguageProvider";
+import __t from "@fisharmy100/react-auto-i18n";
 
 
 export default function VersionSelector(): React.ReactElement
@@ -17,6 +20,7 @@ export default function VersionSelector(): React.ReactElement
 
     const { bible_infos } = use_bible_infos();
     const [ is_open, set_is_open ] = useState(false);
+    const tooltips = use_bible_tooltips();
 
     let bible_versions = Object.values(bible_infos)
         .sort((a, b) => a.display_name.localeCompare(b.display_name))
@@ -24,11 +28,17 @@ export default function VersionSelector(): React.ReactElement
 
     const dropdown_padding = 1;
 
+    const i18n = use_app_i18n();
+    const labels = useMemo(() => ({
+        parallel: __t("bible.version_selector.parallel", "Parallel"),
+        strongs: __t("bible.version_selector.strongs", "Strongs"),
+    }), [i18n]);
+
     return (
         <DropdownBase 
             button={{
                 type: "text",
-                tooltip: "Select bible version",
+                tooltip: tooltips.select_version,
                 text: bible_infos[bible_version].display_name,
             }}
             is_open={is_open}
@@ -40,10 +50,10 @@ export default function VersionSelector(): React.ReactElement
                     }}
                 >
                     <Tooltip
-                        tooltip={parallel_enabled ? "Disable parallel version" : "Enable parallel version"}
+                        tooltip={parallel_enabled ? tooltips.disable_parallel : tooltips.enable_parallel}
                     >
                         <FormControlLabel
-                            label="Parallel"
+                            label={labels.parallel}
                             control={
                                 <Checkbox
                                     checked={parallel_enabled}
@@ -87,7 +97,7 @@ export default function VersionSelector(): React.ReactElement
                             let is_selected = bible_version === v;
                             return (
                                 <Tooltip
-                                    tooltip={`Select ${bible_infos[v].display_name}`}
+                                    tooltip={tooltips.select_version_button(bible_infos[v].display_name)}
                                     key={i}
                                 >
                                     <Button
@@ -156,7 +166,7 @@ export default function VersionSelector(): React.ReactElement
 
                             return (
                                 <Tooltip
-                                    tooltip={`Select ${bible_infos[v].display_name}`}
+                                    tooltip={tooltips.select_version_button(bible_infos[v].display_name)}
                                     key={i}
                                 >
                                     <Button
@@ -204,10 +214,10 @@ export default function VersionSelector(): React.ReactElement
                     }}
                 >
                     <Tooltip
-                        tooltip={show_strongs ? "Disable Strongs numbers" : "Enable Strongs numbers"}
+                        tooltip={show_strongs ? tooltips.disable_strongs : tooltips.enable_strongs}
                     >
                         <FormControlLabel
-                            label="Strongs"
+                            label={labels.strongs}
                             control={
                                 <Checkbox
                                     checked={show_strongs}

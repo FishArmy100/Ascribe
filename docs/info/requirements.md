@@ -1,6 +1,6 @@
 # Ascribe Requirements
 
-Approximately all of the requirements for the Ascribe Bible Study application version 1.0, though may be up for change as of 0/19/2025
+Approximately all of the requirements for the Ascribe Bible Study application version 1.0, though may be up for change as of 2/23/2026
 
 ## Table of Contents
 
@@ -20,7 +20,7 @@ Approximately all of the requirements for the Ascribe Bible Study application ve
     - [Search Syntax](#search-syntax)
     - [Search Page](#search-page)
   - [Audio Player](#audio-player)
-    - [Audio Player Layout (out of date)](#audio-player-layout-out-of-date)
+    - [Audio Player Layout](#audio-player-layout)
     - [Behavior](#behavior)
   - [Settings Page](#settings-page)
   - [Module List Page](#module-list-page)
@@ -32,7 +32,7 @@ Approximately all of the requirements for the Ascribe Bible Study application ve
     - [Highlight Editor](#highlight-editor)
   - [Side Note Editor](#side-note-editor)
     - [Device Differences](#device-differences)
-  - [Daily Readings Page](#daily-readings-page)
+  - [Daily Readings Popup](#daily-readings-popup)
   - [Cloud Sync](#cloud-sync)
   - [Platforms](#platforms)
     - [Large Screen](#large-screen)
@@ -45,6 +45,7 @@ Approximately all of the requirements for the Ascribe Bible Study application ve
   - [Chapter Picker](#chapter-picker)
   - [Book Picker](#book-picker)
   - [Strongs Picker](#strongs-picker)
+  - [Custom Ctrl + F Popup](#custom-ctrl--f-popup)
   - [HTMLText Editor](#htmltext-editor)
   - [Help Page?](#help-page)
     - [Help Page Layout](#help-page-layout)
@@ -61,6 +62,7 @@ Approximately all of the requirements for the Ascribe Bible Study application ve
   - [ ] Can move tabs between window instances
   - [ ] Dragging a tab to a blank area will create a new window, with that associated tab
   - [ ] Something like a typical web browser
+- [ ] Should have global Ctrl-Z/Ctrl-Y undo/redo action support for creating notes, highlights, ect
 
 <!-- ======================================================================================================== -->
 
@@ -71,8 +73,8 @@ The general layout we can keep pretty similar to old version, though would be go
 ### Core Components
 
 - [x] Image Button
-- [ ] Image Dropdown
-- [ ] Text Dropdown
+- [x] Image Dropdown
+- [x] Text Dropdown
 - [x] Value slider
 - [ ] Info Popup (Alert, etc)
 - [x] Search Bar
@@ -89,6 +91,7 @@ The header comprises a sticky top bar with buttons, dropdowns, and sometimes a s
     - [x] Next Section
     - [x] Audio Player
     - [x] Version Selector
+    - [x] Daily Readings
     - [x] **Verse Render Settings**
     - [x] **Misc Dropdown**
   - [x] Search Page
@@ -96,22 +99,19 @@ The header comprises a sticky top bar with buttons, dropdowns, and sometimes a s
     - [x] Search Bar
     - [x] Previous Section
     - [x] Next Section
+    - [ ] Daily Readings
     - [x] **Verse Render Settings**
     - [x] **Misc Dropdown**
-  - [ ] Settings Page
+  - [x] Settings Page
     - [x] Back Button
     - [x] **Misc Dropdown**
-  - [ ] Daily Readings Page
-    - [ ] Version Selector
-    - [ ] Back Button
-    - [ ] **Misc Dropdown**
   - [ ] Module List Page
     - [x] Search Bar
     - [x] Previous Section
     - [x] Next Section
     - [ ] Upload `biblio_json` module
     - [x] **Misc Dropdown**
-  - [ ] Module Inspector Page
+  - [x] Module Inspector Page
     - [x] Search Bar
     - [x] Previous Section
     - [x] Next Section
@@ -132,7 +132,6 @@ The header comprises a sticky top bar with buttons, dropdowns, and sometimes a s
     - [ ] **Misc Dropdown**
 - [ ] **Misc Dropdown**
   - [x] Settings
-  - [ ] Daily Readings
   - [x] Modules
   - [ ] Help Page?
   - [ ] Highlight Editor
@@ -173,8 +172,8 @@ Core section of Ascribe, renders as a full page or partial page depending on if 
   - [ ] BBE
   - [ ] YLT
   - [x] ASV
-  - [ ] SpaRV
-  - [ ] (a Swahili Version)
+  - [x] SpaRV
+  - [x] (a Swahili Version)
 - [ ] Nice to Have:
   - [ ] ESV
   - [ ] NKJV
@@ -277,11 +276,11 @@ The search page is pretty much the same as the old version, though just improvin
 
 Similar to the old version, with behavior, however with improved looks
 
-- [ ] Generates on backend from biblical text
-- [ ] Audio version is based on what the current Bible version is selected
-- [ ] Audio player toggle located in the top bar on specific pages (see [Header](#header))
+- [x] Generates on backend from biblical text
+- [x] Audio version is based on what the current Bible version is selected
+- [x] Audio player toggle located in the top bar on specific pages (see [Header](#header))
 
-### Audio Player Layout (out of date)
+### Audio Player Layout
 
 - [ ] Position
   - [ ]  Docked at the bottom of the screen
@@ -365,9 +364,9 @@ Similar to the old version, with behavior, however with improved looks
     - [ ] Is clamped to a range?
     - [ ] Automatically generates main, dark, light
   - [ ] Preview Theme
-- [ ] Theme Selector
-  - [ ] Light
-  - [ ] Dark
+- [x] Theme Selector
+  - [x] Light
+  - [x] Dark
   - [ ] Custom theme list
 - [ ] Advanced
   - [ ] Clear search history (see [Page History](#page-history))
@@ -386,7 +385,7 @@ The Module List Page shows all of the `biblio_json` modules that are loaded and 
   - [ ] Info
     - [x] Name
     - [x] Module Type
-    - [ ] Is Enabled (for viewing in popovers)
+    - [x] Is Enabled (for viewing in popovers)
     - [x] Description
       - [x] Brief HTML encoded description
       - [x] Expand/Reduce size if long
@@ -396,9 +395,9 @@ The Module List Page shows all of the `biblio_json` modules that are loaded and 
     - [ ] Word count?
     - [ ] Size?
   - [ ] Actions
-    - [ ] Inspect
-      - [ ] Click on the name of the Module
-      - [ ] Opens the [Notebook Editor Page](#module-inspector-page)
+    - [x] Inspect
+      - [x] Click on the name of the Module
+      - [x] Opens the [Notebook Editor Page](#module-inspector-page)
     - [ ] Delete
       - [ ] With confirm menu
       - [ ] Possibly cache deleted notebooks, for retrieval?
@@ -464,10 +463,10 @@ Allows the user to inspect individual entries. Is typically navigated to from th
       - [ ] References?
         - [ ] Cool if could see all uses
 - [ ] Searching
-  - [ ] Can search for all entries in a given module, using the searcher
-  - [ ] Has a follows the same [search syntax](#search-syntax) as the [Search Page](#search-page) uses, with a few changes
-    - [ ] References act as ranges for locations, like notes. i.e.: all notes in this range
-    - [ ] Strongs references target links to strongs references, not necessarily textual content
+  - [x] Can search for all entries in a given module, using the searcher
+  - [x] Has a follows the same [search syntax](#search-syntax) as the [Search Page](#search-page) uses, with a few changes
+    - [x] References act as ranges for locations, like notes. i.e.: all notes in this range
+    - [x] Strongs references target links to strongs references, not necessarily textual content
 - [x] General
   - [x] Is a tabbed view, similar to the [Search Page](#search-page)
   - [ ] If it is a notebook page, extra settings
@@ -524,26 +523,28 @@ Specifically used when in the Bible or search page, and want to create a note. C
 Smaller devices will not be able to see the side note editor, and will instead toggle between the editor, and the Bible or search page they are currently on. This would take the place of the collapse buttons.
 
 <!-- ======================================================================================================== -->
-## Daily Readings Page
+## Daily Readings Popup
 
-Similar to the old one, but preferably a better layout
+Has the same functionality of the old one however now as a popup in the header bar, instead of its own page
 
-- [ ] Calendar selector
-  - [ ] Shows current month as the calendar
-  - [ ] Can select month as a dropdown
-  - [ ] Can select year as a scrollable dropdown
-  - [ ] Will automatically display what the current date is
+- [x] Calendar selector
+  - [x] Shows current month as the calendar
+  - [x] Can select month as a dropdown
+  - [x] Can select year as a dropdown
+  - [x] Will automatically display what the current date is
     - [ ] Also reset to current date button
   - [ ] When clicked off, will display what the current date is, if visible
 - [ ] Readings section
-  - [ ] Displays name of currently selected reading plan
-    - [ ] Preference saved across sessions
-    - [ ] Can switch what reading plan is selected
-  - [ ] Scripture Segments
-    - [ ] Portioned (ie: Robert Roberts): Displays each chapter/section of the reading in its portions
-    - [ ] Un-portioned: Displays as normal list of all section
-    - [ ] Each reference is clickable, and will go to that section
-    - [ ] All readings are broken into there individual chapters
+  - [x] Displays name of currently selected reading plan
+    - [x] Can switch what reading plan is selected
+  - [x] Scripture Segments
+    - [x] Each reference is clickable, and will go to that section
+    - [x] All readings are broken into there individual chapters
+  - [ ] Tracking
+    - [ ] You can toggle a date for if you have read a particular section or not
+    - [ ] Reset for the reading (automatically each year?)
+    - [ ] Progress stored locally on machine
+    - [ ] Progress synced across machines
 
 <!-- ======================================================================================================== -->
 ## Cloud Sync
@@ -589,17 +590,15 @@ Ie: IPhones, Android, Pixels, etc
 <!-- ======================================================================================================== -->
 ## Page History
 
-- [ ] Stores the navigation history of the user
-  - [ ] Only count specific pages
-    - [ ] Search pages
-    - [ ] Bible pages
-  - [ ] Can clear history (see [Settings](#settings-page))
-- [ ] Can navigate between history pages
-  - [ ] Previous
-    - [ ] If no previous states, disabled
-  - [ ] Next
-    - [ ] If no next pages, disabled
-  - [ ] Located in top bar (see [Header](#header))
+- [x] Stores the navigation history of the user
+- [ ] Can clear history (see [Settings](#settings-page))
+- [x] Can navigate between history pages
+  - [x] Previous
+    - [x] If no previous states, disabled
+  - [x] Next
+    - [x] If no next pages, disabled
+  - [x] Located in top bar (see [Header](#header))
+- [ ] Some pages may have a 'latest bible'
 
 <!-- ======================================================================================================== -->
 ## Highlight Picker
@@ -634,19 +633,22 @@ When highlighting a section of text in either the Bible page or the search page,
 User can click on a word to look into it more. this is similar to how [seethebible](seethebible.com) does it, but with either a sidebar option, or a popup modal.
 
 - [ ] Format
-  - [ ] A popup modal with a list of entries
-    - [ ] For all enabled modules which have a reference for that word
-    - [ ] Only track for words, the [Verse Picker](#verse-picker), the [Chapter Picker](#chapter-picker), and the [Book Picker](#book-picker) work for their own data respectively
-  - [ ] Scrollable if module entries extend beyond current size
-  - [ ] Moveable?
+  - [x] A popup modal with a list of entries
+    - [x] For all enabled modules which have a reference for that word
+    - [x] Only track for words, the [Verse Picker](#verse-picker), the [Chapter Picker](#chapter-picker), and the [Book Picker](#book-picker) work for their own data respectively
+  - [x] Scrollable if module entries extend beyond current size
+  - [x] Moveable?
     - [ ] Clicked and dragged around the viewable area
     - [ ] Clamped to area of the screen
   - [ ] Resizable?
     - [ ] Has a minimum/maximum size
-- [ ] Entries
-  - [ ] Different data for each module entry
-  - [ ] Displays it the same way that the [Module Entry Display](#module-entry-information) shows
+- [x] Entries
+  - [x] Different data for each module entry
+  - [x] Displays it the same way that the [Module Entry Display](#module-entry-information) shows
   - [ ] Includes a way to edit notes and highlights?
+- [x] Title
+  - [x] Displays the picked word
+  - [x] Can click on it to search for all instances of that word
 
 <!-- ======================================================================================================== -->
 ## Verse Picker
@@ -670,11 +672,27 @@ Displays similar information to the word picker, but shows entries for the entir
 
 Is like the Word picker, but only displays information for the strongs number, no other information
 
-- [ ] Display
-  - [ ] Shows Strongs Number at the top
-  - [ ] Shows definitions
-  - [ ] Shows derivation (if it has one)
-  - [ ] Has a search button to look up that strongs number
+- [x] Display
+  - [x] Shows Strongs Number at the top
+  - [x] Shows definitions
+  - [x] Shows derivation (if it has one)
+  - [x] Can click the title (strongs number) to search for all instances of it 
+
+<!-- ======================================================================================================== -->
+## Custom Ctrl + F Popup
+Is has different functionality depending on what page the user is on
+
+- [ ] All
+  - [ ] Can search for a given set of text
+  - [ ] Regular expression?
+  - [ ] Match case
+  - [ ] Match whole word
+  - [ ] Split words (based on spaces, keeps order)
+  - [ ] Tab up/down (cyclic)
+- [ ] Bible and Search Page
+  - [ ] When searching can highlight or add all notes to all hits
+- [ ] Other
+  - [ ] Acts as a regular Ctrl + F popup, though has the same UI style as the rest of the app
 
 <!-- ======================================================================================================== -->
 ## HTMLText Editor

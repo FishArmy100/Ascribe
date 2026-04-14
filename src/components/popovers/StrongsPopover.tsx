@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react"
+import React, { useCallback, useEffect, useMemo, useState } from "react"
 import { StrongsNumber, fetch_backend_strongs_defs, format_strongs } from "@interop/bible/strongs"
 import { Box, Divider, Popover, Stack, Typography, useTheme } from "@mui/material"
 import { HRefSrc, HtmlText, Node } from "@interop/html_text";
@@ -7,6 +7,7 @@ import SmallerTextSection from "@components/SmallerTextSection";
 import * as utils from "@utils";
 import { StrongsDefEntry } from "@interop/module_entry";
 import { use_bible_display_settings } from "@components/providers/BibleDisplaySettingsProvider";
+import { use_view_history } from "@components/providers/ViewHistoryProvider";
 
 export type StrongsPopoverProps = {
     pos: { top: number, left: number } | null,
@@ -20,9 +21,9 @@ export default function StrongsPopover({
     on_close, 
 }: StrongsPopoverProps): React.ReactElement
 {
-    utils.pretty_print_json({});
     const [strongs_defs, set_strongs_defs] = useState<StrongsDefEntry[] | null>(null);
     const { bible_display_settings } = use_bible_display_settings();
+    const view_history = use_view_history();
 
     useEffect(() => {
         if (strongs !== null)
@@ -32,6 +33,24 @@ export default function StrongsPopover({
             }) 
         }
     }, [strongs]);
+
+    const on_title_click = useCallback(() => {
+        if (strongs !== null)
+        {
+            view_history.push({
+                type: "word_search",
+                query: {
+                    ranges: [],
+                    root: {
+                        type: "strongs",
+                        strongs: strongs
+                    }
+                },
+                page_index: 0,
+                raw: format_strongs(strongs)
+            })
+        }
+    }, [view_history, strongs]);
 
     const is_open = useMemo(() => {
         return pos !== null && strongs_defs !== null && strongs !== null;
@@ -70,14 +89,29 @@ export default function StrongsPopover({
                 >
                     {
                         strongs && (
-                            <Typography
-                                variant="h5"
-                                textAlign="center"
-                                fontWeight="bold"
-                                key="title"
+                            <Box
+                                sx={{
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    display: "flex",
+                                    mb: 1,
+                                }}
                             >
-                                {format_strongs(strongs)}
-                            </Typography>
+                                <Typography
+                                    variant="h5"
+                                    textAlign="center"
+                                    fontWeight="bold"
+                                    key="title"
+                                    className="animated-underline"
+                                    sx={{
+                                        cursor: "pointer",
+                                        width: "min-content"
+                                    }}
+                                    onClick={on_title_click}
+                                >
+                                    {format_strongs(strongs)}
+                                </Typography>
+                            </Box>
                         )
                     }
                     {strongs_defs && strongs_defs

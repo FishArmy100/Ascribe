@@ -2,7 +2,7 @@ import { Box, Paper, SxProps, Theme, useTheme } from "@mui/material";
 import React from "react"
 import ImageButton from "./ImageButton";
 import TextButton from "./TextButton";
-import { DROPDOWN_PADDING } from "./ImageDropdown";
+import { IMAGE_DROPDOWN_PADDING } from "./ImageDropdown";
 
 export type DropdownButton = {
     type: "image",
@@ -14,7 +14,12 @@ export type DropdownButton = {
     text: string,
     tooltip: string,
     sx?: SxProps<Theme>,
+}| {
+    type: "element",
+    element_builder: (on_click: () => void) => React.ReactElement
 }
+
+export type DropdownPlacement = "top" | "bottom";
 
 export type DropdownBaseProps = {
     button: DropdownButton,
@@ -24,6 +29,7 @@ export type DropdownBaseProps = {
     disable_hover?: boolean,
     content_z_index?: number,
     panel_sx?: SxProps<Theme>,
+    placement?: DropdownPlacement,
 }
 
 export default function DropdownBase({
@@ -32,8 +38,9 @@ export default function DropdownBase({
     on_click,
     children,
     disable_hover,
-    content_z_index,
+    content_z_index = 1000,
     panel_sx,
+    placement = "bottom"
 }: DropdownBaseProps): React.ReactElement
 {
     const theme = useTheme();
@@ -51,7 +58,7 @@ export default function DropdownBase({
             />
         )
     }
-    else
+    else if (button.type === "text")
     {
         button_element = (
             <TextButton 
@@ -63,6 +70,28 @@ export default function DropdownBase({
             />
         )
     }
+    else 
+    {
+        button_element = button.element_builder(on_click);
+    }
+
+    const placement_sx: SxProps<Theme> = placement === "top"
+        ? {
+            bottom: "100%",
+            top: "auto",
+            "&::before": {
+                top: "auto",
+                bottom: theme.spacing(-1),
+            },
+        }
+        : {
+            top: "100%",
+            bottom: "auto",
+            "&::before": {
+                top: theme.spacing(-1),
+                bottom: "auto",
+            },
+        }
 
     return (
         <Box
@@ -83,8 +112,8 @@ export default function DropdownBase({
                 sx={{
                     position: "absolute",
                     top: `100%`,
-                    left: (theme) => theme.spacing(-DROPDOWN_PADDING),
-                    padding: DROPDOWN_PADDING,
+                    left: (theme) => theme.spacing(-IMAGE_DROPDOWN_PADDING),
+                    padding: IMAGE_DROPDOWN_PADDING,
                     visibility: is_open ? "visible" : "hidden",
                     opacity: is_open ? 1 : 0,
                     pointerEvents: is_open ? "all" : "none",
@@ -99,6 +128,7 @@ export default function DropdownBase({
                         right: 0,
                         height: theme.spacing(1),
                     },
+                    ...placement_sx,
                     ...panel_sx
                 }}
                 className="dropdown-content"

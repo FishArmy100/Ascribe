@@ -5,6 +5,7 @@ import { use_settings } from "@components/providers/SettingsProvider";
 import { useCallback, useEffect, useState } from "react";
 import Slider from "@components/core/Slider";
 import { use_deep_copy } from "@utils/index";
+import use_settings_page_strings from "./settings_page_strings";
 
 const UI_SCALE_SLIDER_TITLE: string = "Ui Scale";
 
@@ -13,6 +14,7 @@ export default function UiScaleSlider(): React.ReactElement
     const { settings, set_settings } = use_settings();
     const deep_copy = use_deep_copy();
     const theme = useTheme();
+    const strings = use_settings_page_strings();
 
     const [ui_scale_value, set_ui_scale_value] = useState(settings.ui_scale);
     useEffect(() => {
@@ -55,7 +57,7 @@ export default function UiScaleSlider(): React.ReactElement
                     textAlign="center"
                     fontWeight="bold"
                 >
-                    {UI_SCALE_SLIDER_TITLE}
+                    {strings.ui_scale_title}
                 </Typography>
                 <Stack 
                     direction="row"
@@ -66,7 +68,7 @@ export default function UiScaleSlider(): React.ReactElement
                 >
                     <ImageButton 
                         image={images.arrows_rotate}
-                        tooltip="Reset Ui Scale"
+                        tooltip={strings.reset_ui_scale_tooltip}
                         on_click={handle_scale_reset}
                     />
                     <Slider 

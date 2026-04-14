@@ -85,6 +85,9 @@ export type SearchHit = {
 }
 
 export type WordSearchQuery = {
+    /**
+     * If the ranges are empty, then it will default to the currently selected bible (I think)
+     */
     ranges: WordSearchRange[];
     root: WordSearchPart;
 }

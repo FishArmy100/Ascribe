@@ -1,3 +1,3 @@
 # Biblio Json Updates
 
-- [ ] `Package::fetch_entry` should take in a reference and not a value of a `ModuleEntryRef`
+- [ ] Add a password protected variant, allowing for use of copyrighted materials (if ESV/NIV will still let me)

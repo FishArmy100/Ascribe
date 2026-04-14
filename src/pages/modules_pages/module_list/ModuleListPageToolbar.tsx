@@ -7,6 +7,7 @@ import SubMenuDropdown from "@components/SubMenuDropdown";
 import { Divider } from "@mui/material";
 import ModuleTypeDisplayDropdown, { ModuleDisplayOptions } from "./ModuleTypeDisplayDropdown";
 import ClosestBibleViewHistoryButton from "@components/ClosestBibleViewHistoryButton";
+import use_module_pages_strings from "../module_pages_strings";
 
 export type ModuleListPageToolbarProps = {
     display_options: ModuleDisplayOptions,
@@ -21,6 +22,7 @@ export default function ModuleListPageToolbar({
 }: ModuleListPageToolbarProps): React.ReactElement
 {
     const view_history = use_view_history();
+    const strings = use_module_pages_strings();
 
     return (
         <TopBar
@@ -32,7 +34,7 @@ export default function ModuleListPageToolbar({
                 flexItem 
             />
             <SearchBar 
-                placeholder="Search..."
+                placeholder={strings.search_placeholder}
                 on_search={async (value: string) => {
                     on_searching(value);
 
@@ -55,13 +57,13 @@ export default function ModuleListPageToolbar({
             
             <ImageButton
                 image={images.arrow_turn_left}
-                tooltip="To previous page"
+                tooltip={strings.previous_page}
                 disabled={view_history.get_index() === 0}
                 on_click={() => view_history.retreat()}
             />
             <ImageButton
                 image={images.arrow_turn_right}
-                tooltip="To next page"
+                tooltip={strings.next_page}
                 disabled={view_history.get_index() >= view_history.get_count() - 1}
                 on_click={() => view_history.advance()}
             />

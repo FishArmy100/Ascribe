@@ -1,8 +1,16 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Box, CircularProgress, Typography } from "@mui/material";
+import { use_app_i18n } from "@components/providers/LanguageProvider";
+import __t from "@fisharmy100/react-auto-i18n";
 
 export default function LoadingScreen(): React.ReactElement
 {
+	const i18n = use_app_i18n();
+
+	const text = useMemo(() => {
+		return __t("loading_screen.message", "Loading, please wait...")
+	}, [i18n])
+
 	return (
 		<Box
 			sx={{
@@ -17,7 +25,7 @@ export default function LoadingScreen(): React.ReactElement
 		>
 			<CircularProgress size={60} thickness={4} />
 			<Typography variant="h6" sx={{ mt: 2 }}>
-				Loading, please wait...
+				{text}
 			</Typography>
 		</Box>
 	);

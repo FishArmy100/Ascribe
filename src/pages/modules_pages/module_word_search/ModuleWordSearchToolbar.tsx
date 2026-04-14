@@ -9,6 +9,7 @@ import ClosestBibleViewHistoryButton from "@components/ClosestBibleViewHistoryBu
 import { ModuleWordSearchEntry } from "@interop/view_history";
 import { backend_push_module_word_search_to_view_history, pretty_print_word_search_query } from "@interop/searching";
 import { use_bible_infos } from "@components/providers/BibleInfoProvider";
+import use_module_pages_strings from "../module_pages_strings";
 
 export type ModuleWordSearchToolbarProps = {
     entry: ModuleWordSearchEntry,
@@ -19,7 +20,8 @@ export default function ModuleWordSearchToolbar({
 }: ModuleWordSearchToolbarProps): React.ReactElement
 {
     const view_history = use_view_history();
-    const { get_bible_display_name, get_book_display_name } = use_bible_infos()
+    const { get_bible_display_name, get_book_display_name } = use_bible_infos();
+    const strings = use_module_pages_strings();
 
     const search_value = useMemo(() => {
         if (entry.raw !== null)
@@ -64,13 +66,13 @@ export default function ModuleWordSearchToolbar({
             />          
             <ImageButton
                 image={images.arrow_turn_left}
-                tooltip="To previous page"
+                tooltip={strings.previous_page}
                 disabled={view_history.get_index() === 0}
                 on_click={() => view_history.retreat()}
             />
             <ImageButton
                 image={images.arrow_turn_right}
-                tooltip="To next page"
+                tooltip={strings.next_page}
                 disabled={view_history.get_index() >= view_history.get_count() - 1}
                 on_click={() => view_history.advance()}
             />

@@ -8,6 +8,7 @@ import * as searching from "@interop/searching"
 import React, { useCallback } from "react";
 import { use_bible_infos } from "@components/providers/BibleInfoProvider";
 import SubMenuDropdown from "@components/SubMenuDropdown";
+import use_search_page_strings from "./search_page_strings";
 
 export type SearchPageToolbarProps = {
     entry: WordSearchHistoryEntry
@@ -20,6 +21,7 @@ export const SearchPageToolbar = React.memo(function SearchPageToolbar({
     const view_history = use_view_history();
     const { get_bible_display_name, get_book_display_name } = use_bible_infos();
     const placeholder = entry.raw ?? searching.pretty_print_word_search_query(entry.query, get_book_display_name, get_bible_display_name)
+    const strings = use_search_page_strings();
 
     const on_select_callback = useCallback((c: bible.ChapterId) => {
         view_history.push({
@@ -55,13 +57,13 @@ export const SearchPageToolbar = React.memo(function SearchPageToolbar({
                 />
                 <ImageButton
                     image={images.arrow_turn_left}
-                    tooltip="To previous page"
+                    tooltip={strings.previous_page}
                     disabled={view_history.get_index() === 0}
                     on_click={() => view_history.retreat()}
                 />
                 <ImageButton
                     image={images.arrow_turn_right}
-                    tooltip="To next page"
+                    tooltip={strings.next_page}
                     disabled={view_history.get_index() >= view_history.get_count() - 1}
                     on_click={() => view_history.advance()}
                 />

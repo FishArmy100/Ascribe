@@ -3,7 +3,7 @@ import React, { useState } from "react"
 import ImageButton from "./ImageButton"
 import { use_settings } from "../providers/SettingsProvider"
 
-export const DROPDOWN_PADDING = 0.4;
+export const IMAGE_DROPDOWN_PADDING = 0.4;
 
 export type ImageDropdownOption<T> = {
     image: string,
@@ -47,8 +47,8 @@ export default function ImageDropdown<T>({
                 sx={{
                     position: "absolute",
                     top: `100%`,
-                    left: (theme) => theme.spacing(-DROPDOWN_PADDING),
-                    padding: DROPDOWN_PADDING,
+                    left: (theme) => theme.spacing(-IMAGE_DROPDOWN_PADDING),
+                    padding: IMAGE_DROPDOWN_PADDING,
                     visibility: is_open ? "visible" : "hidden",
                     opacity: is_open ? 1 : 0,
                     pointerEvents: is_open ? "all" : "none",
@@ -58,7 +58,7 @@ export default function ImageDropdown<T>({
             >
                 <Stack 
                     direction="column"
-                    gap={(theme) => theme.spacing(DROPDOWN_PADDING)}
+                    gap={(theme) => theme.spacing(IMAGE_DROPDOWN_PADDING)}
                 >
                     {options.map((o, i) => {
                         return (

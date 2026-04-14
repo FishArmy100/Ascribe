@@ -4,6 +4,7 @@ import { listen, UnlistenFn } from "@tauri-apps/api/event";
 import { use_bible_infos } from "../../components/providers/BibleInfoProvider";
 import * as utils from "../../utils"
 import { use_bible_display_settings } from "../../components/providers/BibleDisplaySettingsProvider";
+import { LangCode } from "@fisharmy100/react-auto-i18n";
 
 export * from "./book";
 export { fetch_backend_verse_render_data, backend_render_verses as backend_render_verse_words } from "./render";
@@ -227,7 +228,17 @@ export type BibleVersionChangedEvent = {
 
 export function listen_bible_display_settings_changed(listener: (e: BibleVersionChangedEvent) => void): Promise<UnlistenFn>
 {
-    return listen<BibleVersionChangedEvent>("bible-version-changed", e => {
+    return listen<BibleVersionChangedEvent>("bible-display-settings-changed", e => {
         listener(e.payload)
+    })
+}
+
+export async function backend_get_language_default_bible(language: LangCode): Promise<string | null>
+{
+    return await invoke<string | null>("run_bible_command", {
+        command: {
+            type: "get_language_default_bible",
+            language
+        }
     })
 }
