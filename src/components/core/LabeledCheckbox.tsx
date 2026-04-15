@@ -2,12 +2,14 @@ import React from "react";
 import Tooltip from "./Tooltip";
 import { Box, Checkbox, FormControlLabel, Typography, useTheme } from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
+import { play_sfx, Sfx } from "@interop/sfx";
 
 export type LabeledCheckboxProps = {
     tooltip: string,
     value: boolean,
     set_value: (v: boolean) => void,
     label: string,
+    sfx?: Sfx | "none"
 }
 
 export default function LabeledCheckbox({
@@ -15,6 +17,7 @@ export default function LabeledCheckbox({
     value,
     set_value,
     label,
+    sfx = "click"
 }: LabeledCheckboxProps): React.ReactElement
 {
     const theme = useTheme();
@@ -44,7 +47,13 @@ export default function LabeledCheckbox({
                     control={
                         <Checkbox
                             checked={value}
-                            onChange={e => set_value(e.target.checked)}
+                            onChange={e => {
+                                if (sfx && sfx !== "none")
+                                {
+                                    play_sfx(sfx);
+                                }
+                                set_value(e.target.checked);
+                            }}
                             icon={
                                 <span style={{
                                     width: theme.spacing(20 / 8),

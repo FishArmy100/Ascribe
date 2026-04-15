@@ -1,12 +1,13 @@
 import { ChapterId, OsisBook, VerseId, WordId } from "@interop/bible";
 import { StrongsNumber } from "@interop/bible/strongs";
-import React from "react";
+import React, { useEffect } from "react";
 import WordPopover from "./WordPopover";
 import StrongsPopover from "./StrongsPopover";
 import { HRefSrc } from "@interop/html_text";
 import VersePopover from "./VersePopover";
 import ChapterPopover from "./ChapterPopover";
 import BookPopover from "./BookPopover";
+import { play_sfx } from "@interop/sfx";
 
 export type PopoverData = ({
     type: "strongs",
@@ -40,6 +41,10 @@ export default function PopoverManager({
     on_close
 }: PopoverManagerProps): React.ReactElement
 {
+    useEffect(() => {
+        play_sfx("toggle_panel");
+    }, [data]);
+
     return <>
         <StrongsPopover
             strongs={data && data.type === "strongs" ? data.strongs_number : null}

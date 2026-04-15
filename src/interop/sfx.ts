@@ -1,6 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 
-export type Sfx = "page_turn";
+export type Sfx = "page_turn" | "click" | "toggle_panel";
 
 export function play_sfx(sfx: Sfx)
 {

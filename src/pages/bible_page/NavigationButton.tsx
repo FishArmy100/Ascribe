@@ -22,11 +22,6 @@ export const NavigationButton = React.memo(({
 	const isLeft = direction === 'left';
 	const strings = use_bible_page_strings();
 
-	const handle_click = () => {
-		play_sfx("page_turn");
-		on_click();
-	}
-
 	return (
 		<ImageButton
 			image={isLeft ? images.arrow_left : images.arrow_right}
@@ -40,7 +35,9 @@ export const NavigationButton = React.memo(({
 				minWidth: (theme) => theme.spacing(button_width),
 				width: (theme) => theme.spacing(button_width),
 			}}
-			on_click={handle_click} />
+			on_click={on_click} 
+			sfx="page_turn"
+		/>
 	);
 });
 NavigationButton.displayName = 'NavigationButton';

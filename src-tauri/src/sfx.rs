@@ -11,6 +11,8 @@ lazy_static::lazy_static!
     static ref ALL_SOUNDS: HashMap<&'static str, &'static str> = {
         let mut map = HashMap::new();
         map.insert("page_turn", "page_turn.mp3");
+        map.insert("toggle_panel", "toggle_panel.ogg");
+        map.insert("click", "click.ogg");
         map
     };
 }
@@ -28,6 +30,7 @@ impl SfxPlayer
     {
         let sounds: HashMap<_, _> = ALL_SOUNDS.iter().map(|(name, path)| {
             let path = resolver.resolve(format!("resources/sfx/{}", path), BaseDirectory::Resource).unwrap();
+            println!("{:#?}", path);
             let sound = StaticSoundData::from_file(path).unwrap();
             (*name, sound)
         }).collect();

@@ -3,6 +3,7 @@ import React, { useState } from "react"
 import Tooltip from "./Tooltip";
 import { TypographyVariant } from "@mui/material/styles";
 import DropdownBase, { DropdownPlacement } from "./DropdownBase";
+import { play_sfx } from "@interop/sfx";
 
 export const DROPDOWN_PADDING = 1;
 
@@ -61,7 +62,10 @@ export default function TextSelectDropdown<T>({
                                 whiteSpace: width === undefined ? "nowrap" : undefined,
                                 width: dropdown_width,
                             }}
-                            onClick={on_click}
+                            onClick={() => {
+                                play_sfx("click");
+                                on_click();
+                            }}
                         >
                             {title}
                         </Typography>
@@ -91,6 +95,7 @@ export default function TextSelectDropdown<T>({
                             fontWeight={bold ? "bold" : undefined}
                             onClick={() => {
                                 set_open(false);
+                                play_sfx("click");
                                 on_select(o.value);
                             }}
                             sx={{

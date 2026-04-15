@@ -1,7 +1,8 @@
 import { Button, SxProps, Theme, Typography, useTheme } from "@mui/material";
-import React from "react";
+import React, { useCallback } from "react";
 import Tooltip from "./Tooltip";
 import { BUTTON_BORDER_RADIUS, BUTTON_PADDING, BUTTON_SIZE } from "./ImageButton";
+import { play_sfx, Sfx } from "@interop/sfx";
 
 export type TextButtonProps = {
     text: string,
@@ -10,6 +11,7 @@ export type TextButtonProps = {
     active?: boolean,
     on_click?: (event: React.MouseEvent<HTMLButtonElement>) => void,
     sx?: SxProps<Theme>,
+    sfx?: Sfx | "none",
 }
 
 export default function TextButton({
@@ -19,9 +21,18 @@ export default function TextButton({
     active,
     on_click,
     sx,
+    sfx = "click"
 }: TextButtonProps): React.ReactElement
 {
     const theme = useTheme();
+    const handle_click = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
+        if (sfx && sfx !== "none")
+        {
+            play_sfx(sfx);
+        }
+        on_click?.(event);
+    }, [on_click, sfx]);
+
     return (
         <Tooltip
             tooltip={tooltip}
@@ -29,7 +40,7 @@ export default function TextButton({
             <span>
                 <Button
                     disabled={disabled}
-                    onClick={on_click}
+                    onClick={handle_click}
                     sx={{
                         backgroundColor: active ? theme.palette.secondary.main : theme.palette.primary.light,
                         borderRadius: (theme) => theme.spacing(BUTTON_BORDER_RADIUS),

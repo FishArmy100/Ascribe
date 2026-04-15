@@ -3,12 +3,14 @@ import Tooltip from "./Tooltip";
 import { Box, Checkbox as MuiCheckbox, useTheme } from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
 import { BUTTON_BORDER_RADIUS, BUTTON_SIZE } from "./ImageButton";
+import { play_sfx, Sfx } from "@interop/sfx";
 
 export type CheckboxProps = {
     tooltip: string;
     value: boolean;
     set_value: (v: boolean) => void;
     disabled?: boolean,
+    sfx?: Sfx | "none",
 };
 
 export default function Checkbox({
@@ -16,6 +18,7 @@ export default function Checkbox({
     value,
     set_value,
     disabled,
+    sfx = "click"
 }: CheckboxProps): React.ReactElement {
     const theme = useTheme();
 
@@ -27,6 +30,10 @@ export default function Checkbox({
                     onChange={(e) => {
                         if (!disabled)
                         {
+                            if (sfx && sfx !== "none")
+                            {  
+                                play_sfx(sfx)
+                            }
                             set_value(e.target.checked)
                         }
                     }}

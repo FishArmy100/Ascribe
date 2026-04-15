@@ -1,6 +1,7 @@
 import { BUTTON_BORDER_RADIUS, BUTTON_PADDING, BUTTON_SIZE } from "@components/core/ImageButton";
 import Tooltip from "@components/core/Tooltip";
 import { LangScriptCode, LangScriptObj } from "@fisharmy100/react-auto-i18n"
+import { play_sfx, Sfx } from "@interop/sfx";
 import { Button, Stack, Typography } from "@mui/material";
 import { SxProps, Theme, useTheme } from "@mui/material/styles"
 
@@ -11,6 +12,7 @@ export type LanguageButtonProps = {
     disabled?: boolean,
     active?: boolean,
     sx?: SxProps<Theme>,
+    sfx?: Sfx | "none",
 }
 
 export default function LanguageButton({
@@ -20,6 +22,8 @@ export default function LanguageButton({
     active,
     on_click,
     sx,
+    sfx = "click",
+    
 }: LanguageButtonProps): React.ReactElement
 {
     const theme = useTheme();
@@ -32,7 +36,13 @@ export default function LanguageButton({
             <span>
                 <Button
                     disabled={disabled}
-                    onClick={e => on_click?.(e, language)}
+                    onClick={e => {
+                        if (sfx && sfx !== "none")
+                        {
+                            play_sfx(sfx);
+                        }
+                        on_click?.(e, language);
+                    }}
                     sx={{
                         backgroundColor: active ? theme.palette.secondary.main : theme.palette.primary.light,
                         borderRadius: (theme) => theme.spacing(BUTTON_BORDER_RADIUS),

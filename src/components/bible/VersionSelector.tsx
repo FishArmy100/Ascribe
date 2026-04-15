@@ -9,6 +9,7 @@ import DropdownBase from "@components/core/DropdownBase";
 import use_bible_tooltips from "./bible_tooltips";
 import { use_app_i18n } from "@components/providers/LanguageProvider";
 import __t from "@fisharmy100/react-auto-i18n";
+import { play_sfx } from "@interop/sfx";
 
 
 export default function VersionSelector(): React.ReactElement
@@ -57,7 +58,8 @@ export default function VersionSelector(): React.ReactElement
                             control={
                                 <Checkbox
                                     checked={parallel_enabled}
-                                    onChange={e =>
+                                    onChange={e => {
+                                        play_sfx("click");
                                         set_bible_version_state({
                                             bible_version,
                                             parallel_version,
@@ -66,7 +68,7 @@ export default function VersionSelector(): React.ReactElement
                                             shown_modules,
                                             reading_plan,
                                         })
-                                    }
+                                    }}
                                 />
                             }
                             labelPlacement="start"
@@ -102,6 +104,7 @@ export default function VersionSelector(): React.ReactElement
                                 >
                                     <Button
                                         onClick={() => {
+                                            play_sfx("click");
                                             set_is_open(false);
                                             set_bible_version_state({
                                                 bible_version: v,
@@ -171,6 +174,7 @@ export default function VersionSelector(): React.ReactElement
                                 >
                                     <Button
                                         onClick={() => {
+                                            play_sfx("click");
                                             set_is_open(false);
                                             set_bible_version_state({
                                                 bible_version,
@@ -221,7 +225,8 @@ export default function VersionSelector(): React.ReactElement
                             control={
                                 <Checkbox
                                     checked={show_strongs}
-                                    onChange={e =>
+                                    onChange={e => {
+                                        play_sfx("click");
                                         set_bible_version_state({
                                             bible_version,
                                             parallel_version,
@@ -230,7 +235,7 @@ export default function VersionSelector(): React.ReactElement
                                             shown_modules,
                                             reading_plan,
                                         })
-                                    }
+                                    }}
                                 />
                             }
                             labelPlacement="start"
