@@ -36,7 +36,14 @@ Steps:
    - Add a compiler profiling flag
      - Forwards to frontend?
      - Enables profiling data for different parts of the application
-7.  Bug Fixes
-8.  Android mobile support?
-9.  Bug Fixes
-10. Publish to Windows + Android
+7.  Add more files
+   - More Bibles (English)
+   - Add support for more languages
+   - More Bible Dictionaries
+   - More cross references?
+   - TSK References
+   - Browns Drivers Briggs Strongs Definitions
+8.  Bug Fixes
+9.  Android mobile support?
+10. Bug Fixes
+11. Publish to Windows + Android
