@@ -13,6 +13,7 @@ lazy_static::lazy_static!
         map.insert("page_turn", "page_turn.mp3");
         map.insert("toggle_panel", "toggle_panel.ogg");
         map.insert("click", "click.ogg");
+        map.insert("open_tab", "open_tab.wav");
         map
     };
 }
@@ -51,7 +52,6 @@ impl SfxPlayer
     {
         let sounds: HashMap<_, _> = ALL_SOUNDS.iter().map(|(name, path)| {
             let path = resolver.resolve(format!("resources/sfx/{}", path), BaseDirectory::Resource).unwrap();
-            println!("{:#?}", path);
             let sound = StaticSoundData::from_file(path).unwrap();
             (*name, sound)
         }).collect();

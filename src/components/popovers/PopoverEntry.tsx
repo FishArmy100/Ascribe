@@ -1,8 +1,7 @@
-import { HtmlTextRenderer } from "@components/HtmlTextRenderer";
-import { HRefSrc, HtmlText } from "@interop/html_text";
+import { play_sfx } from "@interop/sfx";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import { Collapse, ListItemButton, Stack, Typography, useTheme } from "@mui/material";
-import React from "react";
+import React, { useCallback } from "react";
 
 export type PopoverEntryData = {
     title: string,
@@ -22,10 +21,15 @@ export default function PopoverEntry({
 }: PopoverEntryProps): React.ReactElement
 {
     const theme = useTheme();
+    const handle_click = useCallback((t: string) => {
+        play_sfx("open_tab");
+        on_click(t);
+    }, [on_click]);
+
     return (
         <>
             <ListItemButton 
-                onClick={() => on_click(data.title)}
+                onClick={() => handle_click(data.title)}
                 sx={{
                     borderRadius: !is_expanded ? theme.spacing(1) : undefined,
                     borderColor: is_expanded ? theme.palette.divider : undefined,

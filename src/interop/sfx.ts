@@ -3,7 +3,7 @@ import __t from "@fisharmy100/react-auto-i18n";
 import { invoke } from "@tauri-apps/api/core";
 import { useMemo } from "react";
 
-export const SFX_TYPES = [ "page_turn", "click", "toggle_panel" ] as const;
+export const SFX_TYPES = [ "page_turn", "click", "toggle_panel", "open_tab" ] as const;
 
 export type Sfx = typeof SFX_TYPES[number];
 
@@ -18,7 +18,8 @@ export function use_sfx_names(): Record<Sfx, string>
     const record = useMemo((): Record<Sfx, string> => ({
         "click": __t("sounds.click", "click"),
         "page_turn": __t("sounds.page_turn", "page turn"),
-        "toggle_panel": __t("sounds.toggle_panel", "toggle panel")
+        "toggle_panel": __t("sounds.toggle_panel", "toggle panel"),
+        "open_tab": __t("sounds.open_tab", "open tab"),
     }), [i18n]);
 
     return record;
