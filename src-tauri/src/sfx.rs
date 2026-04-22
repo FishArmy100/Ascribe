@@ -17,6 +17,27 @@ lazy_static::lazy_static!
     };
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub struct SfxSettings
+{
+    pub volume: f32,
+    pub enabled: HashMap<String, bool>,
+}
+
+impl Default for SfxSettings
+{
+    fn default() -> Self 
+    {
+        Self { 
+            volume: 1.0, 
+            enabled: ALL_SOUNDS.keys()
+                .map(|s| (s.to_string(), true))
+                .collect()
+        }
+    }
+}
+
 pub struct SfxPlayer
 {
     manager: Shared<AudioManager<DefaultBackend>>,
@@ -81,8 +102,12 @@ pub fn run_sfx_command(
     {
         SfxCommand::Play { name } => {
             let state = state.lock().unwrap();
-            let volume = state.settings.sfx_volume;
-            player.play(&name, volume)
+            let sfx_settings = &state.settings.sfx_settings;
+            if sfx_settings.enabled.get(&name).is_some_and(|v| *v)
+            {
+                let volume = state.settings.sfx_settings.volume;
+                player.play(&name, volume)
+            }
         },
     }
 }

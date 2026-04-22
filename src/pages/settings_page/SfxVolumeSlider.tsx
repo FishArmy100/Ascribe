@@ -12,10 +12,10 @@ export default function SfxVolumeSlider(): React.ReactElement
     const strings = use_settings_page_strings();
     const { settings, update_settings } = use_settings();
 
-    const [sfx_volume_value, set_sfx_volume_value] = useState(settings.sfx_volume);
+    const [sfx_volume_value, set_sfx_volume_value] = useState(settings.sfx_settings.volume);
     useEffect(() => {
-        set_sfx_volume_value(settings.sfx_volume)
-    }, [settings.sfx_volume]);
+        set_sfx_volume_value(settings.sfx_settings.volume)
+    }, [settings.sfx_settings.volume]);
 
     
     
@@ -25,7 +25,7 @@ export default function SfxVolumeSlider(): React.ReactElement
 
     const handle_slider_value_committed = useCallback(() => {
         update_settings(s => {
-            s.sfx_volume = sfx_volume_value;
+            s.sfx_settings.volume = sfx_volume_value;
             return s;
         })
     }, [settings, update_settings, sfx_volume_value]);
@@ -34,14 +34,14 @@ export default function SfxVolumeSlider(): React.ReactElement
         if (sfx_volume_value === 0)
         {
             update_settings(s => {
-                s.sfx_volume = 1;
+                s.sfx_settings.volume = 1;
                 return s;
             })
         }
         else 
         {
             update_settings(s => {
-                s.sfx_volume = 0;
+                s.sfx_settings.volume = 0;
                 return s;
             })
         }

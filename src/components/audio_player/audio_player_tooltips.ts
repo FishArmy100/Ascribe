@@ -74,7 +74,7 @@ export default function use_audio_player_tooltips()
             "Select Voice"
         ),
         voice_select_option: (option: string) => __t(
-            "audio_player.tooltips.expand_options",
+            "audio_player.tooltips.voice_select_option",
             "Select {{$option}} voice",
             {option}
         )

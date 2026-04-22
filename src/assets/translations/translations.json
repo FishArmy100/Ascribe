@@ -16,6 +16,8 @@
     "audio_player.tooltips.follow_verses": "Sigue los versos mientras tocas",
     "audio_player.tooltips.expand_options": "Expandir opciones",
     "audio_player.tooltips.percent_generated": "{{$percent}}% generado",
+    "audio_player.tooltips.voice_select": "Voz seleccionada",
+    "audio_player.tooltips.voice_select_option": "Seleccionar {{$option}} voz",
     "bible.tooltips.select_chapter": "Capítulo selecto",
     "bible.tooltips.select_version": "Versión selecta de la Biblia",
     "bible.tooltips.select_version_button": "Selecciona {{$bible}} de la Biblia",
@@ -82,6 +84,9 @@
     "sub_menu_dropdown.tooltips.menu": "Menú",
     "sub_menu_dropdown.tooltips.settings": "Escenarios",
     "sub_menu_dropdown.tooltips.module_inspector": "Ver módulos",
+    "sounds.click": "clic",
+    "sounds.page_turn": "Pasar página",
+    "sounds.toggle_panel": "Panel de palanca",
     "pages.bible.tooltips.chapter_nav": [
       "Al capítulo anterior",
       "Al siguiente capítulo",
@@ -146,7 +151,10 @@
     "pages.settings.theme.option_tooltip": "Seleccionar tema '{{$name}}'",
     "pages.settings.theme.tooltip": "Tema seleccionado",
     "pages.settings.ui_scale.title": "Escala de UI:",
-    "pages.settings.ui_scale.tooltips.reset": "Reiniciar la escala de la interfaz de usuario"
+    "pages.settings.ui_scale.tooltips.reset": "Reiniciar la escala de la interfaz de usuario",
+    "pages.settings.sfx_volume.title": "Volumen de efectos de sonido",
+    "pages.settings.sfx_volume.tooltips.mute": "Efectos de sonido silenciosos",
+    "pages.settings.sfx_volume.tooltips.unmute": "Activar los efectos de sonido"
   },
   "swh_Latn": {
     "audio_player.labels.correct_pitch": "Sauti sahihi",
@@ -165,6 +173,8 @@
     "audio_player.tooltips.follow_verses": "Fuata mistari wakati wa kucheza",
     "audio_player.tooltips.expand_options": "Panua chaguzi",
     "audio_player.tooltips.percent_generated": "{{$percent}}% Imezalishwa",
+    "audio_player.tooltips.voice_select": "Chagua Sauti",
+    "audio_player.tooltips.voice_select_option": "Chagua sauti {{$option}}",
     "bible.tooltips.select_chapter": "Chagua sura",
     "bible.tooltips.select_version": "Chagua toleo la Biblia",
     "bible.tooltips.select_version_button": "Chagua {{$bible}} ya Biblia",
@@ -231,6 +241,9 @@
     "sub_menu_dropdown.tooltips.menu": "Menyu",
     "sub_menu_dropdown.tooltips.settings": "Mipangilio",
     "sub_menu_dropdown.tooltips.module_inspector": "Tazama moduli",
+    "sounds.click": "bonyeza",
+    "sounds.page_turn": "kugeuka kwa ukurasa",
+    "sounds.toggle_panel": "jopo la kugeuza",
     "pages.bible.tooltips.chapter_nav": [
       "Kwa sura iliyotangulia",
       "Kwa sura inayofuata",
@@ -293,9 +306,12 @@
     "pages.settings.theme.light": "Mwanga",
     "pages.settings.theme.dark": "Giza",
     "pages.settings.theme.option_tooltip": "Chagua mandhari '{{$name}}'",
-    "pages.settings.theme.tooltip": "Chagua mandhari",
+    "pages.settings.theme.tooltip": "Chagua Mandhari",
     "pages.settings.ui_scale.title": "Kiwango cha Ui:",
-    "pages.settings.ui_scale.tooltips.reset": "Weka upya kiwango cha Ui"
+    "pages.settings.ui_scale.tooltips.reset": "Weka upya kiwango cha Ui",
+    "pages.settings.sfx_volume.title": "Sauti ya Athari za Sauti",
+    "pages.settings.sfx_volume.tooltips.mute": "Nyamazisha athari za sauti",
+    "pages.settings.sfx_volume.tooltips.unmute": "Fungua athari za sauti"
   },
   "eng_Latn": {
     "audio_player.labels.correct_pitch": "Correct pitch",
@@ -314,6 +330,8 @@
     "audio_player.tooltips.follow_verses": "Follow verses while playing",
     "audio_player.tooltips.expand_options": "Expand options",
     "audio_player.tooltips.percent_generated": "{{$percent}}% Generated",
+    "audio_player.tooltips.voice_select": "Select Voice",
+    "audio_player.tooltips.voice_select_option": "Select {{$option}} voice",
     "bible.tooltips.select_chapter": "Select chapter",
     "bible.tooltips.select_version": "Select Bible version",
     "bible.tooltips.select_version_button": "Select Bible {{$bible}}",
@@ -380,6 +398,9 @@
     "sub_menu_dropdown.tooltips.menu": "Menu",
     "sub_menu_dropdown.tooltips.settings": "Settings",
     "sub_menu_dropdown.tooltips.module_inspector": "View Modules",
+    "sounds.click": "click",
+    "sounds.page_turn": "page turn",
+    "sounds.toggle_panel": "toggle panel",
     "pages.bible.tooltips.chapter_nav": [
       "To previous chapter",
       "To next chapter",
@@ -442,8 +463,11 @@
     "pages.settings.theme.light": "Light",
     "pages.settings.theme.dark": "Dark",
     "pages.settings.theme.option_tooltip": "Select theme '{{$name}}'",
-    "pages.settings.theme.tooltip": "Select theme",
+    "pages.settings.theme.tooltip": "Select Theme",
     "pages.settings.ui_scale.title": "Ui Scale:",
-    "pages.settings.ui_scale.tooltips.reset": "Reset Ui scale"
+    "pages.settings.ui_scale.tooltips.reset": "Reset Ui scale",
+    "pages.settings.sfx_volume.title": "Sound Effects Volume",
+    "pages.settings.sfx_volume.tooltips.mute": "Mute sound effects",
+    "pages.settings.sfx_volume.tooltips.unmute": "Unmute sound effects"
   }
 }

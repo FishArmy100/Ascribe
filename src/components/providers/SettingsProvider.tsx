@@ -5,7 +5,10 @@ import rfdc from "rfdc";
 
 const DEFAULT_APP_SETTINGS: AppSettings = {
     ui_scale: 1,
-    sfx_volume: 1,
+    sfx_settings: {
+        volume: 1,
+        enabled: { "click": true, "page_turn": true, "toggle_panel": true }
+    },
     selected_theme: { type: "light" },
     custom_themes: {},
     tts_settings: {

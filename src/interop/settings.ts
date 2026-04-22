@@ -2,6 +2,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { TtsSettings } from "./tts";
 import { AppTheme } from "@src/theme";
 import { LangScriptCode } from "@fisharmy100/react-auto-i18n";
+import { SfxSettings } from "./sfx";
 
 export const SETTINGS_CHANGED_EVENT_NAME: string = "settings-changed";
 
@@ -20,7 +21,7 @@ export const ALL_FONTS: SelectedFont[] = ["arial", "verdana", "tahoma", "trebuch
 export type AppSettings = {
     tts_settings: TtsSettings,
     ui_scale: number,
-    sfx_volume: number,
+    sfx_settings: SfxSettings,
     selected_theme: SelectedTheme,
     custom_themes: { [name: string]: AppTheme },
     selected_font: SelectedFont,

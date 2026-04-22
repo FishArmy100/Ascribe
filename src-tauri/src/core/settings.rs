@@ -3,7 +3,7 @@ use std::{collections::HashMap, sync::Mutex};
 use serde::{Deserialize, Serialize};
 use tauri::{Emitter, State};
 
-use crate::{core::{app::AppState, app_language::get_default_language, theme::AppTheme}, tts::TtsSettings};
+use crate::{core::{app::AppState, app_language::get_default_language, theme::AppTheme}, sfx::SfxSettings, tts::TtsSettings};
 
 pub const SETTINGS_CHANGED_EVENT_NAME: &str = "settings-changed";
 
@@ -54,7 +54,7 @@ impl Default for SelectedFont
 pub struct AppSettings
 {
     pub ui_scale: f32,
-    pub sfx_volume: f32,
+    pub sfx_settings: SfxSettings,
     pub tts_settings: TtsSettings,
     pub selected_theme: SelectedTheme,
     pub custom_themes: HashMap<String, AppTheme>,
@@ -69,7 +69,7 @@ impl Default for AppSettings
         Self 
         { 
             ui_scale: 1.0,
-            sfx_volume: 1.0,
+            sfx_settings: SfxSettings::default(),
             tts_settings: TtsSettings::default(),
             selected_theme: SelectedTheme::Light,
             custom_themes: HashMap::new(),
