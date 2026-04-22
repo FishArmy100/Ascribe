@@ -12,7 +12,7 @@ lazy_static::lazy_static!
         let mut map = HashMap::new();
         map.insert("page_turn", "page_turn.mp3");
         map.insert("toggle_panel", "toggle_panel.ogg");
-        map.insert("click", "click.ogg");
+        map.insert("click", "click.wav");
         map.insert("open_tab", "open_tab.wav");
         map
     };
