@@ -71,7 +71,7 @@ export default function use_settings_page_strings()
             { sfx }
         ),
         sfx_toggle_disable: (sfx: string) => __t(
-            "pages.settings.sfx.tooltips.disable",
+            "pages.settings.sfx.tooltips.disable", 
             "Disable {{$sfx}}",
             { sfx }
         ),
