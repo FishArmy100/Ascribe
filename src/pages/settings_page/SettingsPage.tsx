@@ -6,6 +6,7 @@ import ThemeSelectorDropdown from "./ThemeSelectorDropdown";
 import FontSelectorDropdown from "./FontSelectorDropdown";
 import LanguageSelectionDropdown from "./LanguageSelectionDropdown";
 import SfxVolumeSlider from "./SfxVolumeSlider";
+import SfxToggles from "./SfxToggles";
 
 export default function SettingsPage(): React.ReactElement
 {
@@ -36,6 +37,7 @@ export default function SettingsPage(): React.ReactElement
                 <ThemeSelectorDropdown />
                 <FontSelectorDropdown />
                 <LanguageSelectionDropdown />
+                <SfxToggles />
             </Stack>
         </Box>
     )

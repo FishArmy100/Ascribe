@@ -64,6 +64,20 @@ export default function use_settings_page_strings()
         sfx_unmute_tooltip: __t(
             "pages.settings.sfx_volume.tooltips.unmute",
             "Unmute sound effects",
+        ),
+        sfx_toggle_enable: (sfx: string) => __t(
+            "pages.settings.sfx.tooltips.enable",
+            "Enable {{$sfx}}",
+            { sfx }
+        ),
+        sfx_toggle_disable: (sfx: string) => __t(
+            "pages.settings.sfx.tooltips.disable",
+            "Disable {{$sfx}}",
+            { sfx }
+        ),
+        sfx_toggle_title: __t(
+            "pages.settings.sfx.title",
+            "Enabled Sound Effects",
         )
 
     }), [i18n]);
