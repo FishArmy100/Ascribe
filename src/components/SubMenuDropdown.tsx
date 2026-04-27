@@ -5,7 +5,7 @@ import { useCallback, useMemo } from "react";
 import { use_app_i18n } from "./providers/LanguageProvider";
 import __t from "@fisharmy100/react-auto-i18n";
 
-type SubMenuType = "settings" | "module_inspector" | "other";
+type SubMenuType = "settings" | "module_inspector" | "bible_printer" | "other";
 
 export default function SubMenuDropdown(): React.ReactElement
 {
@@ -19,6 +19,10 @@ export default function SubMenuDropdown(): React.ReactElement
         else if (value === "module_inspector")
         {
             view_history.push({ type: "module_list" });
+        }
+        else if (value === "bible_printer")
+        {
+            view_history.push({ type: "bible_printer" });
         }
         else 
         {
@@ -40,6 +44,10 @@ export default function SubMenuDropdown(): React.ReactElement
             "sub_menu_dropdown.tooltips.module_inspector",
             "View Modules",
         ),
+        bible_printer: __t(
+            "sub_menu_dropdown.tooltips.bible_printer",
+            "Bible Printer"
+        )
     }), [i18n]);
 
     return (
@@ -50,6 +58,7 @@ export default function SubMenuDropdown(): React.ReactElement
             options={[
                 { image: images.gear_complex, tooltip: tooltips.settings, value: "settings" },
                 { image: images.magnifying_glass_folder, tooltip: tooltips.module_inspector, value: "module_inspector", },
+                { image: images.printer, tooltip: tooltips.bible_printer, value: "bible_printer" }
             ]}
         />
     )

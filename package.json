@@ -23,6 +23,7 @@
     "npm": "^11.6.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.1",
+    "react-pdf": "^10.4.1",
     "rfdc": "^1.4.1",
     "vite-tsconfig-paths": "^5.1.4"
   },

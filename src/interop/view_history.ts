@@ -52,6 +52,10 @@ export type ModuleWordSearchEntry = {
     raw: string | null,
 }
 
+export type BiblePrinterEntry = {
+    type: "bible_printer"
+}
+
 export type ViewHistoryEntry = 
     | ChapterHistoryEntry
     | VerseHistoryEntry
@@ -60,6 +64,7 @@ export type ViewHistoryEntry =
     | ModuleInspectorEntry
     | ModuleListEntry
     | ModuleWordSearchEntry
+    | BiblePrinterEntry
 
 export type ViewHistoryInfo = {
     all: ViewHistoryEntry[],

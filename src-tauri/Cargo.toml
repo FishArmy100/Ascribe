@@ -38,3 +38,4 @@ icu = { version = "2.1.1" }
 icu_locid_transform = { version = "2.0.0"}
 sys-locale = "0.3.2"
 isolang = "2.4.0"
+pdf_oxide = "0.3.38"

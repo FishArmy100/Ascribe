@@ -3,6 +3,7 @@ pub mod book;
 pub mod render;
 pub mod fetching;
 pub mod ref_id_parsing;
+pub mod printing;
 
 use std::{collections::HashSet, sync::{Arc, Mutex, RwLock}, thread::spawn};
 

@@ -7,6 +7,7 @@ import SettingsPage from "./pages/settings_page/SettingsPage";
 import ModuleListPage from "./pages/modules_pages/module_list/ModuleListPage";
 import { ModuleInspectorPage } from "./pages/modules_pages/module_inspector/ModuleInspectorPage";
 import ModuleWordSearchPage from "./pages/modules_pages/module_word_search/ModuleWordSearchPage";
+import BiblePrinterPage from "./pages/bible_printer/BiblePrinterPage";
 
 export default function App(): React.ReactElement
 {
@@ -35,6 +36,10 @@ export default function App(): React.ReactElement
 	else if (current.type === "module_word_search")
 	{
 		return <ModuleWordSearchPage entry={current} />
+	}
+	else if (current.type === "bible_printer")
+	{
+		return <BiblePrinterPage />
 	}
 	else
 	{
