@@ -60,6 +60,7 @@ pub fn run() {
             commands::open,
             core::app_language::run_app_language_command,
             sfx::run_sfx_command,
+            bible::printing::printing_cmd::run_print_command,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

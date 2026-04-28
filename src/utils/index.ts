@@ -91,3 +91,6 @@ export function normalize_string(str: string): string
         .trim();
 }
 
+export const sleep = (ms: number): Promise<void> =>
+  new Promise(resolve => setTimeout(resolve, ms));
+
