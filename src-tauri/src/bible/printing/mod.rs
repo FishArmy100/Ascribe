@@ -1,9 +1,18 @@
 pub mod printing_cmd;
+pub mod printing_state;
 
-use biblio_json::{Package, core::RefId};
+use biblio_json::{Package, core::{RefId, VerseId}, modules::ModuleId};
 use pdf_oxide::writer::{PageSize, TextConfig};
 use serde::{Deserialize, Serialize};
 use pdf_oxide::writer::DocumentBuilder;
+
+#[derive(Debug, Clone)]
+pub struct BiblePrintRange
+{
+    pub bible: ModuleId,
+    pub from: VerseId,
+    pub to: VerseId,
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -68,13 +77,18 @@ impl Default for PrintBibleFormat
 pub struct PrintBibleArgs<'a>
 {
     pub format: &'a PrintBibleFormat,
-    pub sections: &'a [RefId],
-    pub default_bible: &'a str,
+    pub ranges: &'a [BiblePrintRange],
     pub biblio_json: &'a Package,
 }
 
-pub fn print_bible() -> Result<Vec<u8>, String>
+pub fn print_bible(args: PrintBibleArgs) -> Result<Vec<u8>, String>
 {
+    let PrintBibleArgs { 
+        format, 
+        ranges, 
+        biblio_json 
+    } = args;
+
     let mut builder = DocumentBuilder::new();
     builder.page(PageSize::A4)
         .at(72.0, 720.0)

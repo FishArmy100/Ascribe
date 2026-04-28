@@ -1,14 +1,22 @@
 use base64::{Engine, engine::general_purpose};
 use serde::{Deserialize, Serialize};
 
-use crate::bible::printing::print_bible;
+use crate::{bible::printing::{PrintBibleFormat, print_bible}, repr::BiblePrintRangeJson};
 
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case", tag = "type")]
 pub enum PrintingCommand
 {
-    Print,
+    Print
+    {
+        ranges: Vec<BiblePrintRangeJson>,
+    },
+    SetFormat
+    {
+        format: PrintBibleFormat,
+    },
+    GetFormat,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -26,11 +34,13 @@ pub enum PrintResult
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn run_print_command(command: PrintingCommand) -> Option<String>
+pub fn run_print_command(
+    command: PrintingCommand
+) -> Option<String>
 {
     match command
     {
-        PrintingCommand::Print => {
+        PrintingCommand::Print { ranges } => {
             let bytes = match print_bible()
             {
                 Ok(ok) => ok,
