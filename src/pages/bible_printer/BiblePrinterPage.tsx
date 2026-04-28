@@ -9,7 +9,7 @@ export default function BiblePrinterPage(): React.ReactElement
     return (
         <Box>
             <BiblePrinterPageToolbar />
-            <Box sx={{ mt: 7 }}>
+            <Box sx={{ mt: 7, mr: "auto", ml: "auto " }}>
                 <PdfRenderer file={pdf}/>
             </Box>
         </Box>
