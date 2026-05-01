@@ -134,7 +134,6 @@ pub struct TextFormat
 {
     pub font: Font,
     pub font_size: f32,
-    pub line_height: f32,
     pub bold: bool,
     pub italic: bool,
 }
@@ -160,6 +159,7 @@ pub struct VerseFormat
     pub text_format: TextFormat,
     pub alt_text_format: TextFormat,
     pub verse_title_format: TextFormat,
+    pub line_height: f32,
     pub word_spacing: f32,
     pub verse_spacing: f32,
     pub book_formatter: BookFormatter,
@@ -175,6 +175,7 @@ pub struct TitleFormat
     pub text_align: TextAlign,
     pub book_formatter: BookFormatter,
     pub title_spacing: f32,
+    pub line_height: f32,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -250,21 +251,18 @@ impl Default for PrintBibleFormat
                 text_format: TextFormat {
                     font: Font::LiberationSans,
                     font_size: 12.0,
-                    line_height: 2.0,
                     bold: false,
                     italic: false,
                 },
                 alt_text_format: TextFormat {
                     font: Font::LiberationSans,
                     font_size: 12.0,
-                    line_height: 2.0,
                     bold: false,
                     italic: true,
                 },
                 verse_title_format: TextFormat {
                     font: Font::LiberationSans,
                     font_size: 12.0,
-                    line_height: 2.0,
                     bold: true,
                     italic: true,
                 },
@@ -273,18 +271,19 @@ impl Default for PrintBibleFormat
                 book_formatter: BookFormatter::Short,
                 title_spacing: 18.0,
                 verse_indent: 36.0,
+                line_height: 2.0,
             },
             title_format: TitleFormat { 
                 text_format: TextFormat {
                     font: Font::LiberationSans,
                     font_size: 24.0,
-                    line_height: 1.2,
                     bold: true,
                     italic: false,
                 }, 
                 text_align: TextAlign::Center, 
                 book_formatter: BookFormatter::Full,
                 title_spacing: 32.0,
+                line_height: 2.0,
             },
             strongs_format: Some(StrongsFormat {
                 font: Font::LiberationSans,

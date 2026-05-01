@@ -71,9 +71,9 @@ export default function PdfRenderer({
         <Box sx={{
             display: "flex",
             flexDirection: "column",
-            height: "80vh",        // ← needs a parent with defined height too
+            height: "80vh",
             width: "fit-content",
-            position: "relative",  // ← so the absolute toolbar anchors here
+            position: "relative",
             overflow: "hidden",
             borderWidth: theme.spacing(1 / 8),
             borderColor: theme.palette.divider,

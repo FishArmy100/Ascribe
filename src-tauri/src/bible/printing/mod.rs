@@ -10,7 +10,7 @@ use biblio_json::{Package, core::VerseId, modules::ModuleId};
 use itertools::Itertools;
 
 use crate::bible::printing::print_bible_format::PrintBibleFormat;
-use crate::bible::printing::writer::{BiblePdfWriter, WriterOp};
+use crate::bible::printing::writer::BiblePdfWriter;
 use crate::bible::render::{VerseRenderData, fetch_verse_render_data};
 
 #[derive(Debug, Clone)]

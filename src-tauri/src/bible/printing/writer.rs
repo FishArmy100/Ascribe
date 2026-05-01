@@ -76,8 +76,6 @@ impl<'a> BiblePdfWriter<'a>
         match &self.format.page_numbers
         {
             PageNumbers::TopLeft { font_size, bold, italic, font } => {
-                let variant = FontVariant::new(*bold, *italic);
-    
                 self.ops.push(WriterOp::Text { 
                     text: format!("{}", self.page_count), 
                     font: *font, 
@@ -108,8 +106,6 @@ impl<'a> BiblePdfWriter<'a>
                 });
             },
             PageNumbers::BottomLeft { font_size, bold, italic, font } => {
-                let variant = FontVariant::new(*bold, *italic);
-    
                 self.ops.push(WriterOp::Text { 
                     text: format!("{}", self.page_count), 
                     font: *font, 
@@ -147,7 +143,7 @@ impl<'a> BiblePdfWriter<'a>
     {
         let verse_title = self.format_verse_title(&render_data.bible, render_data.id.into());
         self.write_space(self.format.verse_format.verse_indent);
-        self.write_word(&verse_title, &self.format.verse_format.verse_title_format);
+        self.write_word(&verse_title, &self.format.verse_format.verse_title_format, self.format.verse_format.line_height);
         self.write_space(self.format.verse_format.title_spacing);
 
         let word_spacing = self.format.verse_format.word_spacing;
@@ -201,7 +197,7 @@ impl<'a> BiblePdfWriter<'a>
         });
 
         let text_height = measure_text_height(face, format.font_size);
-        self.new_line_raw(format.line_height * text_height);
+        self.new_line_raw(self.format.title_format.line_height * text_height);
     }
 
     fn format_title(&self, from: VerseId, to: VerseId, bible: &ModuleId) -> String
@@ -286,7 +282,7 @@ impl<'a> BiblePdfWriter<'a>
             
             if self.curser.x + total_width > self.format.page_size.width() - self.format.margin.right
             {
-                self.new_line(word_face, word_format.font_size, word_format.line_height);
+                self.new_line(word_face, word_format.font_size, self.format.verse_format.line_height);
             }
 
             // word text
@@ -322,7 +318,7 @@ impl<'a> BiblePdfWriter<'a>
         {
             if self.curser.x + word_width > self.format.page_size.width() - self.format.margin.right
             {
-                self.new_line(word_face, word_format.font_size, word_format.line_height);
+                self.new_line(word_face, word_format.font_size, self.format.verse_format.line_height);
             }
 
             // word text
@@ -342,14 +338,14 @@ impl<'a> BiblePdfWriter<'a>
 
     }
 
-    fn write_word(&mut self, word: &str, format: &TextFormat)
+    fn write_word(&mut self, word: &str, format: &TextFormat, line_height: f32)
     {
         let face = format.get_font_face();
         let width = measure_text_width(face, word, format.font_size);
 
         if self.curser.x + width > self.format.page_size.width() - self.format.margin.right
         {
-            self.new_line(face, format.font_size, format.line_height);
+            self.new_line(face, format.font_size, line_height);
         }
 
         self.ops.push(WriterOp::Text { 

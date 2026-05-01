@@ -95,3 +95,4 @@ export { default as sliders } from './images/light-sliders.svg';
 export { default as book_arrow_up } from './images/light-book-arrow-up.svg';
 export { default as book_reader } from './images/light-book-open-reader.svg';
 export { default as printer } from "./images/light-print.svg";
+export { default as download } from "./images/light-download.svg";

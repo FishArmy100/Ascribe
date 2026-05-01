@@ -18,7 +18,8 @@ const PROVIDER_NODES: ((children: React.ReactNode) => React.ReactNode)[] = [
     c => <ModuleInfoProvider>{c}</ModuleInfoProvider>,
     c => <ModuleConfigProvider>{c}</ModuleConfigProvider>,
     c => <AppI18nProvider>{c}</AppI18nProvider>,
-    c => <TtsVoiceProvider>{c}</TtsVoiceProvider>
+    c => <TtsVoiceProvider>{c}</TtsVoiceProvider>,
+    c => <BibleDisplaySettingsProvider>{c}</BibleDisplaySettingsProvider>
 ];
 
 export default function AppProviders({ 

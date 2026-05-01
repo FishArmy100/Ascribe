@@ -23,7 +23,7 @@ const DEFAULT_APP_SETTINGS: AppSettings = {
 }
 
 type AppSettingsContextType = {
-    settings: AppSettings,
+    readonly settings: AppSettings,
     set_settings: (s: AppSettings) => Promise<void>,
     update_settings: (f: (s: AppSettings) => AppSettings) => Promise<void>
 }

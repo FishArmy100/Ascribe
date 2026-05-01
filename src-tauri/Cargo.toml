@@ -41,3 +41,5 @@ isolang = "2.4.0"
 pdf_oxide = "0.3.38"
 base64 = "0.22.1"
 ttf-parser = "0.25.1"
+rfd = "0.17.2"
+
