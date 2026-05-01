@@ -13,21 +13,35 @@ export default function BiblePrinterPage(): React.ReactElement
     const { bible_configs } = use_module_configs();
 
     useEffect(() => {
-        const range: BiblePrintRange = {
+        const range_a: BiblePrintRange = {
+            bible: "kjv_eng",
+            from: {
+                book: "Gen",
+                chapter: 1,
+                verse: 1,
+            },
+            to: {
+                book: "Gen",
+                chapter: 1,
+                verse: 31,
+            }
+        }
+
+        const range_b: BiblePrintRange = {
             bible: "kjv_eng",
             from: {
                 book: "Prov",
                 chapter: 3,
-                verse: 5,
+                verse: 1,
             },
             to: {
                 book: "Prov",
                 chapter: 3,
-                verse: 6,
+                verse: 7,
             }
         }
 
-        backend_print_bible([range]).then((result: PrintResult) => {
+        backend_print_bible([range_a, range_b]).then((result: PrintResult) => {
             if (result.type === "printed") {
                 set_pdf_data(result.base64);
             } else {

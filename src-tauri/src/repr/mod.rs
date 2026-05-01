@@ -9,7 +9,7 @@ pub mod searching;
 pub mod module_config;
 pub mod readings_date;
 pub mod lang;
-pub mod bible_print_range;
+pub mod print_bible_range;
 
 pub use strongs::*;
 pub use verse::*;
@@ -18,4 +18,4 @@ pub use ref_id::*;
 pub use entry::*;
 pub use html_text::*;
 pub use module_info::*;
-pub use bible_print_range::*;
+pub use print_bible_range::*;

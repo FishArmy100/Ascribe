@@ -1,84 +1,31 @@
 pub mod printing_cmd;
 pub mod printing_state;
+pub mod print_bible_format;
+pub mod writer;
+pub mod fonts;
 
-use biblio_json::{Package, core::{RefId, VerseId}, modules::ModuleId};
-use pdf_oxide::writer::{PageSize, TextConfig};
-use serde::{Deserialize, Serialize};
-use pdf_oxide::writer::DocumentBuilder;
+use biblio_json::core::VerseRangeIter;
+use biblio_json::modules::Module;
+use biblio_json::{Package, core::VerseId, modules::ModuleId};
+use itertools::Itertools;
+
+use crate::bible::printing::print_bible_format::PrintBibleFormat;
+use crate::bible::printing::writer::{BiblePdfWriter, WriterOp};
+use crate::bible::render::{VerseRenderData, fetch_verse_render_data};
 
 #[derive(Debug, Clone)]
-pub struct BiblePrintRange
+pub struct PrintBibleRange
 {
     pub bible: ModuleId,
     pub from: VerseId,
     pub to: VerseId,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub struct Margin
-{
-    pub left: f32,
-    pub right: f32,
-    pub top: f32,
-    pub bottom: f32,
-}
-
-impl Margin
-{
-    pub fn all(value: f32) -> Self 
-    {
-        Self {
-            left: value,
-            right: value,
-            top: value,
-            bottom: value,
-        }
-    }
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case", tag = "type")]
-pub enum PageNumbers
-{
-    None,
-    TopLeft,
-    TopRight,
-    BottomLeft,
-    BottomRight
-}
-
-impl Default for PageNumbers
-{
-    fn default() -> Self 
-    {
-        Self::BottomRight
-    }
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub struct PrintBibleFormat
-{
-    pub margin: Margin,
-    pub page_numbers: PageNumbers,
-}
-
-impl Default for PrintBibleFormat
-{
-    fn default() -> Self {
-        Self { 
-            margin: Margin::all(720.0 / 2.0), 
-            page_numbers: Default::default(), 
-        }
-    }
-}
-
 pub struct PrintBibleArgs<'a>
 {
     pub format: &'a PrintBibleFormat,
-    pub ranges: &'a [BiblePrintRange],
-    pub biblio_json: &'a Package,
+    pub ranges: &'a [PrintBibleRange],
+    pub package: &'a Package,
 }
 
 pub fn print_bible(args: PrintBibleArgs) -> Result<Vec<u8>, String>
@@ -86,16 +33,43 @@ pub fn print_bible(args: PrintBibleArgs) -> Result<Vec<u8>, String>
     let PrintBibleArgs { 
         format, 
         ranges, 
-        biblio_json 
+        package 
     } = args;
 
-    let mut builder = DocumentBuilder::new();
-    builder.page(PageSize::A4)
-        .at(72.0, 720.0)
-            .text_config(TextConfig { size: 12.0, ..Default::default() })
-            .text("Hello, world!");
+    let mut writer = BiblePdfWriter::new(format, package);
+    
+    for (i, range) in ranges.iter().enumerate()
+    {
+        if i != 0 && format.new_page_per_section
+        {
+            writer.new_page();
+        }
 
+        let render_data = fetch_range_render_data(range, package);
+        writer.write_title(range);
+        for verse in render_data
+        {
+            writer.write_verse(&verse);
+            writer.verse_return();
+        }
+    }
 
-    builder.build()
-        .map_err(|e| e.to_string())
+    writer.build()
+}
+
+fn fetch_range_render_data(range: &PrintBibleRange, package: &Package) -> Vec<VerseRenderData>
+{
+    let bible = package.modules.get(&range.bible)
+        .map(Module::as_bible)
+        .flatten()
+        .unwrap();
+
+    let verses = VerseRangeIter::from_verses(&bible.source.book_infos, range.from, range.to).collect_vec();
+    
+    let module_ids = package.modules.keys()
+        .map(Clone::clone)
+        .collect();
+
+    let bible_id = &bible.config.id;
+    fetch_verse_render_data(package, &verses, bible_id, &module_ids)
 }
