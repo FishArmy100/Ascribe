@@ -14,12 +14,12 @@ export type TextSelectDropdownOption<T> = {
 }
 
 export type TextSelectDropdownProps<T> = {
-    tooltip: string,
+    tooltip: string | null,
     options: TextSelectDropdownOption<T>[],
     selected: number,
     on_select: (value: T) => void,
     variant: TypographyVariant,
-    bold: boolean,
+    bold?: boolean,
     width?: string,
     placement?: DropdownPlacement,
 }
@@ -32,7 +32,7 @@ export default function TextSelectDropdown<T>({
     variant,
     bold,
     width,
-    placement = "bottom"
+    placement = "auto"
 }: TextSelectDropdownProps<T>): React.ReactElement
 {
     const [is_open, set_open] = useState(false);
@@ -40,12 +40,20 @@ export default function TextSelectDropdown<T>({
     const title = options[selected].text;
     const dropdown_width = width ?? "max-content";
 
+    const TooltipWrapper = ({children}: { children: React.ReactElement }) => {
+        return tooltip ? (
+            <Tooltip tooltip={tooltip}>{children}</Tooltip>
+        ) : (
+            children
+        )
+    }
+
     return (
         <DropdownBase
             button={{
                 type: "element",
                 element_builder: (on_click) => (
-                    <Tooltip tooltip={tooltip}>
+                    <TooltipWrapper>
                         <Typography
                             variant={variant}
                             fontWeight={bold ? "bold" : undefined}
@@ -69,7 +77,7 @@ export default function TextSelectDropdown<T>({
                         >
                             {title}
                         </Typography>
-                    </Tooltip>
+                    </TooltipWrapper>
                 )
             }}
             is_open={is_open}

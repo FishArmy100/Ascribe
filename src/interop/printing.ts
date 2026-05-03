@@ -10,18 +10,43 @@ export type BiblePrintRange = {
 
 export const TEXT_ALIGN_VALUES = ["left", "center", "right"] as const;
 export type TextAlign = typeof TEXT_ALIGN_VALUES[number];
+export const TEXT_ALIGN_NAMES: Record<TextAlign, string> = {
+    "center": "Center",
+    "left": "Left",
+    "right": "Right",
+}
 
 export const PAGE_SIZE_VALUES = ["A4", "A3"] as const;
 export type PageSize = typeof PAGE_SIZE_VALUES[number];
+export const PAGE_SIZE_NAMES: Record<PageSize, string> = {
+    "A4": "A4",
+    "A3": "A3",
+}
 
 export const FONT_VALUES = ["liberation_sans", "liberation_serif", "libration_mono"] as const;
 export type Font = typeof FONT_VALUES[number];
+export const FONT_NAMES: Record<Font, string> = {
+    "liberation_sans": "Liberation Sans",
+    "liberation_serif": "Liberation Serif",
+    "libration_mono": "Liberation Mono",
+}
 
-export const BOOK_FORMATTER_VALUES = ["short", "full"] as const;
-export type BookFormatter = typeof BOOK_FORMATTER_VALUES[number];
+export const BOOK_FORMAT_VALUES = ["short", "full"] as const;
+export type BookFormat = typeof BOOK_FORMAT_VALUES[number];
+export const BOOK_FORMAT_NAMES: Record<BookFormat, string> = {
+    "short": "Short",
+    "full": "Full",
+}
 
-export const PAGE_NUMBERS_TYPES = ["none", "top_left", "top_right", "bottom_left", "bottom_right"] as const;
-export type PageNumbersType = typeof PAGE_NUMBERS_TYPES[number];
+export const PAGE_NUMBER_TYPES = ["none", "top_left", "top_right", "bottom_left", "bottom_right"] as const;
+export type PageNumberType = typeof PAGE_NUMBER_TYPES[number];
+export const PAGE_NUMBER_NAMES: Record<PageNumberType, string> = {
+    "none": "None",
+    "top_left": "Top Left",
+    "top_right": "Top Right",
+    "bottom_left": "Bottom Left",
+    "bottom_right": "Top Right",
+}
 
 export interface Margin {
     left: number;
@@ -51,7 +76,7 @@ export interface VerseFormat {
     line_height: number;
     word_spacing: number;
     verse_spacing: number;
-    book_formatter: BookFormatter;
+    book_formatter: BookFormat;
     title_spacing: number;
     verse_indent: number;
 }
@@ -59,7 +84,7 @@ export interface VerseFormat {
 export interface TitleFormat {
     text_format: TextFormat;
     text_align: TextAlign;
-    book_formatter: BookFormatter;
+    book_formatter: BookFormat;
     title_spacing: number;
     line_height: number;
 }
