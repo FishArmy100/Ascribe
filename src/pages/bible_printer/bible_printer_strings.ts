@@ -142,7 +142,31 @@ export function use_bible_printer_strings()
         page_number_editor_label: __t(
             "pages.bible_printer.labels.page_number_editor",
             "Page Numbers",
-        )
+        ),
+        font_size_editor_label: __t(
+            "pages.bible_printer.labels.font_size",
+            "Font Size",
+        ),
+        font_size_editor_tooltip: __t(
+            "pages.bible_printer.tooltips.font_size",
+            "Edit the font size",
+        ),
+        bold_toggle_label: __t(
+            "pages.bible_printer.labels.bold_toggle",
+            "Bold"
+        ),
+        bold_toggle_tooltip: __t(
+            "pages.bible_printer.tooltips.bold_toggle",
+            "Toggle bold font"
+        ),
+        italic_toggle_label: __t(
+            "pages.bible_printer.labels.italic_toggle",
+            "Italic"
+        ),
+        italic_toggle_tooltip: __t(
+            "pages.bible_printer.tooltips.italic_toggle",
+            "Toggle italic font"
+        ),
     }), [i18n]);
 
     return object;

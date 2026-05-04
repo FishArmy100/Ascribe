@@ -1,12 +1,13 @@
 import OptionGroup from "@components/core/OptionGroup"
-import { PageNumbers } from "@interop/printing"
-import React from "react"
+import { PageNumbers, TextFormat } from "@interop/printing"
+import React, { useMemo } from "react"
 import { use_bible_printer_strings } from "./bible_printer_strings"
 import PageNumberTypeSelector from "./dropdowns/PageNumberTypeSelector"
 import { bold, italic } from "@assets"
-import { Collapse, Divider } from "@mui/material"
+import { Box, Collapse, Divider } from "@mui/material"
 import PrintFontSelector from "./dropdowns/PrintFontSelector"
-import LabeledCheckbox from "@components/core/LabeledCheckbox"
+import CheckboxWithLabel from "@components/core/CheckboxWithLabel"
+import TextFormatEditor from "./TextFormatEditor"
 
 export type PageNumberEditorProps = {
     value: PageNumbers,
@@ -20,42 +21,64 @@ export default function PageNumberEditor({
 {
     const strings = use_bible_printer_strings();
     const expanded = value.type !== "none";
+    
+    const text_format = useMemo((): TextFormat => {
+        if (value.type !== "none")
+        {
+            return value;
+        }
+        else 
+        {
+            return {
+                font: "liberation_sans",
+                font_size: 12,
+                bold: false,
+                italic: false,
+            }
+        }
+    }, [value])
 
     return (
         <OptionGroup label={strings.page_number_editor_label}>
-            <PageNumberTypeSelector 
-                value={value.type}
-                on_change={(v) => {
-                    if (v === "none")
-                    {
-                        on_change({ type: "none" });
-                    }
-                    else
-                    {
-                        on_change({
-                            type: v,
-                            font_size: 1,
-                            font: "liberation_sans",
-                            bold: false,
-                            italic: false,
-                        })
-                    }
+            <Box
+                sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                 }}
-            />
+            >
+                <PageNumberTypeSelector
+                    value={value.type}
+                    on_change={(v) => {
+                        if (v === "none")
+                        {
+                            on_change({ type: "none" });
+                        }
+                        else
+                        {
+                            on_change({
+                                type: v,
+                                font_size: 1,
+                                font: "liberation_sans",
+                                bold: false,
+                                italic: false,
+                            })
+                        }
+                    }}
+                />
+            </Box>
             <Collapse in={expanded}>
-                <Divider sx={{ mt: 1 }}/>
-                {value.type !== "none" && <>
-                    <PrintFontSelector 
-                        value={value.font}
-                        on_change={v => on_change({
+                <Divider sx={{ my: 2 }}/>
+                <TextFormatEditor 
+                    label={null}
+                    value={text_format}
+                    on_change={format => {
+                        on_change({
                             type: value.type,
-                            font: v,
-                            font_size: value.font_size,
-                            bold: value.bold,
-                            italic: value.italic,
-                        })}
-                    />
-                </>}
+                            ...format,
+                        })
+                    }}
+                />
             </Collapse>
         </OptionGroup>
     )

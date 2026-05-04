@@ -12,7 +12,7 @@ import React, { useState, useCallback } from "react"
 import Tooltip from "./Tooltip"
 
 export type LabeledNumberInputProps = {
-    label_props: { bold?: boolean, variant: TypographyVariant },
+    label_props: { bold?: boolean, variant: TypographyVariant, sx?: SxProps<Theme> },
     input_props: { variant: TypographyVariant },
     tooltip: string,
     label: string,
@@ -98,6 +98,7 @@ export default function LabeledNumberInput({
                             sx={{
                                 fontWeight: label_props.bold ? "bold" : undefined,
                                 whiteSpace: "nowrap",
+                                ...label_props.sx,
                             }}
                         >
                             {label}

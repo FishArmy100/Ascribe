@@ -3,15 +3,19 @@ import { Font, FONT_NAMES, FONT_VALUES } from "@interop/printing"
 import React, { useMemo } from "react"
 import { use_bible_printer_strings } from "../bible_printer_strings"
 import LabeledTextSelectDropdown from "@components/core/LabeledTextSelectDropdown"
+import { SxProps } from "@mui/material"
+import { Theme } from "@mui/system"
 
 export type PrintFontSelectorProps = {
     value: Font,
     on_change: (value: Font) => void,
+    label_sx?: SxProps<Theme>
 }
 
 export default function PrintFontSelector({
     value,
     on_change,
+    label_sx,
 }: PrintFontSelectorProps): React.ReactElement
 {
     const strings = use_bible_printer_strings();
@@ -31,7 +35,8 @@ export default function PrintFontSelector({
         <LabeledTextSelectDropdown<Font>
             label_props={{
                 variant: "body1",
-                bold: true
+                bold: true,
+                sx: label_sx,
             }} dropdown_props={{
                 variant: "body2",
                 bold: true

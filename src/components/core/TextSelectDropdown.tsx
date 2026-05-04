@@ -4,6 +4,7 @@ import Tooltip from "./Tooltip";
 import { TypographyVariant } from "@mui/material/styles";
 import DropdownBase, { DropdownPlacement } from "./DropdownBase";
 import { play_sfx } from "@interop/sfx";
+import WrapIf from "./WrapIf";
 
 export const DROPDOWN_PADDING = 1;
 
@@ -53,7 +54,7 @@ export default function TextSelectDropdown<T>({
             button={{
                 type: "element",
                 element_builder: (on_click) => (
-                    <TooltipWrapper>
+                    <WrapIf cond={tooltip !== null} wrapper={Tooltip} props={{tooltip: tooltip!}}>
                         <Typography
                             variant={variant}
                             fontWeight={bold ? "bold" : undefined}
@@ -77,7 +78,7 @@ export default function TextSelectDropdown<T>({
                         >
                             {title}
                         </Typography>
-                    </TooltipWrapper>
+                    </WrapIf>
                 )
             }}
             is_open={is_open}

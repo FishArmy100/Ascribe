@@ -3,15 +3,19 @@ import { Font, FONT_VALUES, PAGE_SIZE_NAMES, PAGE_SIZE_VALUES, PageSize, TEXT_AL
 import React, { useMemo } from "react"
 import { use_bible_printer_strings } from "../bible_printer_strings"
 import LabeledTextSelectDropdown from "@components/core/LabeledTextSelectDropdown"
+import { SxProps } from "@mui/material"
+import { Theme } from "@mui/system"
 
 export type PageSizeSelectorProps = {
     value: PageSize,
     on_change: (value: PageSize) => void,
+    label_sx?: SxProps<Theme>
 }
 
 export default function PageSizeSelector({
     value,
     on_change,
+    label_sx,
 }: PageSizeSelectorProps): React.ReactElement
 {
     const strings = use_bible_printer_strings();
@@ -31,7 +35,8 @@ export default function PageSizeSelector({
         <LabeledTextSelectDropdown<PageSize>
             label_props={{
                 variant: "body1",
-                bold: true
+                bold: true,
+                sx: label_sx,
             }} dropdown_props={{
                 variant: "body2",
                 bold: true

@@ -3,15 +3,19 @@ import { BOOK_FORMAT_NAMES, BOOK_FORMAT_VALUES, BookFormat, Font, FONT_NAMES, FO
 import React, { useMemo } from "react"
 import { use_bible_printer_strings } from "../bible_printer_strings"
 import LabeledTextSelectDropdown from "@components/core/LabeledTextSelectDropdown"
+import { SxProps } from "@mui/material"
+import { Theme } from "@mui/system"
 
 export type BookFormatSelectorProps = {
     value: BookFormat,
     on_change: (value: BookFormat) => void,
+    label_sx?: SxProps<Theme>
 }
 
 export default function BookFormatSelector({
     value,
     on_change,
+    label_sx,
 }: BookFormatSelectorProps): React.ReactElement
 {
     const strings = use_bible_printer_strings();
@@ -31,7 +35,9 @@ export default function BookFormatSelector({
         <LabeledTextSelectDropdown<BookFormat>
             label_props={{
                 variant: "body1",
-                bold: true
+                bold: true,
+                sx: label_sx,
+
             }} dropdown_props={{
                 variant: "body2",
                 bold: true

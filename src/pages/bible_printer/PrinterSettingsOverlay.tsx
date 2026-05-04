@@ -1,4 +1,4 @@
-import { Font, Margin, PageNumbers } from "@interop/printing";
+import { Font, Margin, PageNumbers, TextFormat } from "@interop/printing";
 import { Backdrop, Button, Fade, Modal, Paper, Stack, Typography, useTheme } from "@mui/material";
 import React, { useState } from "react";
 import PrintFontSelector from "./dropdowns/PrintFontSelector";
@@ -7,6 +7,7 @@ import TextButton from "@components/core/TextButton";
 import PrinterSettingsButtons from "./PrinterSettingsButtons";
 import MarginEditor from "./MarginEditor";
 import PageNumberEditor from "./PageNumberEditor";
+import TextFormatEditor from "./TextFormatEditor";
 
 export type PrinterSettingsOverlayProps = {
     show: boolean,
@@ -20,11 +21,11 @@ export default function PrinterSettingsOverlay({
 {
     const theme = useTheme();
     const [font, set_font] = useState<Font>("liberation_sans");
-    const [margin, set_margin] = useState<Margin>({
-        top: 0,
-        bottom: 0,
-        left: 0,
-        right: 0,
+    const [text_format, set_text_format] = useState<TextFormat>({
+        font: "liberation_sans",
+        font_size: 12,
+        bold: false,
+        italic: false,
     });
 
     const [page_numbers, set_page_numbers] = useState<PageNumbers>({ type: "none" });
@@ -59,18 +60,15 @@ export default function PrinterSettingsOverlay({
                     <Typography variant="h6" gutterBottom>
                         Menu
                     </Typography>
-                    <PrintFontSelector 
-                        value={font}
-                        on_change={f => set_font(f)}
-                    />
-                    <MarginEditor 
-                        margin={margin}
-                        on_change={set_margin}
-                    />
                     <PrinterSettingsButtons 
                         on_apply={() => {}} 
                         on_cancel={() => {}} 
                         on_reset={() => {}} 
+                    />
+                    <TextFormatEditor 
+                        label="Text Format"
+                        value={text_format}
+                        on_change={v => set_text_format(v)}
                     />
                     <PageNumberEditor 
                         value={page_numbers}

@@ -95,7 +95,13 @@ function MarginValueEditor({
     const theme = useTheme();
     return (
         <LabeledNumberInput 
-            label_props={{ variant: "body1", bold: true }}
+            label_props={{ 
+                variant: "body1", 
+                bold: true, 
+                sx: {
+                    minWidth: theme.spacing(12)
+                } 
+            }}
             input_props={{ variant: "body1" }}
             tooltip={tooltip}
             label={label}
@@ -104,11 +110,6 @@ function MarginValueEditor({
             max={2}
             step={0.05}
             on_change={v => on_change(v * 72)}
-            sx={{
-                '& .MuiFormControlLabel-label': {
-                    minWidth: theme.spacing(12)
-                },
-            }}
         />
     )
 }

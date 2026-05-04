@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { use_settings } from "../providers/SettingsProvider";
-import LabeledCheckbox from "../core/LabeledCheckbox";
+import CheckboxWithLabel from "../core/CheckboxWithLabel";
 import use_audio_player_tooltips from "./audio_player_tooltips";
 import { useI18n } from "@fisharmy100/react-auto-i18n";
 import use_audio_player_labels from "./audio_player_labels";
@@ -21,7 +21,7 @@ export default function CorrectPitchCheckbox(): React.ReactElement
     const tooltips = use_audio_player_tooltips();
 
     return (
-        <LabeledCheckbox 
+        <CheckboxWithLabel 
             tooltip={tooltips.correct_pitch}
             value={value}
             set_value={handle_set_value}

@@ -1,10 +1,10 @@
-import { Box, FormControlLabel, Typography, TypographyVariant, useTheme } from "@mui/material"
+import { Box, FormControlLabel, SxProps, Theme, Typography, TypographyVariant, useTheme } from "@mui/material"
 import TextSelectDropdown, { TextSelectDropdownOption } from "./TextSelectDropdown"
 import React from "react"
 import Tooltip from "./Tooltip";
 
 export type LabeledTextSelectDropdownProps<T> = {
-    label_props: { variant: TypographyVariant, bold?: boolean },
+    label_props: { variant: TypographyVariant, bold?: boolean, sx?: SxProps<Theme> },
     dropdown_props: { variant: TypographyVariant, bold?: boolean },
     selected: number,
     options: TextSelectDropdownOption<T>[],
@@ -31,17 +31,18 @@ export default function LabeledTextSelectDropdown<T>({
                 label={
                     <Tooltip tooltip={tooltip}>
                         <Typography
-                                    variant={label_props.variant}
-                                    component="span"
-                                    sx={{
-                                        display: "flex",
-                                        alignItems: 'center',
-                                        mr: theme.spacing(1),
-                                        fontWeight: label_props.bold ? "bold" : undefined,
-                                    }}
-                                >
-                                    {label}
-                                </Typography>
+                            variant={label_props.variant}
+                            component="span"
+                            sx={{
+                                display: "flex",
+                                alignItems: 'center',
+                                mr: theme.spacing(1),
+                                fontWeight: label_props.bold ? "bold" : undefined,
+                                ...label_props.sx
+                            }}
+                        >
+                            {label}
+                        </Typography>
                     </Tooltip>
                 }
                 control={
