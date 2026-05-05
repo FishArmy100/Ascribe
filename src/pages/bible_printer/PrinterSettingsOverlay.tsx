@@ -1,13 +1,14 @@
-import { Font, Margin, PageNumbers, TextFormat } from "@interop/printing";
-import { Backdrop, Button, Fade, Modal, Paper, Stack, Typography, useTheme } from "@mui/material";
-import React, { useState } from "react";
-import PrintFontSelector from "./dropdowns/PrintFontSelector";
-import LabeledNumberInput from "@components/core/LabeledNumberInput";
-import TextButton from "@components/core/TextButton";
+import { Backdrop, Box, Divider, Fade, Modal, Paper, useTheme } from "@mui/material";
+import React, { useCallback, useEffect, useState } from "react";
+import ToggleButtonGroup from "@components/core/ToggleButtonGroup";
+import PageFormatMenu from "./menus/PageFormatMenu";
+import { PrintBibleFormat } from "@interop/printing";
+import { use_deep_copy } from "@utils/index";
+import { use_bible_print_format } from "@components/providers/PrintBibleFormatProvider";
 import PrinterSettingsButtons from "./PrinterSettingsButtons";
-import MarginEditor from "./MarginEditor";
-import PageNumberEditor from "./PageNumberEditor";
-import TextFormatEditor from "./TextFormatEditor";
+
+const FORMAT_CATEGORIES = [ "page", "verse", "misc" ] as const;
+type FormatCategory = typeof FORMAT_CATEGORIES[number];
 
 export type PrinterSettingsOverlayProps = {
     show: boolean,
@@ -20,15 +21,28 @@ export default function PrinterSettingsOverlay({
 }: PrinterSettingsOverlayProps): React.ReactElement
 {
     const theme = useTheme();
-    const [font, set_font] = useState<Font>("liberation_sans");
-    const [text_format, set_text_format] = useState<TextFormat>({
-        font: "liberation_sans",
-        font_size: 12,
-        bold: false,
-        italic: false,
-    });
+    const deep_copy = use_deep_copy();
+    const [category, set_category] = useState<FormatCategory>("page");
+    const { format, set_format } = use_bible_print_format();
+    const [staged_print_format, set_staged_print_format] = useState<PrintBibleFormat>(deep_copy(format));
 
-    const [page_numbers, set_page_numbers] = useState<PageNumbers>({ type: "none" });
+    const handle_reset = useCallback(() => {
+        console.error("Not implemented yet")
+    }, [deep_copy, format, set_staged_print_format]);
+    
+    const handle_cancel = useCallback(() => {
+        set_staged_print_format(deep_copy(format));
+        on_close();
+    }, [on_close, deep_copy, format, set_staged_print_format]);
+
+    const handle_apply = useCallback(() => {
+        set_format(deep_copy(staged_print_format));
+        on_close();
+    }, [set_format, deep_copy, staged_print_format, on_close]);
+
+    useEffect(() => {
+        set_staged_print_format(deep_copy(format))
+    }, [format]);
 
     return (
         <Modal
@@ -51,28 +65,52 @@ export default function PrinterSettingsOverlay({
                         left: "50%",
                         transform: "translate(-50%, -50%)",
                         p: 4,
-                        minWidth: 320,
-                        maxWidth: "90vw",
+                        width: "calc(min(70vw, 70vh))",
+                        height: "calc(min(70vw, 70vh))",
                         outline: "none",
                         borderRadius: theme.spacing(1),
+                        overflowY: "auto",
                     }}
                 >
-                    <Typography variant="h6" gutterBottom>
-                        Menu
-                    </Typography>
+                    <Box
+                        sx={{
+                            display: "flex",
+                            justifyContent: "center",
+                        }}
+                    >
+                        <ToggleButtonGroup
+                            options={[
+                                {
+                                    label: "Page",
+                                    tooltip: "Page format options"
+                                },
+                                {
+                                    label: "Verse",
+                                    tooltip: "Verse format options"
+                                },
+                                {
+                                    label: "Misc",
+                                    tooltip: "Title and Strongs format options"
+                                }
+                            ]}
+                            selected={FORMAT_CATEGORIES.indexOf(category)}
+                            on_selected={i => set_category(FORMAT_CATEGORIES[i])}
+                            sx={{
+                                width: theme.spacing(24),
+                            }}
+                        />
+                    </Box>
+                    {category === "page" && (
+                        <PageFormatMenu 
+                            format={staged_print_format}
+                            on_change={f => set_staged_print_format(f)}
+                        />
+                    )}
+                    <Divider sx={{ mt: 2, mb: 2 }}/>
                     <PrinterSettingsButtons 
-                        on_apply={() => {}} 
-                        on_cancel={() => {}} 
-                        on_reset={() => {}} 
-                    />
-                    <TextFormatEditor 
-                        label="Text Format"
-                        value={text_format}
-                        on_change={v => set_text_format(v)}
-                    />
-                    <PageNumberEditor 
-                        value={page_numbers}
-                        on_change={v => set_page_numbers(v)}
+                        on_apply={handle_apply}
+                        on_cancel={handle_cancel}
+                        on_reset={handle_reset}
                     />
                 </Paper>
             </Fade>

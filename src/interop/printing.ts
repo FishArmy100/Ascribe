@@ -45,7 +45,7 @@ export const PAGE_NUMBER_NAMES: Record<PageNumberType, string> = {
     "top_left": "Top Left",
     "top_right": "Top Right",
     "bottom_left": "Bottom Left",
-    "bottom_right": "Top Right",
+    "bottom_right": "Bottom Right",
 }
 
 export interface Margin {

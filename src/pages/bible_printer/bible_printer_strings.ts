@@ -167,6 +167,14 @@ export function use_bible_printer_strings()
             "pages.bible_printer.tooltips.italic_toggle",
             "Toggle italic font"
         ),
+        new_page_per_section_label: __t(
+            "pages.bible_printer.labels.new_page_per_section",
+            "New Page Per Section"
+        ),
+        new_page_per_section_tooltip: __t(
+            "pages.bible_printer.tooltip.new_page_per_section",
+            "Enable if a new page is created per reference section",
+        ),
     }), [i18n]);
 
     return object;

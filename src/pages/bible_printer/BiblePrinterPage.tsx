@@ -5,12 +5,13 @@ import PdfRenderer from "@components/core/PdfRenderer";
 import { backend_preview_bible, BiblePrintRange, PreviewResult } from "@interop/printing";
 import { LoadingSpinner } from "../LoadingSpinner";
 import { use_module_configs } from "@components/providers/ModuleConfigProvider";
+import { use_bible_print_format } from "@components/providers/PrintBibleFormatProvider";
 
 export default function BiblePrinterPage(): React.ReactElement
 {
     const [pdf_data, set_pdf_data] = useState<string | null>(null);
     const [error, set_error] = useState<string | null>(null);
-    const { bible_configs } = use_module_configs();
+    const { format } = use_bible_print_format();
     const theme = useTheme();
 
     useEffect(() => {
@@ -52,7 +53,7 @@ export default function BiblePrinterPage(): React.ReactElement
         }).catch((err) => {
             set_error(err.message);
         });
-    }, []);
+    }, [format]);
 
     return (
         <Box>
