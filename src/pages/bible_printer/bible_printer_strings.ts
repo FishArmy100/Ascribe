@@ -1,6 +1,6 @@
 import { use_app_i18n } from "@components/providers/LanguageProvider";
 import __t, { __tv } from "@fisharmy100/react-auto-i18n";
-import { BOOK_FORMAT_NAMES, BookFormat, Font, FONT_NAMES, PAGE_NUMBER_NAMES, PAGE_SIZE_NAMES, PageNumberType, PageSize, TEXT_ALIGN_NAMES, TextAlign } from "@interop/printing";
+import { BOOK_FORMAT_NAMES, BookFormat, Font, FONT_NAMES, PAGE_NUMBER_NAMES, PAGE_SIZE_NAMES, PageNumberType, PageSize, TEXT_ALIGN_NAMES, TextAlign, VERSE_NUMBER_FORMAT_TYPE_NAMES, VerseNumberFormatType } from "@interop/printing";
 import { useMemo } from "react";
 
 
@@ -76,6 +76,26 @@ export function use_bible_printer_strings()
             "pages.bible_printer.labels.book_format",
             "Book Format",
         ),
+        verse_number_format_type_dropdown_tooltip: __t(
+            "pages.bible_printer.tooltips.verse_number_format_type_dropdown",
+            "Change Verse Number Format"
+        ),
+        select_verse_number_format_type_dropdown_tooltip: (verse_number_format_type: VerseNumberFormatType) => __tv(
+            "pages.bible_printer.tooltips.select_verse_number_format_type_dropdown",
+            [
+                ["Small",       ({fmt}) => fmt === "short"],
+                ["Long",        ({fmt}) => fmt === "long"],
+                ["Number",      ({fmt}) => fmt === "number"],
+                ["Number Text", ({fmt}) => fmt === "number_text"],
+                ["None",        ({fmt}) => fmt === "none"],
+                ""
+            ],
+            { fmt: verse_number_format_type }
+        ),
+        verse_number_format_type_dropdown_label: __t(
+            "pages.bible_printer.labels.verse_number_format_type",
+            "Verse Number Format",
+        ),
         page_numbers_type_dropdown_tooltip: __t(
             "pages.bible_printer.tooltips.page_numbers_type_dropdown",
             "Change Page Numbers"
@@ -96,10 +116,10 @@ export function use_bible_printer_strings()
         edit_margin_value_label: (variant: "top" | "bottom" | "right" | "left") => __tv(
             "pages.bible_printer.labels.edit_margin_variants",
             [
-                ["Top", ({ variant }) => variant === "top"],
-                ["Bottom", ({ variant }) => variant === "bottom"],
-                ["Right", ({ variant }) => variant === "right"],
-                ["Left", ({ variant }) => variant === "left"],
+                ["Top",     ({ variant }) => variant === "top"],
+                ["Bottom",  ({ variant }) => variant === "bottom"],
+                ["Right",   ({ variant }) => variant === "right"],
+                ["Left",    ({ variant }) => variant === "left"],
                 ""
             ],
             { variant }
@@ -107,10 +127,10 @@ export function use_bible_printer_strings()
         edit_margin_value_tooltip: (variant: "top" | "bottom" | "right" | "left") => __tv(
             "pages.bible_printer.tooltips.edit_margin_variants",
             [
-                ["Edit top margin", ({ variant }) => variant === "top"],
-                ["Edit bottom margin", ({ variant }) => variant === "bottom"],
-                ["Edit right margin", ({ variant }) => variant === "right"],
-                ["Edit left margin", ({ variant }) => variant === "left"],
+                ["Edit top margin",     ({ variant }) => variant === "top"],
+                ["Edit bottom margin",  ({ variant }) => variant === "bottom"],
+                ["Edit right margin",   ({ variant }) => variant === "right"],
+                ["Edit left margin",    ({ variant }) => variant === "left"],
                 ""
             ],
             { variant }
@@ -175,6 +195,10 @@ export function use_bible_printer_strings()
             "pages.bible_printer.tooltip.new_page_per_section",
             "Enable if a new page is created per reference section",
         ),
+        verse_number_editor_label: __t(
+            "pages.bible_printer.labels.verse_number_editor",
+            "Verse Number Editor",
+        )
     }), [i18n]);
 
     return object;

@@ -5,7 +5,7 @@ use itertools::Itertools;
 use pdf_oxide::writer::{DocumentBuilder, FluentPageBuilder};
 use ttf_parser::{Face, GlyphId};
 
-use crate::bible::{printing::{PrintBibleRange, fonts::{Font, FontVariant}, print_bible_format::{PageNumbers, PrintBibleFormat, TextAlign, TextFormat}}, render::{VerseRenderData, WordRenderData}};
+use crate::bible::{printing::{PrintBibleRange, fonts::{Font, FontVariant}, print_bible_format::{BookFormatter, PageNumbers, PrintBibleFormat, TextAlign, TextFormat, VerseNumberFormatType}}, render::{VerseRenderData, WordRenderData}};
 
 pub struct Curser
 {
@@ -141,10 +141,12 @@ impl<'a> BiblePdfWriter<'a>
     
     pub fn write_verse(&mut self, render_data: &VerseRenderData)
     {
-        let verse_title = self.format_verse_title(&render_data.bible, render_data.id.into());
-        self.write_space(self.format.verse_format.verse_indent);
-        self.write_word(&verse_title, &self.format.verse_format.verse_title_format, self.format.verse_format.line_height);
-        self.write_space(self.format.verse_format.title_spacing);
+        if let Some(verse_title) = self.format_verse_title(&render_data.bible, render_data.id.into())
+        {
+            self.write_space(self.format.verse_format.verse_indent);
+            self.write_word(&verse_title, &self.format.verse_format.verse_number_format.text_format, self.format.verse_format.line_height);
+            self.write_space(self.format.verse_format.verse_number_format.spacing);
+        }
 
         let word_spacing = self.format.verse_format.word_spacing;
         for (i, word) in render_data.words.iter().enumerate()
@@ -388,11 +390,26 @@ impl<'a> BiblePdfWriter<'a>
         }
     }
 
-    fn format_verse_title(&self, bible: &ModuleId, verse: VerseId) -> String 
+    fn format_verse_title(&self, bible: &ModuleId, verse: VerseId) -> Option<String> 
     {
-        let book_formatter = self.format.verse_format.book_formatter;
-        let book = book_formatter.format(bible, verse.book, self.package);
-        format!("{} {}:{}", book, verse.chapter, verse.verse)
+        match self.format.verse_format.verse_number_format.format_type
+        {
+            VerseNumberFormatType::Long => {
+                let book = BookFormatter::Full.format(bible, verse.book, self.package);
+                Some(format!("{} {}:{}", book, verse.chapter, verse.verse))
+            },
+            VerseNumberFormatType::Short => {
+                let book = BookFormatter::Short.format(bible, verse.book, self.package);
+                Some(format!("{} {}:{}", book, verse.chapter, verse.verse))
+            },
+            VerseNumberFormatType::Number => {
+                Some(format!("{}", verse.verse))
+            },
+            VerseNumberFormatType::NumberText => {
+                Some(format!("Verse {}", verse.verse))
+            },
+            VerseNumberFormatType::None => None,
+        }
     }
 
     pub fn build(self) -> Result<Vec<u8>, String>

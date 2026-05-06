@@ -152,18 +152,36 @@ impl TextFormat
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum VerseNumberFormatType
+{
+    Long,
+    Short,
+    Number,
+    NumberText,
+    None,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub struct VerseNumberFormat
+{
+    pub format_type: VerseNumberFormatType,
+    pub text_format: TextFormat,
+    pub spacing: f32,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub struct VerseFormat
 {
     pub text_format: TextFormat,
     pub alt_text_format: TextFormat,
-    pub verse_title_format: TextFormat,
+    pub verse_number_format: VerseNumberFormat,
     pub line_height: f32,
     pub word_spacing: f32,
     pub verse_spacing: f32,
-    pub book_formatter: BookFormatter,
-    pub title_spacing: f32,
     pub verse_indent: f32,
 }
 
@@ -260,16 +278,18 @@ impl Default for PrintBibleFormat
                     bold: false,
                     italic: true,
                 },
-                verse_title_format: TextFormat {
-                    font: Font::LiberationSans,
-                    font_size: 12.0,
-                    bold: true,
-                    italic: true,
+                verse_number_format: VerseNumberFormat { 
+                    format_type: VerseNumberFormatType::Short, 
+                        text_format: TextFormat {
+                        font: Font::LiberationSans,
+                        font_size: 12.0,
+                        bold: true,
+                        italic: true,
+                    }, 
+                    spacing: 10.0,
                 },
                 word_spacing: 12.0,
                 verse_spacing: 24.0,
-                book_formatter: BookFormatter::Short,
-                title_spacing: 18.0,
                 verse_indent: 36.0,
                 line_height: 2.0,
             },

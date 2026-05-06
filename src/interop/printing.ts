@@ -48,7 +48,18 @@ export const PAGE_NUMBER_NAMES: Record<PageNumberType, string> = {
     "bottom_right": "Bottom Right",
 }
 
-export interface Margin {
+export const VERSE_NUMBER_FORMAT_TYPES = [ "long", "short", "number", "number_text", "none" ] as const;
+export type VerseNumberFormatType = typeof VERSE_NUMBER_FORMAT_TYPES[number];
+export const VERSE_NUMBER_FORMAT_TYPE_NAMES: Record<VerseNumberFormatType, string> = {
+    "long": "Long",
+    "short": "Short",
+    "number": "Number",
+    "number_text": "Number Text",
+    "none": "None",
+}
+
+export interface Margin 
+{
     left: number;
     right: number;
     top: number;
@@ -69,19 +80,26 @@ export interface TextFormat {
     italic: boolean;
 }
 
-export interface VerseFormat {
+export interface VerseNumberFormat 
+{
+    format_type: VerseNumberFormatType,
+    text_format: TextFormat,
+    spacing: number,
+}
+
+export interface VerseFormat 
+{
     text_format: TextFormat;
     alt_text_format: TextFormat;
-    verse_title_format: TextFormat;
+    verse_number_format: VerseNumberFormat;
     line_height: number;
     word_spacing: number;
     verse_spacing: number;
-    book_formatter: BookFormat;
-    title_spacing: number;
     verse_indent: number;
 }
 
-export interface TitleFormat {
+export interface TitleFormat 
+{
     text_format: TextFormat;
     text_align: TextAlign;
     book_formatter: BookFormat;
@@ -89,14 +107,16 @@ export interface TitleFormat {
     line_height: number;
 }
 
-export interface StrongsFormat {
+export interface StrongsFormat 
+{
     font: Font;
     font_size: number;
     bold: boolean;
     italic: boolean;
 }
 
-export interface PrintBibleFormat {
+export interface PrintBibleFormat 
+{
     margin: Margin;
     page_numbers: PageNumbers;
     page_size: PageSize;
