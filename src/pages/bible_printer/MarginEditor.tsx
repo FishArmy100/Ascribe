@@ -105,7 +105,7 @@ function MarginValueEditor({
             input_props={{ variant: "body1" }}
             tooltip={tooltip}
             label={label}
-            value={value}
+            value={value / 72}
             min={0}
             max={2}
             step={0.05}

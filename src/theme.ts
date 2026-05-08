@@ -116,7 +116,7 @@ export const ASCRIBE_DARK_THEME: AppTheme = {
         action: {
             hover: 'rgba(255, 255, 255, 0.15)', // More visible white overlay for dark mode
         },
-        divider: "#6e6e6eff"
+        divider: "rgb(163, 163, 163)"
     }
 };
 

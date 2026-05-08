@@ -104,7 +104,7 @@ export interface TitleFormat
     text_align: TextAlign;
     book_formatter: BookFormat;
     title_spacing: number;
-    line_height: number;
+    line_height: number; 
 }
 
 export interface StrongsFormat 
@@ -173,10 +173,19 @@ export async function backend_get_print_format(): Promise<PrintBibleFormat>
 
 export async function backend_set_print_format(format: PrintBibleFormat): Promise<void>
 {
-    await invoke("run_print_command", {
+    return await invoke("run_print_command", {
         command: { 
             type: "set_format", 
             format: format 
         }
     });
+}
+
+export async function backend_get_default_print_bible_format(): Promise<PrintBibleFormat>
+{
+    return await invoke<string>("run_print_command", {
+        command: {
+            type: "get_default_format"
+        }
+    }).then(s => JSON.parse(s) as PrintBibleFormat)
 }

@@ -18,6 +18,10 @@ export type PdfRendererProps = {
     sx?: SxProps<Theme>,
 }
 
+const MIN_SCALE = 0.5;
+const MAX_SCALE = 3.0;
+const SCALE_STEP = 0.25;
+
 export default function PdfRenderer({
     file,
     sx,
@@ -25,6 +29,7 @@ export default function PdfRenderer({
 {
     const [page_count, set_page_count] = useState<number>(0);
     const [current_page, set_current_page] = useState<number>(1);
+    const [scale, set_scale] = useState<number>(1.0);
     const page_refs = useRef<(HTMLDivElement | null)[]>([]);
     const i18n = use_app_i18n();
     const theme = useTheme();
@@ -32,6 +37,8 @@ export default function PdfRenderer({
     const strings = useMemo(() => ({
         next_page: __t("pdf_renderer.tooltips.next_page", "Next Page"),
         previous_page: __t("pdf_renderer.tooltips.previous_page", "Previous Page"),
+        zoom_in: __t("pdf_renderer.tooltips.zoom_in", "Zoom In"),
+        zoom_out: __t("pdf_renderer.tooltips.zoom_out", "Zoom Out"),
     }), [i18n])
 
     const on_load_success = ({ numPages }: { numPages: number }): void => {
@@ -42,7 +49,6 @@ export default function PdfRenderer({
     const on_scroll = (e: React.UIEvent<HTMLDivElement>): void => {
         const container = e.currentTarget;
 
-        // Find which page occupies the most screen space
         let best_page = 1;
         let best_visibility = -1;
 
@@ -67,6 +73,14 @@ export default function PdfRenderer({
         page_refs.current[page - 1]?.scrollIntoView({ behavior: "smooth" });
     }
 
+    const zoom_in = (): void => {
+        set_scale(prev => Math.min(prev + SCALE_STEP, MAX_SCALE));
+    }
+
+    const zoom_out = (): void => {
+        set_scale(prev => Math.max(prev - SCALE_STEP, MIN_SCALE));
+    }
+
     return (
         <Box sx={{
             display: "flex",
@@ -87,12 +101,13 @@ export default function PdfRenderer({
                 sx={{
                     flex: 1,
                     overflowY: "auto",
+                    overflowX: "auto",
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
                     gap: 2,
                     py: 2,
-                    pb: 6,         // ← leave room for the toolbar at the bottom
+                    pb: 6,
                     px: 2,
                 }}
             >
@@ -103,13 +118,13 @@ export default function PdfRenderer({
                             ref={(el: HTMLDivElement | null) => { page_refs.current[i] = el; }}
                             sx={{ boxShadow: 3, mb: 2 }}
                         >
-                            <PdfPage pageNumber={i + 1} />
+                            <PdfPage pageNumber={i + 1} scale={scale} />
                         </Box>
                     ))}
                 </PdfDoc>
             </Box>
 
-            {/* Toolbar — now inside the relative container */}
+            {/* Toolbar */}
             <Box sx={{
                 display: "flex",
                 alignItems: "center",
@@ -124,11 +139,9 @@ export default function PdfRenderer({
                     tooltip={strings.previous_page}
                     on_click={() => scroll_to_page(current_page - 1)}
                     sfx="page_turn"
+                    disabled={current_page - 1 === 0}
                 />
-                <Typography 
-                    variant="body2"
-                    color="white"
-                >
+                <Typography variant="body2" color="white">
                     Page {current_page} of {page_count}
                 </Typography>
                 <ImageButton
@@ -136,6 +149,26 @@ export default function PdfRenderer({
                     tooltip={strings.next_page}
                     on_click={() => scroll_to_page(current_page + 1)}
                     sfx="page_turn"
+                    disabled={current_page === page_count}
+                />
+
+                {/* Divider */}
+                <Box sx={{ width: "1px", height: "20px", backgroundColor: "rgba(255,255,255,0.3)" }} />
+
+                <ImageButton
+                    image={images.zoom_out}  // swap for your actual zoom-out asset
+                    tooltip={strings.zoom_out}
+                    on_click={zoom_out}
+                    disabled={scale <= MIN_SCALE}
+                />
+                <Typography variant="body2" color="white">
+                    {Math.round(scale * 100)}%
+                </Typography>
+                <ImageButton
+                    image={images.zoom_in}   // swap for your actual zoom-in asset
+                    tooltip={strings.zoom_in}
+                    on_click={zoom_in}
+                    disabled={scale >= MAX_SCALE}
                 />
             </Box>
         </Box>

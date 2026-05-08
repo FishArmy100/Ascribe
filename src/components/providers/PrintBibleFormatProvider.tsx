@@ -3,9 +3,11 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import {
     type PrintBibleFormat,
     type PrintBibleFormatChangedEvent,
+    backend_get_default_print_bible_format,
     backend_get_print_format,
     backend_set_print_format,
 } from "@interop/printing";
+import { use_deep_copy } from "@utils/index";
 
 const PRINT_FORMAT_CHANGED_EVENT_NAME = "print-bible-format-changed";
 
@@ -16,12 +18,14 @@ const DEFAULT_PRINT_BIBLE_FORMAT: PrintBibleFormat = {
     verse_format: {
         text_format: { font: "liberation_sans", font_size: 12, bold: false, italic: false },
         alt_text_format: { font: "liberation_sans", font_size: 12, bold: false, italic: true },
-        verse_title_format: { font: "liberation_sans", font_size: 14, bold: true, italic: false },
+        verse_number_format: {
+            text_format: { font: "liberation_sans", font_size: 14, bold: true, italic: false },
+            format_type: "short",
+            spacing: 18,
+        },
         line_height: 1.5,
         word_spacing: 1,
         verse_spacing: 4,
-        book_formatter: "short",
-        title_spacing: 8,
         verse_indent: 0,
     },
     title_format: {
@@ -36,7 +40,9 @@ const DEFAULT_PRINT_BIBLE_FORMAT: PrintBibleFormat = {
 };
 
 type PrintBibleFormatContextType = {
-    readonly format: PrintBibleFormat;
+    readonly is_loaded: boolean,
+    readonly format: () => PrintBibleFormat;
+    readonly default_format: () => PrintBibleFormat,
     set_format: (f: PrintBibleFormat) => Promise<void>;
     update_format: (fn: (f: PrintBibleFormat) => PrintBibleFormat) => Promise<void>;
 };
@@ -49,9 +55,18 @@ export type PrintBibleFormatProviderProps = {
 
 export function PrintBibleFormatProvider({ children }: PrintBibleFormatProviderProps): React.ReactElement {
     const [format, set_format_state] = useState<PrintBibleFormat | null>(null);
+    const [default_format, set_default_format] = useState<PrintBibleFormat | null>(null);
+    const deep_copy = use_deep_copy();
+
+    async function fetch_default_format()
+    {
+        const default_format = await backend_get_default_print_bible_format();
+        set_default_format(default_format);
+    }
 
     useEffect(() => {
         backend_get_print_format().then(set_format_state);
+        fetch_default_format();
 
         const unlisten = listen<PrintBibleFormatChangedEvent>(PRINT_FORMAT_CHANGED_EVENT_NAME, event => {
             set_format_state(event.payload.new);
@@ -72,8 +87,16 @@ export function PrintBibleFormatProvider({ children }: PrintBibleFormatProviderP
         return await backend_set_print_format(new_format);
     };
 
+    const value: PrintBibleFormatContextType = {
+        is_loaded: format !== null && default_format !== null,
+        format: () => deep_copy(format ?? {} as any),
+        default_format: () => deep_copy(default_format ?? {} as any),
+        set_format,
+        update_format,
+    }
+
     return (
-        <PrintBibleFormatContext.Provider value={{ format: format ?? DEFAULT_PRINT_BIBLE_FORMAT, set_format, update_format }}>
+        <PrintBibleFormatContext.Provider value={value}>
             {children}
         </PrintBibleFormatContext.Provider>
     );

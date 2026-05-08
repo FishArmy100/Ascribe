@@ -37,16 +37,19 @@ export default function PrinterSettingsButtons({
                     text={strings.apply_changes}
                     tooltip={strings.apply_changes_tooltip}
                     on_click={on_apply}
+                    text_props={{ bold: true }}
                 />
                 <TextButton
                     text={strings.cancel_changes}
                     tooltip={strings.cancel_changes_tooltip}
                     on_click={on_cancel}
+                    text_props={{ bold: true }}
                 />
                 <TextButton
                     text={strings.reset_defaults}
                     tooltip={strings.reset_defaults_tooltip}
                     on_click={on_reset}
+                    text_props={{ bold: true }}
                 />
             </Stack>
         </Box>

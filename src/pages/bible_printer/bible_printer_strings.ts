@@ -192,12 +192,142 @@ export function use_bible_printer_strings()
             "New Page Per Section"
         ),
         new_page_per_section_tooltip: __t(
-            "pages.bible_printer.tooltip.new_page_per_section",
+            "pages.bible_printer.tooltips.new_page_per_section",
             "Enable if a new page is created per reference section",
         ),
         verse_number_editor_label: __t(
             "pages.bible_printer.labels.verse_number_editor",
-            "Verse Number Editor",
+            "Verse Numbers",
+        ),
+        verse_number_spacing_label: __t(
+            "pages.bible_printer.labels.verse_number_spacing",
+            "Spacing"
+        ),
+        verse_number_spacing_tooltip: __t(
+            "pages.bible_printer.tooltips.verse_number_spacing",
+            "The space between the verse number and the text"
+        ),
+        verse_text_format_label: __t(
+            "pages.bible_printer.labels.verse_text_format",
+            "Verse Text",
+        ),
+        verse_alt_text_format_label: __t(
+            "pages.bible_printer.labels.verse_alt_text_format",
+            "Verse Alt Text",
+        ),
+        verse_spacing_group_label: __t(
+            "pages.bible_printer.labels.verse_spacing_group",
+            "Verse Spacing",
+        ),
+
+        verse_line_height_label: __t(
+            "pages.bible_printer.labels.verse_line_height",
+            "Line Height",
+        ),
+        verse_line_height_tooltip: __t(
+            "pages.bible_printer.tooltips.verse_line_height",
+            "How far apart each line within a verse are from each other",
+        ),
+
+        verse_word_spacing_label: __t(
+            "pages.bible_printer.labels.verse_word_spacing",
+            "Word Spacing",
+        ),
+        verse_word_spacing_tooltip: __t(
+            "pages.bible_printer.tooltips.verse_word_spacing",
+            "How far apart each word are from each other",
+        ),
+
+        verse_spacing_label: __t(
+            "pages.bible_printer.labels.verse_spacing",
+            "Verse Spacing",
+        ),
+        verse_spacing_tooltip: __t(
+            "pages.bible_printer.tooltips.verse_spacing",
+            "How far the verses are apart from each other",
+        ),
+
+        verse_indent_label: __t(
+            "pages.bible_printer.labels.verse_indent",
+            "Verse Indent",
+        ),
+        verse_indent_tooltip: __t(
+            "pages.bible_printer.tooltips.verse_indent",
+            "The indentation of the first line of the verse",
+        ),
+        format_category_tooltip: (category: "page" | "verse" | "strongs" | "title") => __tv(
+            "pages.bible_printer.tooltips.format_category",
+            [
+                ["Page format options", ({category}) => category === "page"],
+                ["Verse format options", ({category}) => category === "verse"],
+                ["Strongs format options", ({category}) => category === "strongs"],
+                ["Title format options", ({category}) => category === "title"],
+                ""
+            ],
+            {category}
+        ),
+        format_category_label: (category: "page" | "verse" | "strongs" | "title") => __tv(
+            "pages.bible_printer.labels.format_category",
+            [
+                ["Page", ({category}) => category === "page"],
+                ["Verse", ({category}) => category === "verse"],
+                ["Strongs", ({category}) => category === "strongs"],
+                ["Title", ({category}) => category === "title"],
+                ""
+            ],
+            {category}
+        ),
+        strongs_option_group_label: __t(
+            "pages.bible_printer.labels.strongs_option_group",
+            "Strongs"
+        ),
+        strongs_enabled_label: __t(
+            "pages.bible_printer.labels.strongs_enabled",
+            "Strongs Enabled"
+        ),
+        strongs_enabled_tooltip: __t(
+            "pages.bible_printer.tooltips.strongs_enabled",
+            "Enable if Strongs numbers are rendered"
+        ),
+        title_text_label: __t(
+            "pages.bible_printer.labels.title_text_label",
+            "Text Format",
+        ),
+        title_spacing_group_label: __t(
+            "pages.bible_printer.labels.title_spacing_group",
+            "Spacing",
+        ),
+
+        title_spacing_label: __t(
+            "pages.bible_printer.labels.title_spacing",
+            "Title Spacing"
+        ),
+        title_spacing_tooltip: __t(
+            "pages.bible_printer.tooltips.title_spacing",
+            "The space between the title and the verse content"
+        ),
+
+        title_line_height_label: __t(
+            "pages.bible_printer.labels.title_line_height",
+            "Line Height"
+        ),
+        title_line_height_tooltip: __t(
+            "pages.bible_printer.tooltips.title_line_height",
+            "The line height of the title"
+        ),
+
+        bible_selector_option_tooltip: (bible: string) => __t(
+            "pages.bible_printer.tooltips.bible_selector_option",
+            "Select {{$bible}}",
+            { bible }
+        ),
+        bible_selector_label: __t(
+            "pages.bible_printer.labels.bible_selector_label",
+            "Bible"
+        ),
+        bible_selector_tooltip: __t(
+            "pages.bible_printer.tooltips.bible_selector",
+            "Select a Bible",
         )
     }), [i18n]);
 

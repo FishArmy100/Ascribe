@@ -35,6 +35,7 @@ pub enum PrintingCommand
         format: PrintBibleFormat,
     },
     GetFormat,
+    GetDefaultFormat,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -146,6 +147,10 @@ pub fn run_print_command(
             };
 
             Some(result)
+        },
+        PrintingCommand::GetDefaultFormat => {
+            let response = PrintBibleFormat::default();
+            Some(serde_json::to_string(&response).unwrap())
         },
     }
 }
