@@ -9,6 +9,7 @@ import { Divider } from "@mui/material";
 import LoadingOverlay from "@components/core/LoadingOverlay";
 import { backend_download_pdf, BiblePrintRange } from "@interop/printing";
 import PrinterSettingsOverlay from "./PrinterSettingsOverlay";
+import SectionSelectorOverlay from "./section_overlay/SectionSelectorOverlay";
 
 const range_a: BiblePrintRange = {
     bible: "kjv_eng",
@@ -51,10 +52,15 @@ export default function BiblePrinterPageToolbar(): React.ReactElement
     const strings = use_bible_printer_strings();
     const [show_loading, set_show_loading] = useState(false);
     const [show_printer_settings, set_show_printer_settings] = useState(false);
+    const [show_printer_sections, set_show_printer_sections] = useState(false); 
 
     const handle_close_printer_settings = useCallback(() => {
         set_show_printer_settings(false);
-    }, [set_show_printer_settings])
+    }, [set_show_printer_settings]);
+
+    const handle_close_printer_sections = useCallback(() => {
+        set_show_printer_sections(false);
+    }, [set_show_printer_sections])
 
     const handle_download = useCallback(() => {
         async function runner()
@@ -98,12 +104,23 @@ export default function BiblePrinterPageToolbar(): React.ReactElement
                     active={show_printer_settings}
                 />
 
+                <ImageButton
+                    image={images.quotes}
+                    tooltip={strings.sections_tooltip}
+                    on_click={() => set_show_printer_sections(true)}
+                    active={show_printer_sections}
+                />
+
                 <SubMenuDropdown />
             </TopBar>
             <LoadingOverlay show={show_loading}/>
             <PrinterSettingsOverlay 
                 show={show_printer_settings}
                 on_close={handle_close_printer_settings}
+            />
+            <SectionSelectorOverlay 
+                show={show_printer_sections}
+                on_close={handle_close_printer_sections}
             />
         </>
     )

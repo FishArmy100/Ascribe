@@ -24,6 +24,10 @@ export function use_bible_printer_strings()
             "pages.bible_printer.tooltips.settings",
             "Open Pdf Settings",
         ),
+        sections_tooltip: __t(
+            "pages.bible_printer.tooltips.sections",
+            "Change rendered Bible sections",
+        ),
         font_dropdown_tooltip: __t(
             "pages.bible_printer.tooltips.font_dropdown",
             "Change font"
@@ -328,6 +332,11 @@ export function use_bible_printer_strings()
         bible_selector_tooltip: __t(
             "pages.bible_printer.tooltips.bible_selector",
             "Select a Bible",
+        ),
+
+        add_section_tooltip: __t(
+            "pages.bible_printer.tooltips.add_sections",
+            "Add a Bible section to render",
         )
     }), [i18n]);
 
