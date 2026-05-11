@@ -4,16 +4,17 @@ import { Stack } from "@mui/material";
 import React from "react";
 import * as images from "@assets";
 import { use_bible_printer_strings } from "../bible_printer_strings";
+import RangeSelector from "./RangeSelector";
 
-export type SectionSelectorOverlayProps = {
+export type RangeSelectorOverlayProps = {
     show: boolean,
     on_close: () => void,
 }
 
-export default function SectionSelectorOverlay({
+export default function RangeSelectorOverlay({
     show,
     on_close
-}: SectionSelectorOverlayProps): React.ReactElement
+}: RangeSelectorOverlayProps): React.ReactElement
 {
     const strings = use_bible_printer_strings();
     return (
@@ -27,6 +28,9 @@ export default function SectionSelectorOverlay({
                     tooltip={strings.add_section_tooltip}
                 />
             </Stack>
+            <RangeSelector 
+                on_change={r => console.log(r)}
+            />
         </OverlayModal>
     )
 }

@@ -1,4 +1,4 @@
-import { TextSelectDropdownOption } from "@components/core/TextSelectDropdown";
+import TextSelectDropdown, { TextSelectDropdownOption } from "@components/core/TextSelectDropdown";
 import { use_module_configs } from "@components/providers/ModuleConfigProvider";
 import React, { useEffect, useMemo, useState } from "react";
 import { use_bible_printer_strings } from "../bible_printer_strings";
@@ -32,14 +32,12 @@ export default function BibleSelector({
     }, [])
 
     return (
-        <LabeledTextSelectDropdown
-            label_props={{ variant: "body1", bold: true }}
-            dropdown_props={{ variant: "body1" }}
-            label={strings.bible_selector_label + ":"}
+        <TextSelectDropdown
             tooltip={strings.bible_selector_tooltip}
             options={options}
             selected={options.findIndex(o => o.value === selected)}
-            on_change={v => set_selected(v)}
+            on_select={v => set_selected(v)}
+            variant="body1"
         />
     )
 }

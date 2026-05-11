@@ -9,7 +9,7 @@ import { Divider } from "@mui/material";
 import LoadingOverlay from "@components/core/LoadingOverlay";
 import { backend_download_pdf, BiblePrintRange } from "@interop/printing";
 import PrinterSettingsOverlay from "./PrinterSettingsOverlay";
-import SectionSelectorOverlay from "./section_overlay/SectionSelectorOverlay";
+import RangeSelectorOverlay from "./ranges_overlay/RangeSelectorOverlay";
 
 const range_a: BiblePrintRange = {
     bible: "kjv_eng",
@@ -118,7 +118,7 @@ export default function BiblePrinterPageToolbar(): React.ReactElement
                 show={show_printer_settings}
                 on_close={handle_close_printer_settings}
             />
-            <SectionSelectorOverlay 
+            <RangeSelectorOverlay 
                 show={show_printer_sections}
                 on_close={handle_close_printer_sections}
             />
