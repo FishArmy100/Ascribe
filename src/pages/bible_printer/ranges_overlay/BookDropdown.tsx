@@ -4,7 +4,7 @@ import { use_app_i18n } from "@components/providers/LanguageProvider"
 import { use_module_configs } from "@components/providers/ModuleConfigProvider"
 import __t from "@fisharmy100/react-auto-i18n"
 import { OsisBook } from "@interop/bible"
-import React, { useCallback, useMemo } from "react"
+import React, { useCallback, useEffect, useMemo } from "react"
 
 export type BookDropdownProps = {
     bible_id: string,
@@ -22,19 +22,15 @@ export default function BookDropdown({
     const { bible_infos, get_book_display_name } = use_bible_infos();
     const bible_info = bible_infos[bible_id];
 
-    const option_tooltip = useCallback((book: OsisBook) => {
-        return __t(
-            "pages.bible_printer.tooltips.book_select_tooltip",
-            "Select {{$book}}",
-            {book: get_book_display_name(bible_id, book)}
-        )
-    }, [i18n, get_book_display_name, bible_id]);
-
     const options = useMemo(() => bible_info.books.map((b): TextSelectDropdownOption<OsisBook> => ({
         value: b.osis_book,
         text: get_book_display_name(bible_id, b.osis_book),
-        tooltip: option_tooltip(b.osis_book),
-    })), [option_tooltip, bible_info, get_book_display_name]);
+        tooltip: null,
+    })), [bible_info, get_book_display_name, bible_id]);
+
+    useEffect(() => {
+        on_change(bible_info.books[0].osis_book)
+    }, [bible_id]);
 
     return (
         <TextSelectDropdown 

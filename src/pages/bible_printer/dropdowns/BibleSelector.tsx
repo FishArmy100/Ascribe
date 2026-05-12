@@ -2,7 +2,6 @@ import TextSelectDropdown, { TextSelectDropdownOption } from "@components/core/T
 import { use_module_configs } from "@components/providers/ModuleConfigProvider";
 import React, { useEffect, useMemo, useState } from "react";
 import { use_bible_printer_strings } from "../bible_printer_strings";
-import LabeledTextSelectDropdown from "@components/core/LabeledTextSelectDropdown";
 
 export type BibleSelectorProps = {
     on_change: (bible_id: string) => void,
@@ -19,7 +18,9 @@ export default function BibleSelector({
         value: b.id,
         text: b.short_name ?? b.name,
         tooltip: strings.bible_selector_option_tooltip(b.name),
-    })), [bible_configs]);
+    })).sort((a, b) => {
+        return a.text.localeCompare(b.text);
+    }), [bible_configs]);
 
     const [selected, set_selected] = useState<string>(options[0].value);
     

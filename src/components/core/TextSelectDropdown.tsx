@@ -10,7 +10,7 @@ export const DROPDOWN_PADDING = 1;
 
 export type TextSelectDropdownOption<T> = {
     text: string,
-    tooltip: string,
+    tooltip: string | null,
     value: T
 }
 
@@ -40,14 +40,6 @@ export default function TextSelectDropdown<T>({
     const theme = useTheme();
     const title = options[selected].text;
     const dropdown_width = width ?? "max-content";
-
-    const TooltipWrapper = ({children}: { children: React.ReactElement }) => {
-        return tooltip ? (
-            <Tooltip tooltip={tooltip}>{children}</Tooltip>
-        ) : (
-            children
-        )
-    }
 
     return (
         <DropdownBase
@@ -98,7 +90,7 @@ export default function TextSelectDropdown<T>({
                 sx={{ paddingTop: 0 }}
             >
                 {options.map((o, i) => (
-                    <Tooltip tooltip={o.tooltip} key={i}>
+                    <WrapIf key={i} cond={o.tooltip !== null} wrapper={Tooltip} props={{tooltip: o.tooltip!}}>
                         <Typography
                             variant={variant}
                             fontWeight={bold ? "bold" : undefined}
@@ -133,7 +125,7 @@ export default function TextSelectDropdown<T>({
                         >
                             {o.text}
                         </Typography>
-                    </Tooltip>
+                    </WrapIf>
                 ))}
             </Stack>
         </DropdownBase>
