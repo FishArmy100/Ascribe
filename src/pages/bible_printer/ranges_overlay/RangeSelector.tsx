@@ -12,6 +12,28 @@ import { use_format_verse_id } from "@interop/bible";
 import Label from "@components/core/Label";
 import { use_app_i18n } from "@components/providers/LanguageProvider";
 import __t from "@fisharmy100/react-auto-i18n";
+import { use_bible_display_settings } from "@components/providers/BibleDisplaySettingsProvider";
+
+export function use_default_bible_range(): BiblePrintRange
+{
+    const bible_id = use_bible_display_settings().bible_display_settings.bible_version;
+    const { bible_infos } = use_bible_infos();
+    const bible = bible_infos[bible_id];
+
+    return {
+        bible: bible.id,
+        from: {
+            book: bible.books[0].osis_book,
+            chapter: 1,
+            verse: 1,
+        },
+        to: {
+            book: bible.books[0].osis_book,
+            chapter: 1,
+            verse: bible.books[0].chapters[0],
+        }
+    }
+}
 
 export type RangeSelectorProps = {
     on_change: (range: BiblePrintRange) => void,
@@ -27,7 +49,9 @@ export default function RangeSelector({
     const deep_copy = use_deep_copy();
     const format_verse_id = use_format_verse_id();
     const [range, set_range] = useState<BiblePrintRange>(() => {
-        const bible = Object.values(bible_infos)[0];
+        const bible = Object.values(bible_infos)
+            .sort((a, b) => a.display_name.localeCompare(b.display_name))[0];
+
         return {
             bible: bible.id,
             from: {
@@ -69,11 +93,14 @@ export default function RangeSelector({
                 direction="column"
                 gap={theme.spacing(1)}
             >
-                <BibleSelector on_change={bible => {
-                    const copy = deep_copy(range);
-                    copy.bible = bible;
-                    set_range(copy);
-                }}/>
+                <BibleSelector 
+                    bible_id={range.bible}
+                    on_change={bible => {
+                        const copy = deep_copy(range);
+                        copy.bible = bible;
+                        set_range(copy);
+                    }}
+                />
                 <Label 
                     label={strings.from}
                     label_props={{
