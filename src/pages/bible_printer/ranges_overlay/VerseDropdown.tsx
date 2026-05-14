@@ -35,17 +35,18 @@ export default function VerseDropdown({
         }
     )), [book_info, get_book_display_name, bible_id, book, chapter]);
 
-    
-    
     useEffect(() => {
-        on_change(1);
-    }, [bible_id, book, chapter]);
+        if (verse > options.length)
+        {
+            on_change(1)
+        }
+    })
 
     return (
         <TextSelectDropdown 
             tooltip={null}
             options={options}
-            selected={verse - 1}
+            selected={verse > options.length ? 0 : verse - 1}
             on_select={on_change}
             variant="body1"
         />

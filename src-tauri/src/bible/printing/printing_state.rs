@@ -1,6 +1,6 @@
 use std::sync::{Arc, Mutex};
 
-use crate::bible::printing::PrintBibleFormat;
+use crate::bible::printing::{PrintBibleFormat, PrintBibleRange};
 
 #[derive(Debug)]
 pub struct PrintBibleState
@@ -15,7 +15,8 @@ impl PrintBibleState
         Self 
         {
             inner: Arc::new(Mutex::new(PrintBibleStateInner { 
-                format: PrintBibleFormat::default() 
+                format: PrintBibleFormat::default(),
+                ranges: Vec::new(),
             }))
         }
     }
@@ -32,4 +33,5 @@ impl PrintBibleState
 pub struct PrintBibleStateInner
 {
     pub format: PrintBibleFormat,
+    pub ranges: Vec<PrintBibleRange>,
 }

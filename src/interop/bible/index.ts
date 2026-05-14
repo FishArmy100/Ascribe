@@ -40,6 +40,42 @@ export function use_format_verse_id(): (id: VerseId, bible: string | null, optio
     };
 }
 
+export type VerseCompType = 1 | 0 | -1;
+
+export function compare_verse_ids(a: VerseId, b: VerseId, bible: BibleInfo): VerseCompType
+{
+    const a_book = bible.books.findIndex(book => book.osis_book === a.book);
+    const b_book = bible.books.findIndex(book => book.osis_book === b.book);
+    if (a_book > b_book)
+    {
+        return 1;
+    }
+    else if (a_book < b_book)
+    {
+        return -1;
+    }
+
+    if (a.chapter > b.chapter)
+    {
+        return 1;
+    }
+    else if (a.chapter < b.chapter)
+    {
+        return -1;
+    }
+
+    if (a.verse > b.verse)
+    {
+        return 1;
+    }
+    else if (a.verse < b.verse)
+    {
+        return -1;
+    }
+
+    return 0
+}
+
 export type WordId = {
     verse: VerseId,
     word: number,

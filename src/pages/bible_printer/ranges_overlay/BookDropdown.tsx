@@ -32,11 +32,17 @@ export default function BookDropdown({
         on_change(bible_info.books[0].osis_book)
     }, [bible_id]);
 
+    let selected = bible_info.books.findIndex(b => b.osis_book === book);
+    if (selected === -1)
+    {
+        selected = 0;
+    }
+
     return (
         <TextSelectDropdown 
             tooltip={null}
             options={options}
-            selected={bible_info.books.findIndex(b => b.osis_book === book)}
+            selected={selected}
             on_select={on_change}
             variant="body1"
         />

@@ -7,39 +7,9 @@ import * as images from "@assets";
 import SubMenuDropdown from "@components/SubMenuDropdown";
 import { Divider } from "@mui/material";
 import LoadingOverlay from "@components/core/LoadingOverlay";
-import { backend_download_pdf, BiblePrintRange } from "@interop/printing";
+import { backend_download_pdf, backend_get_print_ranges, BiblePrintRange } from "@interop/printing";
 import PrinterSettingsOverlay from "./PrinterSettingsOverlay";
 import RangeSelectorOverlay from "./ranges_overlay/RangeSelectorOverlay";
-
-const range_a: BiblePrintRange = {
-    bible: "kjv_eng",
-    from: {
-        book: "Gen",
-        chapter: 1,
-        verse: 1,
-    },
-    to: {
-        book: "Gen",
-        chapter: 1,
-        verse: 31,
-    }
-}
-
-const range_b: BiblePrintRange = {
-    bible: "kjv_eng",
-    from: {
-        book: "Prov",
-        chapter: 3,
-        verse: 1,
-    },
-    to: {
-        book: "Prov",
-        chapter: 3,
-        verse: 7,
-    }
-}
-
-const ranges = [range_a, range_b];
 
 export default function BiblePrinterPageToolbar(): React.ReactElement
 {
@@ -68,6 +38,7 @@ export default function BiblePrinterPageToolbar(): React.ReactElement
             if (show_loading) return;
 
             set_show_loading(true);
+            const ranges = await backend_get_print_ranges();
             let response = await backend_download_pdf(ranges);
             set_show_loading(false);
         }

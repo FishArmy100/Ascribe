@@ -9,6 +9,7 @@ import { ModuleConfigProvider } from "./ModuleConfigProvider";
 import AppI18nProvider from "./LanguageProvider";
 import TtsVoiceProvider from "./TtsVoiceProvider";
 import { PrintBibleFormatProvider } from "./PrintBibleFormatProvider";
+import { PrintBibleRangesProvider } from "./PrintBibleRangesProvider";
 
 const PROVIDER_NODES: ((children: React.ReactNode) => React.ReactNode)[] = [
     c => <AppSettingsProvider>{c}</AppSettingsProvider>,
@@ -20,7 +21,8 @@ const PROVIDER_NODES: ((children: React.ReactNode) => React.ReactNode)[] = [
     c => <ModuleConfigProvider>{c}</ModuleConfigProvider>,
     c => <AppI18nProvider>{c}</AppI18nProvider>,
     c => <TtsVoiceProvider>{c}</TtsVoiceProvider>,
-    c => <PrintBibleFormatProvider>{c}</PrintBibleFormatProvider>
+    c => <PrintBibleFormatProvider>{c}</PrintBibleFormatProvider>,
+    c => <PrintBibleRangesProvider>{c}</PrintBibleRangesProvider>
 ];
 
 export default function AppProviders({ 

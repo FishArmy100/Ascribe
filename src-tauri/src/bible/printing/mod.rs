@@ -47,10 +47,13 @@ pub fn print_bible(args: PrintBibleArgs) -> Result<Vec<u8>, String>
 
         let render_data = fetch_range_render_data(range, package);
         writer.write_title(range);
-        for verse in render_data
+        for (i, verse) in render_data.iter().enumerate()
         {
+            if i != 0
+            {
+                writer.verse_return();
+            }
             writer.write_verse(&verse);
-            writer.verse_return();
         }
     }
 

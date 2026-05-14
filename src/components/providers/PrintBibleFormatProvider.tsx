@@ -11,34 +11,6 @@ import { use_deep_copy } from "@utils/index";
 
 const PRINT_FORMAT_CHANGED_EVENT_NAME = "print-bible-format-changed";
 
-const DEFAULT_PRINT_BIBLE_FORMAT: PrintBibleFormat = {
-    margin: { left: 20, right: 20, top: 20, bottom: 20 },
-    page_numbers: { type: "none" },
-    page_size: "A4",
-    verse_format: {
-        text_format: { font: "liberation_sans", font_size: 12, bold: false, italic: false },
-        alt_text_format: { font: "liberation_sans", font_size: 12, bold: false, italic: true },
-        verse_number_format: {
-            text_format: { font: "liberation_sans", font_size: 14, bold: true, italic: false },
-            format_type: "short",
-            spacing: 18,
-        },
-        line_height: 1.5,
-        word_spacing: 1,
-        verse_spacing: 4,
-        verse_indent: 0,
-    },
-    title_format: {
-        text_format: { font: "liberation_sans", font_size: 16, bold: true, italic: false },
-        text_align: "left",
-        book_formatter: "full",
-        title_spacing: 12,
-        line_height: 1.5,
-    },
-    strongs_format: null,
-    new_page_per_section: false,
-};
-
 type PrintBibleFormatContextType = {
     readonly is_loaded: boolean,
     readonly format: () => PrintBibleFormat;

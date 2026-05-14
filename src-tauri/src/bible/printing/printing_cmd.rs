@@ -18,23 +18,31 @@ pub struct PrintBibleFormatChangedEvent
     pub new: PrintBibleFormat,
 }
 
+pub const PRINT_BIBLE_RANGES_CHANGED_EVENT_NAME: &str = "print-bible-ranges-changed";
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub struct PrintBibleRangesChangedEvent 
+{
+    pub old: Vec<PrintBibleRangeJson>,
+    pub new: Vec<PrintBibleRangeJson>,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case", tag = "type")]
 pub enum PrintingCommand
 {
-    Preview
-    {
-        ranges: Vec<PrintBibleRangeJson>,
-    },
-    Download
-    {
-        ranges: Vec<PrintBibleRangeJson>,
-    },
+    Preview,
+    Download,
     SetFormat
     {
         format: PrintBibleFormat,
     },
     GetFormat,
+    SetRanges
+    {
+        ranges: Vec<PrintBibleRangeJson>
+    },
+    GetRanges,
     GetDefaultFormat,
 }
 
@@ -77,7 +85,8 @@ pub fn run_print_command(
 {
     match command
     {
-        PrintingCommand::Preview { ranges } => {
+        PrintingCommand::Preview => {
+            let ranges = state.visit(|s| s.ranges.iter().map(PrintBibleRangeJson::from).collect_vec());
             let result = generate_pdf(&ranges, &state, &package);
 
             let bytes = match result
@@ -118,7 +127,8 @@ pub fn run_print_command(
 
             Some(serde_json::to_string(&response).unwrap())
         },
-        PrintingCommand::Download { ranges } => {
+        PrintingCommand::Download => {
+            let ranges = state.visit(|s| s.ranges.iter().map(PrintBibleRangeJson::from).collect_vec());
             let result = generate_pdf(&ranges, &state, &package);
 
             let bytes = match result
@@ -150,6 +160,43 @@ pub fn run_print_command(
         },
         PrintingCommand::GetDefaultFormat => {
             let response = PrintBibleFormat::default();
+            Some(serde_json::to_string(&response).unwrap())
+        },
+        PrintingCommand::SetRanges { ranges } => {
+            let event = state.visit(|state| {
+                let old = state.ranges.clone()
+                    .into_iter()
+                    .map(PrintBibleRangeJson::from)
+                    .collect_vec();
+
+                state.ranges = ranges.into_iter()
+                    .map(PrintBibleRange::from)
+                    .collect();
+
+                let new = state.ranges.clone()
+                    .into_iter()
+                    .map(PrintBibleRangeJson::from)
+                    .collect_vec();
+
+                PrintBibleRangesChangedEvent {
+                    old,
+                    new
+                }
+            });
+
+            app_handle
+                .emit(PRINT_BIBLE_RANGES_CHANGED_EVENT_NAME, event)
+                .unwrap();
+
+            None
+        },
+        PrintingCommand::GetRanges => {
+            let response = state.visit(|state| {
+                state.ranges.iter()
+                    .map(PrintBibleRangeJson::from)
+                    .collect_vec()
+            });
+
             Some(serde_json::to_string(&response).unwrap())
         },
     }

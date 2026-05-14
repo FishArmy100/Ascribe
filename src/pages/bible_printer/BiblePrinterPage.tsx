@@ -2,49 +2,23 @@ import React, { useState, useEffect } from "react";
 import BiblePrinterPageToolbar from "./BiblePrinterPageToolbar";
 import { Box, useTheme } from "@mui/material";
 import PdfRenderer from "@components/core/PdfRenderer";
-import { backend_preview_bible, BiblePrintRange, PreviewResult } from "@interop/printing";
+import { backend_preview_bible, PreviewResult } from "@interop/printing";
 import { LoadingSpinner } from "../LoadingSpinner";
-import { use_module_configs } from "@components/providers/ModuleConfigProvider";
 import { use_bible_print_format } from "@components/providers/PrintBibleFormatProvider";
+import { use_bible_print_ranges } from "@components/providers/PrintBibleRangesProvider";
 
 export default function BiblePrinterPage(): React.ReactElement
 {
     const [pdf_data, set_pdf_data] = useState<string | null>(null);
     const [error, set_error] = useState<string | null>(null);
     const { format } = use_bible_print_format();
+    const { ranges } = use_bible_print_ranges();
     const theme = useTheme();
 
     useEffect(() => {
         set_pdf_data(null);
-        const range_a: BiblePrintRange = {
-            bible: "kjv_eng",
-            from: {
-                book: "Gen",
-                chapter: 1,
-                verse: 1,
-            },
-            to: {
-                book: "Gen",
-                chapter: 1,
-                verse: 31,
-            }
-        }
 
-        const range_b: BiblePrintRange = {
-            bible: "kjv_eng",
-            from: {
-                book: "Prov",
-                chapter: 3,
-                verse: 1,
-            },
-            to: {
-                book: "Prov",
-                chapter: 3,
-                verse: 7,
-            }
-        }
-
-        backend_preview_bible([range_a, range_b]).then((result: PreviewResult) => {
+        backend_preview_bible(ranges()).then((result: PreviewResult) => {
             if (result.type === "printed") {
                 set_pdf_data(result.base64);
             } else {
@@ -53,7 +27,7 @@ export default function BiblePrinterPage(): React.ReactElement
         }).catch((err) => {
             set_error(err.message);
         });
-    }, [format]);
+    }, [format, ranges]);
 
     return (
         <Box>

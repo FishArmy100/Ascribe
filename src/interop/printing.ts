@@ -1,5 +1,4 @@
 import { invoke } from "@tauri-apps/api/core";
-import { RefId } from "./bible/ref_id";
 import { VerseId } from "./bible";
 
 export type BiblePrintRange = {
@@ -131,6 +130,11 @@ export type PrintBibleFormatChangedEvent = {
     new: PrintBibleFormat,
 }
 
+export type PrintBibleRangesChangedEvent = {
+    old: BiblePrintRange[],
+    new: BiblePrintRange[],
+}
+
 export type PreviewResult = 
     | { type: "printed"; base64: string }
     | { type: "error"; message: string };
@@ -188,4 +192,23 @@ export async function backend_get_default_print_bible_format(): Promise<PrintBib
             type: "get_default_format"
         }
     }).then(s => JSON.parse(s) as PrintBibleFormat)
+}
+
+export async function backend_get_print_ranges(): Promise<BiblePrintRange[]>
+{
+    return await invoke<string>("run_print_command", {
+        command: {
+            type: "get_ranges",
+        }
+    }).then(s => JSON.parse(s) as BiblePrintRange[]);
+}
+
+export async function backend_set_print_ranges(ranges: BiblePrintRange[]): Promise<void>
+{
+    return await invoke("run_print_command", {
+        command: {
+            type: "set_ranges",
+            ranges: ranges,
+        }
+    })
 }
