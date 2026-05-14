@@ -18,7 +18,6 @@ export default function BookDropdown({
     on_change,
 }: BookDropdownProps): React.ReactElement
 {
-    const i18n = use_app_i18n();
     const { bible_infos, get_book_display_name } = use_bible_infos();
     const bible_info = bible_infos[bible_id];
 
@@ -27,10 +26,6 @@ export default function BookDropdown({
         text: get_book_display_name(bible_id, b.osis_book),
         tooltip: null,
     })), [bible_info, get_book_display_name, bible_id]);
-
-    useEffect(() => {
-        on_change(bible_info.books[0].osis_book)
-    }, [bible_id]);
 
     let selected = bible_info.books.findIndex(b => b.osis_book === book);
     if (selected === -1)
