@@ -12,7 +12,7 @@ export type ChapterDropdownProps = {
     on_change: (chapter: number) => void,
 }
 
-export default function ChapterDropdown({
+function ChapterDropdown({
     bible_id,
     book,
     chapter,
@@ -47,3 +47,5 @@ export default function ChapterDropdown({
         />
     )
 }
+
+export default React.memo(ChapterDropdown);

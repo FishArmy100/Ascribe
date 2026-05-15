@@ -22,7 +22,7 @@ export type DropdownBaseProps = {
     placement?: DropdownPlacement;
 };
 
-export default function DropdownBase({
+function DropdownBase({
     button,
     is_open,
     on_click,
@@ -151,3 +151,28 @@ export default function DropdownBase({
         </Box>
     );
 }
+
+export default React.memo(DropdownBase, (prev, next) => {
+    // Compare button by contents
+    if (prev.button.type !== next.button.type) return false;
+    if (prev.button.type === "image" && next.button.type === "image") {
+        if (prev.button.src !== next.button.src) return false;
+        if (prev.button.tooltip !== next.button.tooltip) return false;
+    } else if (prev.button.type === "text" && next.button.type === "text") {
+        if (prev.button.text !== next.button.text) return false;
+        if (prev.button.tooltip !== next.button.tooltip) return false;
+    } else if (prev.button.type === "element" && next.button.type === "element") {
+        if (prev.button.element_builder !== next.button.element_builder) return false;
+    }
+
+    // Fall back to default shallow comparison for everything else
+    return (
+        prev.is_open === next.is_open &&
+        prev.on_click === next.on_click &&
+        prev.children === next.children &&
+        prev.disable_hover === next.disable_hover &&
+        prev.content_z_index === next.content_z_index &&
+        prev.panel_sx === next.panel_sx &&
+        prev.placement === next.placement
+    );
+});

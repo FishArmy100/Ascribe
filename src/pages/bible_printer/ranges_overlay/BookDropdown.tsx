@@ -12,7 +12,7 @@ export type BookDropdownProps = {
     on_change: (book: OsisBook) => void,
 }
 
-export default function BookDropdown({
+function BookDropdown({
     bible_id,
     book,
     on_change,
@@ -43,3 +43,5 @@ export default function BookDropdown({
         />
     )
 }
+
+export default React.memo(BookDropdown);

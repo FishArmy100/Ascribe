@@ -13,7 +13,7 @@ export type VerseDropdownProps = {
     on_change: (verse: number) => void,
 }
 
-export default function VerseDropdown({
+function VerseDropdown({
     bible_id,
     book,
     chapter,
@@ -21,6 +21,7 @@ export default function VerseDropdown({
     on_change,
 }: VerseDropdownProps): React.ReactElement
 {
+    console.log(`Verse Dropdown Rendered: ${book} ${chapter}:${verse}`);
     const { bible_infos, get_book_display_name } = use_bible_infos();
     const bible_info = bible_infos[bible_id];
     const book_info = bible_info.books.find(b => b.osis_book === book)!;
@@ -43,7 +44,7 @@ export default function VerseDropdown({
     })
 
     return (
-        <TextSelectDropdown 
+        <TextSelectDropdown
             tooltip={null}
             options={options}
             selected={verse > options.length ? 0 : verse - 1}
@@ -52,3 +53,5 @@ export default function VerseDropdown({
         />
     )
 }
+
+export default React.memo(VerseDropdown);

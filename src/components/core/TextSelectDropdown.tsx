@@ -25,7 +25,7 @@ export type TextSelectDropdownProps<T> = {
     placement?: DropdownPlacement,
 }
 
-export default function TextSelectDropdown<T>({
+function TextSelectDropdown<T>({
     tooltip,
     options,
     selected,
@@ -131,3 +131,5 @@ export default function TextSelectDropdown<T>({
         </DropdownBase>
     );
 }
+
+export default React.memo(TextSelectDropdown) as typeof TextSelectDropdown;

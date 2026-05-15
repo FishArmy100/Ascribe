@@ -100,3 +100,4 @@ export { default as download } from "./images/light-download.svg";
 export { default as zoom_in } from "./images/light-magnifying-glass-plus.svg";
 export { default as zoom_out } from "./images/light-magnifying-glass-minus.svg";
 export { default as quotes } from "./images/light-quotes.svg";
+export { default as copy } from "./images/light-copy.svg";
