@@ -16,6 +16,8 @@ import { NavigationButton } from "./NavigationButton";
 import { LoadingSpinner } from "../LoadingSpinner";
 import { get_handle_ref_clicked_callback } from "../page_utils";
 import { BiblePageToolbar } from "./BiblePageToolbar";
+import { use_shortcut } from "@components/providers/KeyboardShortcutProvider";
+import { backend_set_print_ranges } from "@interop/printing";
 
 export type BiblePageProps = {
 	entry: ChapterHistoryEntry | VerseHistoryEntry,
@@ -64,6 +66,52 @@ export default function BiblePage({
 		}
 		return null;
 	}, [entry]);
+
+	use_shortcut("ctrl+p", async e => {
+		const bible = bible_display_settings.bible_version;
+		const book = current_chapter.book;
+		const chapter = current_chapter.chapter;
+		if (current_verses)
+		{
+			await backend_set_print_ranges([{
+				bible,
+				from: {
+					book,
+					chapter,
+					verse: current_verses.start,
+				},
+				to: {
+					book,
+					chapter,
+					verse: current_verses.end,
+				}
+			}]);
+
+			view_history.push({
+				type: "bible_printer",
+			});
+		}
+		else 
+		{
+			await backend_set_print_ranges([{
+				bible,
+				from: {
+					book,
+					chapter,
+					verse: 1,
+				},
+				to: {
+					book,
+					chapter,
+					verse: verses?.length ?? 1,
+				}
+			}]);
+
+			view_history.push({
+				type: "bible_printer",
+			});
+		}
+	})
 
 	useEffect(() => {
 		let is_mounted = true;

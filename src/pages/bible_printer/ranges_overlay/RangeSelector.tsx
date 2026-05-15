@@ -2,7 +2,7 @@ import { use_bible_infos } from "@components/providers/BibleInfoProvider";
 import { BiblePrintRange } from "@interop/printing";
 import { Stack, Typography, useTheme } from "@mui/material";
 import { use_deep_copy } from "@utils/index";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import BookDropdown from "./BookDropdown";
 import BibleSelector from "../dropdowns/BibleSelector";
 import ChapterDropdown from "./ChapterDropdown";

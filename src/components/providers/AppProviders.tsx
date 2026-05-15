@@ -10,6 +10,7 @@ import AppI18nProvider from "./LanguageProvider";
 import TtsVoiceProvider from "./TtsVoiceProvider";
 import { PrintBibleFormatProvider } from "./PrintBibleFormatProvider";
 import { PrintBibleRangesProvider } from "./PrintBibleRangesProvider";
+import { KeyboardShortcutProvider } from "./KeyboardShortcutProvider";
 
 const PROVIDER_NODES: ((children: React.ReactNode) => React.ReactNode)[] = [
     c => <AppSettingsProvider>{c}</AppSettingsProvider>,
@@ -22,7 +23,8 @@ const PROVIDER_NODES: ((children: React.ReactNode) => React.ReactNode)[] = [
     c => <AppI18nProvider>{c}</AppI18nProvider>,
     c => <TtsVoiceProvider>{c}</TtsVoiceProvider>,
     c => <PrintBibleFormatProvider>{c}</PrintBibleFormatProvider>,
-    c => <PrintBibleRangesProvider>{c}</PrintBibleRangesProvider>
+    c => <PrintBibleRangesProvider>{c}</PrintBibleRangesProvider>,
+    c => <KeyboardShortcutProvider>{c}</KeyboardShortcutProvider>,
 ];
 
 export default function AppProviders({ 
