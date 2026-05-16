@@ -4,32 +4,62 @@ export type ShortcutHandler = (e: KeyboardEvent) => void;
 
 interface KeyboardShortcutContextValue {
     register_shortcut: (shortcut_key: string, handler: ShortcutHandler) => void;
-    unregister_shortcut: (shortcut_key: string) => void;
+    unregister_shortcut: (shortcut_key: string, handler: ShortcutHandler) => void;
+    block_shortcut: (shortcut_key: string) => void;
+    unblock_shortcut: (shortcut_key: string) => void;
 }
 
 const KeyboardShortcutContext = createContext<KeyboardShortcutContextValue | null>(null);
 
-type KeyboardShortcutProviderProps = {
+export type KeyboardShortcutProviderProps = {
     children: React.ReactNode;
+    blocked_shortcuts?: string[];
 };
 
 export function KeyboardShortcutProvider({ 
-    children 
+    children,
+    blocked_shortcuts = []
 }: KeyboardShortcutProviderProps): React.ReactElement
 {
-    const handlers_ref = useRef<Map<string, ShortcutHandler>>(new Map());
+    const handlers_ref = useRef<Map<string, ShortcutHandler[]>>(new Map());
+    const blocked_shortcuts_ref = useRef<Set<string>>(new Set(blocked_shortcuts));
 
     const register_shortcut = useCallback((shortcut_key: string, handler: ShortcutHandler) => {
-        handlers_ref.current.set(shortcut_key, handler);
+        if (!handlers_ref.current.has(shortcut_key)) 
+        {
+            handlers_ref.current.set(shortcut_key, []);
+        }
+        
+        handlers_ref.current.get(shortcut_key)!.push(handler);
     }, []);
 
-    const unregister_shortcut = useCallback((shortcut_key: string) => {
-        handlers_ref.current.delete(shortcut_key);
+    const unregister_shortcut = useCallback((shortcut_key: string, handler: ShortcutHandler) => {
+        const handlers = handlers_ref.current.get(shortcut_key);
+        if (handlers) 
+        {
+            const index = handlers.indexOf(handler);
+            if (index > -1) 
+            {
+                handlers.splice(index, 1);
+            }
+
+            if (handlers.length === 0) 
+            {
+                handlers_ref.current.delete(shortcut_key);
+            }
+        }
+    }, []);
+
+    const block_shortcut = useCallback((shortcut_key: string) => {
+        blocked_shortcuts_ref.current.add(shortcut_key);
+    }, []);
+
+    const unblock_shortcut = useCallback((shortcut_key: string) => {
+        blocked_shortcuts_ref.current.delete(shortcut_key);
     }, []);
 
     useEffect(() => {
         const handle_key_down = (e: KeyboardEvent) => {
-            // Build a key string like "ctrl+p", "shift+alt+k", etc.
             const parts: string[] = [];
             if (e.ctrlKey || e.metaKey) parts.push("ctrl");
             if (e.shiftKey) parts.push("shift");
@@ -37,25 +67,44 @@ export function KeyboardShortcutProvider({
             parts.push(e.key.toLowerCase());
 
             const shortcut_key = parts.join("+");
-            const handler = handlers_ref.current.get(shortcut_key);
+            const handlers = handlers_ref.current.get(shortcut_key);
+            const is_blocked = blocked_shortcuts_ref.current.has(shortcut_key);
 
-            if (handler) 
+            // If blocked, prevent propagation regardless
+            if (is_blocked) 
             {
                 e.preventDefault();
                 e.stopPropagation();
-                handler(e);
+            }
+
+            // Execute handlers if they exist
+            if (handlers && handlers.length > 0) 
+            {
+                if (!is_blocked) 
+                {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+
+                // Execute all handlers for this shortcut
+                handlers.forEach(handler => handler(e));
             }
         };
 
         window.addEventListener("keydown", handle_key_down);
         return () => window.removeEventListener("keydown", handle_key_down);
-    }, []); // Runs once — the Map handles dynamic registration
+    }, []);
 
     return (
-        <KeyboardShortcutContext.Provider value={{ register_shortcut, unregister_shortcut }}>
+        <KeyboardShortcutContext.Provider value={{ 
+            register_shortcut, 
+            unregister_shortcut, 
+            block_shortcut, 
+            unblock_shortcut 
+        }}>
             {children}
         </KeyboardShortcutContext.Provider>
-  );
+    );
 }
 
 export function use_shortcut(shortcut_key: string, handler: ShortcutHandler): void 
@@ -68,6 +117,6 @@ export function use_shortcut(shortcut_key: string, handler: ShortcutHandler): vo
 
     useEffect(() => {
         register_shortcut(shortcut_key, handler);
-        return () => unregister_shortcut(shortcut_key); // Auto-cleanup on unmount
+        return () => unregister_shortcut(shortcut_key, handler);
     }, [shortcut_key, handler, register_shortcut, unregister_shortcut]);
 }

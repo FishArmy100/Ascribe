@@ -165,6 +165,12 @@ impl<'a> BiblePdfWriter<'a>
         self.new_line_raw(self.format.verse_format.verse_spacing);
     }
 
+    pub fn header_return(&mut self)
+    {
+        let gap = self.format.title_format.title_spacing * self.format.title_format.line_height;
+        self.new_line_raw(gap);
+    }
+
     pub fn write_title(&mut self, range: &PrintBibleRange)
     {
         let title = self.format_title(range.from, range.to, &range.bible);

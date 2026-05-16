@@ -67,7 +67,7 @@ export default function BiblePage({
 		return null;
 	}, [entry]);
 
-	use_shortcut("ctrl+p", async e => {
+	use_shortcut("ctrl+p", async _ => {
 		const bible = bible_display_settings.bible_version;
 		const book = current_chapter.book;
 		const chapter = current_chapter.chapter;
