@@ -24,7 +24,6 @@ pub enum WriterOp
         y: f32,
         bold: bool,
         italic: bool,
-        align: TextAlign,
     },
     NewPage,
 }
@@ -36,6 +35,7 @@ pub struct BiblePdfWriter<'a>
     curser: Curser,
     ops: Vec<WriterOp>,
     page_count: u32,
+    footer: Option<String>,
 }
 
 impl<'a> BiblePdfWriter<'a>
@@ -53,13 +53,16 @@ impl<'a> BiblePdfWriter<'a>
             format,
             ops: vec![WriterOp::NewPage],
             page_count: 1,
+            footer: None,
         };
+
         s.write_page_numbers();
         s
     }
     
     pub fn new_page(&mut self)
     {
+        self.write_footer();
         self.ops.push(WriterOp::NewPage);
         self.page_count += 1;
         self.curser = Curser {
@@ -81,8 +84,7 @@ impl<'a> BiblePdfWriter<'a>
                     font: *font, 
                     size: *font_size, 
                     bold: *bold, 
-                    italic: *italic, 
-                    align: TextAlign::Left, 
+                    italic: *italic,
                     x: margin.left / 2.0, 
                     y: margin.top / 2.0, 
                 });
@@ -99,8 +101,7 @@ impl<'a> BiblePdfWriter<'a>
                     font: *font, 
                     size: *font_size, 
                     bold: *bold, 
-                    italic: *italic, 
-                    align: TextAlign::Left, 
+                    italic: *italic,
                     x: self.format.page_size.width() - margin.right / 2.0 - width / 2.0, 
                     y: margin.top / 2.0, 
                 });
@@ -111,8 +112,7 @@ impl<'a> BiblePdfWriter<'a>
                     font: *font, 
                     size: *font_size, 
                     bold: *bold, 
-                    italic: *italic, 
-                    align: TextAlign::Left, 
+                    italic: *italic,
                     x: margin.left / 2.0, 
                     y: self.format.page_size.height() - margin.bottom / 2.0, 
                 });
@@ -129,8 +129,7 @@ impl<'a> BiblePdfWriter<'a>
                     font: *font, 
                     size: *font_size, 
                     bold: *bold, 
-                    italic: *italic, 
-                    align: TextAlign::Left, 
+                    italic: *italic,
                     x: self.format.page_size.width() - margin.right / 2.0 - width / 2.0, 
                     y: self.format.page_size.height() - margin.bottom / 2.0, 
                 });
@@ -171,9 +170,47 @@ impl<'a> BiblePdfWriter<'a>
         self.new_line_raw(gap);
     }
 
+    pub fn set_footer(&mut self, range: &PrintBibleRange)
+    {
+        if let Some(footer) = &self.format.footer
+        {
+            let text = self.format_print_bible_range(&range, footer.book_formatter);
+            self.footer = Some(text);
+        }
+    }
+
+    pub fn write_footer(&mut self)
+    {
+        let Some(footer_format) = &self.format.footer else {
+            return;
+        };
+
+        let Some(footer) = &self.footer else {
+            return;
+        };
+
+        let face = footer_format.text_format.get_font_face();
+        let font_size = footer_format.text_format.font_size;
+        let height = measure_text_height(face, font_size);
+        let width = measure_text_width(face, footer, font_size);
+
+        let y = self.format.page_size.height() - (self.format.margin.bottom / 2.0 + height / 2.0);
+        let x = self.format.page_size.width() / 2.0 - width / 2.0;
+
+        self.ops.push(WriterOp::Text { 
+            text: footer.clone(), 
+            font: footer_format.text_format.font, 
+            size: font_size, 
+            x, 
+            y, 
+            bold: footer_format.text_format.bold, 
+            italic: footer_format.text_format.bold,
+        });
+    }
+
     pub fn write_title(&mut self, range: &PrintBibleRange)
     {
-        let title = self.format_title(range.from, range.to, &range.bible);
+        let title = self.format_print_bible_range(range, self.format.title_format.book_formatter);
         self.write_title_raw(&title);
         self.new_line_raw(self.format.title_format.title_spacing);
     }
@@ -200,22 +237,22 @@ impl<'a> BiblePdfWriter<'a>
             x, 
             y: self.curser.y, 
             bold: format.bold, 
-            italic: format.italic, 
-            align: self.format.title_format.text_align.clone(),
+            italic: format.italic,
         });
 
         let text_height = measure_text_height(face, format.font_size);
         self.new_line_raw(self.format.title_format.line_height * text_height);
     }
 
-    fn format_title(&self, from: VerseId, to: VerseId, bible: &ModuleId) -> String
+    fn format_print_bible_range(&self, range: &PrintBibleRange, book_formatter: BookFormatter) -> String
     {
+        let PrintBibleRange { bible, from, to } = range;
+
         let module = self.package.get_mod(bible)
             .and_then(Module::as_bible)
             .unwrap();
 
-        let book_formatter = &self.format.title_format.book_formatter;
-        if from == to 
+        let title = if from == to 
         {
             format!("{} {}:{}", book_formatter.format(bible, from.book, self.package), from.chapter, from.verse) 
         }
@@ -255,6 +292,22 @@ impl<'a> BiblePdfWriter<'a>
                 to.chapter,
                 to.verse,
             )    
+        };
+
+        if self.format.title_format.include_bible
+        {
+            let config = &self.package.get_mod(bible).and_then(Module::as_bible).unwrap().config;
+            let bible_name = match &config.short_name
+            {
+                Some(name) => name.clone(),
+                None => config.name.clone(),
+            };
+            
+            format!("({}) {}", bible_name, title)
+        }
+        else 
+        {
+            title
         }
     }
     
@@ -301,8 +354,7 @@ impl<'a> BiblePdfWriter<'a>
                 x: self.curser.x, 
                 y: self.curser.y, 
                 bold: word_format.bold, 
-                italic: word_format.italic, 
-                align: TextAlign::Left,
+                italic: word_format.italic,
             });
 
             self.curser.x += word_width;
@@ -315,8 +367,7 @@ impl<'a> BiblePdfWriter<'a>
                 x: self.curser.x, 
                 y: self.curser.y, 
                 bold: strongs_format.bold, 
-                italic: strongs_format.italic, 
-                align: TextAlign::Left,
+                italic: strongs_format.italic,
             });
 
             self.curser.x += strongs_width;
@@ -337,8 +388,7 @@ impl<'a> BiblePdfWriter<'a>
                 x: self.curser.x, 
                 y: self.curser.y, 
                 bold: word_format.bold, 
-                italic: word_format.italic, 
-                align: TextAlign::Left,
+                italic: word_format.italic,
             });
 
             self.curser.x += word_width;
@@ -363,8 +413,7 @@ impl<'a> BiblePdfWriter<'a>
             x: self.curser.x, 
             y: self.curser.y, 
             bold: format.bold, 
-            italic: format.italic, 
-            align: TextAlign::Left,
+            italic: format.italic,
         });
 
         self.curser.x += width;
@@ -418,8 +467,9 @@ impl<'a> BiblePdfWriter<'a>
         }
     }
 
-    pub fn build(self) -> Result<Vec<u8>, String>
+    pub fn build(mut self) -> Result<Vec<u8>, String>
     {
+        self.write_footer();
         let mut builder = DocumentBuilder::new();
 
         let used_fonts = self.ops.iter().filter_map(|op| {

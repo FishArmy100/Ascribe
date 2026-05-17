@@ -40,6 +40,7 @@ pub fn print_bible(args: PrintBibleArgs) -> Result<Vec<u8>, String>
     
     for (i, range) in ranges.iter().enumerate()
     {
+        writer.set_footer(range);
         if i != 0 && format.new_page_per_section
         {
             writer.new_page();

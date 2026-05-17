@@ -104,6 +104,7 @@ export interface TitleFormat
     book_formatter: BookFormat;
     title_spacing: number;
     line_height: number; 
+    include_bible: boolean,
 }
 
 export interface StrongsFormat 
@@ -112,6 +113,13 @@ export interface StrongsFormat
     font_size: number;
     bold: boolean;
     italic: boolean;
+}
+
+export interface FooterFormat
+{
+    text_format: TextFormat,
+    book_formatter: BookFormat
+    include_bible: boolean, 
 }
 
 export interface PrintBibleFormat 
@@ -123,6 +131,7 @@ export interface PrintBibleFormat
     title_format: TitleFormat;
     strongs_format: StrongsFormat | null;
     new_page_per_section: boolean;
+    footer: FooterFormat | null;
 }
 
 export type PrintBibleFormatChangedEvent = {

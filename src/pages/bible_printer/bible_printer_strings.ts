@@ -337,7 +337,25 @@ export function use_bible_printer_strings()
         add_section_tooltip: __t(
             "pages.bible_printer.tooltips.add_sections",
             "Add a Bible section to render",
-        )
+        ),
+
+        render_footer_label: __t(
+            "pages.bible_printer.labels.render_footer",
+            "Render Footer",
+        ),
+        render_footer_tooltip: __t(
+            "pages.bible_printer.tooltips.render_footer",
+            "Toggle if the page footer for the given section is rendered",
+        ),
+
+        include_bible_tooltip: __t(
+            "pages.bible_printer.tooltips.include_bible",
+            "Toggle if the name of the Bible is rendered",
+        ),
+        include_bible_label: __t(
+            "pages.bible_printer.labels.include_bible",
+            "Include Bible",
+        ),
     }), [i18n]);
 
     return object;

@@ -194,6 +194,7 @@ pub struct TitleFormat
     pub book_formatter: BookFormatter,
     pub title_spacing: f32,
     pub line_height: f32,
+    pub include_bible: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -247,6 +248,15 @@ impl BookFormatter
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
+pub struct FooterFormat
+{
+    pub text_format: TextFormat,
+    pub book_formatter: BookFormatter,
+    pub include_bible: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub struct PrintBibleFormat
 {
     pub margin: Margin,
@@ -256,6 +266,7 @@ pub struct PrintBibleFormat
     pub title_format: TitleFormat,
     pub strongs_format: Option<StrongsFormat>,
     pub new_page_per_section: bool,
+    pub footer: Option<FooterFormat>,
 }
 
 impl Default for PrintBibleFormat
@@ -304,6 +315,7 @@ impl Default for PrintBibleFormat
                 book_formatter: BookFormatter::Full,
                 title_spacing: 32.0,
                 line_height: 2.0,
+                include_bible: true,
             },
             strongs_format: Some(StrongsFormat {
                 font: Font::LiberationSans,
@@ -312,6 +324,7 @@ impl Default for PrintBibleFormat
                 italic: true,
             }),
             new_page_per_section: true,
+            footer: None,
         }
     }
 }

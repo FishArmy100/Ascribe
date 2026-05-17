@@ -1,5 +1,5 @@
-import { PrintBibleFormat } from "@interop/printing"
-import { Box, Stack, useTheme } from "@mui/material";
+import { FooterFormat, PrintBibleFormat } from "@interop/printing"
+import { Box, Collapse, Divider, Stack, useTheme } from "@mui/material";
 import { use_deep_copy } from "@utils/index"
 import React from "react"
 import MarginEditor from "../MarginEditor";
@@ -8,6 +8,8 @@ import PageSizeSelector from "../dropdowns/PageSizeSelector";
 import LabeledCheckbox from "@components/core/LabeledCheckbox";
 import { use_bible_printer_strings } from "../bible_printer_strings";
 import OptionGroup from "@components/core/OptionGroup";
+import TextFormatEditor from "../TextFormatEditor";
+import BookFormatSelector from "../dropdowns/BookFormatSelector";
 
 export type PageFormatMenuProps = {
     format: PrintBibleFormat,
@@ -58,7 +60,6 @@ export default function PageFormatMenu({
                 />
             </OptionGroup>
             <OptionGroup label={strings.new_page_per_section_label}>
-                
                 <LabeledCheckbox
                     label_props={{ variant: "body1", bold: true }}
                     label={strings.new_page_per_section_label}
@@ -70,6 +71,89 @@ export default function PageFormatMenu({
                     })}
                 />
             </OptionGroup>
+            <OptionGroup label={strings.render_footer_label}>
+                <LabeledCheckbox
+                    label_props={{ variant: "body1", bold: true }}
+                    label={strings.render_footer_label}
+                    tooltip={strings.render_footer_tooltip}
+                    value={format.footer !== null}
+                    on_change={rf => change_value(f => {
+                        if (rf)
+                        {
+                            f.footer = {
+                                text_format: {
+                                    font: "liberation_sans",
+                                    font_size: 10,
+                                    bold: false,
+                                    italic: false,
+                                },
+                                book_formatter: "full",
+                                include_bible: true,
+                            }
+
+                            return f;
+                        }
+                        else 
+                        {
+                            f.footer = null;
+                            return f;
+                        }
+                    })}
+                />
+                <Collapse in={format.footer !== null}>
+                    <Divider />
+                    <Stack direction="column">
+                        <TextFormatEditor 
+                            label={null}
+                            value={format.footer?.text_format ?? DEFAULT_FOOTER_FORMAT.text_format}
+                            on_change={tf => change_value(f => {
+                                if (f.footer?.text_format)
+                                {
+                                    f.footer.text_format = tf;
+                                }
+                                
+                                return f;
+                            })}
+                        />
+                        <BookFormatSelector 
+                            value={format.footer?.book_formatter ?? DEFAULT_FOOTER_FORMAT.book_formatter}
+                            on_change={bf => change_value(f => {
+                                if (f.footer)
+                                {
+                                    f.footer.book_formatter = bf;
+                                }
+
+                                return f;
+                            })}
+                        />
+                        <LabeledCheckbox 
+                            label_props={{ variant: "body1", bold: true }}
+                            label={strings.include_bible_label}
+                            tooltip={strings.include_bible_tooltip}
+                            value={format.footer?.include_bible === true}
+                            on_change={ib => change_value(f => {
+                                if (f.footer)
+                                {
+                                    f.footer.include_bible = ib;
+                                }
+                                
+                                return f;
+                            })}
+                        />
+                    </Stack>
+                </Collapse>
+            </OptionGroup>
         </Stack>
     )
 }
+
+const DEFAULT_FOOTER_FORMAT: FooterFormat = {
+    text_format: {
+        font: "liberation_sans",
+        font_size: 10,
+        bold: false,
+        italic: false,
+    },
+    book_formatter: "full",
+    include_bible: true,
+} as const;

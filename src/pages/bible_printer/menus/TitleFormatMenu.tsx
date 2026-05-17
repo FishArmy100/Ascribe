@@ -8,6 +8,7 @@ import OptionGroup from "@components/core/OptionGroup";
 import LabeledNumberInput from "@components/core/LabeledNumberInput";
 import TextAlignSelector from "../dropdowns/TextAlignSelector";
 import BookFormatSelector from "../dropdowns/BookFormatSelector";
+import LabeledCheckbox from "@components/core/LabeledCheckbox";
 
 export type TitleFormatMenuProps = {
     format: TitleFormat,
@@ -89,6 +90,18 @@ export default function TitleFormatMenu({
                     value={format.book_formatter}
                     on_change={b => change_value(f => {
                         f.book_formatter = b;
+                        return f;
+                    })}
+                />
+            </OptionGroup>
+            <OptionGroup label={strings.include_bible_label}>
+                <LabeledCheckbox 
+                    label_props={{ variant: "body1", bold: true }}
+                    label={strings.include_bible_label}
+                    tooltip={strings.include_bible_tooltip}
+                    value={format.include_bible}
+                    on_change={ib => change_value(f => {
+                        f.include_bible = ib;
                         return f;
                     })}
                 />
