@@ -8,8 +8,24 @@ import ModuleListPage from "./pages/modules_pages/module_list/ModuleListPage";
 import { ModuleInspectorPage } from "./pages/modules_pages/module_inspector/ModuleInspectorPage";
 import ModuleWordSearchPage from "./pages/modules_pages/module_word_search/ModuleWordSearchPage";
 import BiblePrinterPage from "./pages/bible_printer/BiblePrinterPage";
+import { Box } from "@mui/material";
 
 export default function App(): React.ReactElement
+{
+	return (
+		<Box
+			display="contents"
+			onContextMenu={e => {
+				e.preventDefault();
+				e.stopPropagation();
+			}}
+		>
+			<AppInner />
+		</Box>
+	)
+}
+
+function AppInner(): React.ReactElement
 {
 	const view_history = use_view_history();
 	let current = view_history.get_current();

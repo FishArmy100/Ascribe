@@ -9,6 +9,8 @@ import { Theme } from "@mui/material/styles";
 import { SystemStyleObject } from "@mui/system";
 import { RenderedVerse } from "../../components/bible/RenderedVerse";
 import { use_settings } from "../../components/providers/SettingsProvider";
+import { use_verse_context_menu_options } from "@components/context_menu/context_menus";
+import { use_show_context_menu } from "@components/providers/ContextMenuProvider";
 
 type ChapterContentProps = {
     verses: RenderedVerseContent[],
@@ -238,6 +240,22 @@ const RowComponentBase = forwardRef<HTMLDivElement, RowComponentProps>((
 	) => {
 		const v = verses[index];
 		const pv = parallel_verses?.[index];
+		
+		const context_menu_options = use_verse_context_menu_options(v.id, v.bible);
+		const parallel_context_menu_options = use_verse_context_menu_options(pv?.id ?? v.id, pv?.bible ?? v.bible);
+		const show_context_menu = use_show_context_menu();
+
+		const handle_context_menu = useCallback((e: React.MouseEvent) => {
+			show_context_menu(e, context_menu_options);
+		}, [context_menu_options, show_context_menu]);
+
+		const handle_parallel_context_menu = useCallback((e: React.MouseEvent) => {
+			if (pv)
+			{
+				show_context_menu(e, parallel_context_menu_options);
+			}
+		}, [parallel_context_menu_options, show_context_menu])
+		
 
 		const is_focused = useMemo(() => {
 			if (!show_focused_verses || !focused_range) 
@@ -307,7 +325,11 @@ const RowComponentBase = forwardRef<HTMLDivElement, RowComponentProps>((
 								display: "flex",
 							}}
 						>
-							<Box onClick={handle_click} sx={verse_box_style}>
+							<Box 
+								onClick={handle_click} 
+								onContextMenu={handle_context_menu}
+								sx={verse_box_style}
+							>
 								<RenderedVerse 
 									content={v} 
 									verse_label={(index + 1).toString()} 
@@ -319,7 +341,11 @@ const RowComponentBase = forwardRef<HTMLDivElement, RowComponentProps>((
 						</Grid>
 						<Grid size={6} sx={{ pl: 2, display: "flex" }}>
 							{pv && (
-								<Box onClick={handle_click} sx={verse_box_style}>
+								<Box 
+									onClick={handle_click} 
+									sx={verse_box_style}
+									onContextMenu={handle_parallel_context_menu}
+								>
 									<RenderedVerse 
 										content={pv} 
 										verse_label={(index + 1).toString()} 
@@ -332,7 +358,11 @@ const RowComponentBase = forwardRef<HTMLDivElement, RowComponentProps>((
 						</Grid>
 					</Grid>
 				) : (
-					<Box onClick={handle_click} sx={verse_box_style}>
+					<Box 
+						onClick={handle_click} 
+						sx={verse_box_style}
+						onContextMenu={handle_context_menu}
+					>
 						<RenderedVerse 
 							content={v} 
 							verse_label={(index + 1).toString()} 

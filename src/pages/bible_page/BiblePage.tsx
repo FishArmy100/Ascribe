@@ -23,7 +23,9 @@ export type BiblePageProps = {
 	entry: ChapterHistoryEntry | VerseHistoryEntry,
 }
 
-export default function BiblePage({
+export default React.memo(BiblePage)
+
+function BiblePage({
 	entry
 }: BiblePageProps): React.ReactElement {
 	const theme = useTheme();

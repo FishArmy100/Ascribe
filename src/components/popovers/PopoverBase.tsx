@@ -127,7 +127,7 @@ export default function PopoverBase({
                             key="divider"
                         />
                         {
-                            <WordPopoverContent
+                            <BasePopoverContent
                                 entries={entries}
                                 open_modules={open_modules}
                                 set_open_modules={set_open_modules}
@@ -191,17 +191,17 @@ function PopoverBaseTitle({
     }
 }
 
-type WordPopoverContentProps = {
+type BasePopoverContentProps = {
     entries: PopoverEntryData[],
     open_modules: string[],
     set_open_modules: (m: string[]) => void,
 }
 
-function WordPopoverContent({
+function BasePopoverContent({
     entries,
     open_modules,
     set_open_modules,
-}: WordPopoverContentProps): React.ReactElement
+}: BasePopoverContentProps): React.ReactElement
 {
     const on_click = (name: string) => {
         let copy = Array.from(open_modules)
