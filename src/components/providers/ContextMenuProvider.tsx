@@ -25,8 +25,6 @@ export default function ContextMenuProvider({
             left: e.clientX,
         };
 
-        console.log(pos);
-
         set_pos(pos);
         set_options(options);
     }, []);

@@ -1,5 +1,6 @@
 import Tooltip from "@components/core/Tooltip";
 import SmallerTextSection from "@components/SmallerTextSection";
+import { play_sfx } from "@interop/sfx";
 import { Box, Popover, Stack, Typography, useTheme } from "@mui/material";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
@@ -27,7 +28,6 @@ export default function ContextMenu({
     const [corrected_pos, set_corrected_pos] = useState<{ top: number; left: number } | null>(pos);
 
     useEffect(() => {
-        console.log(menu_ref.current)
         if (!pos || !menu_ref.current) return;
 
         const check_and_correct_pos = () => {
@@ -165,6 +165,7 @@ function ContextMenuOption({
                     variant="body2"
                     textAlign="left"
                     onClick={e => {
+                        play_sfx("click")
                         option.on_click(e);
                         on_close();
                     }}

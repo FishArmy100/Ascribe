@@ -59,7 +59,7 @@ function AppInner(): React.ReactElement
 	}
 	else
 	{
-		console.log("Should not have gotten here");
+		console.error("Should not have gotten here");
 		return <></>
 	}
 }

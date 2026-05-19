@@ -21,7 +21,6 @@ function VerseDropdown({
     on_change,
 }: VerseDropdownProps): React.ReactElement
 {
-    console.log(`Verse Dropdown Rendered: ${book} ${chapter}:${verse}`);
     const { bible_infos, get_book_display_name } = use_bible_infos();
     const bible_info = bible_infos[bible_id];
     const book_info = bible_info.books.find(b => b.osis_book === book)!;

@@ -26,7 +26,7 @@ export default function SubMenuDropdown(): React.ReactElement
         }
         else 
         {
-            console.log(`Selected option: ${value}`);
+            console.error(`Selected option: ${value}`);
         }
     }, [view_history]);
 

@@ -95,13 +95,10 @@ export default function RangeSelector({
         const cmp = compare_verse_ids(range.from, range.to, bible_infos[range.bible]);
         if (cmp === 1)
         {
-            console.log("Got here", range)
             const copy = deep_copy(range);
             copy.to = deep_copy(range.from);
             on_change(copy);
         }
-
-        console.log(range)
     }, [range_key, deep_copy, bible_infos, on_change]);
 
     const handle_bible_change = useCallback((bible: string) => {
