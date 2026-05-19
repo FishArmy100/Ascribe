@@ -9,7 +9,7 @@ import { Theme } from "@mui/material/styles";
 import { SystemStyleObject } from "@mui/system";
 import { RenderedVerse } from "../../components/bible/RenderedVerse";
 import { use_settings } from "../../components/providers/SettingsProvider";
-import { use_verse_context_menu_options } from "@components/context_menu/context_menus";
+import { use_chapter_context_menu_options, use_verse_context_menu_options } from "@components/context_menu/context_menus";
 import { use_show_context_menu } from "@components/providers/ContextMenuProvider";
 
 type ChapterContentProps = {
@@ -125,6 +125,18 @@ export default function ChapterContent({
 		on_book_clicked(pos, chapter.book)
 	}
 
+	const show_context_menu = use_show_context_menu();
+
+	const chapter_context_menu_options = use_chapter_context_menu_options(chapter, bible_info.id);
+	const handle_chapter_context_menu = useCallback((e: React.MouseEvent) => {
+		show_context_menu(e, chapter_context_menu_options)
+	}, [chapter_context_menu_options, show_context_menu]);
+
+	const parallel_chapter_context_menu_options = use_chapter_context_menu_options(chapter, parallel_bible_info?.id ?? bible_info.id);
+	const handel_parallel_chapter_context_menu = useCallback((e: React.MouseEvent) => {
+		show_context_menu(e, parallel_chapter_context_menu_options);
+	}, [parallel_chapter_context_menu_options, show_context_menu])
+
     return (
         <Paper
             sx={{
@@ -140,6 +152,7 @@ export default function ChapterContent({
 				alignItems="center"
 				justifyContent="center"
 				gap={(theme) => theme.spacing(1.5)}
+				onContextMenu={handle_chapter_context_menu}
 			>
 				<Typography
 					textAlign="center"
@@ -176,13 +189,31 @@ export default function ChapterContent({
                     spacing={2}
                     sx={{ mb: 0 }}
                 >
-                    <Grid size={6} sx={{ borderRight: 1, borderColor: "divider", pr: 2 }}>
-                        <Typography variant="h6" textAlign="center" fontWeight="bold">
+                    <Grid 
+						size={6} 
+						sx={{ borderRight: 1, borderColor: "divider", pr: 2 }}
+						onContextMenu={handle_chapter_context_menu}
+					>
+                        <Typography 
+							variant="h6" 
+							textAlign="center" 
+							fontWeight="bold"
+							sx={{ cursor: "default" }}
+						>
                             {bible_info.display_name}
                         </Typography>
                     </Grid>
-                    <Grid size={6} sx={{ pl: 2 }}>
-                        <Typography variant="h6" textAlign="center" fontWeight="bold">
+                    <Grid 
+						size={6} 
+						sx={{ pl: 2 }}
+						onContextMenu={handel_parallel_chapter_context_menu}
+					>
+                        <Typography 
+							variant="h6" 
+							textAlign="center" 
+							fontWeight="bold"
+							sx={{ cursor: "default" }}
+						>
                             {parallel_bible_info?.display_name}
                         </Typography>
                     </Grid>

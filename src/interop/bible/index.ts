@@ -14,11 +14,32 @@ export type ChapterId = {
     chapter: number,
 }
 
+export type ChapterIdFormatOptions = {
+    hide_bible?: boolean,
+}
+
+export function use_format_chapter_id(): (id: ChapterId, bible: string | null, option?: ChapterIdFormatOptions) => string 
+{
+    const { get_bible_display_name, get_book_display_name } = use_bible_infos();
+    const { bible_display_settings: bible_version_state } = use_bible_display_settings();
+    return (id: ChapterId, bible: string | null, options?: ChapterIdFormatOptions) => {
+        const display_bible_id = bible ?? bible_version_state.bible_version;
+        const formatted = `${get_book_display_name(display_bible_id, id.book)} ${id.chapter}`;
+        if (bible !== bible_version_state.bible_version && !options?.hide_bible)
+        {
+            return formatted + ` (${get_bible_display_name(display_bible_id)})`;
+        }
+
+        return formatted;
+    };
+}
+
 export type VerseId = {
     book: OsisBook,
     chapter: number,
     verse: number,
 }
+
 
 export type VerseIdFormatOptions = {
     hide_bible?: boolean,
