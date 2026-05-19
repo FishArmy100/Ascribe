@@ -1,5 +1,4 @@
 import Tooltip from "@components/core/Tooltip";
-import SmallerTextSection from "@components/SmallerTextSection";
 import { play_sfx } from "@interop/sfx";
 import { Box, Popover, Stack, Typography, useTheme } from "@mui/material";
 import React, { useEffect, useMemo, useRef, useState } from "react";
