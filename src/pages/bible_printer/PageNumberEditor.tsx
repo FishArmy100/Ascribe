@@ -3,10 +3,7 @@ import { PageNumbers, TextFormat } from "@interop/printing"
 import React, { useMemo } from "react"
 import { use_bible_printer_strings } from "./bible_printer_strings"
 import PageNumberTypeSelector from "./dropdowns/PageNumberTypeSelector"
-import { bold, italic } from "@assets"
 import { Box, Collapse, Divider } from "@mui/material"
-import PrintFontSelector from "./dropdowns/PrintFontSelector"
-import CheckboxWithLabel from "@components/core/CheckboxWithLabel"
 import TextFormatEditor from "./TextFormatEditor"
 
 export type PageNumberEditorProps = {

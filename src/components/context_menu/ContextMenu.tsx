@@ -1,9 +1,9 @@
 import Tooltip from "@components/core/Tooltip";
 import { play_sfx } from "@interop/sfx";
-import { Box, Popover, Stack, Typography, useTheme } from "@mui/material";
+import { Box, Divider, Popover, Stack, Typography, useTheme } from "@mui/material";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
-export type ContextMenuOption = {
+export type ContextMenuOption = |{
     label: string,
     tooltip: string,
     on_click: (e: React.MouseEvent) => void,
@@ -11,7 +11,7 @@ export type ContextMenuOption = {
 }
 
 export type ContextMenuProps = {
-    options: ContextMenuOption[],
+    options: (ContextMenuOption | "divider")[],
     pos: { top: number, left: number } | null,
     on_close: () => void,
 }
@@ -111,15 +111,19 @@ export default function ContextMenu({
                     <Stack
                         direction="column"
                         padding={theme.spacing(1)}
-                        gap={theme.spacing(1)}
                     >
-                        {options.map((o, i) => (
-                            <ContextMenuOption 
-                                option={o}
-                                on_close={on_close}
-                                key={i}
-                            />
-                        ))}
+                        {options.map((o, i) => o === "divider" ? 
+                            (
+                                <Divider orientation="horizontal" sx={{ my: 0.5 }}/>
+                            )
+                            : (
+                                <ContextMenuOption 
+                                    option={o}
+                                    on_close={on_close}
+                                    key={i}
+                                />
+                            )
+                        )}
                     </Stack>
             </Box>
         </Popover>

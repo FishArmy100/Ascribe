@@ -11,7 +11,13 @@ import { backend_download_pdf, backend_get_print_ranges, BiblePrintRange } from 
 import PrinterSettingsOverlay from "./PrinterSettingsOverlay";
 import RangeSelectorOverlay from "./ranges_overlay/RangeSelectorOverlay";
 
-export default function BiblePrinterPageToolbar(): React.ReactElement
+export type BiblePrinterPageToolbarProps = {
+    on_download: () => void,
+}
+
+export default function BiblePrinterPageToolbar({
+    on_download
+}: BiblePrinterPageToolbarProps): React.ReactElement
 {
     const view_history = use_view_history();
     
@@ -20,7 +26,6 @@ export default function BiblePrinterPageToolbar(): React.ReactElement
     }, [view_history]);
 
     const strings = use_bible_printer_strings();
-    const [show_loading, set_show_loading] = useState(false);
     const [show_printer_settings, set_show_printer_settings] = useState(false);
     const [show_printer_sections, set_show_printer_sections] = useState(false); 
 
@@ -30,21 +35,7 @@ export default function BiblePrinterPageToolbar(): React.ReactElement
 
     const handle_close_printer_sections = useCallback(() => {
         set_show_printer_sections(false);
-    }, [set_show_printer_sections])
-
-    const handle_download = useCallback(() => {
-        async function runner()
-        {
-            if (show_loading) return;
-
-            set_show_loading(true);
-            const ranges = await backend_get_print_ranges();
-            let response = await backend_download_pdf(ranges);
-            set_show_loading(false);
-        }
-
-        runner();
-    }, [set_show_loading]);
+    }, [set_show_printer_sections]);
 
     return (
         <>
@@ -65,7 +56,7 @@ export default function BiblePrinterPageToolbar(): React.ReactElement
                 <ImageButton 
                     image={images.download}
                     tooltip={strings.download_tooltip}
-                    on_click={handle_download}
+                    on_click={on_download}
                 />
                 
                 <ImageButton 
@@ -84,7 +75,6 @@ export default function BiblePrinterPageToolbar(): React.ReactElement
 
                 <SubMenuDropdown />
             </TopBar>
-            <LoadingOverlay show={show_loading}/>
             <PrinterSettingsOverlay 
                 show={show_printer_settings}
                 on_close={handle_close_printer_settings}

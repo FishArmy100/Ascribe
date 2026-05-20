@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import BiblePrinterPageToolbar from "./BiblePrinterPageToolbar";
 import { Box, useTheme } from "@mui/material";
-import PdfRenderer from "@components/core/PdfRenderer";
-import { backend_preview_bible, PreviewResult } from "@interop/printing";
+import PdfRenderer from "@components/core/pdf/PdfRenderer";
+import { backend_download_pdf, backend_get_print_ranges, backend_preview_bible, PreviewResult } from "@interop/printing";
 import { LoadingSpinner } from "../LoadingSpinner";
 import { use_bible_print_format } from "@components/providers/PrintBibleFormatProvider";
 import { use_bible_print_ranges } from "@components/providers/PrintBibleRangesProvider";
+import LoadingOverlay from "@components/core/LoadingOverlay";
 
 export default function BiblePrinterPage(): React.ReactElement
 {
@@ -14,6 +15,22 @@ export default function BiblePrinterPage(): React.ReactElement
     const { format } = use_bible_print_format();
     const { ranges } = use_bible_print_ranges();
     const theme = useTheme();
+    
+    const [show_loading, set_show_loading] = useState(false);
+
+    const handle_download = useCallback(() => {
+        async function runner()
+        {
+            if (show_loading) return;
+
+            set_show_loading(true);
+            const ranges = await backend_get_print_ranges();
+            let response = await backend_download_pdf(ranges);
+            set_show_loading(false);
+        }
+
+        runner();
+    }, [set_show_loading]);
 
     useEffect(() => {
         set_pdf_data(null);
@@ -31,7 +48,7 @@ export default function BiblePrinterPage(): React.ReactElement
 
     return (
         <Box>
-            <BiblePrinterPageToolbar />
+            <BiblePrinterPageToolbar on_download={handle_download}/>
             <Box sx={{ 
                 mt: 5, 
                 display: "flex",
@@ -52,11 +69,13 @@ export default function BiblePrinterPage(): React.ReactElement
                             border: "none",
                             borderRadius: 0,
                         }}
+                        on_download={handle_download}
                     />
                 ) : (
                     <LoadingSpinner />
                 )}
             </Box>
+            <LoadingOverlay show={show_loading}/>
         </Box>
     )
 }

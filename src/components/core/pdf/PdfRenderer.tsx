@@ -3,10 +3,11 @@ import React, { useState, useRef, useMemo } from "react";
 import { pdfjs, Document as PdfDoc, Page as PdfPage } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
-import ImageButton from "./ImageButton";
+import ImageButton from "../ImageButton";
 import * as images from "@assets";
 import { use_app_i18n } from "@components/providers/LanguageProvider";
 import __t from "@fisharmy100/react-auto-i18n";
+import PdfContextMenu from "@components/core/pdf/PdfContextMenu";
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
     "pdfjs-dist/build/pdf.worker.min.mjs",
@@ -16,6 +17,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 export type PdfRendererProps = {
     file: string,
     sx?: SxProps<Theme>,
+    on_download: () => void,
 }
 
 const MIN_SCALE = 0.5;
@@ -25,6 +27,7 @@ const SCALE_STEP = 0.25;
 export default function PdfRenderer({
     file,
     sx,
+    on_download
 }: PdfRendererProps): React.ReactElement
 {
     const [page_count, set_page_count] = useState<number>(0);
@@ -39,6 +42,11 @@ export default function PdfRenderer({
         previous_page: __t("pdf_renderer.tooltips.previous_page", "Previous Page"),
         zoom_in: __t("pdf_renderer.tooltips.zoom_in", "Zoom In"),
         zoom_out: __t("pdf_renderer.tooltips.zoom_out", "Zoom Out"),
+        page_of: (current: number, count: number) => __t(
+            "pdf_renderer.labels.page_of",
+            "Page {{$current}} of {{$count}}",
+            { current, count }
+        )
     }), [i18n])
 
     const on_load_success = ({ numPages }: { numPages: number }): void => {
@@ -111,17 +119,26 @@ export default function PdfRenderer({
                     px: 2,
                 }}
             >
-                <PdfDoc file={file} onLoadSuccess={on_load_success}>
-                    {Array.from({ length: page_count }, (_, i) => (
-                        <Box
-                            key={i + 1}
-                            ref={(el: HTMLDivElement | null) => { page_refs.current[i] = el; }}
-                            sx={{ boxShadow: 3, mb: 2 }}
-                        >
-                            <PdfPage pageNumber={i + 1} scale={scale} />
-                        </Box>
-                    ))}
-                </PdfDoc>
+                <PdfContextMenu
+                    on_zoom_in={zoom_in}
+                    on_zoom_out={zoom_out}
+                    on_download={on_download}
+                >
+                    <PdfDoc
+                        file={file}
+                        onLoadSuccess={on_load_success}
+                    >
+                        {Array.from({ length: page_count }, (_, i) => (
+                            <Box
+                                key={i + 1}
+                                ref={(el: HTMLDivElement | null) => { page_refs.current[i] = el; }}
+                                sx={{ boxShadow: 3, mb: 2 }}
+                            >
+                                <PdfPage pageNumber={i + 1} scale={scale} />
+                            </Box>
+                        ))}
+                    </PdfDoc>
+                </PdfContextMenu>
             </Box>
 
             {/* Toolbar */}
@@ -142,7 +159,7 @@ export default function PdfRenderer({
                     disabled={current_page - 1 === 0}
                 />
                 <Typography variant="body2" color="white">
-                    Page {current_page} of {page_count}
+                    {strings.page_of(current_page, page_count)}
                 </Typography>
                 <ImageButton
                     image={images.angles_right}

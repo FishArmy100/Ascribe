@@ -1,7 +1,7 @@
 import ContextMenu, { ContextMenuOption } from "@components/context_menu/ContextMenu"
 import React, { createContext, useCallback, useContext, useState } from "react"
 
-export type ShowContextMenuContextType = (e: React.MouseEvent, options: ContextMenuOption[]) => void;
+export type ShowContextMenuContextType = (e: React.MouseEvent, options: (ContextMenuOption | "divider")[]) => void;
 
 export type ContextMenuProviderProps = {
     children: React.ReactNode,
@@ -14,9 +14,9 @@ export default function ContextMenuProvider({
 }: ContextMenuProviderProps)
 {
     const [pos, set_pos] = useState<{top: number, left: number} | null>(null);
-    const [options, set_options] = useState<ContextMenuOption[]>([]);
+    const [options, set_options] = useState<(ContextMenuOption | "divider")[]>([]);
 
-    const handle_context_click = useCallback((e: React.MouseEvent, options: ContextMenuOption[]) => {
+    const handle_context_click = useCallback((e: React.MouseEvent, options: (ContextMenuOption | "divider")[]) => {
         e.preventDefault();
         e.stopPropagation();
 
