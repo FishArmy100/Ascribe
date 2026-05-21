@@ -235,7 +235,7 @@ export function HtmlNodeRenderer({
     }
     else if (node.type === "image")
     {
-        console.log("TODO: need to add image support")
+        console.error("TODO: need to add image support")
         return (
             <span>
                 🖼️

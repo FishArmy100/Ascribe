@@ -4,27 +4,28 @@ import Tooltip from "./Tooltip";
 import { TypographyVariant } from "@mui/material/styles";
 import DropdownBase, { DropdownPlacement } from "./DropdownBase";
 import { play_sfx } from "@interop/sfx";
+import WrapIf from "./WrapIf";
 
 export const DROPDOWN_PADDING = 1;
 
 export type TextSelectDropdownOption<T> = {
     text: string,
-    tooltip: string,
+    tooltip: string | null,
     value: T
 }
 
 export type TextSelectDropdownProps<T> = {
-    tooltip: string,
+    tooltip: string | null,
     options: TextSelectDropdownOption<T>[],
     selected: number,
     on_select: (value: T) => void,
     variant: TypographyVariant,
-    bold: boolean,
+    bold?: boolean,
     width?: string,
     placement?: DropdownPlacement,
 }
 
-export default function TextSelectDropdown<T>({
+function TextSelectDropdown<T>({
     tooltip,
     options,
     selected,
@@ -32,7 +33,7 @@ export default function TextSelectDropdown<T>({
     variant,
     bold,
     width,
-    placement = "bottom"
+    placement = "auto"
 }: TextSelectDropdownProps<T>): React.ReactElement
 {
     const [is_open, set_open] = useState(false);
@@ -45,7 +46,7 @@ export default function TextSelectDropdown<T>({
             button={{
                 type: "element",
                 element_builder: (on_click) => (
-                    <Tooltip tooltip={tooltip}>
+                    <WrapIf cond={tooltip !== null} wrapper={Tooltip} props={{tooltip: tooltip!}}>
                         <Typography
                             variant={variant}
                             fontWeight={bold ? "bold" : undefined}
@@ -69,7 +70,7 @@ export default function TextSelectDropdown<T>({
                         >
                             {title}
                         </Typography>
-                    </Tooltip>
+                    </WrapIf>
                 )
             }}
             is_open={is_open}
@@ -89,7 +90,7 @@ export default function TextSelectDropdown<T>({
                 sx={{ paddingTop: 0 }}
             >
                 {options.map((o, i) => (
-                    <Tooltip tooltip={o.tooltip} key={i}>
+                    <WrapIf key={i} cond={o.tooltip !== null} wrapper={Tooltip} props={{tooltip: o.tooltip!}}>
                         <Typography
                             variant={variant}
                             fontWeight={bold ? "bold" : undefined}
@@ -124,9 +125,11 @@ export default function TextSelectDropdown<T>({
                         >
                             {o.text}
                         </Typography>
-                    </Tooltip>
+                    </WrapIf>
                 ))}
             </Stack>
         </DropdownBase>
     );
 }
+
+export default React.memo(TextSelectDropdown) as typeof TextSelectDropdown;

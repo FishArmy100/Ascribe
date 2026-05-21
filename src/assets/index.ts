@@ -64,6 +64,7 @@ export { default as x_mark } from './images/light-xmark.svg';
 export { default as old_star } from './images/solid-gold-star.svg';
 export { default as thin_plus } from './images/thin-plus.svg';
 export { default as plus } from './images/light-plus.svg'
+export { default as minus } from './images/light-minus.svg'
 
 export { default as infinity } from './images/light-infinity.svg';
 export { default as repeat } from './images/light-repeat.svg';
@@ -94,3 +95,9 @@ export { default as magnifying_glass_folder } from './images/light-folder-magnif
 export { default as sliders } from './images/light-sliders.svg';
 export { default as book_arrow_up } from './images/light-book-arrow-up.svg';
 export { default as book_reader } from './images/light-book-open-reader.svg';
+export { default as printer } from "./images/light-print.svg";
+export { default as download } from "./images/light-download.svg";
+export { default as zoom_in } from "./images/light-magnifying-glass-plus.svg";
+export { default as zoom_out } from "./images/light-magnifying-glass-minus.svg";
+export { default as quotes } from "./images/light-quotes.svg";
+export { default as copy } from "./images/light-copy.svg";

@@ -132,7 +132,8 @@ pub enum ViewHistoryEntry
         query: WordSearchQueryJson,
         raw: Option<String>,
         page_index: u32,
-    }
+    },
+    BiblePrinter
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

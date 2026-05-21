@@ -1,6 +1,6 @@
 use std::sync::Mutex;
 use tauri::Manager;
-use crate::{bible::{BibleDisplaySettings, BiblioJsonPackageHandle}, core::{app::AppState, settings::{self, AppSettings}, view_history::{self, ViewHistory}}, sfx::SfxPlayer, tts::{TtsPlayer, init_espeak, voices::AppVoices}};
+use crate::{bible::{BibleDisplaySettings, BiblioJsonPackageHandle, printing::printing_state::PrintBibleState}, core::{app::AppState, settings::{self, AppSettings}, view_history::{self, ViewHistory}}, sfx::SfxPlayer, tts::{TtsPlayer, init_espeak, voices::AppVoices}};
 
 pub mod core;
 pub mod bible;
@@ -37,6 +37,7 @@ pub fn run() {
             app.manage(BiblioJsonPackageHandle::init(app.handle().clone()));
             app.manage(AppVoices::load(app.path()));
             app.manage(SfxPlayer::new(app.path()));
+            app.manage(PrintBibleState::new());
 
             app.manage(Mutex::new(AppState {
                 settings: AppSettings::default(),
@@ -60,6 +61,7 @@ pub fn run() {
             commands::open,
             core::app_language::run_app_language_command,
             sfx::run_sfx_command,
+            bible::printing::printing_cmd::run_print_command,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

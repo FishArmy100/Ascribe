@@ -75,7 +75,6 @@ export default function VoiceSelectDropdown(): React.ReactElement
             } 
             selected={selected_index}
             on_select={v => {
-                console.log(v);
                 set_voice_id(v);
             }}
             variant="body2"

@@ -1,98 +1,55 @@
+import { play_sfx, Sfx } from "@interop/sfx";
+import { Box, Checkbox, FormControlLabel, SxProps, Theme, Typography, TypographyVariant } from "@mui/material";
 import React from "react";
 import Tooltip from "./Tooltip";
-import { Box, Checkbox, FormControlLabel, Typography, useTheme } from "@mui/material";
-import CheckIcon from "@mui/icons-material/Check";
-import { play_sfx, Sfx } from "@interop/sfx";
 
 export type LabeledCheckboxProps = {
+    label_props: { variant: TypographyVariant, bold?: boolean, sx?: SxProps<Theme> }
     tooltip: string,
     value: boolean,
-    set_value: (v: boolean) => void,
+    on_change: (v: boolean) => void,
     label: string,
-    sfx?: Sfx | "none"
+    sfx?: Sfx | "none",
 }
 
 export default function LabeledCheckbox({
+    label_props,
     tooltip,
     value,
-    set_value,
+    on_change,
     label,
-    sfx = "click"
+    sfx = "click",
 }: LabeledCheckboxProps): React.ReactElement
 {
-    const theme = useTheme();
     return (
         <Box>
             <Tooltip
                 tooltip={tooltip}
             >
                 <FormControlLabel
-                    sx={{
-                        m: 0
-                    }}
                     label={
-                        <Typography
-                            variant="body2"
-                            component="span"
-                            color={theme.palette.primary.contrastText}
-                            sx={{
-                                display: "flex",
-                                alignItems: 'center',
-                                mr: theme.spacing(1)
-                            }}
-                        >
-                            {label}
-                        </Typography>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                            <Typography
+                                variant={label_props.variant}
+                                component="span"
+                                sx={{
+                                    fontWeight: label_props.bold ? "bold" : undefined,
+                                    whiteSpace: "nowrap",
+                                    ...label_props.sx,
+                                }}
+                            >
+                                {label}
+                            </Typography>
+                        </Box>
                     }
                     control={
                         <Checkbox
                             checked={value}
                             onChange={e => {
-                                if (sfx && sfx !== "none")
-                                {
+                                if (sfx !== "none") 
                                     play_sfx(sfx);
-                                }
-                                set_value(e.target.checked);
-                            }}
-                            icon={
-                                <span style={{
-                                    width: theme.spacing(20 / 8),
-                                    height: theme.spacing(20 / 8),
-                                    borderRadius: theme.spacing(0.5),
-                                    borderWidth: theme.spacing(1 / 8),
-                                    borderColor: theme.palette.grey[700],
-                                    borderStyle: "solid",
-                                    backgroundColor: theme.palette.grey[200],
-                                    display: "inline-block",
-                                }}/>
-                            }
-                            checkedIcon={
-                                <span
-                                    style={{
-                                        width: theme.spacing(20 / 8),
-                                        height: theme.spacing(20 / 8),
-                                        borderRadius: theme.spacing(0.5),
-                                        borderWidth: theme.spacing(1 / 8),
-                                        borderColor: theme.palette.grey[700],
-                                        borderStyle: "solid",
-                                        backgroundColor: theme.palette.grey[200],
-                                        color: theme.palette.primary.light,
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                    }}
-                                >
-                                    <CheckIcon style={{
-                                        fontSize: theme.spacing(2),
-                                        fontWeight: "bold"
-                                    }} />
-                                </span>
-                            }
-                            sx={{
-                                padding: theme.spacing(0.5), // keeps spacing tight
-                                "&:hover": {
-                                    backgroundColor: "transparent", // prevent halo on hover
-                                },
+                                
+                                on_change(e.target.checked)
                             }}
                         />
                     }

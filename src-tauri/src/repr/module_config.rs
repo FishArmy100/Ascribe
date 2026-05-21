@@ -12,6 +12,7 @@ pub enum ModuleConfigJson
     BibleConfig
     {
         name: String,
+        short_name: Option<String>,
         id: ModuleId,
         authors: Option<Vec<String>>,
         language: Option<LanguageJson>,
@@ -129,6 +130,7 @@ impl ModuleConfigJson
                 let config = &bible.config;
                 Self::BibleConfig { 
                     name: config.name.clone(), 
+                    short_name: config.short_name.clone(),
                     id: config.id.clone(), 
                     authors: config.authors.clone(), 
                     language: config.language.map(|l| l.into()), 

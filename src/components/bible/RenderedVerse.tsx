@@ -1,10 +1,12 @@
 import { SxProps, Typography } from "@mui/material"
 import { RenderedVerseContent } from "../../interop/bible/render"
 import { Theme } from "@mui/material/styles"
-import React from "react"
+import React, { useCallback } from "react"
 import { parse_strongs, StrongsNumber } from "../../interop/bible/strongs";
 import { WordId } from "../../interop/bible";
 import { StrongsClickedCallback, VerseClickedCallback, VerseWordClickedCallback } from "./BibleVerse";
+import { use_verse_context_menu_options } from "@components/context_menu/context_menus";
+import { use_show_context_menu } from "@components/providers/ContextMenuProvider";
 
 
 export type RenderedVerseProps = {
@@ -80,7 +82,7 @@ function RenderedVerseBase({
 
 export const RenderedVerse = React.memo(RenderedVerseBase, (prev, next) => {
     return prev.content.html === next.content.html && 
-    prev.on_strongs_clicked === next.on_strongs_clicked &&
-    prev.on_verse_word_clicked === next.on_verse_word_clicked &&
-    prev.verse_label === next.verse_label;
+           prev.on_strongs_clicked === next.on_strongs_clicked &&
+           prev.on_verse_word_clicked === next.on_verse_word_clicked &&
+           prev.verse_label === next.verse_label;
 })

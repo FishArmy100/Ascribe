@@ -11,7 +11,7 @@ import ExpandMore from "@mui/icons-material/ExpandMore";
 import * as utils from "../../utils";
 import { use_top_bar_padding } from "../TopBar";
 import { AppSettings } from "../../interop/settings";
-import { Theme } from "@mui/material/styles";
+import { SxProps, Theme } from "@mui/material/styles";
 import use_bible_tooltips from "./bible_tooltips";
 
 const GRID_ITEM_SIZE = 4;
@@ -82,6 +82,7 @@ export default function ChapterPicker({ on_select }: ChapterPickerProps): React.
                     maxWidth: (theme) => theme.spacing(dropdown_width),
                     width: (theme) => theme.spacing(dropdown_width),
                     scrollbarGutter: "stable",
+                    zIndex: 100000,
                     "&::-webkit-scrollbar": {
                         width: (theme) => theme.spacing(1),
                     },
@@ -133,6 +134,15 @@ const BookSelection = React.memo(function BookSelection({
     const padding = use_top_bar_padding(theme);
     const is_expanded = expanded_id === id;
 
+    const on_select_ref = useRef(on_select);
+    useEffect(() => {
+        on_select_ref.current = on_select
+    }, [on_select]);
+
+    const handle_select = useCallback((chapter: ChapterId) => {
+        on_select_ref.current(chapter);
+    }, [on_select_ref])
+
     const chapters = useMemo(
         () => utils.range_array(0, chapter_count).map(i => i + 1),
         [chapter_count]
@@ -173,21 +183,47 @@ const BookSelection = React.memo(function BookSelection({
             </ListItemButton>
 
             <Collapse in={is_expanded} timeout="auto" unmountOnExit>
-                <Grid container sx={{ padding: padding / 2 }}>
-                    {chapters.map(chapter => (
-                        <Grid key={chapter} size={12 / GRID_ITEM_COUNT_X} sx={{ padding: padding / 2 }}>
-                            <Button
-                                onClick={() => on_select({ chapter, book: id })}
-                                sx={button_sx}
-                            >
-                                <Typography variant="body2" textAlign="center">
-                                    {chapter}
-                                </Typography>
-                            </Button>
-                        </Grid>
-                    ))}
-                </Grid>
+                <ChaptersGrid
+                    chapters={chapters}
+                    padding={padding}
+                    button_sx={button_sx}
+                    id={id}
+                    on_select={handle_select}
+                />
             </Collapse>
         </>
+    );
+});
+
+type ChaptersGridProps = {
+    chapters: number[];
+    padding: number;
+    button_sx: SxProps<Theme>;
+    id: OsisBook;
+    on_select: (chapter: ChapterId) => void;
+};
+
+const ChaptersGrid = React.memo(function ChaptersGrid({
+    chapters,
+    padding,
+    button_sx,
+    id,
+    on_select,
+}: ChaptersGridProps): React.ReactElement {
+    return (
+        <Grid container sx={{ padding: padding / 2 }}>
+            {chapters.map(chapter => (
+                <Grid key={chapter} size={12 / GRID_ITEM_COUNT_X} sx={{ padding: padding / 2 }}>
+                    <Button
+                        onClick={() => on_select({ chapter, book: id })}
+                        sx={button_sx}
+                    >
+                        <Typography variant="body2" textAlign="center">
+                            {chapter}
+                        </Typography>
+                    </Button>
+                </Grid>
+            ))}
+        </Grid>
     );
 });

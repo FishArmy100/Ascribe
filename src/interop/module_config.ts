@@ -21,19 +21,20 @@ export type ReadingsFormat = |{
 };
 
 export interface BibleConfig {
-  type: "bible_config";
-  name: string;
-  id: string;
-  authors?: string[];
-  language?: Language;
-  description?: HtmlText;
-  data_source?: string;
-  pub_year?: number;
-  license?: string;
-  books: Record<OsisBook, string>;
-  book_abbreviations: Record<OsisBook, string>;
-  book_aliases: Record<string, OsisBook>;
-  external: ExternalModuleData;
+    type: "bible_config";
+    name: string;
+    short_name?: string,
+    id: string;
+    authors?: string[];
+    language?: Language;
+    description?: HtmlText;
+    data_source?: string;
+    pub_year?: number;
+    license?: string;
+    books: Record<OsisBook, string>;
+    book_abbreviations: Record<OsisBook, string>;
+    book_aliases: Record<string, OsisBook>;
+    external: ExternalModuleData;
 }
 
 export interface NotebookConfig {

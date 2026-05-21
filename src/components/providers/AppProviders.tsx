@@ -8,6 +8,14 @@ import { ModuleInfoProvider } from "./ModuleInfoProvider";
 import { ModuleConfigProvider } from "./ModuleConfigProvider";
 import AppI18nProvider from "./LanguageProvider";
 import TtsVoiceProvider from "./TtsVoiceProvider";
+import { PrintBibleFormatProvider } from "./PrintBibleFormatProvider";
+import { PrintBibleRangesProvider } from "./PrintBibleRangesProvider";
+import { KeyboardShortcutProvider } from "./KeyboardShortcutProvider";
+import ContextMenuProvider from "./ContextMenuProvider";
+
+const BLOCKED_SHORTCUTS = [
+    "ctrl+p",
+]
 
 const PROVIDER_NODES: ((children: React.ReactNode) => React.ReactNode)[] = [
     c => <AppSettingsProvider>{c}</AppSettingsProvider>,
@@ -18,7 +26,11 @@ const PROVIDER_NODES: ((children: React.ReactNode) => React.ReactNode)[] = [
     c => <ModuleInfoProvider>{c}</ModuleInfoProvider>,
     c => <ModuleConfigProvider>{c}</ModuleConfigProvider>,
     c => <AppI18nProvider>{c}</AppI18nProvider>,
-    c => <TtsVoiceProvider>{c}</TtsVoiceProvider>
+    c => <TtsVoiceProvider>{c}</TtsVoiceProvider>,
+    c => <PrintBibleFormatProvider>{c}</PrintBibleFormatProvider>,
+    c => <PrintBibleRangesProvider>{c}</PrintBibleRangesProvider>,
+    c => <KeyboardShortcutProvider blocked_shortcuts={BLOCKED_SHORTCUTS}>{c}</KeyboardShortcutProvider>,
+    c => <ContextMenuProvider>{c}</ContextMenuProvider>
 ];
 
 export default function AppProviders({ 

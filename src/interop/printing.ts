@@ -1,0 +1,223 @@
+import { invoke } from "@tauri-apps/api/core";
+import { VerseId } from "./bible";
+
+export type BiblePrintRange = {
+    bible: string,
+    from: VerseId,
+    to: VerseId,
+}
+
+export const TEXT_ALIGN_VALUES = ["left", "center", "right"] as const;
+export type TextAlign = typeof TEXT_ALIGN_VALUES[number];
+export const TEXT_ALIGN_NAMES: Record<TextAlign, string> = {
+    "center": "Center",
+    "left": "Left",
+    "right": "Right",
+}
+
+export const PAGE_SIZE_VALUES = ["A4", "A3"] as const;
+export type PageSize = typeof PAGE_SIZE_VALUES[number];
+export const PAGE_SIZE_NAMES: Record<PageSize, string> = {
+    "A4": "A4",
+    "A3": "A3",
+}
+
+export const FONT_VALUES = ["liberation_sans", "liberation_serif", "libration_mono"] as const;
+export type Font = typeof FONT_VALUES[number];
+export const FONT_NAMES: Record<Font, string> = {
+    "liberation_sans": "Liberation Sans",
+    "liberation_serif": "Liberation Serif",
+    "libration_mono": "Liberation Mono",
+}
+
+export const BOOK_FORMAT_VALUES = ["short", "full"] as const;
+export type BookFormat = typeof BOOK_FORMAT_VALUES[number];
+export const BOOK_FORMAT_NAMES: Record<BookFormat, string> = {
+    "short": "Short",
+    "full": "Full",
+}
+
+export const PAGE_NUMBER_TYPES = ["none", "top_left", "top_right", "bottom_left", "bottom_right"] as const;
+export type PageNumberType = typeof PAGE_NUMBER_TYPES[number];
+export const PAGE_NUMBER_NAMES: Record<PageNumberType, string> = {
+    "none": "None",
+    "top_left": "Top Left",
+    "top_right": "Top Right",
+    "bottom_left": "Bottom Left",
+    "bottom_right": "Bottom Right",
+}
+
+export const VERSE_NUMBER_FORMAT_TYPES = [ "long", "short", "number", "number_text", "none" ] as const;
+export type VerseNumberFormatType = typeof VERSE_NUMBER_FORMAT_TYPES[number];
+export const VERSE_NUMBER_FORMAT_TYPE_NAMES: Record<VerseNumberFormatType, string> = {
+    "long": "Long",
+    "short": "Short",
+    "number": "Number",
+    "number_text": "Number Text",
+    "none": "None",
+}
+
+export interface Margin 
+{
+    left: number;
+    right: number;
+    top: number;
+    bottom: number;
+}
+
+export type PageNumbers =
+    | { type: "none" }
+    | { type: "top_left"; font_size: number; bold: boolean; italic: boolean; font: Font }
+    | { type: "top_right"; font_size: number; bold: boolean; italic: boolean; font: Font }
+    | { type: "bottom_left"; font_size: number; bold: boolean; italic: boolean; font: Font }
+    | { type: "bottom_right"; font_size: number; bold: boolean; italic: boolean; font: Font };
+
+export interface TextFormat {
+    font: Font;
+    font_size: number;
+    bold: boolean;
+    italic: boolean;
+}
+
+export interface VerseNumberFormat 
+{
+    format_type: VerseNumberFormatType,
+    text_format: TextFormat,
+    spacing: number,
+}
+
+export interface VerseFormat 
+{
+    text_format: TextFormat;
+    alt_text_format: TextFormat;
+    verse_number_format: VerseNumberFormat;
+    line_height: number;
+    word_spacing: number;
+    verse_spacing: number;
+    verse_indent: number;
+}
+
+export interface TitleFormat 
+{
+    text_format: TextFormat;
+    text_align: TextAlign;
+    book_formatter: BookFormat;
+    title_spacing: number;
+    line_height: number; 
+    include_bible: boolean,
+}
+
+export interface StrongsFormat 
+{
+    font: Font;
+    font_size: number;
+    bold: boolean;
+    italic: boolean;
+}
+
+export interface FooterFormat
+{
+    text_format: TextFormat,
+    book_formatter: BookFormat
+    include_bible: boolean, 
+}
+
+export interface PrintBibleFormat 
+{
+    margin: Margin;
+    page_numbers: PageNumbers;
+    page_size: PageSize;
+    verse_format: VerseFormat;
+    title_format: TitleFormat;
+    strongs_format: StrongsFormat | null;
+    new_page_per_section: boolean;
+    footer: FooterFormat | null;
+}
+
+export type PrintBibleFormatChangedEvent = {
+    old: PrintBibleFormat,
+    new: PrintBibleFormat,
+}
+
+export type PrintBibleRangesChangedEvent = {
+    old: BiblePrintRange[],
+    new: BiblePrintRange[],
+}
+
+export type PreviewResult = 
+    | { type: "printed"; base64: string }
+    | { type: "error"; message: string };
+
+export async function backend_preview_bible(ranges: BiblePrintRange[]): Promise<PreviewResult>
+{
+    const response = await invoke<string>("run_print_command", {
+        command: { 
+            type: "preview", 
+            ranges: ranges, 
+        }
+    });
+    
+    return JSON.parse(response);
+}
+
+export type DownloadResult = 
+    | { type: "canceled" }
+    | { type: "downloaded", path: string }
+    | { type: "error", message: string };
+
+export async function backend_download_pdf(ranges: BiblePrintRange[]): Promise<DownloadResult>
+{
+    return invoke<string>("run_print_command", {
+        command: { 
+            type: "download", 
+            ranges: ranges, 
+        }
+    }).then(s => JSON.parse(s) as DownloadResult);
+}
+
+export async function backend_get_print_format(): Promise<PrintBibleFormat>
+{
+    const response = await invoke<string>("run_print_command", {
+        command: { type: "get_format" }
+    });
+    
+    return JSON.parse(response);
+}
+
+export async function backend_set_print_format(format: PrintBibleFormat): Promise<void>
+{
+    return await invoke("run_print_command", {
+        command: { 
+            type: "set_format", 
+            format: format 
+        }
+    });
+}
+
+export async function backend_get_default_print_bible_format(): Promise<PrintBibleFormat>
+{
+    return await invoke<string>("run_print_command", {
+        command: {
+            type: "get_default_format"
+        }
+    }).then(s => JSON.parse(s) as PrintBibleFormat)
+}
+
+export async function backend_get_print_ranges(): Promise<BiblePrintRange[]>
+{
+    return await invoke<string>("run_print_command", {
+        command: {
+            type: "get_ranges",
+        }
+    }).then(s => JSON.parse(s) as BiblePrintRange[]);
+}
+
+export async function backend_set_print_ranges(ranges: BiblePrintRange[]): Promise<void>
+{
+    return await invoke("run_print_command", {
+        command: {
+            type: "set_ranges",
+            ranges: ranges,
+        }
+    })
+}
