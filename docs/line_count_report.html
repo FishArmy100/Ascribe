@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Line Counter Report</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+            word-break: break-all;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-card .value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .stat-card .label {
+            font-size: 0.95em;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+        }
+        
+        .section h2 {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            color: #333;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .chart-container {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .chart-container canvas {
+            max-height: 400px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #f8f9fa;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        tbody tr:hover {
+            background: #f0f0f0;
+        }
+        
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .bar {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            height: 8px;
+            border-radius: 4px;
+            min-height: 8px;
+        }
+        
+        .footer {
+            background: #f8f9fa;
+            padding: 20px 40px;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stat-card .value {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Project Line Counter</h1>
+            <p>"Ascribe"</p>
+        </div>
+        
+        <div class="content">
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="value">412,211</div>
+                    <div class="label">Total Lines</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value">3,866</div>
+                    <div class="label">Files Counted</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value">23</div>
+                    <div class="label">File Types</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value">4,218</div>
+                    <div class="label">Directories</div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>📈 Analysis</h2>
+                <div class="charts-grid">
+                    <div class="chart-container">
+                        <canvas id="lineChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="filesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>📋 Breakdown by File Type</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>File Type</th>
+                            <th>Count</th>
+                            <th>Lines</th>
+                            <th>Distribution</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+        <tr>
+            <td>.c</td>
+            <td>211</td>
+            <td>172,009</td>
+            <td><div class="bar" style="width: 41.728386675755864%"></div></td>
+        </tr>
+        
+        <tr>
+            <td>.rs</td>
+            <td>83</td>
+            <td>67,410</td>
+            <td><div class="bar" style="width: 16.353275385664137%"></div></td>
+        </tr>
+        
+        <tr>
+            <td>.h</td>
+            <td>223</td>
+            <td>30,547</td>
+            <td><div class="bar" style="width: 7.4105251921952595%"></div></td>
+        </tr>
+        
+        <tr>
+            <td>.java</td>
+            <td>96</td>
+            <td>23,214</td>
+            <td><div class="bar" style="width: 5.631581884035118%"></div></td>
+        </tr>
+        
+        <tr>
+            <td>.md</td>
+            <td>103</td>
+            <td>23,076</td>
+            <td><div class="bar" style="width: 5.598103883690634%"></div></td>
+        </tr>
+        
+        <tr>
+            <td>.json</td>
+            <td>1,558</td>
+            <td>16,823</td>
+            <td><div class="bar" style="width: 4.081162317356887%"></div></td>
+        </tr>
+        
+        <tr>
+            <td>.tsx</td>
+            <td>135</td>
+            <td>14,042</td>
+            <td><div class="bar" style="width: 3.4065078321539213%"></div></td>
+        </tr>
+        
+        <tr>
+            <td>.toml</td>
+            <td>874</td>
+            <td>12,985</td>
+            <td><div class="bar" style="width: 3.150085757051607%"></div></td>
+        </tr>
+        
+        <tr>
+            <td>.xml</td>
+            <td>204</td>
+            <td>9,309</td>
+            <td><div class="bar" style="width: 2.2583094580202854%"></div></td>
+        </tr>
+        
+        <tr>
+            <td>.lock</td>
+            <td>1</td>
+            <td>8,161</td>
+            <td><div class="bar" style="width: 1.9798113102270438%"></div></td>
+        </tr>
+        
+        <tr>
+            <td>.txt</td>
+            <td>142</td>
+            <td>6,575</td>
+            <td><div class="bar" style="width: 1.5950569004708752%"></div></td>
+        </tr>
+        
+        <tr>
+            <td>.cpp</td>
+            <td>27</td>
+            <td>5,970</td>
+            <td><div class="bar" style="width: 1.4482874062070152%"></div></td>
+        </tr>
+        
+        <tr>
+            <td>no extension</td>
+            <td>49</td>
+            <td>4,826</td>
+            <td><div class="bar" style="width: 1.1707596352353526%"></div></td>
+        </tr>
+        
+        <tr>
+            <td>.ts</td>
+            <td>43</td>
+            <td>4,692</td>
+            <td><div class="bar" style="width: 1.1382520117124482%"></div></td>
+        </tr>
+        
+        <tr>
+            <td>.py</td>
+            <td>19</td>
+            <td>4,102</td>
+            <td><div class="bar" style="width: 0.9951214305295103%"></div></td>
+        </tr>
+        
+        <tr>
+            <td>.yaml</td>
+            <td>10</td>
+            <td>2,984</td>
+            <td><div class="bar" style="width: 0.7239011088981129%"></div></td>
+        </tr>
+        
+        <tr>
+            <td>.yml</td>
+            <td>36</td>
+            <td>2,031</td>
+            <td><div class="bar" style="width: 0.492708831156859%"></div></td>
+        </tr>
+        
+        <tr>
+            <td>.js</td>
+            <td>14</td>
+            <td>1,517</td>
+            <td><div class="bar" style="width: 0.3680154095839267%"></div></td>
+        </tr>
+        
+        <tr>
+            <td>.html</td>
+            <td>11</td>
+            <td>739</td>
+            <td><div class="bar" style="width: 0.17927711778676453%"></div></td>
+        </tr>
+        
+        <tr>
+            <td>.conf</td>
+            <td>3</td>
+            <td>702</td>
+            <td><div class="bar" style="width: 0.1703011321871566%"></div></td>
+        </tr>
+        
+        <tr>
+            <td>.sh</td>
+            <td>12</td>
+            <td>258</td>
+            <td><div class="bar" style="width: 0.06258930499186097%"></div></td>
+        </tr>
+        
+        <tr>
+            <td>.css</td>
+            <td>3</td>
+            <td>194</td>
+            <td><div class="bar" style="width: 0.04706327584659313%"></div></td>
+        </tr>
+        
+        <tr>
+            <td>.sample</td>
+            <td>9</td>
+            <td>45</td>
+            <td><div class="bar" style="width: 0.010916739242766448%"></div></td>
+        </tr>
+        
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Generated on 2026-05-21 13:23:18 | Line counter v1.0</p>
+        </div>
+    </div>
+    
+    <script>
+        // Chart configuration
+        const ctx1 = document.getElementById('lineChart').getContext('2d');
+        const ctx2 = document.getElementById('filesChart').getContext('2d');
+        
+        const labels = ['.c', '.rs', '.h', '.java', '.md', '.json', '.tsx', '.toml', '.xml', '.lock', '.txt', '.cpp', 'no extension', '.ts', '.py', '.yaml', '.yml', '.js', '.html', '.conf', '.sh', '.css', '.sample'];
+        const lineData = [172009, 67410, 30547, 23214, 23076, 16823, 14042, 12985, 9309, 8161, 6575, 5970, 4826, 4692, 4102, 2984, 2031, 1517, 739, 702, 258, 194, 45];
+        const fileCountData = [211, 83, 223, 96, 103, 1558, 135, 874, 204, 1, 142, 27, 49, 43, 19, 10, 36, 14, 11, 3, 12, 3, 9];
+        
+        new Chart(ctx1, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: lineData,
+                    backgroundColor: [
+                        '#667eea', '#764ba2', '#f093fb', '#4facfe', '#43e97b',
+                        '#fa709a', '#fee140', '#30cfd0', '#a8edea', '#fed6e3',
+                        '#ff9a56', '#ff6b6b', '#feca57', '#48dbfb', '#1dd1a1'
+                    ],
+                    borderColor: '#fff',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            font: {size: 12}
+                        }
+                    }
+                }
+            }
+        });
+        
+        new Chart(ctx2, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Number of Files',
+                    data: fileCountData,
+                    backgroundColor: 'rgba(102, 126, 234, 0.8)',
+                    borderColor: '#667eea',
+                    borderWidth: 1,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                indexAxis: 'y',
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
