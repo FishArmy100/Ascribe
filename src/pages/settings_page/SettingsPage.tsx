@@ -7,6 +7,7 @@ import FontSelectorDropdown from "./FontSelectorDropdown";
 import LanguageSelectionDropdown from "./LanguageSelectionDropdown";
 import SfxVolumeSlider from "./SfxVolumeSlider";
 import SfxToggles from "./SfxToggles";
+import { Footer } from "@components/index";
 
 export default function SettingsPage(): React.ReactElement
 {
@@ -16,11 +17,12 @@ export default function SettingsPage(): React.ReactElement
             <SettingsPageToolbar />
             <Stack
                 direction="column"
-                gap={theme.spacing(1)}
+                gap={theme.spacing(3)}
                 sx={{
                     mt: 7,
                     mr: 5,
                     ml: 5,
+                    mb: `calc(100vh - ${theme.spacing(12)})`
                 }}
             >
                 <Typography
@@ -39,6 +41,7 @@ export default function SettingsPage(): React.ReactElement
                 <LanguageSelectionDropdown />
                 <SfxToggles />
             </Stack>
+            <Footer />
         </Box>
     )
 }

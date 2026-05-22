@@ -5,6 +5,7 @@ import { TypographyVariant } from "@mui/material/styles";
 import DropdownBase, { DropdownPlacement } from "./DropdownBase";
 import { play_sfx } from "@interop/sfx";
 import WrapIf from "./WrapIf";
+import * as images from "@assets";
 
 export const DROPDOWN_PADDING = 1;
 
@@ -47,29 +48,58 @@ function TextSelectDropdown<T>({
                 type: "element",
                 element_builder: (on_click) => (
                     <WrapIf cond={tooltip !== null} wrapper={Tooltip} props={{tooltip: tooltip!}}>
-                        <Typography
-                            variant={variant}
-                            fontWeight={bold ? "bold" : undefined}
+                        <Stack
+                            direction="row"
+                            gap={theme.spacing(DROPDOWN_PADDING)}
                             sx={{
-                                cursor: "pointer",
-                                backgroundColor: is_open
-                                    ? theme.palette.secondary.main
-                                    : theme.palette.primary.light,
-                                color: theme.palette.common.black,
-                                padding: DROPDOWN_PADDING,
                                 borderRadius: theme.spacing(DROPDOWN_PADDING),
+                                borderWidth: theme.spacing(1 / 8),
+                                borderStyle: "solid",
+                                borderColor: theme.palette.grey[500],
+                                alignItems: "center",
+                                padding: DROPDOWN_PADDING,
+                                
+                                backgroundColor: is_open
+                                    ? theme.palette.primary.main
+                                    : undefined,
+
+                                cursor: "pointer",
+                                
                                 transition: "background-color 0.3s ease",
-                                textAlign: "center",
-                                whiteSpace: width === undefined ? "nowrap" : undefined,
-                                width: dropdown_width,
+                                "&:hover": {
+                                    backgroundColor: is_open
+                                        ? theme.palette.primary.dark
+                                        : theme.palette.action.hover,
+                                },
                             }}
                             onClick={() => {
                                 play_sfx("click");
                                 on_click();
                             }}
                         >
-                            {title}
-                        </Typography>
+                            <Typography
+                                variant={variant}
+                                fontWeight={bold ? "bold" : undefined}
+                                sx={{
+                                    color: is_open
+                                        ? theme.palette.common.white
+                                        : theme.palette.primary.main,
+                                    textAlign: "center",
+                                    whiteSpace: width === undefined ? "nowrap" : undefined,
+                                }}
+                            >
+                                {title}
+                            </Typography>
+                            <img 
+                                src={images.angle_down}
+                                style={{
+                                    transform:  is_open ? "rotate(-180deg)" : "rotate(0deg)",
+                                    transition: "transform 0.3s ease",
+                                    height: `calc(${theme.typography[variant].fontSize} * 0.75)`,
+                                    width: `calc(${theme.typography[variant].fontSize} * 0.75)`,
+                                }}
+                            />
+                        </Stack>
                     </WrapIf>
                 )
             }}
