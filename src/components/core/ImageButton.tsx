@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import { Button, useTheme } from "@mui/material";
 import { use_settings } from "../providers/SettingsProvider";
 import { AppSettings } from "../../interop/settings";
@@ -11,6 +11,8 @@ export const BUTTON_SIZE = 4;
 export const BUTTON_BORDER_RADIUS = 0.75;
 export const BUTTON_PADDING = 3 / 8;
 
+export type ButtonVariant = "default" | "inverted" | "info" | "error";
+
 export type ImageButtonProps = {
     image: string,
     tooltip: string,
@@ -19,6 +21,7 @@ export type ImageButtonProps = {
     on_click?: (event: React.MouseEvent<HTMLButtonElement>) => void,
     sx?: SxProps<Theme>,
     sfx?: Sfx | "none",
+    variant?: ButtonVariant
 }
 
 export default function ImageButton({
@@ -28,7 +31,8 @@ export default function ImageButton({
     active,
     on_click,
     sx,
-    sfx = "click"
+    sfx = "click",
+    variant = "default",
 }: ImageButtonProps): React.ReactElement
 {
     const theme = useTheme();
@@ -40,7 +44,43 @@ export default function ImageButton({
         }
 
         on_click?.(event);
-    }, [on_click, sfx])
+    }, [on_click, sfx]);
+
+    const background_color = useMemo(() => {
+        if (!variant || variant === "default")
+        {
+            return active ? 
+                theme.palette.secondary.main : 
+                theme.palette.primary.light;
+        }
+        else if (variant === "error")
+        {
+            return active ?
+                theme.palette.error.main :
+                theme.palette.error.light
+        }
+        else if (variant === "info")
+        {
+            return active ?
+                theme.palette.info.main :
+                theme.palette.info.light
+        }
+        else if (variant === "inverted")
+        {
+            return active ? 
+                theme.palette.background.default :
+                theme.palette.primary.main;
+        }
+        else
+        {
+            console.log(`Invalid variant ${variant}`);
+            return null as any;
+        }
+    }, [variant, active])
+
+    const image_color = useMemo(() => {
+        return theme.palette.getContrastText(background_color);
+    }, [background_color])
 
     return (
         <Tooltip
@@ -51,7 +91,7 @@ export default function ImageButton({
                     disabled={disabled}
                     onClick={handle_click}
                     sx={{
-                        backgroundColor: active ? theme.palette.secondary.main : theme.palette.primary.light,
+                        backgroundColor: background_color,
                         borderRadius: (theme) => theme.spacing(BUTTON_BORDER_RADIUS),
                         borderWidth: (theme) => theme.spacing(1 / 8),
                         borderColor: theme.palette.divider,
