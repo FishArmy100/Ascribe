@@ -146,7 +146,9 @@ export default function AudioPlayer({
                                 width: "100%",
                                 backgroundColor: theme.palette.primary.dark,
                                 borderRadius: `${theme.spacing(1)} ${theme.spacing(1)} 0 0`,
-                                padding: theme.spacing(0.5)
+                                borderColor: theme.palette.divider,
+                                borderWidth: theme.spacing(1 / 8),
+                                borderStyle: "solid"
                             }}
                         >
                             <ExpandButton
@@ -162,6 +164,13 @@ export default function AudioPlayer({
                                     display="flex"
                                     alignItems="center"
                                     gap={theme.spacing(0.5)}
+                                    padding={theme.spacing(0.5)}
+                                    sx={{
+                                        borderColor: theme.palette.divider,
+                                        borderWidth: 0,
+                                        borderBottomWidth: theme.spacing(1 / 8),
+                                        borderStyle: "solid"
+                                    }}
                                 >
                                     <ImageButton
                                         image={images.angles_left}
@@ -200,7 +209,7 @@ export default function AudioPlayer({
                                         {progress_text}
                                     </Typography>
                                 </Stack>
-                                <Collapse in={is_expanded} timeout="auto" unmountOnExit>
+                                <Collapse in={is_expanded} timeout="auto" unmountOnExit={false}>
                                     <Stack
                                         direction="row"
                                         display="flex"
@@ -208,6 +217,9 @@ export default function AudioPlayer({
                                         flexWrap="wrap"
                                         useFlexGap
                                         gap={theme.spacing(0.5)}
+                                        sx={{
+                                            backgroundColor: theme.palette.background.paper,
+                                        }}
                                     >
                                         <VolumeControl/>
                                         <PlaybackControl/>

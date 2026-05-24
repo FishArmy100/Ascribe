@@ -1,5 +1,5 @@
 import { Stack, useTheme } from "@mui/material";
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import * as images from "../../assets";
 import ImageButton from "../core/ImageButton";
 import Slider from "../core/Slider";
@@ -10,7 +10,35 @@ export default function VolumeControl(): React.ReactElement
 {
     const theme = useTheme();
     const { settings, update_settings } = use_settings();
-    const volume = settings.tts_settings.volume;
+    const [volume, set_volume] = useState<number>(settings.tts_settings.volume);
+
+    useEffect(() => {
+        set_volume(prev => {
+            const next = settings.tts_settings.volume;
+            return prev === next ? prev : next; // no state update if unchanged
+        });
+    }, []);
+
+    const debounce_timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    useEffect(() => {
+        if (debounce_timeout.current) {
+            clearTimeout(debounce_timeout.current);
+        }
+
+        debounce_timeout.current = setTimeout(() => {
+            update_settings(s => {
+                s.tts_settings.volume = volume;
+                return s;
+            });
+        }, 300);
+
+        return () => {
+            if (debounce_timeout.current) {
+                clearTimeout(debounce_timeout.current);
+            }
+        };
+    }, [volume, update_settings]);
 
     let volume_image: string;
     if (volume == 0)
@@ -43,17 +71,11 @@ export default function VolumeControl(): React.ReactElement
 
     const handle_button_click = () => {
         let new_volume = volume == 0 ? 1 : 0;
-        update_settings(s => {
-            s.tts_settings.volume = new_volume;
-            return s;
-        })
+        set_volume(new_volume);
     }
 
     const handle_slider_change = (v: number) => {
-        update_settings(s => {
-            s.tts_settings.volume = v;
-            return s;
-        })
+        set_volume(v);
     }
 
     return (

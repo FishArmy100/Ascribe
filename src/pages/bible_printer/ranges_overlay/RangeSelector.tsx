@@ -208,6 +208,7 @@ export default function RangeSelector({
                             tooltip={strings.delete}
                             on_click={on_delete}
                             disabled={!can_delete}
+                            variant="error"
                         />
                     </Stack>
                 </Stack>
