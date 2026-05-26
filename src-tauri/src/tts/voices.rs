@@ -1,10 +1,11 @@
 use biblio_json::core::lang::Language;
 use itertools::Itertools;
+use log::warn;
 use serde::{Deserialize, Serialize};
 use tauri::{Runtime, path::{BaseDirectory, PathResolver}};
 use std::{collections::HashMap, fs, path::{Path, PathBuf}};
 
-use crate::repr::lang::LanguageJson;
+use crate::{core::utils::NormalizedLanguage, repr::lang::LanguageJson};
 
 const VOICES_PATH: &str = "resources/tts-data/voices";
 const VOICE_NAME_FILE_PATH: &str = "resources/tts-data/voices/voice_name_map.json";
@@ -21,7 +22,7 @@ impl AppVoices
     pub fn load<R>(resolver: &PathResolver<R>) -> Self 
         where R : Runtime
     {
-        let configs_json = VoiceConfigJson::load_configs(resolver);
+        let configs_json = VoiceConfigRaw::load_configs(resolver);
         let voices_name_map_path = resolver.resolve(VOICE_NAME_FILE_PATH, BaseDirectory::Resource).unwrap();
         let content = fs::read_to_string(voices_name_map_path).unwrap();
         let voices_name_map = serde_json::from_str::<HashMap::<String, String>>(&content).unwrap();
@@ -54,14 +55,25 @@ impl AppVoices
         self.voices.values()
     }
 
+    /// Get all the voices based on the normalized form of the language. 
+    /// Example: 
+    /// ```
+    /// "swc" == "swh" == "swa"
+    /// ```
     pub fn voices_by_language<'a>(&'a self, language: &str) -> Vec<&'a VoiceConfig>
     {
         let Some(language) = Language::new(language).ok() else {
             return vec![];
         };
+
+        let language = NormalizedLanguage::new(language.0);
         
         self.voices().filter(|v| {
-            v.language.alpha_3 == language.to_639_3()
+            let Ok(lang) = Language::new(&v.language.alpha_3) else {
+                warn!("Language {} does not exist", v.language.alpha_3);
+                return false;
+            };
+            NormalizedLanguage::new(lang.0) == language
         }).collect_vec()
     }
 
@@ -86,7 +98,7 @@ pub struct VoiceConfig
 
 impl VoiceConfig
 {
-    pub fn new<R>(json: VoiceConfigJson, resolver: &PathResolver<R>, name_map: &HashMap<String, String>) -> Self 
+    pub fn new<R>(json: VoiceConfigRaw, resolver: &PathResolver<R>, name_map: &HashMap<String, String>) -> Self 
         where R : Runtime
     {
         let onnx_path = json.get_onnx_path(resolver)
@@ -118,7 +130,7 @@ impl VoiceConfig
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
-pub struct VoiceConfigJson
+pub struct VoiceConfigRaw
 {
     pub audio: VoiceConfigAudio,
     pub espeak: VoiceConfigEspeak,
@@ -134,7 +146,7 @@ pub struct VoiceConfigJson
     pub dataset: String,
 }
 
-impl VoiceConfigJson
+impl VoiceConfigRaw
 {
     pub fn load_configs<R>(resolver: &PathResolver<R>) -> Vec<Self>
         where R : Runtime

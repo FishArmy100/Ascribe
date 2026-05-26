@@ -14,8 +14,8 @@ import FollowTextCheckbox from "./FollowTextCheckbox";
 import ExpandButton from "./ExpandButton";
 import { ChapterId } from "@interop/bible";
 import use_audio_player_tooltips from "./audio_player_tooltips";
-import VoiceSelectDropdown from "./VoiceSelectDropdown";
 import { use_settings } from "@components/providers/SettingsProvider";
+import VoiceSelectDropdown from "./VoiceSelectDropdown";
 
 const FAST_FORWARD_TIME = 10;
 const REWIND_TIME = 10;
@@ -46,76 +46,21 @@ export default function AudioPlayer({
     let on_click: (() => void) | null = null;
     let progress_text = "--:--";
 
-    if (tts_player.player_state === "generating")
-    {
-        const progress = tts_player.generation_progress;
-        generation_progress = progress === "ready" ? 1 : progress ?? 0;
-        play_button_type = "generating";
-    }
-    else if (tts_player.player_state === "playing")
-    {
-        play_button_type = "pause";
-        on_click = () => tts_player.pause();
-    }
-    else if (tts_player.player_state === "paused")
-    {
-        play_button_type = "play";
-        on_click = () => tts_player.play();
-    }
-    else if (tts_player.player_state === "finished")
-    {
-        play_button_type = "play";
-        on_click = () => tts_player.play();
-    }
-
-    if (tts_player.duration !== null && tts_player.elapsed !== null)
-    {
-        player_progress = tts_player.elapsed;
-        progress_text = format_progress_text(tts_player.elapsed, tts_player.duration)
-    }
-
-    useEffect(() => {
-        if (open)
-        {
-            tts_player.request({
-                bible: current_version,
-                chapter: current_chapter,
-                verse_range: null,
-                voice: settings.tts_settings.current_voice,
-            })
-        }
-        else 
-        {
-            tts_player.stop();
-        }
-    }, [open, current_version, current_chapter.book, current_chapter.chapter, settings.tts_settings.current_voice])
-
     const handle_user_change_progress = (v: number) => {
         set_user_setting_time(true);
         set_user_value(v);
     };
 
     const handle_fast_forward = () => {
-        if(tts_player.duration && tts_player.elapsed)
-        {
-            let new_time = Math.clamp(0, tts_player.duration, FAST_FORWARD_TIME + tts_player.elapsed * tts_player.duration) / tts_player.duration;
-            tts_player.set_time(new_time);
-        }
+        
     }
 
     const handle_rewind = () => {
-        if(tts_player.duration && tts_player.elapsed)
-        {
-            let new_time = Math.clamp(0, tts_player.duration,  tts_player.elapsed * tts_player.duration - REWIND_TIME) / tts_player.duration;
-            tts_player.set_time(new_time);
-        }
+        
     } 
 
     const handle_user_commit_progress = (v: number) => {
-        set_user_setting_time(false);
-        set_user_value(v);
-        tts_player.set_time(v);
-        generation_progress = v;
+        
     }
 
     const tooltips = use_audio_player_tooltips();
@@ -175,7 +120,7 @@ export default function AudioPlayer({
                                     <ImageButton
                                         image={images.angles_left}
                                         tooltip={tooltips.rewind(REWIND_TIME)}
-                                        disabled={play_button_type === "generating"}
+                                        disabled={true}
                                         on_click={handle_rewind}
                                     />
                                     <PlayButton
@@ -186,7 +131,7 @@ export default function AudioPlayer({
                                     <ImageButton
                                         image={images.angles_right}
                                         tooltip={tooltips.fast_forward(FAST_FORWARD_TIME)}
-                                        disabled={play_button_type === "generating"}
+                                        disabled={true}
                                         on_click={handle_fast_forward}
                                     />
                                     <Slider
@@ -197,7 +142,7 @@ export default function AudioPlayer({
                                         tooltip={tooltips.progress}
                                         on_change={handle_user_change_progress}
                                         on_commit={handle_user_commit_progress}
-                                        readonly={tts_player.player_state === "finished" || tts_player.player_state === "generating" || tts_player.player_state === "idle"}
+                                        readonly={true}
                                     />
                                     <Typography
                                         color={theme.palette.primary.contrastText}

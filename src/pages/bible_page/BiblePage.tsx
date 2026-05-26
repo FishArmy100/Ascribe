@@ -48,9 +48,11 @@ function BiblePage({
 
 	const [verse_index, set_verse_index] = useState<number | null>(null)
 	const tts_player = use_tts_player();
-	useEffect(() => {
-		set_verse_index(tts_player.verse_index);
-	}, [tts_player.verse_index]);
+
+	// TODO: Add verse index support
+	// useEffect(() => {
+	// 	set_verse_index(tts_player.verse_index);
+	// }, [tts_player.verse_index]);
 
 	const button_width = useMemo(() => BUTTON_SIZE * 0.75, []);
 	const button_spacing = use_top_bar_padding(theme);

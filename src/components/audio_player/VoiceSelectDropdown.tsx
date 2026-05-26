@@ -30,7 +30,8 @@ export default function VoiceSelectDropdown(): React.ReactElement
     const selectable_voices = useMemo(() => {
         const selectable = Object.values(voices.voices)
             .filter(v => v !== undefined)
-            .filter(v => v.language.alpha_3 === selected_bible.language?.alpha_3);
+            .filter(v => v.language.alpha_3 === selected_bible.language?.alpha_3)
+            .sort((a, b) => a.name.localeCompare(b.name));
 
         if (selectable.length === 0)
         {
@@ -40,7 +41,7 @@ export default function VoiceSelectDropdown(): React.ReactElement
         {
             return selectable;
         }
-    }, [bible_display_settings.bible_version, voices, selected_bible]);
+    }, [selected_bible.language?.alpha_3, voices]);
 
     const set_voice_id = useCallback((voice_id: string) => {
         update_settings(s => {
