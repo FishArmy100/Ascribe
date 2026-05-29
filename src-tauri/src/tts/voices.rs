@@ -11,6 +11,7 @@ const VOICES_PATH: &str = "resources/tts-data/voices";
 const VOICE_NAME_FILE_PATH: &str = "resources/tts-data/voices/voice_name_map.json";
 const DEFAULT_VOICE_NAME: &str = "Joe";
 
+#[derive(Debug, Clone)]
 pub struct AppVoices
 {
     voices: HashMap<String, VoiceConfig>,

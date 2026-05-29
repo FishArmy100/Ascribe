@@ -38,6 +38,14 @@ impl<T> Shared<T>
     }
 }
 
+impl<T> Default for Shared<T> where T : Default
+{
+    fn default() -> Self 
+    {
+        Self(Default::default())
+    }
+}
+
 impl<T> From<Arc<Mutex<T>>> for Shared<T>
 {
     fn from(value: Arc<Mutex<T>>) -> Self 

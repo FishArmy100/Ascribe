@@ -1,11 +1,21 @@
-use serde::{Deserialize, Serialize};
-use tauri::{AppHandle, Listener, Runtime, path::{BaseDirectory, PathResolver}};
+use std::{collections::HashMap, sync::{Arc, Mutex, RwLock}};
 
-use crate::core::settings::{SETTINGS_CHANGED_EVENT_NAME, SettingsChangedEvent};
+use biblio_json::{core::VerseId, modules::ModuleId};
+use kira::sound::static_sound::StaticSoundData;
+use serde::{Deserialize, Serialize};
+use tauri::{AppHandle, Emitter, Listener, Runtime, path::{BaseDirectory, PathResolver}};
+
+use crate::{core::{settings::{SETTINGS_CHANGED_EVENT_NAME, SettingsChangedEvent}, utils::Shared}, repr::tts::VerseAudioKeyJson};
 
 pub mod events;
 pub mod tts_cmd;
 pub mod voices;
+pub mod synth;
+pub mod gen_thread;
+pub mod player;
+pub mod player_thread;
+
+pub const VERSE_AUDIO_UPDATED_EVENT_NAME: &str = "verse-audio-updated";
 
 pub fn init_espeak<R>(resolver: &PathResolver<R>)
     where R : Runtime
@@ -14,6 +24,78 @@ pub fn init_espeak<R>(resolver: &PathResolver<R>)
     unsafe 
     {
         std::env::set_var("PIPER_ESPEAKNG_DATA_DIRECTORY", tts_dir.into_os_string());
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct VerseAudioKey
+{
+    pub voice: String,
+    pub bible: ModuleId,
+    pub verse: VerseId,
+}
+
+#[derive(Debug)]
+pub struct VerseAudioData
+{
+    pub key: VerseAudioKey,
+    pub data: StaticSoundData,
+    pub duration: f32,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct VerseAudioUpdatedEvent 
+{
+    pub verses: Vec<VerseAudioKeyJson>,
+}
+
+#[derive(Debug, Clone)]
+pub struct VerseAudioLibrary(Shared<VerseAudioLibraryInner>);
+
+#[derive(Debug)]
+pub struct VerseAudioLibraryInner
+{
+    verses: HashMap<VerseAudioKey, Arc<VerseAudioData>>,
+    app: AppHandle,
+}
+
+impl VerseAudioLibrary
+{
+    pub fn new(app: AppHandle) -> Self 
+    {
+        Self(Shared::new(VerseAudioLibraryInner { 
+            verses: HashMap::new(),
+            app,
+        }))
+    }
+
+    pub fn visit<F, R>(&self, f: F) -> R
+        where F : FnOnce(&mut VerseAudioLibraryInner) -> R
+    {
+        let mut binding = self.0.get();
+        f(&mut binding)
+    }
+}
+
+impl VerseAudioLibraryInner
+{
+    pub fn contains(&self, key: &VerseAudioKey) -> bool
+    {
+        self.verses.contains_key(key)
+    }
+
+    pub fn insert(&mut self, verse: VerseAudioData)
+    {
+        self.verses.insert(verse.key.clone(), Arc::new(verse));
+
+        self.app.emit(VERSE_AUDIO_UPDATED_EVENT_NAME, VerseAudioUpdatedEvent {
+            verses: self.verses.keys().map(VerseAudioKeyJson::from).collect(),
+        }).unwrap();
+    }
+
+    pub fn get(&self, key: &VerseAudioKey) -> Option<Arc<VerseAudioData>>
+    {
+        self.verses.get(key).cloned()
     }
 }
 

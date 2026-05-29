@@ -71,7 +71,7 @@ export default function ImageButton({
         }
         else
         {
-            console.log(`Invalid variant ${variant}`);
+            console.error(`Invalid variant ${variant}`);
             return null as any;
         }
     }, [variant, active])
