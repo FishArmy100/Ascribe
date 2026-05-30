@@ -160,6 +160,22 @@ impl TtsPlayerThreadInner
             PlaybackRate(settings.playback_speed as f64),
             Tween::default(),
         );
+        
+        // Set initial volume
+        let decibels = if settings.volume <= 0.0 
+        {
+            f64::NEG_INFINITY
+        } 
+        else 
+        {
+            let amplitude = Tweenable::interpolate(
+                Decibels::SILENCE.as_amplitude(),
+                Decibels::IDENTITY.as_amplitude(),
+                settings.volume as f64,
+            );
+            (amplitude.log10() * 20.0) as f64
+        };
+        track.set_volume(decibels as f32, Tween::default());
 
         let total_duration: f32 = segments.iter()
             .map(|s| s.data.duration().as_secs_f32())
@@ -211,10 +227,11 @@ impl TtsPlayerThreadInner
                 }
             }
 
+            // Sync settings regardless of playback state so volume changes apply immediately
+            self.sync_settings();
+
             if self.is_playing
             {
-                self.sync_settings();
-
                 if self.current_handle.state() == PlaybackState::Stopped
                 {
                     self.index += 1;
@@ -269,11 +286,13 @@ impl TtsPlayerThreadInner
         }
 
         self.current_handle = handle;
+        self.sync_settings();
     }
 
     fn sync_settings(&mut self)
     {
         let app_settings = get_tts_settings(&self.app);
+        println!("Volume = {}", app_settings.volume);
 
         if self.current_settings.playback_speed == app_settings.playback_speed
             && self.current_settings.volume == app_settings.volume
@@ -281,11 +300,16 @@ impl TtsPlayerThreadInner
             return;
         }
 
-        let decibels = Tweenable::interpolate(
-            Decibels::SILENCE.as_amplitude(),
-            Decibels::IDENTITY.as_amplitude(),
-            app_settings.volume as f64,
-        ).log10() * 20.0;
+        let decibels = if app_settings.volume <= 0.0 {
+            f64::NEG_INFINITY
+        } else {
+            let amplitude = Tweenable::interpolate(
+                Decibels::SILENCE.as_amplitude(),
+                Decibels::IDENTITY.as_amplitude(),
+                app_settings.volume as f64,
+            );
+            (amplitude.log10() * 20.0) as f64
+        };
 
         let pitch_shift_semitones = if app_settings.correct_pitch 
         {
@@ -296,7 +320,7 @@ impl TtsPlayerThreadInner
             0.0
         };
 
-        self.current_handle.set_volume(decibels, Tween::default());
+        self.track.set_volume(decibels as f32, Tween::default());
         self.current_handle.set_playback_rate(
             PlaybackRate(app_settings.playback_speed as f64),
             Tween::default(),
