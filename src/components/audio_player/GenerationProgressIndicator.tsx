@@ -28,7 +28,6 @@ export default function GenerationProgressIndicator({
                     height: (theme) => theme.spacing(BUTTON_SIZE),
                     minWidth: (theme) => theme.spacing(BUTTON_SIZE),
                     minHeight: (theme) => theme.spacing(BUTTON_SIZE),
-                    padding: BUTTON_PADDING,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",

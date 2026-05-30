@@ -7,6 +7,7 @@ export interface ITtsContextType
     has_verse(verse: tts.VerseAudioKey): boolean,
     has_verses(verses: tts.VerseAudioKey[]): number,
     request_verses(verses: tts.VerseAudioKey[]): Promise<void>,
+    get_generated(): tts.VerseAudioKey[],
     load(verses: tts.VerseAudioKey[]): Promise<boolean>,
 
     play(): void,
@@ -27,20 +28,20 @@ export type TtsPlayerProviderProps = {
 
 class TtsContextObj implements ITtsContextType
 {
-    private loaded_verses: tts.VerseAudioKey[];
-    private loaded_verses_set: Set<string>;
+    private generated_verses: tts.VerseAudioKey[];
+    private generated_verses_set: Set<string>;
     private player_state: tts.PlayerState | null = null;
     private is_player_loaded: boolean = false;
 
     constructor(verses: tts.VerseAudioKey[])
     {
-        this.loaded_verses = verses;
-        this.loaded_verses_set = new Set(verses.map(stringify_audio_key));
+        this.generated_verses = verses;
+        this.generated_verses_set = new Set(verses.map(stringify_audio_key));
     }
 
     has_verse(verse: tts.VerseAudioKey): boolean
     {
-        return this.loaded_verses_set.has(stringify_audio_key(verse));
+        return this.generated_verses_set.has(stringify_audio_key(verse));
     }
 
     has_verses(verses: tts.VerseAudioKey[]): number
@@ -51,6 +52,11 @@ class TtsContextObj implements ITtsContextType
     async request_verses(verses: tts.VerseAudioKey[]): Promise<void>
     {
         return tts.backend_request_verses(verses);
+    }
+
+    get_generated(): tts.VerseAudioKey[]
+    {
+        return [...this.generated_verses]
     }
 
     async load(verses: tts.VerseAudioKey[]): Promise<boolean>
@@ -100,8 +106,8 @@ class TtsContextObj implements ITtsContextType
 
     set_loaded_verses(verses: tts.VerseAudioKey[]): void
     {
-        this.loaded_verses = verses;
-        this.loaded_verses_set = new Set(verses.map(stringify_audio_key));
+        this.generated_verses = verses;
+        this.generated_verses_set = new Set(verses.map(stringify_audio_key));
     }
 }
 
@@ -125,7 +131,7 @@ export function TtsPlayerProvider({
         function handle_player_state_updated(state: tts.PlayerState): void
         {
             set_value(prev => {
-                const next = new TtsContextObj(prev["loaded_verses"] || []);
+                const next = new TtsContextObj(prev["generated_verses"] || []);
                 next.set_player_state(state);
                 next.set_is_player_loaded(prev["is_player_loaded"] || false);
                 return next;
@@ -135,7 +141,7 @@ export function TtsPlayerProvider({
         function handle_player_load_state_changed(event: tts.PlayerLoadStateChangedEvent): void
         {
             set_value(prev => {
-                const next = new TtsContextObj(prev["loaded_verses"] || []);
+                const next = new TtsContextObj(prev["generated_verses"] || []);
                 next.set_player_state(prev["player_state"] || null);
                 next.set_is_player_loaded(event.is_loaded);
                 return next;

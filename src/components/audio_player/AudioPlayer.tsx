@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import ImageButton from "../core/ImageButton";
 import * as images from "@assets"
 import Slider from "../core/Slider";
-import { motion, AnimatePresence, number } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { ITtsContextType, use_tts_player } from "../providers/TtsPlayerProvider";
 import PlayButton, { PlayButtonType } from "./PlayButton";
 import { use_bible_display_settings } from "../providers/BibleDisplaySettingsProvider";
@@ -113,22 +113,27 @@ export default function AudioPlayer({
     }, [audio_keys, player_ref.current]);
 
     useEffect(() => {
-        if (generation_progress === null && audio_keys.length > 0)
+        if (player_ref.current.has_verses(audio_keys) === audio_keys.length && open)
         {
             player_ref.current.load(audio_keys);
         }
-    }, [audio_keys, generation_progress]); // don't have tts tts player as a dependency, otherwise it will create a feedback loop
+    }, [audio_keys, player_ref.current.get_generated().length, open]); // don't have tts tts player as a dependency, otherwise it will create a feedback loop
 
     const play_button_type = useMemo((): PlayButtonType => {
+        const state = tts_player.state();
         if (generation_progress !== null)
         {
             return "generating";
+        }
+        else if (state && !state.paused)
+        {
+            return "pause";
         }
         else 
         {
             return "play";
         }
-    }, [generation_progress])
+    }, [generation_progress, tts_player])
 
     const handle_user_change_progress = (v: number) => {
         set_user_setting_time(true);

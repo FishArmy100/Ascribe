@@ -45,14 +45,31 @@ function BiblePage({
 	const [popover_data, set_popover_data] = useState<PopoverData | null>(null);
 
 	const [player_open, set_player_open] = useState(false);
-
-	const [verse_index, set_verse_index] = useState<number | null>(null)
 	const tts_player = use_tts_player();
 
-	// TODO: Add verse index support
-	// useEffect(() => {
-	// 	set_verse_index(tts_player.verse_index);
-	// }, [tts_player.verse_index]);
+	const verse_index = useMemo(() => {
+		if (!player_open) return null;
+		
+		const key = tts_player.state()?.current_key;
+
+		if (!key)
+		{
+			return null;
+		}
+
+		const index = verses?.findIndex(v => (
+			v.id.book === key.verse.book &&
+			v.id.chapter === key.verse.chapter &&
+			v.id.verse === key.verse.verse
+		));
+
+		if (index === undefined)
+		{
+			return null;
+		}
+
+		return index;
+	}, [tts_player.state()?.current_key])
 
 	const button_width = useMemo(() => BUTTON_SIZE * 0.75, []);
 	const button_spacing = use_top_bar_padding(theme);
