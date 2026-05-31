@@ -6,7 +6,7 @@ use kira_pitcher::effect::pitch::PitcherBuilder;
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Emitter, Manager};
 
-use crate::{core::{app::AppState, settings::AppSettings, utils::Shared}, repr::tts::VerseAudioKeyJson, tts::{TtsSettings, VerseAudioKey, VerseAudioLibrary}};
+use crate::{core::{app::AppState, settings::AppSettings, utils::Shared}, repr::tts::VerseAudioKeyJson, tts::{TtsSettings, VerseAudioKey, TtsAudioLibrary}};
 
 pub const PLAYER_STATE_UPDATED_EVENT_NAME: &str = "player-state-updated";
 
@@ -117,9 +117,9 @@ impl TtsPlayerThreadInner
         app: AppHandle,
     ) -> Option<Self>
     {
-        let library = app.state::<VerseAudioLibrary>();
+        let library = app.state::<TtsAudioLibrary>();
         let segments = keys.into_iter().map(|key| {
-            let sound_data = library.visit(|l| l.get(&key))?;
+            let sound_data = library.visit(|l| l.get_verse(&key))?;
             Some(PlayerSegment {
                 key,
                 data: sound_data.data.clone(),

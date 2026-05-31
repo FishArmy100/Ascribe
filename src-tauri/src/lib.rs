@@ -1,6 +1,6 @@
 use std::sync::Mutex;
 use tauri::Manager;
-use crate::{bible::{BibleDisplaySettings, BiblioJsonPackageHandle, printing::printing_state::PrintBibleState}, core::{app::AppState, settings::{self, AppSettings}, view_history::{self, ViewHistory}}, sfx::SfxPlayer, tts::{VerseAudioLibrary, gen_thread::TtsGenThread, init_espeak, player::TtsPlayer, voices::AppVoices}};
+use crate::{bible::{BibleDisplaySettings, BiblioJsonPackageHandle, printing::printing_state::PrintBibleState}, core::{app::AppState, settings::{self, AppSettings}, view_history::{self, ViewHistory}}, sfx::SfxPlayer, tts::{TtsAudioLibrary, gen_thread::TtsGenThread, init_espeak, player::TtsPlayer, voices::AppVoices}};
 
 pub mod core;
 pub mod bible;
@@ -38,7 +38,7 @@ pub fn run() {
             app.manage(PrintBibleState::new());
             app.manage(AppVoices::load(app.path()));
             app.manage(TtsGenThread::new(app.handle().clone()));
-            app.manage(VerseAudioLibrary::new(app.handle().clone()));
+            app.manage(TtsAudioLibrary::new(app.handle().clone()));
             app.manage(TtsPlayer::new(app.handle().clone()));
 
             app.manage(Mutex::new(AppState {
@@ -47,7 +47,6 @@ pub fn run() {
                 view_history: ViewHistory::new(),
             }));
 
-            tts::add_sync_settings_listener(app.handle().clone());
             BibleDisplaySettings::add_on_package_init_listener(app.handle().clone());
 
             Ok(())

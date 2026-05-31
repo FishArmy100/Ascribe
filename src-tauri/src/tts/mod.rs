@@ -43,6 +43,21 @@ pub struct VerseAudioData
     pub duration: f32,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct StringAudioKey
+{
+    pub voice: String,
+    pub text: String,
+}
+
+#[derive(Debug)]
+pub struct StringAudioData
+{
+    pub key: String,
+    pub data: StaticSoundData,
+    pub duration: f32,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VerseAudioUpdatedEvent 
 {
@@ -50,41 +65,43 @@ pub struct VerseAudioUpdatedEvent
 }
 
 #[derive(Debug, Clone)]
-pub struct VerseAudioLibrary(Shared<VerseAudioLibraryInner>);
+pub struct TtsAudioLibrary(Shared<TtsAudioLibraryInner>);
 
 #[derive(Debug)]
-pub struct VerseAudioLibraryInner
+pub struct TtsAudioLibraryInner
 {
     verses: HashMap<VerseAudioKey, Arc<VerseAudioData>>,
+    strings: HashMap<StringAudioKey, Arc<StringAudioData>>,
     app: AppHandle,
 }
 
-impl VerseAudioLibrary
+impl TtsAudioLibrary
 {
     pub fn new(app: AppHandle) -> Self 
     {
-        Self(Shared::new(VerseAudioLibraryInner { 
+        Self(Shared::new(TtsAudioLibraryInner { 
             verses: HashMap::new(),
+            strings: HashMap::new(),
             app,
         }))
     }
 
     pub fn visit<F, R>(&self, f: F) -> R
-        where F : FnOnce(&mut VerseAudioLibraryInner) -> R
+        where F : FnOnce(&mut TtsAudioLibraryInner) -> R
     {
         let mut binding = self.0.get();
         f(&mut binding)
     }
 }
 
-impl VerseAudioLibraryInner
+impl TtsAudioLibraryInner
 {
-    pub fn contains(&self, key: &VerseAudioKey) -> bool
+    pub fn contains_verse(&self, key: &VerseAudioKey) -> bool
     {
         self.verses.contains_key(key)
     }
 
-    pub fn insert(&mut self, verse: VerseAudioData)
+    pub fn insert_verse(&mut self, verse: VerseAudioData)
     {
         self.verses.insert(verse.key.clone(), Arc::new(verse));
 
@@ -93,7 +110,7 @@ impl VerseAudioLibraryInner
         }).unwrap();
     }
 
-    pub fn get(&self, key: &VerseAudioKey) -> Option<Arc<VerseAudioData>>
+    pub fn get_verse(&self, key: &VerseAudioKey) -> Option<Arc<VerseAudioData>>
     {
         self.verses.get(key).cloned()
     }
@@ -122,14 +139,4 @@ impl Default for TtsSettings
             current_voice: "joe".into(),
         }
     }
-}
-
-pub fn add_sync_settings_listener(app_handle: AppHandle)
-{
-    let app_handle_inner = app_handle.clone();
-    app_handle.listen(SETTINGS_CHANGED_EVENT_NAME, move |event| {
-        let settings: SettingsChangedEvent = serde_json::from_str(event.payload()).unwrap();
-        // let player = app_handle_inner.state::<Mutex<TtsPlayer>>();
-        // player.lock().unwrap().set_settings(settings.new.tts_settings);
-    });
 }

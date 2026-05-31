@@ -3,7 +3,7 @@ use std::{collections::VecDeque, ops::DerefMut, thread::{self, JoinHandle}};
 use biblio_json::modules::Module;
 use tauri::{AppHandle, Manager};
 
-use crate::{bible::BiblioJsonPackageHandle, core::utils::Shared, tts::{VerseAudioData, VerseAudioKey, VerseAudioLibrary, synth::SpeechSynth, voices::AppVoices}};
+use crate::{bible::BiblioJsonPackageHandle, core::utils::Shared, tts::{VerseAudioData, VerseAudioKey, TtsAudioLibrary, synth::SpeechSynth, voices::AppVoices}};
 
 pub struct TtsGenThread(Shared<TtsGenThreadInner>);
 
@@ -73,7 +73,7 @@ impl TtsGenThreadInner
         let synth = self.synth.clone();
         let package = self.app.state::<BiblioJsonPackageHandle>().inner().clone();
         let voices = self.app.state::<AppVoices>().inner().clone();
-        let library = self.app.state::<VerseAudioLibrary>().inner().clone();
+        let library = self.app.state::<TtsAudioLibrary>().inner().clone();
         
         self.join_handle = Some(thread::spawn(move || {
             while let Some(ref key) = {
@@ -81,7 +81,7 @@ impl TtsGenThreadInner
                 binding.pop_front()
             }
             {
-                if library.visit(|l| l.contains(key))
+                if library.visit(|l| l.contains_verse(key))
                 {
                     continue;
                 }
@@ -124,7 +124,7 @@ impl TtsGenThreadInner
                 };
 
                 library.visit(|l| {
-                    l.insert(verse_audio);
+                    l.insert_verse(verse_audio);
                 });
             }
         }))
