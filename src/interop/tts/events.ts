@@ -1,5 +1,5 @@
 import { listen, UnlistenFn } from "@tauri-apps/api/event"
-import { PlayerState, VerseAudioKey } from "./index"
+import { PlayerState, TtsAudioKey } from "./index"
 
 
 export type TtsEvent = {};
@@ -26,15 +26,15 @@ export async function add_player_load_state_changed_listener(listener: (event: P
 
 
 
-export const VERSE_AUDIO_UPDATED_EVENT_NAME: string = "verse-audio-updated";
+export const VERSE_AUDIO_UPDATED_EVENT_NAME: string = "tts-audio-updated";
 export type VerseAudioUpdatedEvent = {
-    verses: VerseAudioKey[]
+    keys: TtsAudioKey[],
 };
 
-export function add_verse_audio_updated_listener(listener: (verses: VerseAudioKey[]) => void): Promise<UnlistenFn>
+export function add_verse_audio_updated_listener(listener: (keys: TtsAudioKey[]) => void): Promise<UnlistenFn>
 {
     return listen<VerseAudioUpdatedEvent>(VERSE_AUDIO_UPDATED_EVENT_NAME, e => {
-        listener(e.payload.verses);
+        listener(e.payload.keys);
     });
 }
 

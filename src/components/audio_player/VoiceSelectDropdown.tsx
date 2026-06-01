@@ -43,6 +43,7 @@ export default function VoiceSelectDropdown(): React.ReactElement
     }, [selected_bible.language?.alpha_3, voices]);
 
     const set_voice_id = useCallback((voice_id: string) => {
+        console.log(`Setting voice id = ${voice_id}`);
         if (voice_id !== settings.tts_settings.current_voice)
         {
             tts_player.stop();

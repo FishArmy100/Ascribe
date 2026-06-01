@@ -32,18 +32,9 @@ impl SpeechSynth
         &self.voice
     }
 
-    pub fn synth_verse(&self, verse: &Verse) -> StaticSoundData
+    pub fn synth_string(&self, str: String) -> StaticSoundData
     {
-        let text = verse.words.iter()
-            .map(|w| {
-                let begin = w.begin_punc.as_ref().map_or("", String::as_str);
-                let end = w.end_punc.as_ref().map_or("", String::as_str);
-                format!("{}{}{}", begin, w.text, end)
-            })
-            .join(" ");
-
-
-        let frames = self.synth.synthesize_parallel(text, None).unwrap()
+        let frames = self.synth.synthesize_parallel(str, None).unwrap()
             .into_iter()
             .map(|r| r.unwrap().into_vec())
             .flatten()
@@ -56,5 +47,19 @@ impl SpeechSynth
             settings: StaticSoundSettings::new(),
             slice: None,
         }
+    }
+
+    pub fn synth_verse(&self, verse: &Verse) -> StaticSoundData
+    {
+        let text = verse.words.iter()
+            .map(|w| {
+                let begin = w.begin_punc.as_ref().map_or("", String::as_str);
+                let end = w.end_punc.as_ref().map_or("", String::as_str);
+                format!("{}{}{}", begin, w.text, end)
+            })
+            .join(" ");
+
+
+        self.synth_string(text)
     }
 }

@@ -5,7 +5,7 @@ use kira::sound::static_sound::StaticSoundData;
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Emitter, Listener, Runtime, path::{BaseDirectory, PathResolver}};
 
-use crate::{core::{settings::{SETTINGS_CHANGED_EVENT_NAME, SettingsChangedEvent}, utils::Shared}, repr::tts::VerseAudioKeyJson};
+use crate::{core::utils::Shared, repr::VerseIdJson};
 
 pub mod events;
 pub mod tts_cmd;
@@ -15,7 +15,7 @@ pub mod gen_thread;
 pub mod player;
 pub mod player_thread;
 
-pub const VERSE_AUDIO_UPDATED_EVENT_NAME: &str = "verse-audio-updated";
+pub const TTS_AUDIO_UPDATED_EVENT_NAME: &str = "tts-audio-updated";
 
 pub fn init_espeak<R>(resolver: &PathResolver<R>)
     where R : Runtime
@@ -27,41 +27,47 @@ pub fn init_espeak<R>(resolver: &PathResolver<R>)
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct VerseAudioKey
+#[derive(Debug, Clone, Serialize, Deserialize, Hash, PartialEq, Eq)]
+#[serde(rename_all = "snake_case", tag = "type")]
+pub enum TtsAudioKey
 {
-    pub voice: String,
-    pub bible: ModuleId,
-    pub verse: VerseId,
+    String
+    {
+        string: String,
+        voice: String,
+    },
+    Verse 
+    {
+        verse: VerseIdJson,
+        voice: String,
+        bible: ModuleId,
+    }
+}
+
+impl TtsAudioKey
+{
+    pub fn voice(&self) -> &str 
+    {
+        match self 
+        {
+            Self::String { voice, .. } => &voice,
+            Self::Verse { voice, .. } => &voice,
+        }
+    }
 }
 
 #[derive(Debug)]
-pub struct VerseAudioData
+pub struct TtsAudioData
 {
-    pub key: VerseAudioKey,
-    pub data: StaticSoundData,
-    pub duration: f32,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct StringAudioKey
-{
-    pub voice: String,
-    pub text: String,
-}
-
-#[derive(Debug)]
-pub struct StringAudioData
-{
-    pub key: String,
+    pub key: TtsAudioKey,
     pub data: StaticSoundData,
     pub duration: f32,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct VerseAudioUpdatedEvent 
+pub struct TtsAudioUpdatedEvent 
 {
-    pub verses: Vec<VerseAudioKeyJson>,
+    pub keys: Vec<TtsAudioKey>,
 }
 
 #[derive(Debug, Clone)]
@@ -70,8 +76,7 @@ pub struct TtsAudioLibrary(Shared<TtsAudioLibraryInner>);
 #[derive(Debug)]
 pub struct TtsAudioLibraryInner
 {
-    verses: HashMap<VerseAudioKey, Arc<VerseAudioData>>,
-    strings: HashMap<StringAudioKey, Arc<StringAudioData>>,
+    audio: HashMap<TtsAudioKey, Arc<TtsAudioData>>,
     app: AppHandle,
 }
 
@@ -80,8 +85,7 @@ impl TtsAudioLibrary
     pub fn new(app: AppHandle) -> Self 
     {
         Self(Shared::new(TtsAudioLibraryInner { 
-            verses: HashMap::new(),
-            strings: HashMap::new(),
+            audio: HashMap::new(),
             app,
         }))
     }
@@ -96,23 +100,23 @@ impl TtsAudioLibrary
 
 impl TtsAudioLibraryInner
 {
-    pub fn contains_verse(&self, key: &VerseAudioKey) -> bool
+    pub fn contains(&self, key: &TtsAudioKey) -> bool
     {
-        self.verses.contains_key(key)
+        self.audio.contains_key(key)
     }
 
-    pub fn insert_verse(&mut self, verse: VerseAudioData)
+    pub fn insert(&mut self, data: TtsAudioData)
     {
-        self.verses.insert(verse.key.clone(), Arc::new(verse));
+        self.audio.insert(data.key.clone(), Arc::new(data));
 
-        self.app.emit(VERSE_AUDIO_UPDATED_EVENT_NAME, VerseAudioUpdatedEvent {
-            verses: self.verses.keys().map(VerseAudioKeyJson::from).collect(),
+        self.app.emit(TTS_AUDIO_UPDATED_EVENT_NAME, TtsAudioUpdatedEvent {
+            keys: self.audio.keys().cloned().collect(),
         }).unwrap();
     }
 
-    pub fn get_verse(&self, key: &VerseAudioKey) -> Option<Arc<VerseAudioData>>
+    pub fn get(&self, key: &TtsAudioKey) -> Option<Arc<TtsAudioData>>
     {
-        self.verses.get(key).cloned()
+        self.audio.get(key).cloned()
     }
 }
 

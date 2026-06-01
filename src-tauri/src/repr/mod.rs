@@ -10,7 +10,6 @@ pub mod module_config;
 pub mod readings_date;
 pub mod lang;
 pub mod print_bible_range;
-pub mod tts;
 
 pub use strongs::*;
 pub use verse::*;

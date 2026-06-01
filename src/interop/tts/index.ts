@@ -1,6 +1,5 @@
 import { invoke } from "@tauri-apps/api/core"
-import { ChapterId, VerseId } from "../bible"
-import { listen, UnlistenFn } from "@tauri-apps/api/event";
+import { VerseId } from "../bible"
 
 export * from "./events";
 
@@ -12,36 +11,41 @@ export type TtsSettings = {
     current_voice: string,
 }
 
-export type VerseAudioKey = {
+export type TtsAudioKey = |{
+    type: "verse",
     voice: string,
     bible: string,
     verse: VerseId,
+} |{
+    type: "string"
+    voice: string,
+    string: string,
 }
 
 export type PlayerState =
 {
     current_time: number,
-    current_key: VerseAudioKey | null,
+    current_key: TtsAudioKey | null,
     paused: boolean,
     duration: number,
 }
 
-export function backend_request_verses(verses: VerseAudioKey[]): Promise<void>
+export function backend_request(keys: TtsAudioKey[]): Promise<void>
 {
     return invoke("run_tts_command", {
         command: {
-            type: "request_verses",
-            verses,
+            type: "request",
+            keys,
         }
     });
 }
 
-export async function backend_load_verses(verses: VerseAudioKey[]): Promise<boolean>
+export async function backend_load(keys: TtsAudioKey[]): Promise<boolean>
 {
     const response = await invoke<string>("run_tts_command", {
         command: {
             type: "load",
-            verses,
+            keys,
         }
     });
 

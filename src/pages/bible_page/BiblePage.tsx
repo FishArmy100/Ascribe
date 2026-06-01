@@ -3,7 +3,7 @@ import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { use_view_history } from "../../components/providers/ViewHistoryProvider";
 import * as bible from "../../interop/bible";
 import { RenderedVerseContent } from "../../interop/bible/render";
-import { use_top_bar_padding, TopBarSpacer, Footer } from "../../components";
+import { use_top_bar_padding, Footer } from "../../components";
 import ChapterContent from "./ChapterContent";
 import { BUTTON_SIZE } from "../../components/core/ImageButton";
 import { use_bible_display_settings } from "../../components/providers/BibleDisplaySettingsProvider";
@@ -52,7 +52,7 @@ function BiblePage({
 		
 		const key = tts_player.state()?.current_key;
 
-		if (!key)
+		if (!key || key.type !== "verse")
 		{
 			return null;
 		}

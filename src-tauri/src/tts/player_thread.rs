@@ -6,7 +6,7 @@ use kira_pitcher::effect::pitch::PitcherBuilder;
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Emitter, Manager};
 
-use crate::{core::{app::AppState, settings::AppSettings, utils::Shared}, repr::tts::VerseAudioKeyJson, tts::{TtsSettings, VerseAudioKey, TtsAudioLibrary}};
+use crate::{core::{app::AppState, settings::AppSettings, utils::Shared}, tts::{TtsSettings, TtsAudioKey, TtsAudioLibrary}};
 
 pub const PLAYER_STATE_UPDATED_EVENT_NAME: &str = "player-state-updated";
 
@@ -14,7 +14,7 @@ pub const PLAYER_STATE_UPDATED_EVENT_NAME: &str = "player-state-updated";
 pub struct PlayerState
 {
     pub current_time: f32,
-    pub current_key: Option<VerseAudioKeyJson>,
+    pub current_key: Option<TtsAudioKey>,
     pub paused: bool,
     pub duration: f32,
 }
@@ -28,7 +28,7 @@ pub struct TtsPlayerThread
 
 impl TtsPlayerThread
 {
-    pub fn new(keys: Vec<VerseAudioKey>, manager: Shared<AudioManager>, app: AppHandle) -> Option<Self>
+    pub fn new(keys: Vec<TtsAudioKey>, manager: Shared<AudioManager>, app: AppHandle) -> Option<Self>
     {
         let (cmd_tx, cmd_rx) = mpsc::channel();
 
@@ -85,7 +85,7 @@ enum PlayerCommand
 
 struct PlayerSegment
 {
-    key: VerseAudioKey,
+    key: TtsAudioKey,
     data: StaticSoundData,
 }
 
@@ -110,7 +110,7 @@ impl TtsPlayerThreadInner
     const TICK: Duration = Duration::from_millis(100);
 
     pub fn new(
-        keys: Vec<VerseAudioKey>,
+        keys: Vec<TtsAudioKey>,
         manager: Shared<AudioManager>,
         cmd_rx: mpsc::Receiver<PlayerCommand>,
         state: Shared<PlayerState>,
@@ -119,7 +119,7 @@ impl TtsPlayerThreadInner
     {
         let library = app.state::<TtsAudioLibrary>();
         let segments = keys.into_iter().map(|key| {
-            let sound_data = library.visit(|l| l.get_verse(&key))?;
+            let sound_data = library.visit(|l| l.get(&key))?;
             Some(PlayerSegment {
                 key,
                 data: sound_data.data.clone(),
@@ -292,7 +292,6 @@ impl TtsPlayerThreadInner
     fn sync_settings(&mut self)
     {
         let app_settings = get_tts_settings(&self.app);
-        println!("Volume = {}", app_settings.volume);
 
         if self.current_settings.playback_speed == app_settings.playback_speed
             && self.current_settings.volume == app_settings.volume

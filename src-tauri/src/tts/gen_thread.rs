@@ -3,7 +3,7 @@ use std::{collections::VecDeque, ops::DerefMut, thread::{self, JoinHandle}};
 use biblio_json::modules::Module;
 use tauri::{AppHandle, Manager};
 
-use crate::{bible::BiblioJsonPackageHandle, core::utils::Shared, tts::{VerseAudioData, VerseAudioKey, TtsAudioLibrary, synth::SpeechSynth, voices::AppVoices}};
+use crate::{bible::BiblioJsonPackageHandle, core::utils::Shared, tts::{TtsAudioData, TtsAudioKey, TtsAudioLibrary, synth::SpeechSynth, voices::AppVoices}};
 
 pub struct TtsGenThread(Shared<TtsGenThreadInner>);
 
@@ -24,7 +24,7 @@ impl TtsGenThread
 
 pub struct TtsGenThreadInner
 {
-    queue: Shared<VecDeque<VerseAudioKey>>,
+    queue: Shared<VecDeque<TtsAudioKey>>,
     synth: Shared<Option<SpeechSynth>>,
     join_handle: Option<JoinHandle<()>>,
     app: AppHandle,
@@ -42,7 +42,7 @@ impl TtsGenThreadInner
         }
     }
 
-    pub fn enqueue(&mut self, verses: impl Iterator<Item = VerseAudioKey>)
+    pub fn enqueue(&mut self, verses: impl Iterator<Item = TtsAudioKey>)
     {
         let mut queue = self.queue.get();
         queue.extend(verses);
@@ -81,27 +81,19 @@ impl TtsGenThreadInner
                 binding.pop_front()
             }
             {
-                if library.visit(|l| l.contains_verse(key))
+                if library.visit(|l| l.contains(key))
                 {
                     continue;
                 }
-
-                let verse = package.visit(|p| {
-                    let bible = p.get_mod(&key.bible)
-                        .and_then(Module::as_bible)
-                        .unwrap();
-
-                    bible.source.verses.get(&key.verse).unwrap().clone()
-                });
 
                 let mut synth_binding = synth.get();
                 let synth = match synth_binding.deref_mut()
                 {
                     Some(synth) => 
                     {
-                        if synth.voice().id != key.voice
+                        if synth.voice().id != key.voice()
                         {
-                            let voice = voices.get_voice(&key.voice).unwrap().clone();
+                            let voice = voices.get_voice(key.voice()).unwrap().clone();
                             *synth_binding = Some(SpeechSynth::new(voice));
                         }
 
@@ -109,22 +101,38 @@ impl TtsGenThreadInner
                     },
                     None => 
                     {
-                        let voice = voices.get_voice(&key.voice).unwrap().clone();
+                        let voice = voices.get_voice(key.voice()).unwrap().clone();
                         *synth_binding = Some(SpeechSynth::new(voice));
                         synth_binding.as_mut().unwrap()
                     } 
                 };
 
-                let data = synth.synth_verse(&verse);
+                let data = match key {
+                    TtsAudioKey::String { string, .. } => {
+                        synth.synth_string(string.clone())
+                    }
+                    TtsAudioKey::Verse { verse, bible, .. } => {
+                        let verse = package.visit(|p| {
+                            let bible = p.get_mod(&bible)
+                                .and_then(Module::as_bible)
+                                .unwrap();
+
+                            bible.source.verses.get(&verse.into()).unwrap().clone()
+                        });
+
+                        synth.synth_verse(&verse)
+                    }
+                };
+
                 let duration = data.duration().as_secs_f32();
-                let verse_audio = VerseAudioData {
+                let verse_audio = TtsAudioData {
                     key: key.clone(),
                     data,
                     duration,
                 };
 
                 library.visit(|l| {
-                    l.insert_verse(verse_audio);
+                    l.insert(verse_audio);
                 });
             }
         }))

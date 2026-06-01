@@ -3,7 +3,7 @@ use log::error;
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Emitter, Manager};
 
-use crate::{core::utils::Shared, tts::{VerseAudioKey, player_thread::{PlayerState, TtsPlayerThread}}};
+use crate::{core::utils::Shared, tts::{TtsAudioKey, player_thread::{PlayerState, TtsPlayerThread}}};
 
 pub const PLAYER_LOAD_STATE_CHANGED_EVENT_NAME: &str = "player-load-state-changed";
 
@@ -52,7 +52,7 @@ impl TtsPlayerInner
         }
     }
 
-    pub fn load(&mut self, keys: Vec<VerseAudioKey>) -> bool
+    pub fn load(&mut self, keys: Vec<TtsAudioKey>) -> bool
     {
         self.player_thread = TtsPlayerThread::new(
             keys, 

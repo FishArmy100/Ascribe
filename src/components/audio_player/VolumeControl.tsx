@@ -1,5 +1,5 @@
 import { Stack, useTheme } from "@mui/material";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef } from "react";
 import * as images from "../../assets";
 import ImageButton from "../core/ImageButton";
 import Slider from "../core/Slider";
@@ -12,43 +12,10 @@ export default function VolumeControl(): React.ReactElement
 {
     const theme = useTheme();
     const { settings, update_settings } = use_settings();
-    const [volume, set_volume] = useState<number>(settings.tts_settings.volume);
+    const volume = settings.tts_settings.volume;
     const previous_volume = useRef<number>(
         settings.tts_settings.volume > 0 ? settings.tts_settings.volume : DEFAULT_UNMUTE_VOLUME
     );
-
-    // Sync local state if settings change externally
-    useEffect(() => {
-        const next = settings.tts_settings.volume;
-        set_volume(prev => {
-            if (prev !== next) {
-                if (next > 0) previous_volume.current = next;
-                return next;
-            }
-            return prev;
-        });
-    }, [settings.tts_settings.volume]);
-
-    const debounce_timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-    useEffect(() => {
-        if (debounce_timeout.current) {
-            clearTimeout(debounce_timeout.current);
-        }
-
-        debounce_timeout.current = setTimeout(() => {
-            update_settings(s => {
-                s.tts_settings.volume = volume;
-                return s;
-            });
-        }, 300);
-
-        return () => {
-            if (debounce_timeout.current) {
-                clearTimeout(debounce_timeout.current);
-            }
-        };
-    }, [volume, update_settings]);
 
     let volume_image: string;
     if (volume === 0)
@@ -75,17 +42,26 @@ export default function VolumeControl(): React.ReactElement
         if (volume === 0) {
             // Unmute: restore the last non-zero volume
             const restore = previous_volume.current > 0 ? previous_volume.current : DEFAULT_UNMUTE_VOLUME;
-            set_volume(restore);
+            update_settings(s => {
+                s.tts_settings.volume = restore;
+                return s;
+            });
         } else {
             // Mute: remember current volume before zeroing
             previous_volume.current = volume;
-            set_volume(0);
+            update_settings(s => {
+                s.tts_settings.volume = 0;
+                return s;
+            });
         }
     };
 
     const handle_slider_change = (v: number) => {
         if (v > 0) previous_volume.current = v;
-        set_volume(v);
+        update_settings(s => {
+            s.tts_settings.volume = v;
+            return s;
+        });
     };
 
     return (
@@ -108,7 +84,7 @@ export default function VolumeControl(): React.ReactElement
                 value={volume}
                 min={0}
                 max={1}
-                step={0.0001}
+                step={0.02}
                 tooltip={tooltips.modify_volume}
                 on_change={handle_slider_change}
             />

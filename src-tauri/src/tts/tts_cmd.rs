@@ -4,20 +4,20 @@ use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Emitter, State};
 
-use crate::{core::{app::AppState, settings::{SETTINGS_CHANGED_EVENT_NAME, SettingsChangedEvent}}, repr::tts::VerseAudioKeyJson, tts::{VerseAudioKey, gen_thread::TtsGenThread, player::TtsPlayer, voices::AppVoices}};
+use crate::{core::{app::AppState, settings::{SETTINGS_CHANGED_EVENT_NAME, SettingsChangedEvent}}, tts::{TtsAudioKey, gen_thread::TtsGenThread, player::TtsPlayer, voices::AppVoices}};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case", tag = "type")]
 pub enum TtsCommand 
 {
-    RequestVerses
+    Request
     {
-        verses: Vec<VerseAudioKeyJson>,
+        keys: Vec<TtsAudioKey>,
     },
 
     Load
     {
-        verses: Vec<VerseAudioKeyJson>,
+        keys: Vec<TtsAudioKey>,
     },
 
     Play,
@@ -51,14 +51,10 @@ pub fn run_tts_command(
 {
     match command
     {
-        TtsCommand::RequestVerses { verses } => {
-            let verses = verses.into_iter()
-                .map(VerseAudioKey::from)
-                .collect_vec();
-
+        TtsCommand::Request { keys } => {
             gen_thread.visit(|t| {
                 t.clear();
-                t.enqueue(verses.into_iter());
+                t.enqueue(keys.into_iter());
             });
 
             None
@@ -95,9 +91,9 @@ pub fn run_tts_command(
             let response = voices.default_voice_id();
             Some(serde_json::to_string(response).unwrap())
         }
-        TtsCommand::Load { verses } => {
+        TtsCommand::Load { keys } => {
             let response = player.visit(|p| {
-                p.load(verses.iter().map(VerseAudioKey::from).collect())
+                p.load(keys)
             });
 
             Some(serde_json::to_string(&response).unwrap())

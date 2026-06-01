@@ -17,7 +17,8 @@ import use_audio_player_tooltips from "./audio_player_tooltips";
 import { use_settings } from "@components/providers/SettingsProvider";
 import VoiceSelectDropdown from "./VoiceSelectDropdown";
 import { use_bible_infos } from "@components/providers/BibleInfoProvider";
-import { VerseAudioKey } from "@interop/tts";
+import { TtsAudioKey } from "@interop/tts";
+import { use_audio_section_labeler } from "./audio_section_labeler";
 
 const FAST_FORWARD_TIME = 10;
 const REWIND_TIME = 10;
@@ -35,6 +36,7 @@ export default function AudioPlayer({
     const theme = useTheme();
     const tts_player = use_tts_player();
     const { settings } = use_settings();
+    const label_audio_section = use_audio_section_labeler();
 
     const [user_setting_time, set_user_setting_time] = useState(false);
     const [user_value, set_user_value] = useState(0);
@@ -81,23 +83,38 @@ export default function AudioPlayer({
     }, [tts_player])
 
     const audio_keys = useMemo(() => {
+        const voice = settings.tts_settings.current_voice;
         const verses = get_chapter_verse_ids(bible_infos[current_version], current_chapter);
-        return verses.map((v): VerseAudioKey => ({
+        let keys = verses.map((v): TtsAudioKey => ({
+            type: "verse",
             bible: current_version,
             verse: v,
-            voice: settings.tts_settings.current_voice,
+            voice,
         }));
-    }, [current_chapter, current_version, bible_infos, settings.tts_settings.current_voice]);
+
+        const label = label_audio_section(voice, current_version, current_chapter);
+        const label_key: TtsAudioKey = {
+            type: "string",
+            voice,
+            string: label,
+        }
+
+        return [label_key, ...keys];
+    }, [current_chapter, current_version, bible_infos, settings.tts_settings.current_voice, label_audio_section]);
 
     useEffect(() => {
         if (open)
         {
-            player_ref.current.request_verses(audio_keys);
+            if (audio_keys.length > 0)
+            {
+                console.log(audio_keys[0].voice);
+            }
+            player_ref.current.request(audio_keys);
         }
     }, [audio_keys, open]); // don't have tts tts player as a dependency, otherwise it will create a feedback loop
 
     const generation_progress = useMemo(() => {
-        const count = player_ref.current.has_verses(audio_keys);
+        const count = player_ref.current.contains_keys(audio_keys);
         if (count < audio_keys.length)
         {
             if (audio_keys.length === 0)
@@ -113,11 +130,11 @@ export default function AudioPlayer({
     }, [audio_keys, player_ref.current]);
 
     useEffect(() => {
-        if (player_ref.current.has_verses(audio_keys) === audio_keys.length && open)
+        if (player_ref.current.contains_keys(audio_keys) === audio_keys.length && open)
         {
             player_ref.current.load(audio_keys);
         }
-    }, [audio_keys, player_ref.current.get_generated().length, open]); // don't have tts tts player as a dependency, otherwise it will create a feedback loop
+    }, [audio_keys, player_ref.current.get_generated_keys().length, open]); // don't have tts tts player as a dependency, otherwise it will create a feedback loop
 
     const play_button_type = useMemo((): PlayButtonType => {
         const state = tts_player.state();
