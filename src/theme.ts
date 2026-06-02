@@ -90,15 +90,15 @@ export const ASCRIBE_DARK_THEME: AppTheme = {
     name: "Dark",
     colors: {
         primary: {
-            main: '#77A4EE',
-            light: '#9BBDF4',
-            dark: '#4A86E8',
+            main: '#4A7DCC',
+            light: '#6B99E0',
+            dark: '#2F5DA8',
             contrast_text: '#000000',
         },
         secondary: {
-            main: '#E6B86F',
-            light: '#FFD392',
-            dark: '#B89354',
+            main: '#B8843D',
+            light: '#D4A055',
+            dark: '#8B6A3D',
             contrast_text: '#000000',
         },
         text: {
@@ -116,7 +116,7 @@ export const ASCRIBE_DARK_THEME: AppTheme = {
         action: {
             hover: 'rgba(255, 255, 255, 0.15)', // More visible white overlay for dark mode
         },
-        divider: "rgb(163, 163, 163)"
+        divider: "rgb(102, 102, 102)"
     }
 };
 

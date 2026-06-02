@@ -24,8 +24,6 @@ export async function add_player_load_state_changed_listener(listener: (event: P
     });
 }
 
-
-
 export const VERSE_AUDIO_UPDATED_EVENT_NAME: string = "tts-audio-updated";
 export type VerseAudioUpdatedEvent = {
     keys: TtsAudioKey[],

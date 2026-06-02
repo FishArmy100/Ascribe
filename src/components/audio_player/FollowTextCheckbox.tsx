@@ -3,10 +3,12 @@ import { use_settings } from "../providers/SettingsProvider";
 import CheckboxWithLabel from "../core/CheckboxWithLabel";
 import use_audio_player_tooltips from "./audio_player_tooltips";
 import use_audio_player_labels from "./audio_player_labels";
+import { useTheme } from "@mui/material";
 
 
 export default function FollowTextCheckbox(): React.ReactElement
 {
+    const theme = useTheme();
     const { settings, update_settings } = use_settings();
     const value = settings.tts_settings.follow_text;
     const handle_set_value = (v: boolean) => {
@@ -25,6 +27,9 @@ export default function FollowTextCheckbox(): React.ReactElement
             value={value}
             set_value={handle_set_value}
             label={labels.follow_text}
+            label_sx={{
+                color: theme.palette.text.primary,
+            }}
         />
     )
 }

@@ -1,7 +1,6 @@
 // TtsPlayerProvider.tsx
 import React, { createContext, useContext, useState, useEffect } from "react";
 import * as tts from "../../interop/tts";
-import { VerseId } from "@interop/bible";
 
 export interface ITtsContextType 
 {

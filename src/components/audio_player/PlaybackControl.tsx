@@ -1,118 +1,83 @@
-import { Stack, useTheme } from "@mui/material";
-import React from "react";
-import * as images from "../../assets";
-import ImageButton from "../core/ImageButton";
-import Slider from "../core/Slider";
+import React, { useCallback, useMemo } from "react";
 import { use_settings } from "../providers/SettingsProvider";
 import use_audio_player_tooltips from "./audio_player_tooltips";
+import TextSelectDropdown, { TextSelectDropdownOption } from "@components/core/TextSelectDropdown";
+import __t from "@fisharmy100/react-auto-i18n";
 
 export default function PlaybackControl(): React.ReactElement
 {
-    const theme = useTheme();
     const { settings, update_settings } = use_settings();
     const playback_speed = settings.tts_settings.playback_speed;
 
-    const display_speed = inverse_lerp_playback_speed(playback_speed);
+    const options = useMemo((): TextSelectDropdownOption<number>[] => [
+        {
+            text: "0.5x",
+            tooltip: null,
+            value: 0.5,
+        },
+        {
+            text: "0.75x",
+            tooltip: null,
+            value: 0.75,
+        },
+        {
+            text: "1x",
+            tooltip: null, 
+            value: 1,
+        },
+        {
+            text: "1.25x",
+            tooltip: null,
+            value: 1.25,
+        },
+        {
+            text: "1.5x",
+            tooltip: null,
+            value: 1.5,
+        },
+        {
+            text: "1.75x",
+            tooltip: null,
+            value: 1.75,
+        },
+        {
+            text: "2x",
+            tooltip: null,
+            value: 2,
+        }
+    ], []);
 
-    let speed_image: string;
-    if (display_speed < 0.2)
-    {
-        speed_image = images.gauge_min;
-    }
-    else if (display_speed < 0.4)
-    {
-        speed_image = images.gauge_low;
-    }
-    else if (display_speed <= 0.6)
-    {
-        speed_image = images.gauge_mid;
-    }
-    else if (display_speed < 0.8)
-    {
-        speed_image = images.gauge_high;
-    }
-    else 
-    {
-        speed_image = images.gauge_max;
-    }
+    const selected = useMemo(() => {
+        let closest_index = 0;
+        for (let i = 0; i < options.length; i++)
+        {
+            const closest = options[closest_index].value;
+            const current = options[i].value
+            if (Math.abs(playback_speed - current) < Math.abs(playback_speed - closest))
+            {
+                closest_index = i;
+            }
+        }
+
+        return closest_index;
+    }, [options, playback_speed])
     
     const tooltips = use_audio_player_tooltips();
 
-    const handle_button_click = () => {
+    const handle_on_select = useCallback((v: number) => {
         update_settings(s => {
-            s.tts_settings.playback_speed = 1;
+            s.tts_settings.playback_speed = v;
             return s;
         })
-    }
-
-    const handle_slider_change = (v: number) => {
-        update_settings(s => {
-            s.tts_settings.playback_speed = lerp_playback_speed(v);
-            return s;
-        })
-    }
+    }, [update_settings])
 
     return (
-        <Stack
-            direction="row"
-            display="flex"
-            alignItems="center"
-            gap={theme.spacing(0.5)}
-            width={theme.spacing(20)}
-            sx={{
-                mr: theme.spacing(1)
-            }}
-        >
-            <ImageButton
-                image={speed_image}
-                tooltip={tooltips.reset_playback}
-                on_click={handle_button_click}
-            />
-            <Slider
-                value={display_speed}
-                min={0}
-                max={1}
-                step={0.0001}
-                tooltip={tooltips.modify_playback}
-                on_change={handle_slider_change}
-            />
-        </Stack>
+        <TextSelectDropdown 
+            options={options}
+            selected={selected}
+            variant="body2"
+            on_select={handle_on_select}
+            tooltip={tooltips.playback}
+        />
     )
-}
-
-/**
- * Maps the input value from 0-1 to 0.5-2.0
- * @param speed a value between 0 and 1
- * @returns a value between 0.5 and 2
- */
-function lerp_playback_speed(speed: number): number
-{
-    speed = Math.lerp(-1, 1, speed);
-    speed = speed + Math.sign(speed);
-
-    if (Math.abs(speed) == 0) 
-        speed = 1;
-
-    speed = Math.abs(Math.pow(speed, Math.sign(speed)));
-    return speed;
-}
-
-/**
- * Maps the input value from 0.5-2.0 to 0-1
- * @param speed a value between 0.5 and 2
- * @returns a value between 0 and 1
- */
-function inverse_lerp_playback_speed(speed: number): number
-{
-    let processed = 0.5;
-    if(speed <= 1 && speed >= 0)
-    {
-        processed = -1 / (2 * speed) + 1;
-    }
-    else if(speed >= 1 && speed <= 2)
-    {
-        processed = speed / 2;
-    }
-
-    return processed;
 }

@@ -45,6 +45,18 @@ export default function AudioPlayer({
     const current_version = use_bible_display_settings().bible_display_settings.bible_version;
     const { bible_infos } = use_bible_infos();
 
+    // If the user exits a page where the audio player is
+    useEffect(() => {
+        return () => {
+            tts_player.stop();
+        }
+    }, []);
+
+    // Stops the player if the current_chapter changes
+    useEffect(() => {
+        tts_player.stop();
+    }, [current_chapter.book, current_chapter.chapter])
+
     const player_state = useMemo(() => {
         return tts_player.state();
     }, [tts_player]);
@@ -263,7 +275,7 @@ export default function AudioPlayer({
                                         readonly={false}
                                     />
                                     <Typography
-                                        color={theme.palette.primary.contrastText}
+                                        color={theme.palette.text.primary}
                                         variant="body2"
                                         textAlign="center"
                                         component="div"
