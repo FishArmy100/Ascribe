@@ -1,8 +1,7 @@
-import React, { useMemo } from "react";
+import React from "react";
 import { use_settings } from "../providers/SettingsProvider";
 import CheckboxWithLabel from "../core/CheckboxWithLabel";
 import use_audio_player_tooltips from "./audio_player_tooltips";
-import { useI18n } from "@fisharmy100/react-auto-i18n";
 import use_audio_player_labels from "./audio_player_labels";
 import { useTheme } from "@mui/material";
 

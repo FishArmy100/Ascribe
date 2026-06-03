@@ -6,9 +6,11 @@ import use_audio_player_tooltips from "./audio_player_tooltips";
 import TextSelectDropdown from "@components/core/TextSelectDropdown";
 import { use_settings } from "@components/providers/SettingsProvider";
 import { use_tts_player } from "@components/providers/TtsPlayerProvider";
+import { useTheme } from "@mui/material";
 
 export default function VoiceSelectDropdown(): React.ReactElement
 {
+    const theme = useTheme();
     const tts_player = use_tts_player();
     const voices = use_voices();
     const { bible_display_settings } = use_bible_display_settings();
@@ -83,7 +85,12 @@ export default function VoiceSelectDropdown(): React.ReactElement
             on_select={set_voice_id}
             variant="body2"
             placement="top"
-            bold={false}
+            button_sx={{
+                padding: theme.spacing(0.5)
+            }}
+            option_sx={{
+                padding: theme.spacing(0.5)
+            }}
         />
     )
 }

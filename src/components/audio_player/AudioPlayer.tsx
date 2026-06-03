@@ -240,12 +240,6 @@ export default function AudioPlayer({
                                     alignItems="center"
                                     gap={theme.spacing(0.5)}
                                     padding={theme.spacing(0.5)}
-                                    sx={{
-                                        borderColor: theme.palette.divider,
-                                        borderWidth: 0,
-                                        borderBottomWidth: theme.spacing(1 / 8),
-                                        borderStyle: "solid"
-                                    }}
                                 >
                                     <ImageButton
                                         image={images.angles_left}
@@ -275,7 +269,7 @@ export default function AudioPlayer({
                                         readonly={false}
                                     />
                                     <Typography
-                                        color={theme.palette.text.primary}
+                                        color={theme.palette.primary.contrastText}
                                         variant="body2"
                                         textAlign="center"
                                         component="div"

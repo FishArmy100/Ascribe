@@ -3,11 +3,13 @@ import { use_settings } from "../providers/SettingsProvider";
 import use_audio_player_tooltips from "./audio_player_tooltips";
 import TextSelectDropdown, { TextSelectDropdownOption } from "@components/core/TextSelectDropdown";
 import __t from "@fisharmy100/react-auto-i18n";
+import { useTheme } from "@mui/material";
 
 export default function PlaybackControl(): React.ReactElement
 {
     const { settings, update_settings } = use_settings();
     const playback_speed = settings.tts_settings.playback_speed;
+    const theme = useTheme();
 
     const options = useMemo((): TextSelectDropdownOption<number>[] => [
         {
@@ -78,6 +80,12 @@ export default function PlaybackControl(): React.ReactElement
             variant="body2"
             on_select={handle_on_select}
             tooltip={tooltips.playback}
+            button_sx={{
+                padding: theme.spacing(0.5),
+            }}
+            option_sx={{
+                padding: theme.spacing(0.5)
+            }}
         />
     )
 }
