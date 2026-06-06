@@ -82,7 +82,7 @@ export const ASCRIBE_LIGHT_THEME: AppTheme = {
         action: {
             hover: 'rgba(0, 0, 0, 0.08)', // Light gray for light mode
         },
-        divider: "#616161"
+        divider: "#363636"
     }
 };
 

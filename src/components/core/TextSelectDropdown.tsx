@@ -77,7 +77,7 @@ function TextSelectDropdown<T>({
                                 borderRadius: theme.spacing(DROPDOWN_PADDING),
                                 borderWidth: theme.spacing(1 / 8),
                                 borderStyle: "solid",
-                                borderColor: theme.palette.grey[500],
+                                borderColor: theme.palette.divider,
                                 alignItems: "center",
                                 padding: DROPDOWN_PADDING,
                                 
@@ -174,7 +174,7 @@ function TextSelectDropdown<T>({
                                 
                                 borderWidth: theme.spacing(1 / 8),
                                 borderStyle: "solid",
-                                borderColor: theme.palette.grey[500],
+                                borderColor: theme.palette.divider,
                                 ...option_sx,
                             }}
                         >

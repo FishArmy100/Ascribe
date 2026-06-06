@@ -5,9 +5,9 @@ pub mod fetching;
 pub mod ref_id_parsing;
 pub mod printing;
 
-use std::{collections::HashSet, sync::{Arc, Mutex, RwLock}, thread::spawn};
+use std::{collections::HashSet, num::NonZeroU32, sync::{Arc, Mutex, RwLock}, thread::spawn};
 
-use biblio_json::{self, Package, modules::{ModuleId, ModuleType, bible::BookInfo}};
+use biblio_json::{self, Package, core::ChapterId, modules::{ModuleId, ModuleType, bible::{BibleModule, BookInfo}}};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Emitter, Listener, Manager, utils::platform::resource_dir};
@@ -66,11 +66,72 @@ impl BiblioJsonPackageHandle
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "snake_case")]
 pub struct BibleInfo 
 {
     pub id: ModuleId,
     pub display_name: String,
     pub books: Vec<BookInfo>,
+}
+
+impl BibleInfo
+{
+    pub fn new(bible: &BibleModule) -> Self 
+    {
+        Self 
+        {
+            id: bible.config.id.clone(),
+            display_name: bible.config.short_name.clone().unwrap_or(bible.config.name.clone()),
+            books: bible.source.book_infos.clone()
+        }
+    }
+
+    pub fn increment_chapter(&self, chapter: ChapterId) -> ChapterId
+    {
+        let book_index = self.books.iter().position(|b| b.osis_book == chapter.book);
+        
+        if book_index.is_none()
+        {
+            eprintln!("Book {:?} does not exist in bible {}", chapter.book, self.id);
+            return chapter;
+        }
+
+        let book_index = book_index.unwrap();
+        let book = &self.books[book_index];
+        
+        if (chapter.chapter.get() as usize) < book.chapters.len()
+        {
+            return ChapterId {
+                book: chapter.book.clone(),
+                chapter: NonZeroU32::new(chapter.chapter.get() + 1).unwrap()
+            }
+        }
+        else if book_index + 1 < self.books.len()
+        {
+            return ChapterId {
+                book: self.books[book_index + 1].osis_book.clone(),
+                chapter: NonZeroU32::new(1).unwrap(),
+            }
+        }
+        else
+        {
+            return ChapterId {
+                book: self.books[0].osis_book.clone(),
+                chapter: NonZeroU32::new(1).unwrap(),
+            }
+        }
+    }
+
+    pub fn get_chapter_offset(&self, chapter: ChapterId, offset: u32) -> ChapterId
+    {
+        let mut chapter = chapter;
+        for _ in 0..offset 
+        {
+            chapter = self.increment_chapter(chapter);
+        }
+
+        chapter
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

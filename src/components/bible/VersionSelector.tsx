@@ -123,7 +123,7 @@ export default function VersionSelector(): React.ReactElement
                                             padding: 0,
                                             borderStyle: "solid",
                                             borderWidth: (theme) => theme.spacing(1 / 8),
-                                            borderColor: theme.palette.grey[500],
+                                            borderColor: theme.palette.divider,
                                             backgroundColor: is_selected ? theme.palette.primary.main : undefined,
                                             color: is_selected ? theme.palette.primary.contrastText : theme.palette.primary.main,
                                         }}
@@ -193,7 +193,7 @@ export default function VersionSelector(): React.ReactElement
                                             padding: 0,
                                             borderStyle: "solid",
                                             borderWidth: (theme) => theme.spacing(1 / 8),
-                                            borderColor: theme.palette.grey[500],
+                                            borderColor: theme.palette.divider,
                                             backgroundColor: background_color,
                                             color: text_color,
                                             cursor: parallel_enabled ? undefined : "not-allowed"

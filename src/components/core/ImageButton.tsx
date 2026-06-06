@@ -4,6 +4,7 @@ import { SxProps } from "@mui/material/styles";
 import { Theme } from "@mui/material/styles";
 import Tooltip from "./Tooltip";
 import { play_sfx, Sfx } from "@interop/sfx";
+import WrapIf from "./WrapIf";
 
 export const BUTTON_SIZE = 4;
 export const BUTTON_BORDER_RADIUS = 0.75;
@@ -13,7 +14,7 @@ export type ButtonVariant = "default" | "inverted" | "info" | "error";
 
 export type ImageButtonProps = {
     image: string,
-    tooltip: string,
+    tooltip: string | null,
     disabled?: boolean,
     active?: boolean,
     on_click?: (event: React.MouseEvent<HTMLButtonElement>) => void,
@@ -96,8 +97,10 @@ export default function ImageButton({
     }, [image_color, disabled])
 
     return (
-        <Tooltip
-            tooltip={tooltip}
+        <WrapIf 
+            cond={tooltip !== null}
+            wrapper={Tooltip}
+            props={{ tooltip: tooltip! }}
         >
             <span>
                 <Button
@@ -140,6 +143,6 @@ export default function ImageButton({
                     />
                 </Button>
             </span>
-        </Tooltip>
+        </WrapIf>
     )
 }

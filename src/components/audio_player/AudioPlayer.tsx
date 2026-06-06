@@ -19,6 +19,8 @@ import VoiceSelectDropdown from "./VoiceSelectDropdown";
 import { use_bible_infos } from "@components/providers/BibleInfoProvider";
 import { TtsAudioKey } from "@interop/tts";
 import { use_audio_section_labeler } from "./audio_section_labeler";
+import BehaviorSelector from "./behavior_selector/BehaviorSelector";
+import { use_bible_reader } from "@components/providers/BibleReaderProvider";
 
 const FAST_FORWARD_TIME = 10;
 const REWIND_TIME = 10;
@@ -37,6 +39,7 @@ export default function AudioPlayer({
     const tts_player = use_tts_player();
     const { settings } = use_settings();
     const label_audio_section = use_audio_section_labeler();
+    const { reader_behavior, set_reader_behavior } = use_bible_reader();
 
     const [user_setting_time, set_user_setting_time] = useState(false);
     const [user_value, set_user_value] = useState(0);
@@ -232,51 +235,73 @@ export default function AudioPlayer({
                             />
                             <Stack 
                                 direction="column"
-                                gap={theme.spacing(0.5)}
                             >
                                 <Stack
-                                    direction="row"
-                                    display="flex"
-                                    alignItems="center"
-                                    gap={theme.spacing(0.5)}
-                                    padding={theme.spacing(0.5)}
+                                    direction={"column"}
                                 >
-                                    <ImageButton
-                                        image={images.angles_left}
-                                        tooltip={tooltips.rewind(REWIND_TIME)}
-                                        disabled={!tts_player.is_loaded()}
-                                        on_click={handle_rewind}
-                                    />
-                                    <PlayButton
-                                        type={play_button_type}
-                                        generation_progress={generation_progress}
-                                        on_click={handle_play_button_clicked ?? undefined}
-                                    />
-                                    <ImageButton
-                                        image={images.angles_right}
-                                        tooltip={tooltips.fast_forward(FAST_FORWARD_TIME)}
-                                        disabled={!tts_player.is_loaded()}
-                                        on_click={handle_fast_forward}
-                                    />
-                                    <Slider
-                                        value={user_setting_time ? user_value : player_progress ?? 0}
-                                        min={0}
-                                        max={1}
-                                        step={0.0001}
-                                        tooltip={tooltips.progress}
-                                        on_change={handle_user_change_progress}
-                                        on_commit={handle_user_commit_progress}
-                                        readonly={false}
-                                    />
-                                    <Typography
-                                        color={theme.palette.primary.contrastText}
-                                        variant="body2"
-                                        textAlign="center"
-                                        component="div"
-                                        width="8em"
+                                    <Stack
+                                        direction="row"
+                                        display="flex"
+                                        alignItems="center"
+                                        gap={theme.spacing(0.5)}
+                                        padding={theme.spacing(0.5)}
                                     >
-                                        {progress_text}
-                                    </Typography>
+                                        <ImageButton
+                                            image={images.angles_left}
+                                            tooltip={tooltips.rewind(REWIND_TIME)}
+                                            disabled={!tts_player.is_loaded()}
+                                            on_click={handle_rewind}
+                                        />
+                                        <PlayButton
+                                            type={play_button_type}
+                                            generation_progress={generation_progress}
+                                            on_click={handle_play_button_clicked ?? undefined}
+                                        />
+                                        <ImageButton
+                                            image={images.angles_right}
+                                            tooltip={tooltips.fast_forward(FAST_FORWARD_TIME)}
+                                            disabled={!tts_player.is_loaded()}
+                                            on_click={handle_fast_forward}
+                                        />
+                                        <Slider
+                                            value={user_setting_time ? user_value : player_progress ?? 0}
+                                            min={0}
+                                            max={1}
+                                            step={0.0001}
+                                            tooltip={tooltips.progress}
+                                            on_change={handle_user_change_progress}
+                                            on_commit={handle_user_commit_progress}
+                                            readonly={false}
+                                            sx={{
+                                                ml: theme.spacing(2)
+                                            }}
+                                        />
+                                        <Typography
+                                            color={theme.palette.primary.contrastText}
+                                            variant="body2"
+                                            textAlign="center"
+                                            component="div"
+                                            width="8em"
+                                        >
+                                            {progress_text}
+                                        </Typography>
+                                    </Stack>
+                                    <Stack 
+                                        direction="row"
+                                        gap={theme.spacing(0.5)}
+                                        padding={theme.spacing(0.5)}
+                                        sx={{
+                                            backgroundColor: theme.palette.background.default,
+                                        }}
+                                    >
+                                        <VolumeControl/>
+                                        <PlaybackControl/>
+                                        <VoiceSelectDropdown/>
+                                    </Stack>
+                                    <BehaviorSelector 
+                                        behavior={reader_behavior}
+                                        on_change={set_reader_behavior}
+                                    />
                                 </Stack>
                                 <Collapse in={is_expanded} timeout="auto" unmountOnExit={false}>
                                     <Stack
@@ -290,11 +315,8 @@ export default function AudioPlayer({
                                             backgroundColor: theme.palette.background.paper,
                                         }}
                                     >
-                                        <VolumeControl/>
-                                        <PlaybackControl/>
                                         <CorrectPitchCheckbox/>
                                         <FollowTextCheckbox/>
-                                        <VoiceSelectDropdown/>
                                     </Stack>
                                 </Collapse>
                             </Stack>

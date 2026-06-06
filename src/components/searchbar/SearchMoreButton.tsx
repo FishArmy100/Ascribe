@@ -32,7 +32,7 @@ export default function SearchMoreButton({
                     borderTopRightRadius: 0,
                     borderBottomRightRadius: 0,
                     borderWidth: (theme) => theme.spacing(1 / 8),
-                    borderColor: theme.palette.grey[700],
+                    borderColor: theme.palette.divider,
                     borderStyle: "solid",
                     width: (theme) => theme.spacing(BUTTON_SIZE / 2),
                     height: (theme) => theme.spacing(BUTTON_SIZE),

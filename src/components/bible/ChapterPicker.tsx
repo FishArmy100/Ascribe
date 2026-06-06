@@ -165,7 +165,7 @@ const BookSelection = React.memo(function BookSelection({
         boxSizing: "border-box",
         borderStyle: "solid",
         borderWidth: (theme: Theme) => theme.spacing(1 / 8),
-        borderColor: theme.palette.grey[500],
+        borderColor: theme.palette.divider,
     }), [theme]);
 
     return (

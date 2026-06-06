@@ -89,19 +89,25 @@ export default function SearchBar({
                         "& .MuiOutlinedInput-root": {
                             borderRadius: 0,
                             "& fieldset": {
-                                borderColor: theme.palette.grey[500],
+                                borderColor: theme.palette.divider,
                                 borderRadius: 0,
                                 borderWidth: (theme) => theme.spacing(1 / 8),
+                                borderRightWidth: 0,
+                                borderLeftWidth: 0,
                             },
                             "&:hover fieldset": {
                                 borderColor: theme.palette.grey[400],
                                 borderRadius: 0,
                                 borderWidth: (theme) => theme.spacing(1 / 8),
+                                borderRightWidth: 0,
+                                borderLeftWidth: 0,
                             },
                             "&.Mui-focused fieldset": {
                                 borderColor: theme.palette.grey[700],
                                 borderRadius: 0,
                                 borderWidth: (theme) => theme.spacing(1 / 8),
+                                borderRightWidth: 0,
+                                borderLeftWidth: 0,
                             },
                         }
                     }}

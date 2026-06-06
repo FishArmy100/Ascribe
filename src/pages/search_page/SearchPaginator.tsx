@@ -84,7 +84,7 @@ export default function SearchPaginator({
                                     textAlign: "center",
                                     boxSizing: "border-box",
                                     borderRadius: theme.spacing(1),
-                                    borderColor: theme.palette.grey[700],
+                                    borderColor: theme.palette.divider,
                                     borderStyle: "solid",
                                     borderWidth: theme.spacing(1 / 8),
                                     padding: 0.5,
