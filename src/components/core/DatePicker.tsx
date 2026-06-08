@@ -3,24 +3,28 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker as MuiDatePicker } from '@mui/x-date-pickers/DatePicker';
 import { ReadingsDate } from '@interop/bible/readings';
 import { use_deep_copy } from '@utils/index';
-import { Box } from '@mui/material';
-import use_date_names from './date_names';
+import { Box, SxProps, Theme } from '@mui/material';
 import { use_app_i18n } from '@components/providers/LanguageProvider';
 import { useMemo } from 'react';
 import { LangCode, LangScriptCode } from '@fisharmy100/react-auto-i18n';
 import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
 import { DateTime } from "luxon";
+import { play_sfx } from '@interop/sfx';
 
 export type DatePickerProps = {
-    label: string,
+    label: string | null,
     on_change: (date: ReadingsDate) => void,
     date: ReadingsDate,
+    outer_sx?: SxProps<Theme>,
+    sx?: SxProps<Theme>,
 }
 
 export default function DatePicker({
     label,
     on_change,
     date,
+    outer_sx,
+    sx,
 }: DatePickerProps): React.ReactElement
 {
     const deep_copy = use_deep_copy();
@@ -52,9 +56,13 @@ export default function DatePicker({
             day: date.day,
         });
     }, [date.year, date.month, date.day]);
+    
+    const on_calendar_clicked = React.useCallback(() => {
+        play_sfx("toggle_panel");
+    }, []);
 
     return (
-        <Box sx={{ padding: 1 }}>
+        <Box sx={{ padding: 1, ...outer_sx }}>
             <LocalizationProvider
                 dateAdapter={AdapterLuxon}
                 adapterLocale={locale}
@@ -63,7 +71,10 @@ export default function DatePicker({
                     label={label}
                     value={calendar_date}
                     onChange={on_date_set}
+                    onOpen={on_calendar_clicked}
+                    onClose={on_calendar_clicked}
                     slotProps={{ popper: { disablePortal: true } }}
+                    sx={sx}
                 />
             </LocalizationProvider>
         </Box>

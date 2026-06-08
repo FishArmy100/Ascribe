@@ -1,7 +1,7 @@
 import DropdownBase from "@components/core/DropdownBase";
 import * as images from "@assets"
 import { useEffect, useMemo, useState } from "react";
-import DatePicker from "./DatePicker";
+import DatePicker from "../core/DatePicker";
 import { backend_fetch_reading, ReadingsDate, to_readings_date } from "@interop/bible/readings";
 import ReadingsChapterList from "./ReadingsChapterList";
 import { use_bible_display_settings } from "@components/providers/BibleDisplaySettingsProvider";

@@ -5,6 +5,7 @@ import Tooltip from "./Tooltip";
 
 export type LabeledCheckboxProps = {
     label_props: { variant: TypographyVariant, bold?: boolean, sx?: SxProps<Theme> }
+    checkbox_props?: { sx?: SxProps<Theme> }
     tooltip: string,
     value: boolean,
     on_change: (v: boolean) => void,
@@ -14,6 +15,7 @@ export type LabeledCheckboxProps = {
 
 export default function LabeledCheckbox({
     label_props,
+    checkbox_props,
     tooltip,
     value,
     on_change,
@@ -51,6 +53,7 @@ export default function LabeledCheckbox({
                                 
                                 on_change(e.target.checked)
                             }}
+                            sx={checkbox_props?.sx}
                         />
                     }
                     labelPlacement="start"

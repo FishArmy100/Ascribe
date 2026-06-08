@@ -1,14 +1,9 @@
 import { invoke } from "@tauri-apps/api/core";
 import { ChapterId } from "./bible";
-import { RefId } from "./bible/ref_id";
+import { RefId, RefIdInner } from "./bible/ref_id";
+import { ReadingsDate } from "./bible/readings";
 
 export const READER_CHANGED_EVENT_NAME: string = "reader-changed";
-
-export type Date = {
-    year: number,
-    month: number,
-    day: number,
-}
 
 export type RepeatBehavior = 
     | { type: "count", count: number }
@@ -19,14 +14,19 @@ export type BibleReaderBehavior =
     | {
         type: "reading",
         module_id: string,
-        date: Date,
-        start_date: Date,
+        date: ReadingsDate,
+        start_date: ReadingsDate,
         repeat: RepeatBehavior,
     }
     | {
-        type: "segment",
+        type: "chapter_range",
         start: ChapterId,
         count: number,
+        repeat: RepeatBehavior,
+    }
+    | {
+        type: "current",
+        ref_id: RefIdInner,
         repeat: RepeatBehavior,
     }
     | {

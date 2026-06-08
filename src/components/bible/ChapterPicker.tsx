@@ -2,8 +2,7 @@ import React, { useState, useMemo, useCallback, useRef, useEffect } from "react"
 import { ChapterId, OsisBook } from "../../interop/bible";
 import * as images from "../../assets";
 import { use_settings } from "../providers/SettingsProvider";
-import { Box, Collapse, ListItemButton, ListItemText, Paper, Grid, Typography, useTheme, Button } from "@mui/material";
-import ImageButton from "../core/ImageButton";
+import { Box, Collapse, ListItemButton, ListItemText, Grid, Typography, useTheme, Button } from "@mui/material";
 import { use_bible_infos } from "../providers/BibleInfoProvider";
 import { use_bible_display_settings } from "../providers/BibleDisplaySettingsProvider";
 import ExpandLess from "@mui/icons-material/ExpandLess";
@@ -13,6 +12,8 @@ import { use_top_bar_padding } from "../TopBar";
 import { AppSettings } from "../../interop/settings";
 import { SxProps, Theme } from "@mui/material/styles";
 import use_bible_tooltips from "./bible_tooltips";
+import DropdownBase from "../core/DropdownBase";
+import { play_sfx } from "@interop/sfx";
 
 const GRID_ITEM_SIZE = 4;
 const GRID_ITEM_COUNT_X = 6;
@@ -49,66 +50,55 @@ export default function ChapterPicker({ on_select }: ChapterPickerProps): React.
 
     const handle_book_click = useCallback((id: OsisBook) => {
         set_expanded_book(prev => (prev === id ? null : id));
+        play_sfx("open_tab");
     }, []);
 
     const inner_on_select = useCallback((chapter: ChapterId) => {
         set_open(false);
         set_expanded_book(null);
         on_select_ref.current(chapter);
+        play_sfx("click");
     }, []);
 
     const dropdown_width = get_grid_width(padding, settings);
     const tooltips = use_bible_tooltips();
-    
 
     return (
-        <Box sx={{ position: "relative" }} className="dropdown-button">
-            <ImageButton
-                image={images.books}
-                tooltip={tooltips.select_chapter}
-                active={is_open}
-                on_click={() => set_open(!is_open)}
-            />
-            <Paper
-                sx={{
-                    position: "absolute",
-                    top: "100%",
-                    visibility: is_open ? "visible" : "hidden",
-                    opacity: is_open ? 1 : 0,
-                    pointerEvents: is_open ? "all" : "none",
-                    transition: "opacity 0.2s ease, visibility 0.2s ease",
-                    overflowY: "auto",
-                    maxHeight: (theme) => theme.spacing(300 / 8),
-                    maxWidth: (theme) => theme.spacing(dropdown_width),
-                    width: (theme) => theme.spacing(dropdown_width),
-                    scrollbarGutter: "stable",
-                    zIndex: 100000,
-                    "&::-webkit-scrollbar": {
-                        width: (theme) => theme.spacing(1),
-                    },
-                    "&::-webkit-scrollbar-track": {
-                        background: "transparent",
-                    },
-                    "&::-webkit-scrollbar-thumb": {
-                        backgroundColor: theme.palette.action.active,
-                        borderRadius: (theme) => theme.spacing(1 / 2),
-                    }
-                }}
-                className="dropdown-content"
-            >
-                {options.map(o => (
-                    <BookSelection
-                        key={o.id}
-                        id={o.id}
-                        name={o.name}
-                        chapter_count={o.count}
-                        expanded_id={expanded_book}
-                        on_select={inner_on_select}
-                        handle_book_click={handle_book_click}
-                    />
-                ))}
-            </Paper>
-        </Box>
+        <DropdownBase
+            button={{ type: "image", src: images.books, tooltip: tooltips.select_chapter }}
+            is_open={is_open}
+            on_click={() => set_open(!is_open)}
+            panel_sx={{
+                overflowY: "auto",
+                maxHeight: (theme) => theme.spacing(300 / 8),
+                maxWidth: (theme) => theme.spacing(dropdown_width),
+                width: (theme) => theme.spacing(dropdown_width),
+                scrollbarGutter: "stable",
+                zIndex: 100000,
+                "&::-webkit-scrollbar": {
+                    width: (theme) => theme.spacing(1),
+                },
+                "&::-webkit-scrollbar-track": {
+                    background: "transparent",
+                },
+                "&::-webkit-scrollbar-thumb": {
+                    backgroundColor: theme.palette.action.active,
+                    borderRadius: (theme) => theme.spacing(1 / 2),
+                },
+            }}
+        >
+            {options.map(o => (
+                <BookSelection
+                    key={o.id}
+                    id={o.id}
+                    name={o.name}
+                    chapter_count={o.count}
+                    expanded_id={expanded_book}
+                    on_select={inner_on_select}
+                    handle_book_click={handle_book_click}
+                />
+            ))}
+        </DropdownBase>
     );
 }
 

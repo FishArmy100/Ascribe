@@ -5,7 +5,7 @@ use std::num::NonZeroU32;
 use biblio_json::{Package, core::{Atom, ChapterId, OsisBook, RefId, RefIdInner}, modules::{Module, ModuleId, readings::date::{ReadingsDate, ReadingsMonth}}};
 use serde::{Deserialize, Serialize};
 
-use crate::bible::BibleInfo;
+use crate::{bible::BibleInfo, repr::{AtomJson, ChapterIdJson, RefIdInnerJson, RefIdJson}};
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]
 #[serde(rename_all = "snake_case")]
@@ -41,7 +41,7 @@ pub enum RepeatBehavior
     Infinite,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case", tag = "type")]
 pub enum BibleReaderBehavior
 {
@@ -52,21 +52,26 @@ pub enum BibleReaderBehavior
         start_date: Date,
         repeat: RepeatBehavior,
     },
-    Segment
+    ChapterRange
     {
-        start: ChapterId,
+        start: ChapterIdJson,
         count: NonZeroU32,
+        repeat: RepeatBehavior,
+    },
+    Current 
+    {
+        ref_id: RefIdInnerJson,
         repeat: RepeatBehavior,
     },
     TimedContinuous
     {
-        start: ChapterId,
+        start: ChapterIdJson,
         seconds: u32,
         finish_segment: bool,
     },
     Continuous
     {
-        start: ChapterId,
+        start: ChapterIdJson,
     }
 }
 
@@ -74,11 +79,16 @@ impl Default for BibleReaderBehavior
 {
     fn default() -> Self
     {
-        Self::Continuous {
-            start: ChapterId {
-                book: OsisBook::Matt,
-                chapter: NonZeroU32::new(1).unwrap(),
-            }
+        Self::Current { 
+            ref_id: RefIdInnerJson::Single { 
+                atom: AtomJson::Chapter { 
+                    book: OsisBook::Gen, 
+                    chapter: NonZeroU32::new(1).unwrap() 
+                } 
+            }, 
+            repeat: RepeatBehavior::Count { 
+                count: NonZeroU32::new(1).unwrap(),
+            } 
         }
     }
 }
@@ -119,10 +129,10 @@ impl BibleReaderBehavior
 
                 Ok(Some(reading))
             },
-            BibleReaderBehavior::Segment { start, count, .. } => {
+            BibleReaderBehavior::ChapterRange { start, count, .. } => {
                 let bible = BibleInfo::new(&bible);
                 let index = index % count.get();
-                let chapter = bible.get_chapter_offset(*start, index);
+                let chapter = bible.get_chapter_offset(start.into(), index);
                 
                 return Ok(Some(RefId {
                     bible: Some(bible.id),
@@ -132,9 +142,17 @@ impl BibleReaderBehavior
                     })
                 }))
             },
+            BibleReaderBehavior::Current { ref_id, .. } => {
+                let inner: RefIdInner = ref_id.into();
+                let bible = bible.config.id.clone();
+                return Ok(Some(RefId { 
+                    bible: Some(bible), 
+                    id: inner 
+                }))
+            }
             BibleReaderBehavior::Continuous { start } | BibleReaderBehavior::TimedContinuous { start, .. } => {
                 let bible = BibleInfo::new(&bible);
-                let chapter = bible.get_chapter_offset(*start, index);
+                let chapter = bible.get_chapter_offset(start.into(), index);
                 
                 return Ok(Some(RefId {
                     bible: Some(bible.id),

@@ -68,6 +68,7 @@ export function use_audio_section_labeler(): (voice_id: string, bible_id: string
 
         const language = voices[voice_id]?.language?.alpha_3 ?? "";
         const namer = NAMER_MAP[language];
+        console.log(language);
         if (namer)
         {
             return namer(book_id, book, chapter);
