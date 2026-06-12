@@ -7,7 +7,7 @@ pub mod printing;
 
 use std::{collections::HashSet, num::NonZeroU32, sync::{Arc, Mutex, RwLock}, thread::spawn};
 
-use biblio_json::{self, Package, core::ChapterId, modules::{ModuleId, ModuleType, bible::{BibleModule, BookInfo}}};
+use biblio_json::{self, Package, core::{Atom, ChapterId, RefIdInner}, modules::{ModuleId, ModuleType, bible::{BibleModule, BookInfo}}};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Emitter, Listener, Manager, utils::platform::resource_dir};
@@ -190,6 +190,116 @@ impl BibleInfo
 
         log::error!("Failed to find chapter at offset {} from {:?} {}", offset, chapter.book, chapter.chapter);
         ChapterId { book: self.books[0].osis_book.clone(), chapter: NonZeroU32::MIN }
+    }
+    
+    pub fn split_ref_by_chapter(&self, ref_id: &RefIdInner) -> Vec<RefIdInner>
+    {
+        let (from, to) = match ref_id
+        {
+            RefIdInner::Single(_) => return vec![ref_id.clone()],
+            RefIdInner::Range { from, to } => (from, to),
+        };
+
+        let from_chapter = ChapterId {
+            book: from.book(),
+            chapter: from.chapter().unwrap_or(NonZeroU32::MIN),
+        };
+        let to_chapter = ChapterId {
+            book: to.book(),
+            chapter: to.chapter().unwrap_or(NonZeroU32::MIN),
+        };
+
+        if from_chapter == to_chapter
+        {
+            return vec![ref_id.clone()];
+        }
+
+        let mut result = Vec::new();
+        let mut current_chapter = from_chapter;
+
+        loop
+        {
+            let is_last = current_chapter == to_chapter;
+
+            if current_chapter == from_chapter
+            {
+                match from.chapter()
+                {
+                    None => result.push(RefIdInner::Single(Atom::Chapter {
+                        book: current_chapter.book,
+                        chapter: current_chapter.chapter,
+                    })),
+                    Some(_) =>
+                    {
+                        let from_is_chapter_start = from.verse()
+                            .map(|v| v.get() == 1)
+                            .unwrap_or(true);
+
+                        if from_is_chapter_start && from.word().is_none()
+                        {
+                            result.push(RefIdInner::Single(Atom::Chapter {
+                                book: current_chapter.book,
+                                chapter: current_chapter.chapter,
+                            }));
+                        }
+                        else
+                        {
+                            result.push(RefIdInner::Range {
+                                from: *from,
+                                to: Atom::Chapter {
+                                    book: current_chapter.book,
+                                    chapter: current_chapter.chapter,
+                                },
+                            });
+                        }
+                    }
+                }
+            }
+            else if is_last
+            {
+                match to.chapter()
+                {
+                    None => result.push(RefIdInner::Single(Atom::Chapter {
+                        book: current_chapter.book,
+                        chapter: current_chapter.chapter,
+                    })),
+                    Some(_) =>
+                    {
+                        let to_is_chapter_end = to.verse().is_none() && to.word().is_none();
+
+                        if to_is_chapter_end
+                        {
+                            result.push(RefIdInner::Single(Atom::Chapter {
+                                book: current_chapter.book,
+                                chapter: current_chapter.chapter,
+                            }));
+                        }
+                        else
+                        {
+                            result.push(RefIdInner::Range {
+                                from: Atom::Chapter {
+                                    book: current_chapter.book,
+                                    chapter: current_chapter.chapter,
+                                },
+                                to: *to,
+                            });
+                        }
+                    }
+                }
+                break;
+            }
+            else
+            {
+                result.push(RefIdInner::Single(Atom::Chapter {
+                    book: current_chapter.book,
+                    chapter: current_chapter.chapter,
+                }));
+            }
+
+            current_chapter = self.increment_chapter(current_chapter);
+        }
+
+        result
     }
 }
 

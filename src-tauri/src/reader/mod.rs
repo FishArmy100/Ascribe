@@ -2,7 +2,8 @@ pub mod reader_cmd;
 
 use std::num::NonZeroU32;
 
-use biblio_json::{Package, core::{Atom, OsisBook, RefIdInner}, modules::{Module, ModuleId, readings::date::{ReadingsDate, ReadingsMonth}}};
+use biblio_json::{Package, core::{Atom, OsisBook, RefId, RefIdInner}, modules::{Module, ModuleId, readings::date::{ReadingsDate, ReadingsMonth}}};
+use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 
 use crate::{bible::BibleInfo, repr::{AtomJson, ChapterIdJson, RefIdInnerJson}};
@@ -137,8 +138,17 @@ impl BibleReaderBehavior
                     return Ok(None)
                 };
 
-                let index = index as usize % readings.readings.len();
-                let reading = readings.readings[index].clone();
+                let readings = readings.readings.iter().map(|r| {
+                    let bible = BibleInfo::new(&bible);
+                    let ids = bible.split_ref_by_chapter(&r.id);
+                    ids.into_iter().map(move |r| RefId {
+                        bible: Some(bible.id.clone()),
+                        id: r,
+                    })
+                }).flatten().collect_vec();
+
+                let index = index as usize % readings.len();
+                let reading = readings[index].clone();
 
                 if  !bible.source.id_exists(&reading)
                 {
