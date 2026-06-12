@@ -4,6 +4,7 @@ import { use_bible_display_settings } from "@components/providers/BibleDisplaySe
 import { use_bible_infos } from "@components/providers/BibleInfoProvider";
 import { use_view_history } from "@components/providers/ViewHistoryProvider";
 import { RenderedVerseContent } from "@interop/bible/render";
+import { play_sfx } from "@interop/sfx";
 import { Box, Divider, Paper, Typography, useTheme } from "@mui/material";
 import React, { useCallback } from "react";
 
@@ -36,6 +37,7 @@ export default function SearchedVerse({
     }
 
     const on_verse_clicked = useCallback(() => {
+        play_sfx("click");
         view_history.push({
             type: "verse",
             chapter: { book: verse.book, chapter: verse.chapter },

@@ -2,10 +2,10 @@ pub mod reader_cmd;
 
 use std::num::NonZeroU32;
 
-use biblio_json::{Package, core::{Atom, ChapterId, OsisBook, RefId, RefIdInner}, modules::{Module, ModuleId, readings::date::{ReadingsDate, ReadingsMonth}}};
+use biblio_json::{Package, core::{Atom, OsisBook, RefIdInner}, modules::{Module, ModuleId, readings::date::{ReadingsDate, ReadingsMonth}}};
 use serde::{Deserialize, Serialize};
 
-use crate::{bible::BibleInfo, repr::{AtomJson, ChapterIdJson, RefIdInnerJson, RefIdJson}};
+use crate::{bible::BibleInfo, repr::{AtomJson, ChapterIdJson, RefIdInnerJson}};
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]
 #[serde(rename_all = "snake_case")]
@@ -22,6 +22,24 @@ impl Date
     {
         let month = ReadingsMonth::try_from(self.month).ok()?;
         ReadingsDate::new(self.year, month, self.day)
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case", tag = "type")]
+pub enum ReaderReading
+{
+    Chapter
+    {
+        bible: ModuleId,
+        chapter: ChapterIdJson,
+    },
+    Verses
+    {
+        bible: ModuleId,
+        chapter: ChapterIdJson,
+        start: NonZeroU32,
+        end: NonZeroU32,
     }
 }
 
@@ -55,7 +73,7 @@ pub enum BibleReaderBehavior
     ChapterRange
     {
         start: ChapterIdJson,
-        count: NonZeroU32,
+        end: ChapterIdJson,
         repeat: RepeatBehavior,
     },
     Current 
@@ -96,7 +114,7 @@ impl Default for BibleReaderBehavior
 impl BibleReaderBehavior
 {
     /// Does not take into account repeat behavior
-    pub fn next(&self, index: u32, bible: &ModuleId, package: &Package) -> Result<Option<RefId>, String>
+    pub fn next(&self, index: u32, bible: &ModuleId, package: &Package) -> Result<Option<ReaderReading>, String>
     {
         let bible = package.get_mod(bible)
             .and_then(Module::as_bible)
@@ -126,40 +144,104 @@ impl BibleReaderBehavior
                 {
                     return Ok(None)
                 }
+                
+                use RefIdInner::*;
+                use Atom::*;
+
+                let reading = match reading.id
+                {
+                    Single(Chapter { book, chapter }) => ReaderReading::Chapter { 
+                        bible: bible.config.id.clone(),
+                        chapter: ChapterIdJson { 
+                            book, 
+                            chapter 
+                        } 
+                    },
+                    Single(Verse { book, chapter, verse }) => ReaderReading::Verses { 
+                        bible: bible.config.id.clone(),
+                        chapter: ChapterIdJson { 
+                            book, 
+                            chapter 
+                        } , 
+                        start: verse, 
+                        end: verse
+                    },
+                    Range { 
+                        from: Verse { book: ba, chapter: ca, verse: start }, 
+                        to: Verse { book: bb, chapter: cb, verse: end } 
+                    } if ba == bb && ca == cb => ReaderReading::Verses { 
+                        bible: bible.config.id.clone(),
+                        chapter: ChapterIdJson { 
+                            book: ba, 
+                            chapter: ca,
+                        } , 
+                        start, 
+                        end
+                    },
+                    _ => return Err(format!("Invalid RefId variant for reading: {:?}", reading))
+                };
 
                 Ok(Some(reading))
             },
-            BibleReaderBehavior::ChapterRange { start, count, .. } => {
+            BibleReaderBehavior::ChapterRange { start, end, .. } => {
                 let bible = BibleInfo::new(&bible);
-                let index = index % count.get();
-                let chapter = bible.get_chapter_offset(start.into(), index);
+                let distance = bible.get_chapter_distance(start.into(), end.into()).abs() as u32 + 1;
+                let index = index % distance;
+                let chapter = bible.offset_chapter(start.into(), index as i32);
                 
-                return Ok(Some(RefId {
-                    bible: Some(bible.id),
-                    id: RefIdInner::Single(Atom::Chapter { 
-                        book: chapter.book, 
-                        chapter: chapter.chapter 
-                    })
+                return Ok(Some(ReaderReading::Chapter { 
+                    chapter: chapter.into(), 
+                    bible: bible.id.clone() 
                 }))
             },
             BibleReaderBehavior::Current { ref_id, .. } => {
-                let inner: RefIdInner = ref_id.into();
                 let bible = bible.config.id.clone();
-                return Ok(Some(RefId { 
-                    bible: Some(bible), 
-                    id: inner 
-                }))
+
+                use RefIdInnerJson::*;
+                use AtomJson::*;
+
+                let reading = match *ref_id
+                {
+                    Single { atom: Chapter { book, chapter } } => ReaderReading::Chapter { 
+                        bible,
+                        chapter: ChapterIdJson { 
+                            book, 
+                            chapter 
+                        } 
+                    },
+                    Single { atom: Verse { book, chapter, verse } } => ReaderReading::Verses { 
+                        bible,
+                        chapter: ChapterIdJson { 
+                            book, 
+                            chapter 
+                        } , 
+                        start: verse, 
+                        end: verse
+                    },
+                    Range { 
+                        from: Verse { book: ba, chapter: ca, verse: start }, 
+                        to: Verse { book: bb, chapter: cb, verse: end } 
+                    } if ba == bb && ca == cb => ReaderReading::Verses { 
+                        bible,
+                        chapter: ChapterIdJson { 
+                            book: ba, 
+                            chapter: ca,
+                        } , 
+                        start, 
+                        end
+                    },
+                    _ => return Err(format!("Invalid RefId variant for reading: {:?}", ref_id))
+                };
+
+                Ok(Some(reading))
             }
             BibleReaderBehavior::Continuous { start } | BibleReaderBehavior::TimedContinuous { start, .. } => {
                 let bible = BibleInfo::new(&bible);
-                let chapter = bible.get_chapter_offset(start.into(), index);
+                let chapter = bible.offset_chapter(start.into(), index as i32);
                 
-                return Ok(Some(RefId {
-                    bible: Some(bible.id),
-                    id: RefIdInner::Single(Atom::Chapter { 
-                        book: chapter.book, 
-                        chapter: chapter.chapter 
-                    })
+                return Ok(Some(ReaderReading::Chapter { 
+                    bible: bible.id.clone(),
+                    chapter: chapter.into(), 
                 }))
             },
         }

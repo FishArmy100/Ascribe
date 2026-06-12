@@ -120,17 +120,76 @@ impl BibleInfo
                 chapter: NonZeroU32::new(1).unwrap(),
             }
         }
-    }
-
-    pub fn get_chapter_offset(&self, chapter: ChapterId, offset: u32) -> ChapterId
+    }/// Returns the absolute chapter index (0-based) of a given chapter within this BibleInfo.
+    /// This is the offset from the very first chapter (Genesis 1).
+    pub fn get_chapter_offset(&self, chapter: ChapterId) -> usize 
     {
-        let mut chapter = chapter;
-        for _ in 0..offset 
-        {
-            chapter = self.increment_chapter(chapter);
+        let mut offset = 0;
+        for book in &self.books {
+            if book.osis_book == chapter.book {
+                return offset + (chapter.chapter.get() - 1) as usize;
+            }
+            offset += book.chapters.len();
         }
 
-        chapter
+        log::error!("Book {:?} does not exist in bible {}", chapter.book, self.id);
+        0
+    }
+
+    /// Returns the signed offset (number of chapters) between two ChapterIds.
+    /// Positive if `b` is ahead of `a`, negative if `b` is behind `a`.
+    /// Wraps to the shortest path: e.g. the distance from Rev 22 to Gen 1 is +1.
+    pub fn get_chapter_distance(&self, a: ChapterId, b: ChapterId) -> i32 
+    {
+        let total = self.books.iter().map(|b| b.chapters.len()).sum::<usize>() as i32;
+        let offset_a = self.get_chapter_offset(a) as i32;
+        let offset_b = self.get_chapter_offset(b) as i32;
+
+        let mut diff = offset_b - offset_a;
+
+        // Wrap to the shortest path around the ring
+        if diff > total / 2 
+        {
+            diff -= total;
+        } 
+        else if diff < -total / 2 
+        {
+            diff += total;
+        }
+
+        diff
+    }
+
+    /// Returns the ChapterId reached by moving `offset` chapters forward (positive)
+    /// or backward (negative) from `chapter`, wrapping around the canon as needed.
+    /// e.g. bible.offset_chapter(ChapterId { book: Rev, chapter: 22 }, 1) == ChapterId { book: Gen, chapter: 1 }
+    pub fn offset_chapter(&self, chapter: ChapterId, offset: i32) -> ChapterId 
+    {
+        let total = self.books.iter().map(|b| b.chapters.len()).sum::<usize>() as i32;
+
+        // Get the absolute index of the starting chapter, then apply the offset
+        let raw = self.get_chapter_offset(chapter) as i32 + offset;
+
+        // Wrap into [0, total) — rem_euclid handles negative offsets correctly
+        let mut index = raw.rem_euclid(total) as usize;
+
+        // Walk the book list, subtracting each book's chapter count until
+        // the index falls within the current book
+        for book in &self.books 
+        {
+            if index < book.chapters.len() 
+            {
+                return ChapterId {
+                    book: book.osis_book.clone(),
+                    // SAFETY: index + 1 is always >= 1
+                    chapter: NonZeroU32::new((index + 1) as u32).unwrap(),
+                };
+            }
+            index -= book.chapters.len();
+        }
+
+        log::error!("Failed to find chapter at offset {} from {:?} {}", offset, chapter.book, chapter.chapter);
+        ChapterId { book: self.books[0].osis_book.clone(), chapter: NonZeroU32::MIN }
     }
 }
 

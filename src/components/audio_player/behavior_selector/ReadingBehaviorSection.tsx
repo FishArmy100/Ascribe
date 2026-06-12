@@ -10,7 +10,7 @@ import { get_module_display_name } from "@interop/module_info";
 
 export type ReadingBehaviorSectionProps = {
     behavior: BibleReaderBehavior;
-    on_change: (behavior: BibleReaderBehavior) => void;
+    on_change: (updater: (behavior: BibleReaderBehavior) => BibleReaderBehavior) => void;
 };
 
 export default function ReadingBehaviorSection({
@@ -23,34 +23,27 @@ export default function ReadingBehaviorSection({
     const { reading_plan_options, get_selected_reading_plan_index } = use_reading_plans()
 
     const handle_reading_plan_selected = useCallback((id: string) => {
-        if (behavior.type === "reading") {
-            const copy = deep_copy(behavior);
-            copy.module_id = id;
-            on_change(copy);
-        }
-        else {
-            const start_date = to_readings_date(new Date(new Date().getFullYear(), 0, 1));
-            on_change({
-                type: "reading",
-                module_id: id,
-                start_date,
-                date: to_readings_date(new Date()),
-                repeat: {
-                    type: "count",
-                    count: 1,
-                }
-            })
-        }
-    }, [behavior, on_change, deep_copy]);
+        on_change(behavior => {
+            if (behavior.type === "reading")
+            {
+                behavior.module_id = id;
+                return behavior;
+            }
+            
+            return behavior;
+        })
+    }, [on_change, deep_copy]);
 
     const handle_date_changed = useCallback((date: ReadingsDate) => {
-        if (behavior.type !== "reading") 
-            return;
 
-        const copy = deep_copy(behavior);
-        copy.date = date;
-        on_change(copy);
-    }, [on_change, behavior, deep_copy]);
+        on_change(behavior => {
+            if (behavior.type !== "reading")
+                return behavior;
+
+            behavior.date = date;
+            return behavior;
+        });
+    }, [on_change, deep_copy]);
 
     if (behavior.type !== "reading") {
         return <></>;

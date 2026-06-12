@@ -3,11 +3,12 @@ import { use_app_i18n } from "@components/providers/LanguageProvider";
 import { use_voices } from "@components/providers/TtsVoiceProvider";
 import { __tv } from "@fisharmy100/react-auto-i18n";
 import { ChapterId, OsisBook } from "@interop/bible";
+import { ReaderReading } from "@interop/reader";
 import { useCallback } from "react";
 
 const GOSPELS: OsisBook[] = [ "Matt", "Mark", "Luke", "John" ]
 
-const NAMER_MAP: Partial<Record<string, (book_id: OsisBook, book: string, chapter: number) => string>> = {
+const CHAPTER_NAMER_MAP: Partial<Record<string, (book_id: OsisBook, book: string, chapter: number) => string>> = {
     "eng": (book_id, book, chapter) => {
         if (GOSPELS.includes(book_id) && chapter === 1)
         {
@@ -52,22 +53,76 @@ const NAMER_MAP: Partial<Record<string, (book_id: OsisBook, book: string, chapte
     }
 }
 
-export function use_audio_section_labeler(): (voice_id: string, bible_id: string, chapter: ChapterId) => string 
+const VERSE_RANGE_NAMER_MAP: Partial<
+    Record<string, (book: string, chapter: number, start: number, end: number) => string>
+> = {
+    eng: (book, chapter, start, end) =>
+    `${book} chapter ${chapter} verses ${start} to ${end}`,
+
+    spa: (book, chapter, start, end) =>
+        `${book} capítulo ${chapter} versículos ${start} al ${end}`,
+
+    swa: (book, chapter, start, end) =>
+        `${book} sura ya ${chapter} mistari ya ${start} hadi ${end}`,
+}
+
+const SINGLE_VERSE_NAMER_MAP: Partial<
+    Record<string, (book: string, chapter: number, verse: number) => string>
+> = {
+    eng: (book, chapter, verse) =>
+        `${book} chapter ${chapter} verse ${verse}`,
+
+    spa: (book, chapter, verse) =>
+        `${book} capítulo ${chapter} versículo ${verse}`,
+
+    swa: (book, chapter, verse) =>
+        `${book} sura ya ${chapter} mstari wa ${verse}`,
+};
+
+export function use_audio_section_labeler(): (voice_id: string, reading: ReaderReading) => string 
 {
     const { bible_infos } = use_bible_infos();
     const { voices } = use_voices()
     const i18n = use_app_i18n();
 
-    return useCallback((voice_id: string, bible_id: string, section: ChapterId): string => {
-        const book_id = section.book;
-        const book = bible_infos[bible_id].books
-            .find(b => b.osis_book === section.book)!
+    return useCallback((voice_id: string, reading: ReaderReading): string => {
+        const book_id = reading.chapter.book;
+        const book = bible_infos[reading.bible].books
+            .find(b => b.osis_book === reading.chapter.book)!
             .name;
-
-        const chapter = section.chapter;
+        const chapter = reading.chapter.chapter;
 
         const language = voices[voice_id]?.language?.alpha_3 ?? "";
-        const namer = NAMER_MAP[language];
+
+        if (reading.type === "verses")
+        {
+            if (reading.start === reading.end)
+            {
+                const namer = SINGLE_VERSE_NAMER_MAP[language];
+                if (namer)
+                {
+                    namer(book, chapter, reading.start)
+                }
+                else 
+                {
+                    return `${book} ${chapter} ${reading.start}`
+                }
+            }
+            else 
+            {
+                const namer = VERSE_RANGE_NAMER_MAP[language];
+                if (namer)
+                {
+                    namer(book, chapter, reading.start, reading.end);
+                }
+                else 
+                {
+                    return `${book} ${chapter} ${reading.start}-${reading.end}` 
+                }
+            }
+        }
+
+        const namer = CHAPTER_NAMER_MAP[language];
         console.log(language);
         if (namer)
         {

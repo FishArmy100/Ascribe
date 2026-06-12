@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
-import { OsisBook, pretty_print_book } from "./book";
+import { OsisBook } from "./book";
 import { listen, UnlistenFn } from "@tauri-apps/api/event";
 import { use_bible_infos } from "../../components/providers/BibleInfoProvider";
 import * as utils from "../../utils"
@@ -195,6 +195,87 @@ export function decrement_chapter(bible: BibleInfo, chapter: ChapterId): Chapter
             chapter: last_book.chapters.length, // is 1 based indexing
         }
     }
+}
+
+/**
+ * Returns the absolute chapter index (0-based) of a given ChapterId within a BibleInfo.
+ * This is the "offset from the very first chapter (Genesis 1)".
+ */
+export function get_chapter_offset(bible: BibleInfo, chapter: ChapterId): number
+{
+    let offset = 0;
+    for (const book of bible.books)
+    {
+        if (book.osis_book === chapter.book)
+        {
+            offset += chapter.chapter - 1; // chapter is 1-based
+            return offset;
+        }
+        offset += book.chapters.length;
+    }
+
+    console.error(`Book ${chapter.book} does not exist in bible ${bible.id}`);
+    return 0;
+}
+
+/**
+ * Returns the signed offset (number of chapters) between two ChapterIds.
+ * Positive if `b` is ahead of `a`, negative if `b` is behind `a`.
+ * Wraps around: e.g. the distance from Rev 22 to Gen 1 is +1 (or -(total-1)).
+ *
+ * The returned value is in the range [-(total/2), total/2] to give the shortest
+ * wrap-aware distance, matching the looping behaviour described.
+ */
+export function get_chapter_distance(bible: BibleInfo, a: ChapterId, b: ChapterId): number
+{
+    const total = bible.books.reduce((sum, book) => sum + book.chapters.length, 0);
+    const offset_a = get_chapter_offset(bible, a);
+    const offset_b = get_chapter_offset(bible, b);
+
+    let diff = offset_b - offset_a;
+
+    // Wrap to the shortest path around the ring
+    if (diff > total / 2)
+    {
+        diff -= total;
+    }
+    else if (diff < -total / 2)
+    {
+        diff += total;
+    }
+
+    return diff;
+}
+
+/**
+ * Returns the ChapterId reached by moving `offset` chapters forward (positive)
+ * or backward (negative) from `chapter`, wrapping around the canon as needed.
+ * e.g. `offset_chapter(bible, { book: "Rev", chapter: 22 }, 1) === { book: "Gen", chapter: 1 }`
+ */
+export function offset_chapter(bible: BibleInfo, chapter: ChapterId, offset: number): ChapterId
+{
+    const total = bible.books.reduce((sum, book) => sum + book.chapters.length, 0);
+    
+    let index = get_chapter_offset(bible, chapter) + offset;
+    
+    // Wrap around, handling negative indices
+    index = ((index % total) + total) % total;
+    
+    for (const book of bible.books)
+    {
+        if (index < book.chapters.length)
+        {
+            return {
+                book: book.osis_book,
+                chapter: index + 1, // convert back to 1-based
+            };
+        }
+        index -= book.chapters.length;
+    }
+
+    // Should be unreachable
+    console.error(`Failed to find chapter at offset ${offset} from ${chapter.book} ${chapter.chapter}`);
+    return { book: bible.books[0].osis_book, chapter: 1 };
 }
 
 export function get_chapter_verse_ids(bible: BibleInfo, chapter: ChapterId): VerseId[]

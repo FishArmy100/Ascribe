@@ -303,7 +303,6 @@ function BiblePage({
 
 			<AudioPlayer 
 				open={player_open} 
-				current_chapter={entry.chapter}
 			/>
 		</Box>
 	);

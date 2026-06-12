@@ -5,6 +5,75 @@ import { ReadingsDate } from "./bible/readings";
 
 export const READER_CHANGED_EVENT_NAME: string = "reader-changed";
 
+export type ReaderReading = |{
+    type: "chapter",
+    bible: string,
+    chapter: ChapterId,
+} |{
+    type: "verses",
+    bible: string,
+    chapter: ChapterId,
+    start: number,
+    end: number,
+}
+
+export function reader_reading_to_ref_id(reading: ReaderReading): RefId
+{
+    if (reading.type === "chapter")
+    {
+        return {
+            bible: reading.bible,
+            id: {
+                type: "single",
+                atom: {
+                    type: "chapter",
+                    book: reading.chapter.book,
+                    chapter: reading.chapter.chapter,
+                }
+            }
+        }
+    }
+    else
+    {
+        if (reading.start === reading.end)
+        {
+            return {
+                bible: reading.bible,
+                id: {
+                    type: "single",
+                    atom: {
+                        type: "verse",
+                        book: reading.chapter.book,
+                        chapter: reading.chapter.chapter,
+                        verse: reading.start,
+                    }
+                }
+            }
+        }
+        else 
+        {
+            return {
+                bible: reading.bible,
+                id: {
+                    type: "range",
+                    from: {
+                        type: "verse",
+                        book: reading.chapter.book,
+                        chapter: reading.chapter.chapter,
+                        verse: reading.start,
+                    },
+                    to: {
+                        type: "verse",
+                        book: reading.chapter.book,
+                        chapter: reading.chapter.chapter,
+                        verse: reading.end,
+                    }
+                }
+            }
+        }
+    }
+}
+
 export type RepeatBehavior = 
     | { type: "count", count: number }
     | { type: "time", seconds: number, finish_segment: boolean }
@@ -21,7 +90,7 @@ export type BibleReaderBehavior =
     | {
         type: "chapter_range",
         start: ChapterId,
-        count: number,
+        end: ChapterId,
         repeat: RepeatBehavior,
     }
     | {
@@ -45,7 +114,7 @@ export type ReaderChangedEvent = {
     new: BibleReaderBehavior,
 }
 
-export async function get_backend_reader(): Promise<BibleReaderBehavior>
+export async function get_backend_reader_behavior(): Promise<BibleReaderBehavior>
 {
     const response = await invoke<string | null>("run_reader_command", {
         command: { type: "get" }
@@ -58,14 +127,14 @@ export async function get_backend_reader(): Promise<BibleReaderBehavior>
     return JSON.parse(response) as BibleReaderBehavior;
 }
 
-export async function set_backend_reader(behavior: BibleReaderBehavior): Promise<void>
+export async function set_backend_reader_behavior(behavior: BibleReaderBehavior): Promise<void>
 {
     return await invoke("run_reader_command", {
         command: { type: "set", behavior }
     });
 }
 
-export async function get_next_reader_passage(bible: string, index: number): Promise<RefId | null>
+export async function get_backend_next_reader_passage(bible: string, index: number): Promise<ReaderReading | null>
 {
     const response = await invoke<string | null>("run_reader_command", {
         command: { type: "next", bible, index }
@@ -75,7 +144,7 @@ export async function get_next_reader_passage(bible: string, index: number): Pro
         return null;
     }
     
-    return JSON.parse(response) as RefId;
+    return JSON.parse(response) as ReaderReading | null;
 }
 
 

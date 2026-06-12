@@ -12,7 +12,7 @@ import PlaybackControl from "./PlaybackControl";
 import CorrectPitchCheckbox from "./CorrectPitchCheckbox";
 import FollowTextCheckbox from "./FollowTextCheckbox";
 import ExpandButton from "./ExpandButton";
-import { ChapterId, get_chapter_verse_ids } from "@interop/bible";
+import { get_chapter_verse_ids, VerseId } from "@interop/bible";
 import use_audio_player_tooltips from "./audio_player_tooltips";
 import { use_settings } from "@components/providers/SettingsProvider";
 import VoiceSelectDropdown from "./VoiceSelectDropdown";
@@ -21,25 +21,28 @@ import { TtsAudioKey } from "@interop/tts";
 import { use_audio_section_labeler } from "./audio_section_labeler";
 import BehaviorSelector from "./behavior_selector/BehaviorSelector";
 import { use_bible_reader } from "@components/providers/BibleReaderProvider";
+import { BibleReaderBehavior, reader_reading_to_ref_id, ReaderReading } from "@interop/reader";
+import { use_deep_copy } from "@utils/index";
+import { use_view_history } from "@components/providers/ViewHistoryProvider";
 
 const FAST_FORWARD_TIME = 10;
 const REWIND_TIME = 10;
 
 export type AudioPlayerProps = {
     open: boolean,
-    current_chapter: ChapterId,
 }
 
 export default function AudioPlayer({
     open,
-    current_chapter
 }: AudioPlayerProps): React.ReactElement
 {
     const theme = useTheme();
     const tts_player = use_tts_player();
     const { settings } = use_settings();
     const label_audio_section = use_audio_section_labeler();
-    const { reader_behavior, set_reader_behavior } = use_bible_reader();
+    const { reader_behavior, set_reader_behavior, next_reading } = use_bible_reader();
+    const { bible_display_settings } = use_bible_display_settings();
+    const view_history = use_view_history();
 
     const [user_setting_time, set_user_setting_time] = useState(false);
     const [user_value, set_user_value] = useState(0);
@@ -47,18 +50,51 @@ export default function AudioPlayer({
     const [is_expanded, set_is_expanded] = useState(false);
     const current_version = use_bible_display_settings().bible_display_settings.bible_version;
     const { bible_infos } = use_bible_infos();
+    const deep_copy = use_deep_copy();
 
-    // If the user exits a page where the audio player is
-    useEffect(() => {
-        return () => {
-            tts_player.stop();
-        }
-    }, []);
+    const [player_index, set_player_index] = useState<number>(0);
+    const [current_reading, set_current_reading] = useState<ReaderReading | null>(null);
 
-    // Stops the player if the current_chapter changes
+    const handle_change_reader_behavior = useCallback((updater: (behavior: BibleReaderBehavior) => BibleReaderBehavior) => {
+        const copy = deep_copy(reader_behavior);
+        const updated = updater(copy);
+        set_reader_behavior(updated);
+    }, [reader_behavior, set_reader_behavior]);
+
+    const [is_playing, set_is_playing] = useState(false);
+
+    // Resets whenever a different bible is selected
     useEffect(() => {
+        set_player_index(0);
         tts_player.stop();
-    }, [current_chapter.book, current_chapter.chapter])
+    }, [bible_display_settings.bible_version, bible_infos, reader_behavior, open])
+
+    useEffect(() => {
+        let mounted = true;
+        if (tts_player.state()?.finished)
+        {
+            set_player_index(player_index + 1);
+        }
+
+        return () => {
+            mounted = false
+        };
+    }, [tts_player.state()?.finished, set_player_index, next_reading]);
+
+    useEffect(() => {
+        let mounted = true;
+
+        next_reading(bible_display_settings.bible_version, player_index).then(r => {
+            if (mounted)
+            {
+                set_current_reading(r);
+            }
+        })
+
+        return () => { 
+            mounted = false;
+        };
+    }, [player_index, reader_behavior, bible_display_settings.bible_version, next_reading, set_current_reading]);
 
     const player_state = useMemo(() => {
         return tts_player.state();
@@ -69,6 +105,26 @@ export default function AudioPlayer({
         player_ref.current = tts_player;
     }, [tts_player]);
 
+    useEffect(() => {
+        if (current_reading)
+        {
+            player_ref.current.stop();
+            view_history.push_ref_id(reader_reading_to_ref_id(current_reading))
+        }
+    }, [current_reading]);
+    
+    // Stops the player if what is currently displayed is not the chapter that it should be playing
+    useEffect(() => {
+        const current = view_history.get_current();
+        const is_same_chapter = current.type === "chapter" && current.chapter.book === current_reading?.chapter.book && current.chapter.chapter === current_reading.chapter.chapter;
+        const is_same_verse = current.type === "verse" && current.chapter.book === current_reading?.chapter.book && current.chapter.chapter === current_reading.chapter.chapter;
+
+        if (!is_same_chapter && !is_same_verse)
+        {
+            player_ref.current?.pause();
+        }
+    }, [view_history])
+
     const handle_play_button_clicked = useCallback(() => {
         const state = player_ref.current.state();
         if (state)
@@ -76,10 +132,12 @@ export default function AudioPlayer({
             if (state.paused)
             {
                 player_ref.current.play();
+                set_is_playing(true);
             }
             else 
             {
                 player_ref.current.pause();
+                set_is_playing(false);
             }
         }
     }, [player_state?.paused])
@@ -97,9 +155,25 @@ export default function AudioPlayer({
         }
     }, [tts_player])
 
-    const audio_keys = useMemo(() => {
+    const audio_keys: TtsAudioKey[] = useMemo(() => {
+        if (!current_reading)
+            return [];
+
         const voice = settings.tts_settings.current_voice;
-        const verses = get_chapter_verse_ids(bible_infos[current_version], current_chapter);
+        let verses: VerseId[];
+        if (current_reading.type === "chapter")
+        {
+            verses = get_chapter_verse_ids(bible_infos[current_version], current_reading.chapter);
+        }
+        else 
+        {
+            verses = Array.from({ length: current_reading.end - current_reading.start + 1}, (_, i) => i + current_reading.start).map(verse => ({
+                book: current_reading.chapter.book,
+                chapter: current_reading.chapter.chapter,
+                verse
+            }))
+        }
+
         let keys = verses.map((v): TtsAudioKey => ({
             type: "verse",
             bible: current_version,
@@ -107,7 +181,7 @@ export default function AudioPlayer({
             voice,
         }));
 
-        const label = label_audio_section(voice, current_version, current_chapter);
+        const label = label_audio_section(voice, current_reading);
         const label_key: TtsAudioKey = {
             type: "string",
             voice,
@@ -115,15 +189,11 @@ export default function AudioPlayer({
         }
 
         return [label_key, ...keys];
-    }, [current_chapter, current_version, bible_infos, settings.tts_settings.current_voice, label_audio_section]);
+    }, [current_reading, settings.tts_settings.current_voice, label_audio_section]);
 
     useEffect(() => {
         if (open)
         {
-            if (audio_keys.length > 0)
-            {
-                console.log(audio_keys[0].voice);
-            }
             player_ref.current.request(audio_keys);
         }
     }, [audio_keys, open]); // don't have tts tts player as a dependency, otherwise it will create a feedback loop
@@ -145,11 +215,20 @@ export default function AudioPlayer({
     }, [audio_keys, player_ref.current]);
 
     useEffect(() => {
-        if (player_ref.current.contains_keys(audio_keys) === audio_keys.length && open)
+        if (player_ref.current.contains_keys(audio_keys) === audio_keys.length && open && audio_keys.length > 0)
         {
             player_ref.current.load(audio_keys);
         }
     }, [audio_keys, player_ref.current.get_generated_keys().length, open]); // don't have tts tts player as a dependency, otherwise it will create a feedback loop
+
+    useEffect(() => {
+        console.log("Got here")
+        if (player_ref.current.is_loaded() && is_playing)
+        {
+            console.log("Playing next segment")
+            player_ref.current.play();
+        }
+    }, [is_playing, player_ref.current.is_loaded()])
 
     const play_button_type = useMemo((): PlayButtonType => {
         const state = tts_player.state();
@@ -299,8 +378,9 @@ export default function AudioPlayer({
                                         <VoiceSelectDropdown/>
                                     </Stack>
                                     <BehaviorSelector 
+                                        bible={bible_display_settings.bible_version}
                                         behavior={reader_behavior}
-                                        on_change={set_reader_behavior}
+                                        on_change={handle_change_reader_behavior}
                                     />
                                 </Stack>
                                 <Collapse in={is_expanded} timeout="auto" unmountOnExit={false}>
@@ -312,7 +392,7 @@ export default function AudioPlayer({
                                         useFlexGap
                                         gap={theme.spacing(0.5)}
                                         sx={{
-                                            backgroundColor: theme.palette.background.paper,
+                                            backgroundColor: theme.palette.background.default,
                                         }}
                                     >
                                         <CorrectPitchCheckbox/>

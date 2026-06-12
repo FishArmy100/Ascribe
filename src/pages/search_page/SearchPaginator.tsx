@@ -4,9 +4,10 @@ import { use_format_verse_id, use_selected_bibles } from "@interop/bible";
 import { SearchHit } from "@interop/searching"
 import { WordSearchHistoryEntry } from "@interop/view_history";
 import { Box, Typography, useTheme } from "@mui/material";
-import React from "react"
+import React, { useCallback } from "react"
 import rfdc from "rfdc";
 import use_search_page_strings from "./search_page_strings";
+import { play_sfx } from "@interop/sfx";
 
 export type SearchPaginatorProps = {
     hits: SearchHit[],
@@ -46,11 +47,12 @@ export default function SearchPaginator({
     const chunk_ranges = chunks.map(c => ({ start: c[0].verse, end: c[c.length - 1].verse }));
     const strings = use_search_page_strings();
 
-    const handle_page_clicked = (i: number) => {
+    const handle_page_clicked = useCallback((i: number) => {
+        play_sfx("click")
         const entry_copy = deep_copy(entry);
         entry_copy.page_index = i;
         view_history.push(entry_copy);
-    }
+    }, [deep_copy, entry, view_history])
 
     return (
         <Box

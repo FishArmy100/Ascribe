@@ -17,6 +17,7 @@ pub struct PlayerState
     pub current_key: Option<TtsAudioKey>,
     pub paused: bool,
     pub duration: f32,
+    pub finished: bool,
 }
 
 pub struct TtsPlayerThread
@@ -37,6 +38,7 @@ impl TtsPlayerThread
             current_key: None,
             paused: true,
             duration: 0.0,
+            finished: false,
         });
 
         let mut inner = TtsPlayerThreadInner::new(keys, manager, cmd_rx, state.clone(), app)?;
@@ -103,6 +105,7 @@ struct TtsPlayerThreadInner
     pitcher_tweener: TweenerHandle,
     current_handle: StaticSoundHandle,
     current_settings: TtsSettings,
+    finished: bool,
 }
 
 impl TtsPlayerThreadInner
@@ -197,6 +200,7 @@ impl TtsPlayerThreadInner
             pitcher_tweener,
             current_handle,
             current_settings: settings,
+            finished: false,
         })
     }
 
@@ -216,6 +220,7 @@ impl TtsPlayerThreadInner
                 {
                     PlayerCommand::Play => {
                         self.is_playing = true;
+                        self.finished = false;
                         self.current_handle.resume(Tween::default());
                     }
                     PlayerCommand::Pause => {
@@ -239,6 +244,7 @@ impl TtsPlayerThreadInner
                     {
                         self.index = 0;
                         self.is_playing = false;
+                        self.finished = true;
                     }
                     else
                     {
@@ -252,6 +258,7 @@ impl TtsPlayerThreadInner
                 current_key: Some(self.segments[self.index].key.clone().into()),
                 duration: self.total_duration(),
                 paused: !self.is_playing,
+                finished: self.finished,
             };
 
             *self.state.get() = state.clone();

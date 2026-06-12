@@ -9,7 +9,7 @@ import { ChapterId } from "@interop/bible";
 
 export type ContinuousBehaviorSectionProps = {
     behavior: BibleReaderBehavior;
-    on_change: (behavior: BibleReaderBehavior) => void;
+    on_change: (updater: (behavior: BibleReaderBehavior) => BibleReaderBehavior) => void;
 };
 
 export default function ContinuousBehaviorSection({
@@ -19,66 +19,62 @@ export default function ContinuousBehaviorSection({
     const theme = useTheme();
     const view_history = use_view_history();
 
-    const handle_enable_continuous_time_button = useCallback(() => {
-        let chapter: ChapterId | null = null;
+    const get_current_chapter = useCallback((): ChapterId => {
         let index = view_history.get_index();
-        do {
+        while (index > 0) {
             const entry = view_history.at(index);
-            if (entry.type === "chapter") {
-                chapter = entry.chapter;
+            if (entry.type === "chapter" || entry.type === "verse") {
+                return entry.chapter;
             }
-            else if (entry.type === "verse") {
-                chapter = entry.chapter;
-            }
-
             index -= 1;
         }
-        while (chapter === null && index > 0);
+        return { book: "Gen", chapter: 1 };
+    }, [view_history]);
 
-        if (chapter === null) {
-            chapter = {
-                book: "Gen",
-                chapter: 1,
+    const handle_enable_continuous_time_button = useCallback(() => {
+        const chapter = get_current_chapter();
+
+        on_change(prev => {
+            if (prev.type === "continuous") {
+                return {
+                    type: "timed_continuous",
+                    finish_segment: false,
+                    seconds: TIME_OPTIONS[0],
+                    start: chapter,
+                };
+            } else if (prev.type === "timed_continuous") {
+                return {
+                    type: "continuous",
+                    start: chapter,
+                };
             }
-        }
-
-        if (behavior.type === "continuous") {
-            on_change({
-                type: "timed_continuous",
-                finish_segment: false,
-                seconds: TIME_OPTIONS[0],
-                start: chapter,
-            })
-        }
-        else if (behavior.type === "timed_continuous") {
-            on_change({
-                type: "continuous",
-                start: chapter,
-            })
-        }
-    }, [behavior, on_change, view_history]);
+            return prev;
+        });
+    }, [on_change, get_current_chapter]);
 
     const handle_continuous_time_changed = useCallback((seconds: number) => {
-        if (behavior.type === "timed_continuous") {
-            on_change({
+        on_change(prev => {
+            if (prev.type !== "timed_continuous") return prev;
+            return {
                 type: "timed_continuous",
-                finish_segment: behavior.finish_segment,
+                finish_segment: prev.finish_segment,
                 seconds,
-                start: behavior.start,
-            })
-        }
-    }, [on_change, behavior]);
+                start: prev.start,
+            };
+        });
+    }, [on_change]);
 
     const handle_continuous_finish_section_changed = useCallback((value: boolean) => {
-        if (behavior.type === "timed_continuous") {
-            on_change({
+        on_change(prev => {
+            if (prev.type !== "timed_continuous") return prev;
+            return {
                 type: "timed_continuous",
                 finish_segment: value,
-                seconds: behavior.seconds,
-                start: behavior.start,
-            })
-        }
-    }, [on_change, behavior]);
+                seconds: prev.seconds,
+                start: prev.start,
+            };
+        });
+    }, [on_change]);
 
     if (behavior.type !== "continuous" && behavior.type !== "timed_continuous") {
         return <></>;

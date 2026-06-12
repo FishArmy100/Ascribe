@@ -9,11 +9,13 @@ import ChapterRangeSelector from "./ChapterRangeSelector";
 import { use_deep_copy } from "@utils/index";
 
 export type BehaviorSelectorProps = {
+    bible: string,
     behavior: BibleReaderBehavior,
-    on_change: (behavior: BibleReaderBehavior) => void,
+    on_change: (updater: (behavior: BibleReaderBehavior) => BibleReaderBehavior) => void,
 }
 
 export default function BehaviorSelector({
+    bible,
     behavior,
     on_change,
 }: BehaviorSelectorProps): React.ReactElement {
@@ -22,13 +24,15 @@ export default function BehaviorSelector({
     const { reading_plan_options } = use_reading_plans();
 
     const handle_repeat_behavior_changed = useCallback((repeat: RepeatBehavior) => {
-        if (behavior.type === "continuous" || behavior.type === "timed_continuous")
-            return;
+        on_change(prev => {
+            if (prev.type === "continuous" || prev.type === "timed_continuous")
+                return prev; // no change
 
-        const copy = deep_copy(behavior);
-        copy.repeat = repeat;
-        on_change(copy);
-    }, [behavior, on_change, deep_copy]);
+            const copy = deep_copy(prev);
+            copy.repeat = repeat;
+            return copy;
+        });
+    }, [on_change, deep_copy]);
 
     return (
         <Stack
@@ -55,6 +59,7 @@ export default function BehaviorSelector({
                     on_change={on_change}
                 />
                 <ChapterRangeSelector
+                    bible={bible}
                     behavior={behavior}
                     on_change={on_change}
                 />

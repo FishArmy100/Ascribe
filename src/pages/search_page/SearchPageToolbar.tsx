@@ -9,6 +9,7 @@ import React, { useCallback } from "react";
 import { use_bible_infos } from "@components/providers/BibleInfoProvider";
 import SubMenuDropdown from "@components/SubMenuDropdown";
 import use_search_page_strings from "./search_page_strings";
+import ReadingsDisplay from "@components/readings_display/ReadingsDisplay";
 
 export type SearchPageToolbarProps = {
     entry: WordSearchHistoryEntry
@@ -67,6 +68,11 @@ export const SearchPageToolbar = React.memo(function SearchPageToolbar({
                     disabled={view_history.get_index() >= view_history.get_count() - 1}
                     on_click={() => view_history.advance()}
                 />
+                <Divider 
+                    orientation="vertical" 
+                    flexItem 
+                />
+                <ReadingsDisplay />
                 <SubMenuDropdown />
             </TopBar>
     )

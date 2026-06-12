@@ -28,6 +28,7 @@ export type PlayerState =
     current_key: TtsAudioKey | null,
     paused: boolean,
     duration: number,
+    finished: boolean,
 }
 
 export function backend_request(keys: TtsAudioKey[]): Promise<void>

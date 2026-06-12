@@ -54,11 +54,14 @@ impl TtsPlayerInner
 
     pub fn load(&mut self, keys: Vec<TtsAudioKey>) -> bool
     {
-        self.player_thread = TtsPlayerThread::new(
-            keys, 
-            self.manager.clone(), 
-            self.app.clone()
-        );
+        if keys.len() > 0
+        {
+            self.player_thread = TtsPlayerThread::new(
+                keys, 
+                self.manager.clone(), 
+                self.app.clone()
+            );
+        }
 
         let is_loaded = self.player_thread.is_some();
         self.app.emit(

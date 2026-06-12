@@ -13,7 +13,7 @@ type BehaviorType = "reading" | "chapter_range" | "current" | "continuous";
 
 export type BehaviorTypeSelectorProps = {
     behavior: BibleReaderBehavior;
-    on_change: (behavior: BibleReaderBehavior) => void;
+    on_change: (updater: (behavior: BibleReaderBehavior) => BibleReaderBehavior) => void,
     reading_plan_options: TextSelectDropdownOption<string>[];
 };
 
@@ -102,7 +102,7 @@ export default function BehaviorTypeSelector({
         if (type === "reading") {
             const start_date = to_readings_date(new Date(new Date().getFullYear(), 0, 1));
 
-            on_change({
+            on_change(() => ({
                 type: "reading",
                 module_id: reading_plan_options[0].value,
                 start_date: start_date,
@@ -111,7 +111,7 @@ export default function BehaviorTypeSelector({
                     type: "count",
                     count: 1,
                 }
-            })
+            }))
         }
         else if (type === "chapter_range") {
             let chapter: ChapterId | null = null;
@@ -136,15 +136,15 @@ export default function BehaviorTypeSelector({
                 }
             }
 
-            on_change({
+            on_change(() => ({
                 type: "chapter_range",
                 start: chapter,
-                count: 1,
+                end: chapter,
                 repeat: {
                     type: "count",
                     count: 1,
                 }
-            })
+            }))
         }
         else if (type === "current") {
             let inner: RefIdInner | null = null;
@@ -191,14 +191,14 @@ export default function BehaviorTypeSelector({
                 }
             }
 
-            on_change({
+            on_change(() => ({
                 type: "current",
                 ref_id: inner,
                 repeat: {
                     type: "count",
                     count: 1,
                 }
-            })
+            }))
         }
         else if (type === "continuous") {
             let chapter: ChapterId | null = null;
@@ -223,10 +223,10 @@ export default function BehaviorTypeSelector({
                 }
             }
 
-            on_change({
+            on_change(() => ({
                 type: "continuous",
                 start: chapter,
-            });
+            }));
         }
     }, [on_change, reading_plan_options, view_history]);
 
