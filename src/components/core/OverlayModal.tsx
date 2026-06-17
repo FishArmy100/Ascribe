@@ -30,6 +30,7 @@ export default function OverlayModal({
             open={show}
             onClose={() => on_close()}
             slots={{ backdrop: Backdrop }}
+            // disableScrollLock
             slotProps={{
                 backdrop: {
                     sx: { backdropFilter: "blur(1px)" },

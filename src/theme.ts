@@ -93,7 +93,7 @@ export const ASCRIBE_DARK_THEME: AppTheme = {
             main: '#4A7DCC',
             light: '#6B99E0',
             dark: '#2F5DA8',
-            contrast_text: '#000000',
+            contrast_text: '#ffffff',
         },
         secondary: {
             main: '#B8843D',

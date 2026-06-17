@@ -8,6 +8,7 @@ import "@utils/extensions";
 import "@components/bible/BibleWord.css";
 import "@components/bible/AnimatedUnderline.css";
 import "@assets/fonts/fonts.css"
+import "./main.css";
 import AppThemeProvider from "@components/providers/AppThemeProvider";
 
 

@@ -49,14 +49,16 @@ export default function BiblePrinterPage(): React.ReactElement
     return (
         <Box>
             <BiblePrinterPageToolbar on_download={handle_download}/>
-            <Box sx={{ 
-                mt: 5, 
-                display: "flex",
-                width: "100vw",
-                height: `calc(100vh - ${theme.spacing(5)})`,
-                alignItems: "center",
-                justifyContent: "center",
-            }}>
+            <Box 
+                sx={{ 
+                    mt: 5, 
+                    display: "flex",
+                    width: "100vw",
+                    height: `calc(100vh - ${theme.spacing(5)})`,
+                    alignItems: "center",
+                    justifyContent: "center",
+                }}
+            >
                 {error ? (
                     <Box sx={{ color: "error.main" }}>Error: {error}</Box>
                 ) : pdf_data ? (

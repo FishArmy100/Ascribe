@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{bible::fetching::PackageEx, repr::{ModuleEntryJson, StrongsNumberJson, VerseIdJson}, searching::{module_searching::ModuleSearchHit, word_search_engine::{WordSearchPart, WordSearchQuery, WordSearchRange}}};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct WordSearchQueryJson
 {
     pub ranges: Vec<WordSearchRangeJson>,
@@ -54,7 +54,7 @@ impl From<&WordSearchQueryJson> for WordSearchQuery
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case", tag = "type")]
 pub enum WordSearchPartJson
 {
@@ -224,7 +224,7 @@ impl From<&WordSearchPart> for WordSearchPartJson
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub struct WordSearchRangeJson 
 {

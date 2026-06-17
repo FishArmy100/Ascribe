@@ -3,7 +3,7 @@ use std::num::NonZeroU32;
 use biblio_json::core::{ChapterId, OsisBook};
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 pub struct ChapterIdJson
 {
     pub book: OsisBook,

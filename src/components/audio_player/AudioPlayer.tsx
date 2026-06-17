@@ -24,6 +24,7 @@ import { use_bible_reader } from "@components/providers/BibleReaderProvider";
 import { BibleReaderBehavior, reader_reading_to_ref_id, ReaderReading } from "@interop/reader";
 import { use_deep_copy } from "@utils/index";
 import { use_view_history } from "@components/providers/ViewHistoryProvider";
+import QueuePopup from "./reader_queue/QueuePopup";
 
 const FAST_FORWARD_TIME = 10;
 const REWIND_TIME = 10;
@@ -48,6 +49,7 @@ export default function AudioPlayer({
     const [user_value, set_user_value] = useState(0);
 
     const [is_expanded, set_is_expanded] = useState(false);
+    const [show_queue, set_show_queue] = useState(false);
     const current_version = use_bible_display_settings().bible_display_settings.bible_version;
     const { bible_infos } = use_bible_infos();
     const deep_copy = use_deep_copy();
@@ -70,15 +72,10 @@ export default function AudioPlayer({
     }, [bible_display_settings.bible_version, bible_infos, reader_behavior, open])
 
     useEffect(() => {
-        let mounted = true;
         if (tts_player.state()?.finished)
         {
             set_player_index(player_index + 1);
         }
-
-        return () => {
-            mounted = false
-        };
     }, [tts_player.state()?.finished, set_player_index, next_reading]);
 
     useEffect(() => {
@@ -376,6 +373,11 @@ export default function AudioPlayer({
                                         <VolumeControl/>
                                         <PlaybackControl/>
                                         <VoiceSelectDropdown/>
+                                        <ImageButton 
+                                            image={images.history_vertical}
+                                            tooltip={null}
+                                            on_click={() => set_show_queue(true)}
+                                        />
                                     </Stack>
                                     <BehaviorSelector 
                                         bible={bible_display_settings.bible_version}
@@ -404,6 +406,13 @@ export default function AudioPlayer({
                     </motion.div>
                 )}
             </AnimatePresence>
+            <QueuePopup 
+                show={show_queue}
+                on_close={() => set_show_queue(false)}
+                index={player_index}
+                bible={bible_display_settings.bible_version}
+                on_select={set_player_index}
+            />
         </Box>
     )
 }
