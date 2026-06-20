@@ -56,6 +56,7 @@ export default function AudioPlayer({
 
     const [player_index, set_player_index] = useState<number>(0);
     const [current_reading, set_current_reading] = useState<ReaderReading | null>(null);
+    const [timer_time, set_timer_time] = useState<number>(0)
 
     const handle_change_reader_behavior = useCallback((updater: (behavior: BibleReaderBehavior) => BibleReaderBehavior) => {
         const copy = deep_copy(reader_behavior);
@@ -89,10 +90,18 @@ export default function AudioPlayer({
     useEffect(() => {
         let mounted = true;
 
-        next_reading(bible_display_settings.bible_version, player_index).then(r => {
+        next_reading(bible_display_settings.bible_version, player_index, timer_time).then(r => {
             if (mounted)
             {
-                set_current_reading(r);
+                if (r.type === "none" || r.type === "stop")
+                {
+                    player_ref.current?.pause();
+                    set_player_index(0);
+                }
+                else 
+                {
+                    set_current_reading(r.reading);
+                }
             }
         })
 
@@ -221,7 +230,6 @@ export default function AudioPlayer({
         console.log("Got here")
         if (player_ref.current.is_loaded() && is_playing)
         {
-            console.log("Playing next segment")
             player_ref.current.play();
         }
     }, [is_playing, is_player_loaded])

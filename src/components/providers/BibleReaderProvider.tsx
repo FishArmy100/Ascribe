@@ -1,6 +1,6 @@
 import { listen } from "@tauri-apps/api/event";
 import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
-import { type BibleReaderBehavior, ReaderChangedEvent, get_backend_reader_behavior, set_backend_reader_behavior, READER_CHANGED_EVENT_NAME, get_backend_next_reader_passage, ReaderReading } from "../../interop/reader";
+import { type BibleReaderBehavior, ReaderChangedEvent, get_backend_reader_behavior, set_backend_reader_behavior, READER_CHANGED_EVENT_NAME, get_backend_next_reader_passage, ReaderReading, ReaderNextResult } from "../../interop/reader";
 import { RefId } from "@interop/bible/ref_id";
 
 const DEFAULT_READER_BEHAVIOR: BibleReaderBehavior = {
@@ -15,7 +15,7 @@ type BibleReaderContextType = {
     readonly reader_behavior: BibleReaderBehavior,
     set_reader_behavior: (b: BibleReaderBehavior) => Promise<void>,
     update_reader_behavior: (f: (b: BibleReaderBehavior) => BibleReaderBehavior) => Promise<void>,
-    next_reading: (bible: string, index: number) => Promise<ReaderReading | null>
+    next_reading: (bible: string, index: number, time: number) => Promise<ReaderNextResult>
 }
 
 const BibleReaderContext = createContext<BibleReaderContextType | undefined>(undefined);

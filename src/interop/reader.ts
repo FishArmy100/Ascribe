@@ -134,17 +134,52 @@ export async function set_backend_reader_behavior(behavior: BibleReaderBehavior)
     });
 }
 
-export async function get_backend_next_reader_passage(bible: string, index: number): Promise<ReaderReading | null>
+export type ReaderNextResult = |{
+    type: "stop"
+} |{
+    type: "none"
+} |{
+    type: "reading",
+    reading: ReaderReading,
+}
+
+export async function get_backend_next_reader_passage(bible: string, index: number, time: number): Promise<ReaderNextResult>
 {
     const response = await invoke<string | null>("run_reader_command", {
-        command: { type: "next", bible, index }
+        command: { 
+            type: "next", 
+            bible, 
+            index, 
+            time: Math.max(0, Math.floor(time)), 
+        }
     });
     
-    if (!response) {
-        return null;
+    if (!response) 
+    {
+        return { type: "none" };
     }
     
-    return JSON.parse(response) as ReaderReading | null;
+    return JSON.parse(response) as ReaderNextResult;
+}
+
+export type ReaderQueue = {
+    queue: ReaderReading[],
+    relative_index: number,
+    queue_offset: number,
+}
+
+export async function get_backend_reader_queue(bible: string, index: number, offset: number): Promise<ReaderQueue>
+{
+    const response = await invoke<string | null>("run_reader_command", {
+        command: { type: "get_queue", bible, index, offset }
+    });
+    
+    if (!response) 
+    {
+        return null as any;
+    }
+    
+    return JSON.parse(response) as ReaderQueue;
 }
 
 

@@ -1,19 +1,13 @@
 import * as images from "@assets";
 import OverlayModal from "@components/core/OverlayModal";
 import { use_bible_reader } from "@components/providers/BibleReaderProvider";
-import { get_backend_next_reader_passage, ReaderReading } from "@interop/reader";
+import { get_backend_reader_queue, ReaderQueue, ReaderReading } from "@interop/reader";
 import { Box, Stack, Typography, useTheme } from "@mui/material";
 import { LoadingSpinner } from "@src/pages/LoadingSpinner";
 import React, { useEffect, useState } from "react";
 import QueueItem from "./QueueItem";
 
 const QUEUE_OFFSET = 3;
-
-type QueueState = {
-    readings: (ReaderReading | null)[];
-    selected_index: number;
-    index_offset: number;
-};
 
 export type QueuePopupProps = {
     index: number;
@@ -30,20 +24,17 @@ export default function QueuePopup({
     on_close,
     on_select,
 }: QueuePopupProps): React.ReactElement {
-    const [queue_state, set_queue_state] = useState<QueueState | null>(null);
+    const [queue_state, set_queue_state] = useState<ReaderQueue | null>(null);
     const { reader_behavior } = use_bible_reader();
     const theme = useTheme();
 
     useEffect(() => {
         let mounted = true;
 
-        fetch_reader_queue(index, QUEUE_OFFSET, bible).then(queue => {
-            if (mounted) {
-                set_queue_state({
-                    readings: queue.readings,
-                    selected_index: queue.selected_index,
-                    index_offset: queue.index_offset,
-                });
+        get_backend_reader_queue(bible, index, QUEUE_OFFSET).then(queue => {
+            if (mounted) 
+            {
+                set_queue_state(queue);
             }
         });
 
@@ -91,12 +82,12 @@ export default function QueuePopup({
                     </Stack>
 
                     <Stack gap={theme.spacing(0.75)}>
-                        {queue_state.readings.map((r, i) => (
+                        {queue_state.queue.map((r, i) => (
                             <QueueItem
                                 key={i}
                                 reading={r}
-                                selected={i === queue_state.selected_index}
-                                on_click={() => on_select(i + queue_state.index_offset)}
+                                selected={i === queue_state.relative_index}
+                                on_click={() => on_select(i + queue_state.queue_offset)}
                             />
                         ))}
                     </Stack>
@@ -106,27 +97,4 @@ export default function QueuePopup({
             )}
         </OverlayModal>
     );
-}
-
-async function fetch_reader_queue(
-    index: number,
-    offset: number,
-    bible: string,
-): Promise<QueueState> {
-    const before_count = Math.min(offset, Math.max(0, index));
-    const before_offset = Math.max(0, index - before_count);
-    const after_count = offset;
-    const total_count = before_count + after_count + 1;
-
-    const readings = await Promise.all(
-        Array.from({ length: total_count }, (_, i) => i + before_offset).map(i =>
-            get_backend_next_reader_passage(bible, i)
-        )
-    );
-
-    return {
-        readings,
-        selected_index: before_count,
-        index_offset: before_offset,
-    };
 }
