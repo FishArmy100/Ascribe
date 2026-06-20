@@ -54,11 +54,11 @@ export default function VoiceSelectDropdown(): React.ReactElement
             s.tts_settings.current_voice = voice_id;
             return s;
         })
-    }, [update_settings, tts_player]);
+    }, [update_settings, tts_player, settings.tts_settings.current_voice]);
 
     useEffect(() => {
         set_voice_id(selectable_voices[0].id);
-    }, [selectable_voices]);
+    }, [selectable_voices, set_voice_id]);
 
     const selected_index = useMemo(() => {
         const index = selectable_voices.findIndex(v => v.id === selected_voice.id);

@@ -6,6 +6,8 @@ import { Box, Stack, Typography } from "@mui/material";
 import { use_deep_copy } from "@utils/index";
 import React, { useCallback, useMemo, useState } from "react";
 import use_readings_display_strings from "./readings_display_strings";
+import { play_sfx } from "@interop/sfx";
+import TextSelectDropdown, { TextSelectDropdownOption } from "@components/core/TextSelectDropdown";
 
 export default function ReadingsPlanSelector(): React.ReactElement
 {
@@ -36,65 +38,23 @@ export default function ReadingsPlanSelector(): React.ReactElement
         reading_plans.find(r => r.id === bible_display_settings.reading_plan)!
     );
 
+    const options = useMemo((): TextSelectDropdownOption<string>[] => reading_plans.map(r => ({
+        text: get_module_display_name(r),
+        tooltip: null,
+        value: r.id,
+    })), []);
+
+    const selected_option_index = useMemo(() => {
+        return options.findIndex(o => o.value === bible_display_settings.reading_plan);
+    }, [bible_display_settings.reading_plan, options])
+
     return (
-        <DropdownBase
-            button={{
-                type: "text",
-                tooltip: strings.select_plan,
-                text: selected_reading_name,
-                sx: {
-                    width: "100%"
-                }
-            }}
-            is_open={is_open}
-            on_click={() => set_is_open(!is_open)}
-            content_z_index={2000}
-            panel_sx={{
-                boxSizing: "border-box",
-                width: "100%",
-            }}
-        >
-            <Stack
-                sx={{
-                    padding: 1,
-                    gap: theme => theme.spacing(1),
-                }}
-            >
-                {reading_plans.map((r, i) => {
-                    const name = get_module_display_name(r);
-                    const is_selected = bible_display_settings.reading_plan === r.id;
-                    return (
-                        <Box
-                            key={i}
-                            onClick={() => on_select_plan(r.id)}
-                            sx={{
-                                padding: 1,
-                                cursor: "pointer",
-                                width: "100%",
-                                boxSizing: "border-box",
-                                transition: "background-color 0.3s ease",
-                                borderRadius: 1,
-                                borderColor: theme => theme.palette.divider,
-                                borderStyle: "solid",
-                                borderWidth: theme => theme.spacing(1 / 8),
-                                "&:hover": {
-                                    backgroundColor: theme => theme.palette.action.hover,
-                                }
-                            }}
-                        >
-                            <Typography
-                                fontWeight={is_selected ? "bold" : undefined}
-                                variant="body2"
-                                component="div"
-                                textAlign="center"
-                                width="100%"
-                            >
-                                {name}
-                            </Typography>
-                        </Box>
-                    )
-                })}
-            </Stack>
-        </DropdownBase>
-    )
+        <TextSelectDropdown 
+            tooltip={strings.select_plan}
+            options={options}
+            selected={selected_option_index}
+            on_select={on_select_plan}
+            variant="body2"
+        />
+    ) 
 }

@@ -101,7 +101,7 @@ export function use_audio_section_labeler(): (voice_id: string, reading: ReaderR
                 const namer = SINGLE_VERSE_NAMER_MAP[language];
                 if (namer)
                 {
-                    namer(book, chapter, reading.start)
+                    return namer(book, chapter, reading.start)
                 }
                 else 
                 {
@@ -113,7 +113,7 @@ export function use_audio_section_labeler(): (voice_id: string, reading: ReaderR
                 const namer = VERSE_RANGE_NAMER_MAP[language];
                 if (namer)
                 {
-                    namer(book, chapter, reading.start, reading.end);
+                    return namer(book, chapter, reading.start, reading.end);
                 }
                 else 
                 {
@@ -123,7 +123,6 @@ export function use_audio_section_labeler(): (voice_id: string, reading: ReaderR
         }
 
         const namer = CHAPTER_NAMER_MAP[language];
-        console.log(language);
         if (namer)
         {
             return namer(book_id, book, chapter);
@@ -133,5 +132,5 @@ export function use_audio_section_labeler(): (voice_id: string, reading: ReaderR
             return `${book} ${chapter}`;
         }
 
-    }, [i18n, bible_infos])
+    }, [i18n, bible_infos, voices])
 }

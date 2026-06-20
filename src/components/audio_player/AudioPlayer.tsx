@@ -64,11 +64,19 @@ export default function AudioPlayer({
     }, [reader_behavior, set_reader_behavior]);
 
     const [is_playing, set_is_playing] = useState(false);
+    const player_state = tts_player.state();
+    const is_player_loaded = tts_player.is_loaded();
+    const generated_keys_count = tts_player.get_generated_keys().length;
+    
+    const player_ref = useRef<ITtsContextType>(tts_player);
+    useEffect(() => {
+        player_ref.current = tts_player;
+    }, [tts_player]);
 
     // Resets whenever a different bible is selected
     useEffect(() => {
         set_player_index(0);
-        tts_player.stop();
+        player_ref.current.stop();
     }, [bible_display_settings.bible_version, bible_infos, reader_behavior, open])
 
     useEffect(() => {
@@ -76,7 +84,7 @@ export default function AudioPlayer({
         {
             set_player_index(player_index + 1);
         }
-    }, [tts_player.state()?.finished, set_player_index, next_reading]);
+    }, [player_state?.finished, player_index, set_player_index, next_reading]);
 
     useEffect(() => {
         let mounted = true;
@@ -93,22 +101,13 @@ export default function AudioPlayer({
         };
     }, [player_index, reader_behavior, bible_display_settings.bible_version, next_reading, set_current_reading]);
 
-    const player_state = useMemo(() => {
-        return tts_player.state();
-    }, [tts_player]);
-
-    const player_ref = useRef<ITtsContextType>(tts_player);
-    useEffect(() => {
-        player_ref.current = tts_player;
-    }, [tts_player]);
-
     useEffect(() => {
         if (current_reading)
         {
             player_ref.current.stop();
             view_history.push_ref_id(reader_reading_to_ref_id(current_reading))
         }
-    }, [current_reading]);
+    }, [current_reading, view_history.push_ref_id]);
     
     // Stops the player if what is currently displayed is not the chapter that it should be playing
     useEffect(() => {
@@ -120,7 +119,7 @@ export default function AudioPlayer({
         {
             player_ref.current?.pause();
         }
-    }, [view_history])
+    }, [view_history.get_current])
 
     const handle_play_button_clicked = useCallback(() => {
         const state = player_ref.current.state();
@@ -137,7 +136,7 @@ export default function AudioPlayer({
                 set_is_playing(false);
             }
         }
-    }, [player_state?.paused])
+    }, [])
 
     const [player_progress, progress_text] = useMemo(() => {
         if (player_state && player_state.duration > 0)
@@ -150,7 +149,7 @@ export default function AudioPlayer({
         {
             return [ null, "--:--" ];
         }
-    }, [tts_player])
+    }, [player_state])
 
     const audio_keys: TtsAudioKey[] = useMemo(() => {
         if (!current_reading)
@@ -209,14 +208,14 @@ export default function AudioPlayer({
         {
             return null;
         }
-    }, [audio_keys, player_ref.current]);
+    }, [audio_keys, tts_player]);
 
     useEffect(() => {
         if (player_ref.current.contains_keys(audio_keys) === audio_keys.length && open && audio_keys.length > 0)
         {
             player_ref.current.load(audio_keys);
         }
-    }, [audio_keys, player_ref.current.get_generated_keys().length, open]); // don't have tts tts player as a dependency, otherwise it will create a feedback loop
+    }, [audio_keys, generated_keys_count, open]);
 
     useEffect(() => {
         console.log("Got here")
@@ -225,7 +224,7 @@ export default function AudioPlayer({
             console.log("Playing next segment")
             player_ref.current.play();
         }
-    }, [is_playing, player_ref.current.is_loaded()])
+    }, [is_playing, is_player_loaded])
 
     const play_button_type = useMemo((): PlayButtonType => {
         const state = tts_player.state();
@@ -241,36 +240,36 @@ export default function AudioPlayer({
         {
             return "play";
         }
-    }, [generation_progress, tts_player])
+    }, [generation_progress, player_state])
 
-    const handle_user_change_progress = (v: number) => {
+    const handle_user_change_progress = useCallback((v: number) => {
         set_user_setting_time(true);
         set_user_value(v);
-    };
+    }, [set_user_setting_time, set_user_value]);
 
-    const handle_fast_forward = () => {
+    const handle_fast_forward = useCallback(() => {
         if (player_state && player_state.duration > 0)
         {
             const new_time = Math.min(player_state.current_time + FAST_FORWARD_TIME, player_state.duration);
             player_ref.current.set_time(new_time);
         }
-    }
+    }, [player_state?.duration])
 
-    const handle_rewind = () => {
+    const handle_rewind = useCallback(() => {
         if (player_state && player_state.duration > 0)
         {
             const new_time = Math.max(player_state.current_time - REWIND_TIME, 0);
             player_ref.current.set_time(new_time);
         }
-    } 
+    }, [player_state?.duration])
 
-    const handle_user_commit_progress = (v: number) => {
+    const handle_user_commit_progress = useCallback((v: number) => {
         if (player_state && player_state.duration > 0)
         {
             player_ref.current.set_time(v * player_state.duration);
         }
         set_user_setting_time(false);
-    }
+    }, [player_state?.duration, set_user_setting_time]);
 
     const tooltips = use_audio_player_tooltips();
 

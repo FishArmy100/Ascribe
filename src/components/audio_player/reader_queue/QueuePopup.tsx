@@ -64,8 +64,8 @@ export default function QueuePopup({
                         gap={1}
                         sx={{
                             pb: 1.25,
-                            mb: 0.5,
-                            borderBottom: `0.5px solid ${theme.palette.divider}`,
+                            mb: 2,
+                            borderBottom: `${theme.spacing(1 / 16)} solid ${theme.palette.divider}`,
                         }}
                     >
                         <Box

@@ -112,30 +112,66 @@ impl Default for BibleReaderBehavior
     }
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum ReaderNextResult
+{
+    Reading
+    {
+        reading: ReaderReading,
+    },
+    Stop,
+    None,
+    Error
+    {
+        message: String,
+    }
+}
+
 impl BibleReaderBehavior
 {
     /// Does not take into account repeat behavior
-    pub fn next(&self, index: u32, bible: &ModuleId, package: &Package) -> Result<Option<ReaderReading>, String>
+    pub fn next(&self, index: u32, time: u32, bible: &ModuleId, package: &Package) -> ReaderNextResult
     {
-        let bible = package.get_mod(bible)
+        let bible = match package.get_mod(bible)
             .and_then(Module::as_bible)
-            .ok_or(format!("Bible is not a valid bible module id"))?;
+        {
+            Some(b) => b,
+            None => return ReaderNextResult::Error { 
+                message: format!("Bible is not a valid bible module id") 
+            }
+        };
 
         match self 
         {
-            BibleReaderBehavior::Reading { module_id, date, start_date, .. } => {
-                let start_date = start_date.to_readings_date()
-                    .ok_or(format!("Start date invalid"))?;
+            BibleReaderBehavior::Reading { module_id, date, start_date, repeat } => {
 
-                let date = date.to_readings_date()
-                    .ok_or(format!("Date invalid"))?;
+                let start_date = match start_date.to_readings_date()
+                {
+                    Some(d) => d,
+                    None => return ReaderNextResult::Error { 
+                        message: format!("Start date invalid") 
+                    }
+                };
 
-                let readings_mod = package.get_mod(module_id)
+                let date = match date.to_readings_date()
+                {
+                    Some(d) => d,
+                    None => return ReaderNextResult::Error { 
+                        message: format!("Date invalid") 
+                    }
+                };
+
+                let readings_mod = match package.get_mod(module_id)
                     .and_then(Module::as_readings)
-                    .ok_or(format!("Module not a Readings module"))?;
+                {
+                    Some(m) => m,
+                    None => return ReaderNextResult::Error { 
+                        message: format!("Module not a Readings module") 
+                    }
+                };
 
                 let Some(readings) = readings_mod.get_reading(start_date, date) else {
-                    return Ok(None)
+                    return ReaderNextResult::None
                 };
 
                 let readings = readings.readings.iter().map(|r| {
@@ -147,12 +183,29 @@ impl BibleReaderBehavior
                     })
                 }).flatten().collect_vec();
 
+                match repeat
+                {
+                    RepeatBehavior::Count { count } => {
+                        if index as usize / readings.len() >= count.get() as usize 
+                        {
+                            return ReaderNextResult::Stop
+                        }
+                    },
+                    RepeatBehavior::Time { seconds, finish_segment: _ } => {
+                        if time >= *seconds
+                        {
+                            return ReaderNextResult::Stop
+                        }
+                    },
+                    RepeatBehavior::Infinite => {},
+                }
+
                 let index = index as usize % readings.len();
                 let reading = readings[index].clone();
 
                 if  !bible.source.id_exists(&reading)
                 {
-                    return Ok(None)
+                    return ReaderNextResult::None
                 }
                 
                 use RefIdInner::*;
@@ -188,24 +241,61 @@ impl BibleReaderBehavior
                         start, 
                         end
                     },
-                    _ => return Err(format!("Invalid RefId variant for reading: {:?}", reading))
+                    _ => return ReaderNextResult::Error
+                    {
+                        message: format!("Invalid RefId variant for reading: {:?}", reading)
+                    }
                 };
 
-                Ok(Some(reading))
+                ReaderNextResult::Reading { reading }
             },
-            BibleReaderBehavior::ChapterRange { start, end, .. } => {
+            BibleReaderBehavior::ChapterRange { start, end, repeat } => {
                 let bible = BibleInfo::new(&bible);
                 let distance = bible.get_chapter_distance(start.into(), end.into()).abs() as u32 + 1;
                 let index = index % distance;
                 let chapter = bible.offset_chapter(start.into(), index as i32);
+
+                match repeat
+                {
+                    RepeatBehavior::Count { count } => {
+                        if index / distance >= count.get() 
+                        {
+                            return ReaderNextResult::Stop
+                        }
+                    },
+                    RepeatBehavior::Time { seconds, finish_segment: _ } => {
+                        if time >= *seconds
+                        {
+                            return ReaderNextResult::Stop
+                        }
+                    },
+                    RepeatBehavior::Infinite => {},
+                }
                 
-                return Ok(Some(ReaderReading::Chapter { 
+                return ReaderNextResult::Reading { reading: ReaderReading::Chapter { 
                     chapter: chapter.into(), 
                     bible: bible.id.clone() 
-                }))
+                }}
             },
-            BibleReaderBehavior::Current { ref_id, .. } => {
+            BibleReaderBehavior::Current { ref_id, repeat } => {
                 let bible = bible.config.id.clone();
+
+                match repeat
+                {
+                    RepeatBehavior::Count { count } => {
+                        if index > count.get() 
+                        {
+                            return ReaderNextResult::Stop
+                        }
+                    },
+                    RepeatBehavior::Time { seconds, finish_segment: _ } => {
+                        if time >= *seconds
+                        {
+                            return ReaderNextResult::Stop
+                        }
+                    },
+                    RepeatBehavior::Infinite => {},
+                }
 
                 use RefIdInnerJson::*;
                 use AtomJson::*;
@@ -240,19 +330,45 @@ impl BibleReaderBehavior
                         start, 
                         end
                     },
-                    _ => return Err(format!("Invalid RefId variant for reading: {:?}", ref_id))
+                    _ => return ReaderNextResult::Error { 
+                        message: format!("Invalid RefId variant for reading: {:?}", ref_id)
+                    }
                 };
 
-                Ok(Some(reading))
+                ReaderNextResult::Reading { 
+                    reading 
+                }
             }
-            BibleReaderBehavior::Continuous { start } | BibleReaderBehavior::TimedContinuous { start, .. } => {
+            BibleReaderBehavior::Continuous { start } => {
                 let bible = BibleInfo::new(&bible);
                 let chapter = bible.offset_chapter(start.into(), index as i32);
                 
-                return Ok(Some(ReaderReading::Chapter { 
+                let reading = ReaderReading::Chapter { 
                     bible: bible.id.clone(),
                     chapter: chapter.into(), 
-                }))
+                };
+
+                ReaderNextResult::Reading { 
+                    reading 
+                }
+            }
+            BibleReaderBehavior::TimedContinuous { start, seconds, finish_segment: _ } => {
+                let bible = BibleInfo::new(&bible);
+                let chapter = bible.offset_chapter(start.into(), index as i32);
+
+                if time >= *seconds
+                {
+                    return ReaderNextResult::Stop
+                }
+                
+                let reading = ReaderReading::Chapter { 
+                    bible: bible.id.clone(),
+                    chapter: chapter.into(), 
+                };
+
+                ReaderNextResult::Reading { 
+                    reading 
+                }
             },
         }
     }

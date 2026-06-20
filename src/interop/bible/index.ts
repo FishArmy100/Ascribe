@@ -5,6 +5,8 @@ import { use_bible_infos } from "../../components/providers/BibleInfoProvider";
 import * as utils from "../../utils"
 import { use_bible_display_settings } from "../../components/providers/BibleDisplaySettingsProvider";
 import { LangCode } from "@fisharmy100/react-auto-i18n";
+import { Atom, get_atom_chapter, get_atom_verse, get_atom_word, RefIdInner } from "./ref_id";
+
 
 export * from "./book";
 export { fetch_backend_verse_render_data, backend_render_verses as backend_render_verse_words } from "./render";
@@ -61,19 +63,40 @@ export function use_format_verse_id(): (id: VerseId, bible: string | null, optio
     };
 }
 
-export type VerseCompType = 1 | 0 | -1;
+export type CompType = -1 | 0 | 1;
 
-export function compare_verse_ids(a: VerseId, b: VerseId, bible: BibleInfo): VerseCompType
+export function compare_osis_books(bible: BibleInfo, a: OsisBook, b: OsisBook): CompType
 {
-    const a_book = bible.books.findIndex(book => book.osis_book === a.book);
-    const b_book = bible.books.findIndex(book => book.osis_book === b.book);
-    if (a_book > b_book)
+    const a_index = bible.books.findIndex(book => book.osis_book === a);
+    const b_index = bible.books.findIndex(book => book.osis_book === b);
+
+    if (a_index < 0)
+    {
+        console.error(`Book ${a} does not exist in bible ${bible.id}`);
+    }
+    if (b_index < 0)
+    {
+        console.error(`Book ${b} does not exist in bible ${bible.id}`);
+    }
+
+    if (a_index > b_index)
     {
         return 1;
     }
-    else if (a_book < b_book)
+    else if (a_index < b_index)
     {
         return -1;
+    }
+
+    return 0;
+}
+
+export function compare_chapter_ids(bible: BibleInfo, a: ChapterId, b: ChapterId): CompType
+{
+    const book_comp = compare_osis_books(bible, a.book, b.book);
+    if (book_comp !== 0)
+    {
+        return book_comp;
     }
 
     if (a.chapter > b.chapter)
@@ -85,6 +108,18 @@ export function compare_verse_ids(a: VerseId, b: VerseId, bible: BibleInfo): Ver
         return -1;
     }
 
+    return 0;
+}
+
+// existing function, now just delegates to compare_chapter_ids
+export function compare_verse_ids(a: VerseId, b: VerseId, bible: BibleInfo): CompType
+{
+    const chapter_comp = compare_chapter_ids(bible, a, b);
+    if (chapter_comp !== 0)
+    {
+        return chapter_comp;
+    }
+
     if (a.verse > b.verse)
     {
         return 1;
@@ -94,7 +129,68 @@ export function compare_verse_ids(a: VerseId, b: VerseId, bible: BibleInfo): Ver
         return -1;
     }
 
-    return 0
+    return 0;
+}
+
+function compare_optional_numbers(a: number | null, b: number | null): CompType
+{
+    if (a === null && b === null)
+    {
+        return 0;
+    }
+    else if (a === null)
+    {
+        // treat "unspecified" as the start of whatever it's nested in
+        // (e.g. a "book" atom sorts at/before "chapter 1" of that book)
+        return -1;
+    }
+    else if (b === null)
+    {
+        return 1;
+    }
+    else if (a > b)
+    {
+        return 1;
+    }
+    else if (a < b)
+    {
+        return -1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+export function compare_atoms(bible: BibleInfo, a: Atom, b: Atom): CompType
+{
+    const book_comp = compare_osis_books(bible, a.book, b.book);
+    if (book_comp !== 0)
+    {
+        return book_comp;
+    }
+
+    const chapter_comp = compare_optional_numbers(get_atom_chapter(a), get_atom_chapter(b));
+    if (chapter_comp !== 0)
+    {
+        return chapter_comp;
+    }
+
+    const verse_comp = compare_optional_numbers(get_atom_verse(a), get_atom_verse(b));
+    if (verse_comp !== 0)
+    {
+        return verse_comp;
+    }
+
+    return compare_optional_numbers(get_atom_word(a), get_atom_word(b));
+}
+
+export function compare_ref_ids(bible: BibleInfo, a: RefIdInner, b: RefIdInner): CompType
+{
+    const atom_a = a.type === "range" ? a.from : a.atom;
+    const atom_b = b.type === "range" ? b.from : b.atom;
+
+    return compare_atoms(bible, atom_a, atom_b);
 }
 
 export type WordId = {

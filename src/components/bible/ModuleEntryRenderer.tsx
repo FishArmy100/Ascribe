@@ -1,11 +1,13 @@
 import React from "react"
 import { ModuleEntry, ReferenceData } from "@interop/module_entry"
 import { Typography } from "@mui/material"
-import { OsisBook } from "@interop/bible"
+import { BibleInfo, compare_ref_ids } from "@interop/bible"
 import { HRefSrc, HtmlText, HtmlTextHelper, Node } from "@interop/html_text"
 import { HtmlTextRenderer } from "../HtmlTextRenderer"
-import { Atom, RefId, RefIdFormatter, use_format_ref_id } from "@interop/bible/ref_id"
+import { RefId, RefIdFormatter, use_format_ref_id } from "@interop/bible/ref_id"
 import { use_module_configs } from "@components/providers/ModuleConfigProvider"
+import { use_bible_infos } from "@components/providers/BibleInfoProvider"
+import { use_bible_display_settings } from "@components/providers/BibleDisplaySettingsProvider"
 
 export type ModuleEntryRendererProps = {
     entry: ModuleEntry,
@@ -19,6 +21,9 @@ export default function ModuleEntryRenderer({
 {
     const configs = use_module_configs();
     const formatter = use_format_ref_id();
+    const { bible_infos } = use_bible_infos();
+    const { bible_display_settings } = use_bible_display_settings()
+
     if (entry.type === "commentary")
     {
         return <ReferenceEntryRenderer
@@ -64,19 +69,27 @@ export default function ModuleEntryRenderer({
     }
     else if (entry.type === "xref_directed")
     {
+        const bible_id = configs.xref_configs[entry.module].bible ?? bible_display_settings.bible_version;
+        const bible = bible_infos[bible_id];
+        const render_bible = bible_id === bible_display_settings.bible_version;
+
         return (
             <HtmlTextRenderer 
                 on_href_click={on_ref_clicked} 
-                content={get_x_ref_html(entry.targets, entry.note, formatter, configs.xref_configs[entry.module].bible ?? null)}
+                content={get_x_ref_html(entry.targets, entry.note, formatter, bible, render_bible)}
             />
         )
     }
     else if (entry.type === "xref_mutual")
     {
+        const bible_id = configs.xref_configs[entry.module].bible ?? bible_display_settings.bible_version;
+        const bible = bible_infos[bible_id];
+        const render_bible = bible_id === bible_display_settings.bible_version;
+
         return (
             <HtmlTextRenderer 
                 on_href_click={on_ref_clicked} 
-                content={get_x_ref_html(entry.refs, entry.note, formatter, configs.xref_configs[entry.module].bible ?? null)}
+                content={get_x_ref_html(entry.refs, entry.note, formatter, bible, render_bible)}
             />
         )
     }
@@ -87,12 +100,13 @@ export default function ModuleEntryRenderer({
     }
 }
 
-function get_x_ref_html(targets: ReferenceData[], note: HtmlText | null, formatter: RefIdFormatter, bible: string | null): HtmlText
+function get_x_ref_html(targets: ReferenceData[], note: HtmlText | null, formatter: RefIdFormatter, bible: BibleInfo, render_bible: boolean): HtmlText
 {
-    let items = targets.map((v, i): Node => ({
+    targets = [...targets].sort((a, b) => compare_ref_ids(bible, a.id.id, b.id.id))
+    let items = targets.map((v): Node => ({
         type: "list_item",
         content: [
-            { type: "anchor", href: { type: "ref_id", id: v.id }, content: [{ type: "text", text: `[${formatter(v.id, bible)}]` }] },
+            { type: "anchor", href: { type: "ref_id", id: v.id }, content: [{ type: "text", text: `[${formatter(v.id, render_bible ? bible.id : null)}]` }] },
             { type: "text", text: `: "${v.preview_text}"` },
         ]
     }))

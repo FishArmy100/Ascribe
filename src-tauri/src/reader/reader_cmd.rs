@@ -4,7 +4,7 @@ use biblio_json::modules::ModuleId;
 use serde::{Deserialize, Serialize};
 use tauri::{Emitter, State};
 
-use crate::{bible::BiblioJsonPackageHandle, core::app::AppState, reader::BibleReaderBehavior};
+use crate::{bible::BiblioJsonPackageHandle, core::app::AppState, reader::{BibleReaderBehavior, ReaderNextResult, ReaderReading}};
 
 pub const READER_CHANGED_EVENT_NAME: &str = "reader-changed";
 
@@ -21,6 +21,7 @@ pub enum ReaderCommand
     {
         bible: ModuleId,
         index: u32,
+        time: u32,
     }
 }
 
@@ -62,19 +63,18 @@ pub fn run_reader_command(
 
             Ok(None)
         },
-        ReaderCommand::Next { bible, index } => {
+        ReaderCommand::Next { bible, index, time } => {
             let state = state.lock().map_err(|e| e.to_string())?;
             let result = package.visit(|p| {
-                state.reader_behavior.next(index, &bible, p)
-            })?;
+                state.reader_behavior.next(index, time, &bible, p)
+            });
             
-            match result {
-                Some(ref_id) => {
-                    let json = serde_json::to_string(&ref_id)
-                        .map_err(|e| e.to_string())?;
-                    Ok(Some(json))
-                },
-                None => Ok(None),
+            match result
+            {
+                ReaderNextResult::Error { message } => Err(message),
+                result => serde_json::to_string(&result)
+                    .map_err(|e| e.to_string())
+                    .map(|ok| Some(ok))
             }
         }
     }
