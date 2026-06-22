@@ -15,7 +15,6 @@ export default function SearchButton({
     on_click: onClick,
 }: SearchButtonProps): React.ReactElement
 {
-    const { settings } = use_settings();
     const theme = useTheme();
     const strings = use_search_bar_strings();
 

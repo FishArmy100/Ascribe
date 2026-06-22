@@ -1,10 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react"
 import { StrongsNumber, fetch_backend_strongs_defs, format_strongs } from "@interop/bible/strongs"
-import { Box, Divider, Popover, Stack, Typography, useTheme } from "@mui/material"
-import { HRefSrc, HtmlText, Node } from "@interop/html_text";
+import { Box, Divider, Popover, Stack, Typography } from "@mui/material"
+import { HRefSrc } from "@interop/html_text";
 import { HtmlTextRenderer } from "@components/HtmlTextRenderer";
 import SmallerTextSection from "@components/SmallerTextSection";
-import * as utils from "@utils";
 import { StrongsDefEntry } from "@interop/module_entry";
 import { use_bible_display_settings } from "@components/providers/BibleDisplaySettingsProvider";
 import { use_view_history } from "@components/providers/ViewHistoryProvider";

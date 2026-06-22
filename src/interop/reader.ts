@@ -114,6 +114,40 @@ export type ReaderChangedEvent = {
     new: BibleReaderBehavior,
 }
 
+export type BehaviorTimeData = {
+    seconds: number,
+    finish_segment: boolean,
+}
+
+export function get_behavior_time_data(behavior: BibleReaderBehavior): BehaviorTimeData | null
+{
+    if (behavior.type === "chapter_range" || behavior.type === "current" || behavior.type === "reading")
+    {
+        if (behavior.repeat.type === "time")
+        {
+            return {
+                seconds: behavior.repeat.seconds,
+                finish_segment: behavior.repeat.finish_segment,
+            }
+        }
+        else 
+        {
+            return null;
+        }
+    }
+    else if (behavior.type === "timed_continuous")
+    {
+        return {
+            seconds: behavior.seconds,
+            finish_segment: behavior.finish_segment
+        }
+    }
+    else 
+    {
+        return null;
+    }
+}
+
 export async function get_backend_reader_behavior(): Promise<BibleReaderBehavior>
 {
     const response = await invoke<string | null>("run_reader_command", {

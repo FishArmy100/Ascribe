@@ -23,8 +23,10 @@ import BehaviorSelector from "./behavior_selector/BehaviorSelector";
 import { use_bible_reader } from "@components/providers/BibleReaderProvider";
 import { BibleReaderBehavior, reader_reading_to_ref_id, ReaderReading } from "@interop/reader";
 import { use_deep_copy } from "@utils/index";
-import { use_view_history } from "@components/providers/ViewHistoryProvider";
+import { use_view_history, ViewHistoryContextType } from "@components/providers/ViewHistoryProvider";
 import QueuePopup from "./reader_queue/QueuePopup";
+
+import stringify from "fast-json-stable-stringify";
 
 const FAST_FORWARD_TIME = 10;
 const REWIND_TIME = 10;
@@ -44,6 +46,11 @@ export default function AudioPlayer({
     const { reader_behavior, set_reader_behavior, next_reading } = use_bible_reader();
     const { bible_display_settings } = use_bible_display_settings();
     const view_history = use_view_history();
+
+    const view_history_ref = useRef<ViewHistoryContextType>(view_history);
+    useEffect(() => {
+        view_history_ref.current = view_history;
+    }, [view_history])
 
     const [user_setting_time, set_user_setting_time] = useState(false);
     const [user_value, set_user_value] = useState(0);
@@ -74,10 +81,11 @@ export default function AudioPlayer({
         player_ref.current = tts_player;
     }, [tts_player]);
 
-    // Resets whenever a different bible is selected
+    // Resets whenever a different bible is selected or the behavior is changed
     useEffect(() => {
         set_player_index(0);
         player_ref.current.stop();
+        set_is_playing(false);
     }, [bible_display_settings.bible_version, bible_infos, reader_behavior, open])
 
     useEffect(() => {
@@ -95,7 +103,7 @@ export default function AudioPlayer({
             {
                 if (r.type === "none" || r.type === "stop")
                 {
-                    player_ref.current?.pause();
+                    set_is_playing(false);
                     set_player_index(0);
                 }
                 else 
@@ -114,13 +122,13 @@ export default function AudioPlayer({
         if (current_reading)
         {
             player_ref.current.stop();
-            view_history.push_ref_id(reader_reading_to_ref_id(current_reading))
+            view_history_ref.current.push_ref_id(reader_reading_to_ref_id(current_reading));
         }
-    }, [current_reading, view_history.push_ref_id]);
+    }, [stringify(current_reading)]);
     
     // Stops the player if what is currently displayed is not the chapter that it should be playing
     useEffect(() => {
-        const current = view_history.get_current();
+        const current = view_history_ref.current.get_current();
         const is_same_chapter = current.type === "chapter" && current.chapter.book === current_reading?.chapter.book && current.chapter.chapter === current_reading.chapter.chapter;
         const is_same_verse = current.type === "verse" && current.chapter.book === current_reading?.chapter.book && current.chapter.chapter === current_reading.chapter.chapter;
 
@@ -128,7 +136,7 @@ export default function AudioPlayer({
         {
             player_ref.current?.pause();
         }
-    }, [view_history.get_current])
+    }, [])
 
     const handle_play_button_clicked = useCallback(() => {
         const state = player_ref.current.state();
@@ -227,7 +235,6 @@ export default function AudioPlayer({
     }, [audio_keys, generated_keys_count, open]);
 
     useEffect(() => {
-        console.log("Got here")
         if (player_ref.current.is_loaded() && is_playing)
         {
             player_ref.current.play();

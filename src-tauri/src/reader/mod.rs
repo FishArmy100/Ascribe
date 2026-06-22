@@ -199,6 +199,11 @@ impl BibleReaderBehavior
                     })
                 }).flatten().collect_vec();
 
+                if readings.is_empty()
+                {
+                    return ReaderNextResult::None
+                }
+
                 match repeat
                 {
                     RepeatBehavior::Count { count } => {
@@ -268,13 +273,14 @@ impl BibleReaderBehavior
             BibleReaderBehavior::ChapterRange { start, end, repeat } => {
                 let bible = BibleInfo::new(&bible);
                 let distance = bible.get_chapter_distance(start.into(), end.into()).abs() as u32 + 1;
+                let cycle = index / distance;
                 let index = index % distance;
                 let chapter = bible.offset_chapter(start.into(), index as i32);
 
                 match repeat
                 {
                     RepeatBehavior::Count { count } => {
-                        if index / distance >= count.get() 
+                        if cycle >= count.get() 
                         {
                             return ReaderNextResult::Stop
                         }
@@ -299,7 +305,7 @@ impl BibleReaderBehavior
                 match repeat
                 {
                     RepeatBehavior::Count { count } => {
-                        if index > count.get() 
+                        if index >= count.get() 
                         {
                             return ReaderNextResult::Stop
                         }
@@ -409,6 +415,8 @@ impl BibleReaderBehavior
 
         for i in 0..total_count
         {
+            let index = before_offset + i;
+
             match self 
             {
                 BibleReaderBehavior::Reading { module_id, date, start_date, repeat } => {
@@ -450,6 +458,11 @@ impl BibleReaderBehavior
                             id: r,
                         })
                     }).flatten().collect_vec();
+
+                    if readings.is_empty()
+                    {
+                        continue;
+                    }
 
                     match repeat
                     {
@@ -514,13 +527,14 @@ impl BibleReaderBehavior
                 BibleReaderBehavior::ChapterRange { start, end, repeat } => {
                     let bible = BibleInfo::new(&bible);
                     let distance = bible.get_chapter_distance(start.into(), end.into()).abs() as u32 + 1;
+                    let cycle = index / distance;
                     let index = index % distance;
                     let chapter = bible.offset_chapter(start.into(), index as i32);
 
                     match repeat
                     {
                         RepeatBehavior::Count { count } => {
-                            if index / distance >= count.get() 
+                            if cycle >= count.get() 
                             {
                                 break;
                             }
@@ -539,7 +553,7 @@ impl BibleReaderBehavior
                     match repeat
                     {
                         RepeatBehavior::Count { count } => {
-                            if index > count.get() 
+                            if index >= count.get() 
                             {
                                 break;
                             }

@@ -1,5 +1,5 @@
 import { listen } from "@tauri-apps/api/event";
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { type AppSettings, AppSettingsChangedEvent, get_backend_settings, set_backend_settings, SETTINGS_CHANGED_EVENT_NAME } from "../../interop/settings";
 import rfdc from "rfdc";
 
@@ -50,18 +50,22 @@ export function AppSettingsProvider({ children }: SettingsProviderProps): React.
         };
     }, []);
 
-    const set_settings = async (s: AppSettings) => {
-        return await set_backend_settings(s)
-    };
+    const set_settings = useCallback(async (s: AppSettings) => {
+        return await set_backend_settings(s);
+    }, []);
 
-    const update_settings = async (f: (s: AppSettings) => AppSettings) => {
+    const update_settings = useCallback(async (f: (s: AppSettings) => AppSettings) => {
         const old_settings = await get_backend_settings();
-        const new_settings = f(old_settings);
-        return await set_backend_settings(new_settings); 
-    }
+        return await set_backend_settings(f(old_settings));
+    }, []);
+
+    const value = useMemo(
+        () => ({ settings: settings ?? DEFAULT_APP_SETTINGS, set_settings, update_settings }),
+        [settings, set_settings, update_settings]
+    );
 
     return (
-        <AppSettingsContext.Provider value={{ settings: settings ?? DEFAULT_APP_SETTINGS, set_settings, update_settings }}>
+        <AppSettingsContext.Provider value={value}>
             {children}
         </AppSettingsContext.Provider>
     );

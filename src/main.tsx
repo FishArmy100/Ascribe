@@ -10,11 +10,13 @@ import "@components/bible/AnimatedUnderline.css";
 import "@assets/fonts/fonts.css"
 import "./main.css";
 import AppThemeProvider from "@components/providers/AppThemeProvider";
+import ReaderBehaviorSync from "@components/ReaderBehaviorSync";
 
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
 	<React.StrictMode>
 		<AppProviders>
+			<ReaderBehaviorSync />
 			<AppThemeProvider>
 				<CssBaseline/>
 				<AppInitializer>
