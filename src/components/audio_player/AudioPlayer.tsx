@@ -21,12 +21,14 @@ import { TtsAudioKey } from "@interop/tts";
 import { use_audio_section_labeler } from "./audio_section_labeler";
 import BehaviorSelector from "./behavior_selector/BehaviorSelector";
 import { use_bible_reader } from "@components/providers/BibleReaderProvider";
-import { BibleReaderBehavior, reader_reading_to_ref_id, ReaderReading } from "@interop/reader";
+import { BibleReaderBehavior, get_reader_behavior_time_data, is_reader_behavior_timed, reader_reading_to_ref_id, ReaderReading } from "@interop/reader";
 import { use_deep_copy } from "@utils/index";
 import { use_view_history, ViewHistoryContextType } from "@components/providers/ViewHistoryProvider";
 import QueuePopup from "./reader_queue/QueuePopup";
 
 import stringify from "fast-json-stable-stringify";
+import TimerDisplay from "./TimerDisplay";
+import { use_timer } from "@utils/timer";
 
 const FAST_FORWARD_TIME = 10;
 const REWIND_TIME = 10;
@@ -63,7 +65,8 @@ export default function AudioPlayer({
 
     const [player_index, set_player_index] = useState<number>(0);
     const [current_reading, set_current_reading] = useState<ReaderReading | null>(null);
-    const [timer_time, set_timer_time] = useState<number>(0)
+    
+    const timer = use_timer(get_reader_behavior_time_data(reader_behavior)?.seconds ?? 0);
 
     const handle_change_reader_behavior = useCallback((updater: (behavior: BibleReaderBehavior) => BibleReaderBehavior) => {
         const copy = deep_copy(reader_behavior);
@@ -88,17 +91,63 @@ export default function AudioPlayer({
         set_is_playing(false);
     }, [bible_display_settings.bible_version, bible_infos, reader_behavior, open])
 
+    const player_index_ref = useRef(player_index);
     useEffect(() => {
-        if (tts_player.state()?.finished)
+        player_index_ref.current = player_index;
+        console.log(`player_index = ${player_index}`)
+    }, [player_index])
+
+    useEffect(() => {
+        if (player_state?.finished)
         {
-            set_player_index(player_index + 1);
+            console.log("NEXT")
+            set_player_index(player_index_ref.current + 1);
         }
-    }, [player_state?.finished, player_index, set_player_index, next_reading]);
+    }, [player_state?.finished, set_player_index, next_reading]);
+
+    useEffect(() => {
+        if (is_reader_behavior_timed(reader_behavior))
+        {
+            if (is_playing)
+            {
+                timer.start()
+            }
+            else 
+            {
+                timer.pause();
+            }
+        }
+    }, [is_playing, timer.start, timer.pause, reader_behavior]);
+
+    useEffect(() => {
+        const time_data = get_reader_behavior_time_data(reader_behavior);
+        if (!time_data)
+            return;
+
+        if (timer.status === "completed" && !time_data.finish_segment)
+        {
+            set_is_playing(false);
+            timer.reset();
+        }
+    }, [timer.status]);
+
+    const prev_timer_status = useRef(timer.status);
+    useEffect(() => {
+        prev_timer_status.current = timer.status;
+    }, [timer.status])
+
+    useEffect(() => {
+        if (prev_timer_status.current === "completed")
+        {
+            set_is_playing(false);
+            timer.reset();
+        }
+    }, [player_index])
 
     useEffect(() => {
         let mounted = true;
 
-        next_reading(bible_display_settings.bible_version, player_index, timer_time).then(r => {
+        next_reading(bible_display_settings.bible_version, player_index, timer.elapsed).then(r => {
             if (mounted)
             {
                 if (r.type === "none" || r.type === "stop")
@@ -124,7 +173,7 @@ export default function AudioPlayer({
             player_ref.current.stop();
             view_history_ref.current.push_ref_id(reader_reading_to_ref_id(current_reading));
         }
-    }, [stringify(current_reading)]);
+    }, [current_reading]);
     
     // Stops the player if what is currently displayed is not the chapter that it should be playing
     useEffect(() => {
@@ -207,9 +256,10 @@ export default function AudioPlayer({
     useEffect(() => {
         if (open)
         {
+            console.log("REQUESTING")
             player_ref.current.request(audio_keys);
         }
-    }, [audio_keys, open]); // don't have tts tts player as a dependency, otherwise it will create a feedback loop
+    }, [audio_keys, open]);
 
     const generation_progress = useMemo(() => {
         const count = player_ref.current.contains_keys(audio_keys);
@@ -268,7 +318,7 @@ export default function AudioPlayer({
             const new_time = Math.min(player_state.current_time + FAST_FORWARD_TIME, player_state.duration);
             player_ref.current.set_time(new_time);
         }
-    }, [player_state?.duration])
+    }, [player_state?.duration, player_state?.current_time])
 
     const handle_rewind = useCallback(() => {
         if (player_state && player_state.duration > 0)
@@ -276,7 +326,7 @@ export default function AudioPlayer({
             const new_time = Math.max(player_state.current_time - REWIND_TIME, 0);
             player_ref.current.set_time(new_time);
         }
-    }, [player_state?.duration])
+    }, [player_state?.duration, player_state?.current_time])
 
     const handle_user_commit_progress = useCallback((v: number) => {
         if (player_state && player_state.duration > 0)
@@ -316,12 +366,19 @@ export default function AudioPlayer({
                                 borderRadius: `${theme.spacing(1)} ${theme.spacing(1)} 0 0`,
                                 borderColor: theme.palette.divider,
                                 borderWidth: theme.spacing(1 / 8),
-                                borderStyle: "solid"
+                                borderStyle: "solid",
+                                position: "relative",
                             }}
                         >
                             <ExpandButton
                                 is_expanded={is_expanded}
                                 set_is_expanded={set_is_expanded}
+                            />
+                            <TimerDisplay 
+                                total_seconds={timer.duration} 
+                                elapsed_seconds={timer.elapsed} 
+                                show={get_reader_behavior_time_data(reader_behavior) !== null}
+                                on_reset={() => {}}                            
                             />
                             <Stack 
                                 direction="column"

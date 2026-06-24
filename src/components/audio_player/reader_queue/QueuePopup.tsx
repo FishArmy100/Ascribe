@@ -6,6 +6,7 @@ import { Box, Stack, Typography, useTheme } from "@mui/material";
 import { LoadingSpinner } from "@src/pages/LoadingSpinner";
 import React, { useEffect, useState } from "react";
 import QueueItem from "./QueueItem";
+import use_image_filter from "@utils/use_image_filter";
 
 const QUEUE_OFFSET = 3;
 
@@ -45,6 +46,8 @@ export default function QueuePopup({
 
     const is_loaded = queue_state !== null;
 
+    const image_filter = use_image_filter(theme.palette.background.default);
+
     return (
         <OverlayModal show={show} on_close={on_close}>
             {is_loaded ? (
@@ -66,6 +69,7 @@ export default function QueuePopup({
                                 width: 16,
                                 height: 16,
                                 opacity: 0.5,
+                                filter: image_filter,
                             }}
                         />
                         <Typography

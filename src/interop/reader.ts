@@ -119,7 +119,12 @@ export type BehaviorTimeData = {
     finish_segment: boolean,
 }
 
-export function get_behavior_time_data(behavior: BibleReaderBehavior): BehaviorTimeData | null
+export function is_reader_behavior_timed(behavior: BibleReaderBehavior): boolean
+{
+    return get_reader_behavior_time_data(behavior) !== null;
+}
+
+export function get_reader_behavior_time_data(behavior: BibleReaderBehavior): BehaviorTimeData | null
 {
     if (behavior.type === "chapter_range" || behavior.type === "current" || behavior.type === "reading")
     {
