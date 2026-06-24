@@ -1,15 +1,15 @@
 import { Box, useTheme } from "@mui/material";
 import React, { useEffect, useState, useCallback, useMemo } from "react";
-import { use_view_history } from "../../components/providers/ViewHistoryProvider";
-import * as bible from "../../interop/bible";
-import { RenderedVerseContent } from "../../interop/bible/render";
-import { use_top_bar_padding, TopBarSpacer, Footer } from "../../components";
+import { use_view_history } from "@components/providers/ViewHistoryProvider";
+import * as bible from "@interop/bible";
+import { RenderedVerseContent } from "@interop/bible/render";
+import { use_top_bar_padding, Footer } from "@components";
 import ChapterContent from "./ChapterContent";
-import { BUTTON_SIZE } from "../../components/core/ImageButton";
-import { use_bible_display_settings } from "../../components/providers/BibleDisplaySettingsProvider";
-import { StrongsNumber } from "../../interop/bible/strongs";
-import AudioPlayer from "../../components/audio_player/AudioPlayer";
-import { use_tts_player } from "../../components/providers/TtsPlayerProvider";
+import { BUTTON_SIZE } from "@components/core/ImageButton";
+import { use_bible_display_settings } from "@components/providers/BibleDisplaySettingsProvider";
+import { StrongsNumber } from "@interop/bible/strongs";
+import AudioPlayer from "@components/audio_player/AudioPlayer";
+import { use_tts_player } from "@components/providers/TtsPlayerProvider";
 import PopoverManager, { PopoverData } from "@components/popovers/PopoverManager";
 import { ChapterHistoryEntry, VerseHistoryEntry } from "@interop/view_history";
 import { NavigationButton } from "./NavigationButton";
@@ -45,12 +45,31 @@ function BiblePage({
 	const [popover_data, set_popover_data] = useState<PopoverData | null>(null);
 
 	const [player_open, set_player_open] = useState(false);
-
-	const [verse_index, set_verse_index] = useState<number | null>(null)
 	const tts_player = use_tts_player();
-	useEffect(() => {
-		set_verse_index(tts_player.verse_index);
-	}, [tts_player.verse_index]);
+
+	const verse_index = useMemo(() => {
+		if (!player_open) return null;
+		
+		const key = tts_player.state()?.current_key;
+
+		if (!key || key.type !== "verse")
+		{
+			return null;
+		}
+
+		const index = verses?.findIndex(v => (
+			v.id.book === key.verse.book &&
+			v.id.chapter === key.verse.chapter &&
+			v.id.verse === key.verse.verse
+		));
+
+		if (index === undefined)
+		{
+			return null;
+		}
+
+		return index;
+	}, [tts_player.state()?.current_key])
 
 	const button_width = useMemo(() => BUTTON_SIZE * 0.75, []);
 	const button_spacing = use_top_bar_padding(theme);
@@ -284,7 +303,6 @@ function BiblePage({
 
 			<AudioPlayer 
 				open={player_open} 
-				current_chapter={entry.chapter}
 			/>
 		</Box>
 	);

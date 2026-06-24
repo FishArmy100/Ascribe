@@ -1,5 +1,5 @@
 
-import { Slider as MuiSlider, useTheme } from "@mui/material"
+import { Slider as MuiSlider, SxProps, Theme, useTheme } from "@mui/material"
 import Tooltip from "./Tooltip"
 
 export type SliderProps = {
@@ -11,6 +11,7 @@ export type SliderProps = {
     on_change?: (n: number) => void,
     on_commit?: (n: number) => void,
     readonly?: boolean,
+    sx?: SxProps<Theme>,
 }
 
 export default function Slider({
@@ -21,7 +22,8 @@ export default function Slider({
     tooltip,
     on_change,
     on_commit,
-    readonly
+    readonly,
+    sx,
 }: SliderProps): React.ReactElement
 {
     const theme = useTheme();
@@ -55,7 +57,8 @@ export default function Slider({
                     },
                     "& .MuiSlider-rail": {
                         backgroundColor: theme.palette.grey[100],
-                    }
+                    },
+                    ...sx,
                 }}
             />
         </Tooltip>

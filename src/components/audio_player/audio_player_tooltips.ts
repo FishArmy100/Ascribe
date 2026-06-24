@@ -42,13 +42,9 @@ export default function use_audio_player_tooltips()
             "audio_player.tooltips.modify_volume",
             "Modify volume"
         ),
-        reset_playback: __t(
-            "audio_player.tooltips.reset_playback",
-            "Reset playback speed"
-        ),
-        modify_playback: __t(
+        playback: __t(
             "audio_player.tooltips.modify_playback",
-            "Modify playback speed"
+            "Change playback speed"
         ),
         correct_pitch: __t(
             "audio_player.tooltips.correct_pitch",

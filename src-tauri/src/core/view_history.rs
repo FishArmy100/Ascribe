@@ -35,6 +35,8 @@ impl ViewHistory
 
     pub fn push_entry(&mut self, entry: ViewHistoryEntry)
     {
+        if *self.get_current() == entry { return; }
+
         self.entries = self.entries.split_at(self.index + 1).0.into();
         self.entries.push(entry);
         self.index = self.entries.len() - 1;
@@ -99,7 +101,7 @@ pub enum EntrySelector
     },
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case", tag = "type")]
 pub enum ViewHistoryEntry
 {

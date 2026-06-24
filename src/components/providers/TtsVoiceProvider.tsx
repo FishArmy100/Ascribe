@@ -1,5 +1,4 @@
 import { getLangCode, LangScriptCode } from "@fisharmy100/react-auto-i18n";
-import { lang_script_code_to_piper } from "@interop/tts/piper_lang";
 import { backend_get_default_voice_id, backend_get_voices, VoiceConfig } from "@interop/tts/voices";
 import React, { createContext, useContext, useEffect, useState } from "react";
 

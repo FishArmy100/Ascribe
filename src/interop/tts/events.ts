@@ -1,63 +1,45 @@
 import { listen, UnlistenFn } from "@tauri-apps/api/event"
+import { PlayerState, TtsAudioKey } from "./index"
 
 
-export type TtsGenerationProgressEvent = {
-    type: "generation_progress",
-    id: string,
-    progress: number,
-}
-
-export type TtsGeneratedEvent = {
-    type: "generated",
-    id: string,
-}
-
-export type TtsSetEvent = {
-    type: "set",
-    id: string
-}
-
-export type TtsPlayedEvent = {
-    type: "played",
-    id: string 
-}
-
-export type TtsPlayingEvent = {
-    type: "playing",
-    id: string,
-    elapsed: number,
-    duration: number,
-    verse_index: number | null,
-}
-
-export type TtsPausedEvent = {
-    type: "paused"
-    id: string 
-}
-
-export type TtsStoppedEvent = {
-    type: "stopped",
-    id: string,
-}
-
-export type TtsFinishedEvent = {
-    type: "finished",
-}
-
-
-export type TtsEvent = 
-    TtsGeneratedEvent | 
-    TtsSetEvent | 
-    TtsPlayedEvent | 
-    TtsPlayingEvent | 
-    TtsPausedEvent | 
-    TtsStoppedEvent | 
-    TtsGenerationProgressEvent | 
-    TtsFinishedEvent;
+export type TtsEvent = {};
 
 export async function listen_tts_event(callback: (e: TtsEvent) => void): Promise<UnlistenFn>
 {
     return listen<TtsEvent>("tts_event", e => {
         callback(e.payload);
     })
+}
+
+export const PLAYER_LOAD_STATE_CHANGED_EVENT_NAME = "player-load-state-changed";
+
+export type PlayerLoadStateChangedEvent = {
+    is_loaded: boolean,
+};
+
+export async function add_player_load_state_changed_listener(listener: (event: PlayerLoadStateChangedEvent) => void): Promise<UnlistenFn>
+{
+    return listen<PlayerLoadStateChangedEvent>(PLAYER_LOAD_STATE_CHANGED_EVENT_NAME, e => {
+        listener(e.payload);
+    });
+}
+
+export const VERSE_AUDIO_UPDATED_EVENT_NAME: string = "tts-audio-updated";
+export type VerseAudioUpdatedEvent = {
+    keys: TtsAudioKey[],
+};
+
+export function add_verse_audio_updated_listener(listener: (keys: TtsAudioKey[]) => void): Promise<UnlistenFn>
+{
+    return listen<VerseAudioUpdatedEvent>(VERSE_AUDIO_UPDATED_EVENT_NAME, e => {
+        listener(e.payload.keys);
+    });
+}
+
+export const PLAYER_STATE_UPDATED_EVENT_NAME: string = "player-state-updated";
+export function add_player_state_updated_listener(listener: (state: PlayerState) => void): Promise<UnlistenFn>
+{
+    return listen<PlayerState>(PLAYER_STATE_UPDATED_EVENT_NAME, e => {
+        listener(e.payload);
+    });
 }

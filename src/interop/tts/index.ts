@@ -1,19 +1,7 @@
 import { invoke } from "@tauri-apps/api/core"
-import { ChapterId } from "../bible"
+import { VerseId } from "../bible"
 
 export * from "./events";
-
-export type PassageAudioKey = {
-    bible: string,
-    chapter: ChapterId,
-    verse_range: [number, number] | null,
-    voice: string
-}
-
-export type TtsRequest = {
-    id: string,
-    generating: boolean,
-}
 
 export type TtsSettings = {
     volume: number,
@@ -23,80 +11,81 @@ export type TtsSettings = {
     current_voice: string,
 }
 
-export async function backend_request_tts(key: PassageAudioKey): Promise<TtsRequest>
+export type TtsAudioKey = |{
+    type: "verse",
+    voice: string,
+    bible: string,
+    verse: VerseId,
+} |{
+    type: "string"
+    voice: string,
+    string: string,
+}
+
+export type PlayerState =
 {
-    return invoke<string>("run_tts_command", {
+    current_time: number,
+    current_key: TtsAudioKey | null,
+    paused: boolean,
+    duration: number,
+    finished: boolean,
+}
+
+export function backend_request(keys: TtsAudioKey[]): Promise<void>
+{
+    return invoke("run_tts_command", {
         command: {
             type: "request",
-            key
+            keys,
         }
-    }).then(s => {
-        return JSON.parse(s);
     });
 }
 
-export async function backend_set_tts_id(id: string): Promise<void>
+export async function backend_load(keys: TtsAudioKey[]): Promise<boolean>
 {
-    return invoke<string>("run_tts_command", {
+    const response = await invoke<string>("run_tts_command", {
         command: {
-            type: "set",
-            id
+            type: "load",
+            keys,
         }
-    }).then(_ => {})
+    });
+
+    return JSON.parse(response);
 }
 
-export async function backend_play_tts(): Promise<void>
+export function backend_play(): Promise<void>
 {
-    return invoke<string>("run_tts_command", {
+    return invoke("run_tts_command", {
         command: {
-            type: "play"
+            type: "play",
         }
-    }).then(_ => {})
+    });
 }
 
-export async function backend_pause_tts(): Promise<void>
+export function backend_pause(): Promise<void>
 {
-    return invoke<string>("run_tts_command", {
+    return invoke("run_tts_command", {
         command: {
-            type: "pause"
+            type: "pause",
         }
-    }).then(_ => {})
+    });
 }
 
-export async function backend_stop_tts(): Promise<void>
+export function backend_set_time(time: number): Promise<void>
 {
-    return invoke<string>("run_tts_command", {
-        command: {
-            type: "stop"
-        }
-    }).then(_ => {})
-}
-
-export async function backend_get_tts_is_playing(): Promise<boolean>
-{
-    return invoke<string>("run_tts_command", {
-        command: {
-            type: "get_is_playing"
-        }
-    }).then(v => JSON.parse(v))
-}
-
-export async function backend_set_tts_time(time: number): Promise<void>
-{
-    return invoke<string>("run_tts_command", {
+    return invoke("run_tts_command", {
         command: {
             type: "set_time",
-            time
+            time,
         }
-    }).then(_ => {})
+    });
 }
 
-export async function backend_get_tts_duration(): Promise<number>
+export function backend_stop(): Promise<void>
 {
-    return invoke<string>("run_tts_command", {
+    return invoke("run_tts_command", {
         command: {
-            type: "get_duration"
+            type: "stop",
         }
-    }).then(v => JSON.parse(v))
+    });
 }
-

@@ -1,22 +1,21 @@
-use std::{collections::HashMap, num::NonZeroU32, sync::{Arc, Mutex}, thread::spawn};
+use std::{collections::HashMap, sync::{Arc, Mutex, RwLock}};
 
-use biblio_json::{Package, core::{ChapterId, VerseId}, modules::ModuleId};
-use itertools::Itertools;
-use kira::{Frame, sound::static_sound::{StaticSoundData, StaticSoundSettings}, AudioManager, AudioManagerSettings, DefaultBackend};
-use serde::{Serialize, Deserialize};
-use tauri::{Runtime, path::{BaseDirectory, PathResolver}, AppHandle, Emitter, Listener, Manager};
+use biblio_json::{core::VerseId, modules::ModuleId};
+use kira::sound::static_sound::StaticSoundData;
+use serde::{Deserialize, Serialize};
+use tauri::{AppHandle, Emitter, Listener, Runtime, path::{BaseDirectory, PathResolver}};
 
-use crate::{bible::BiblioJsonPackageHandle, core::{settings::{SETTINGS_CHANGED_EVENT_NAME, SettingsChangedEvent}, utils::Shared}, repr::ChapterIdJson, tts::{events::*, player_thread::TtsPlayerThread, synth::SpeechSynth, voice_library::VoiceLib, voices::AppVoices}};
-use crate::core::utils;
+use crate::{core::utils::Shared, repr::VerseIdJson};
 
 pub mod events;
 pub mod tts_cmd;
-pub mod player_thread;
-pub mod player_behavior;
-pub mod synth;
 pub mod voices;
-pub mod voice_library;
+pub mod synth;
+pub mod gen_thread;
+pub mod player;
+pub mod player_thread;
 
+pub const TTS_AUDIO_UPDATED_EVENT_NAME: &str = "tts-audio-updated";
 
 pub fn init_espeak<R>(resolver: &PathResolver<R>)
     where R : Runtime
@@ -25,6 +24,99 @@ pub fn init_espeak<R>(resolver: &PathResolver<R>)
     unsafe 
     {
         std::env::set_var("PIPER_ESPEAKNG_DATA_DIRECTORY", tts_dir.into_os_string());
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Hash, PartialEq, Eq)]
+#[serde(rename_all = "snake_case", tag = "type")]
+pub enum TtsAudioKey
+{
+    String
+    {
+        string: String,
+        voice: String,
+    },
+    Verse 
+    {
+        verse: VerseIdJson,
+        voice: String,
+        bible: ModuleId,
+    }
+}
+
+impl TtsAudioKey
+{
+    pub fn voice(&self) -> &str 
+    {
+        match self 
+        {
+            Self::String { voice, .. } => &voice,
+            Self::Verse { voice, .. } => &voice,
+        }
+    }
+}
+
+#[derive(Debug)]
+pub struct TtsAudioData
+{
+    pub key: TtsAudioKey,
+    pub data: StaticSoundData,
+    pub duration: f32,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TtsAudioUpdatedEvent 
+{
+    pub keys: Vec<TtsAudioKey>,
+}
+
+#[derive(Debug, Clone)]
+pub struct TtsAudioLibrary(Shared<TtsAudioLibraryInner>);
+
+#[derive(Debug)]
+pub struct TtsAudioLibraryInner
+{
+    audio: HashMap<TtsAudioKey, Arc<TtsAudioData>>,
+    app: AppHandle,
+}
+
+impl TtsAudioLibrary
+{
+    pub fn new(app: AppHandle) -> Self 
+    {
+        Self(Shared::new(TtsAudioLibraryInner { 
+            audio: HashMap::new(),
+            app,
+        }))
+    }
+
+    pub fn visit<F, R>(&self, f: F) -> R
+        where F : FnOnce(&mut TtsAudioLibraryInner) -> R
+    {
+        let mut binding = self.0.get();
+        f(&mut binding)
+    }
+}
+
+impl TtsAudioLibraryInner
+{
+    pub fn contains(&self, key: &TtsAudioKey) -> bool
+    {
+        self.audio.contains_key(key)
+    }
+
+    pub fn insert(&mut self, data: TtsAudioData)
+    {
+        self.audio.insert(data.key.clone(), Arc::new(data));
+
+        self.app.emit(TTS_AUDIO_UPDATED_EVENT_NAME, TtsAudioUpdatedEvent {
+            keys: self.audio.keys().cloned().collect(),
+        }).unwrap();
+    }
+
+    pub fn get(&self, key: &TtsAudioKey) -> Option<Arc<TtsAudioData>>
+    {
+        self.audio.get(key).cloned()
     }
 }
 
@@ -50,342 +142,5 @@ impl Default for TtsSettings
             follow_text: true,
             current_voice: "joe".into(),
         }
-    }
-}
-
-pub fn add_sync_settings_listener(app_handle: AppHandle)
-{
-    let app_handle_inner = app_handle.clone();
-    app_handle.listen(SETTINGS_CHANGED_EVENT_NAME, move |event| {
-        let settings: SettingsChangedEvent = serde_json::from_str(event.payload()).unwrap();
-        let player = app_handle_inner.state::<Mutex<TtsPlayer>>();
-        player.lock().unwrap().set_settings(settings.new.tts_settings);
-    });
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct PassageAudioKey
-{
-    pub bible: ModuleId,
-    pub chapter: ChapterId,
-    pub verse_range: Option<(NonZeroU32, NonZeroU32)>,
-    pub voice: String,
-}
-
-impl PassageAudioKey
-{
-    pub fn from_json_key(other: PassageAudioKeyJson) -> Self 
-    {
-        Self {
-            bible: other.bible,
-            chapter: other.chapter.into(),
-            verse_range: other.verse_range,
-            voice: other.voice,
-        }
-    }
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub struct PassageAudioKeyJson
-{
-    pub bible: ModuleId,
-    pub chapter: ChapterIdJson,
-    pub verse_range: Option<(NonZeroU32, NonZeroU32)>,
-    pub voice: String,
-}
-
-pub struct VerseAudioData
-{
-    pub duration: f32,
-}
-
-pub struct PassageAudio
-{
-    pub sound_data: StaticSoundData,
-    pub key: PassageAudioKey,
-    pub id: String,
-    pub verse_data: Vec<VerseAudioData>,
-    pub intro_duration: f32,
-}
-
-impl PassageAudio
-{
-    pub fn new(synth: &SpeechSynth, app_handle: AppHandle, package: &Package, key: PassageAudioKey, id: String) -> Self 
-    {
-        let bible = package.get_mod(&key.bible)
-            .unwrap()
-            .as_bible()
-            .unwrap();
-
-        let book_name = bible.config.books.get(&key.chapter.book).unwrap();
-        let chapter = key.chapter.chapter;
-
-        const CHAPTER_SILENCE_TIME: f32 = 0.5;
-        let mut chapter_intro = match key.verse_range {
-            Some(range) => synth.synth_text_to_frames(format!("{} Chapter {} verses {} to {}", book_name, chapter, range.0, range.1)),
-            None => synth.synth_text_to_frames(format!("{} Chapter {}", book_name, chapter))
-        };
-
-
-        chapter_intro.append(&mut vec![Frame::ZERO; (synth.sample_rate() as f32 * CHAPTER_SILENCE_TIME).floor() as usize]); // appends a longer silence time to the chapter intro
-
-        let intro_duration = chapter_intro.len() as f32 / synth.sample_rate() as f32;
-
-        const SILENCE_TIME: f32 = 0.1;
-        let silence_length = (synth.sample_rate() as f32 * SILENCE_TIME).floor() as usize;
-        let silence = vec![Frame::ZERO; silence_length];
-
-        let verses = match key.verse_range {
-            Some(r) => {
-                (r.0.get()..=r.1.get()).into_iter().map(|v| {
-                    let v = NonZeroU32::new(v).unwrap();
-                    let verse = VerseId {
-                        book: key.chapter.book,
-                        chapter: key.chapter.chapter,
-                        verse: v,
-                    };
-
-                    bible.source.verses.get(&verse).unwrap()
-                }).collect_vec()
-            },
-            None => {
-                let verse_count = bible.source.book_infos.iter()
-                    .find(|b| key.chapter.book == b.osis_book)
-                    .unwrap()
-                    .chapters[chapter.get() as usize - 1];
-
-                (1..=verse_count).into_iter().map(|v| {
-                    let v = NonZeroU32::new(v).unwrap();
-                    let verse = VerseId {
-                        book: key.chapter.book,
-                        chapter: key.chapter.chapter,
-                        verse: v,
-                    };
-
-                    bible.source.verses.get(&verse).unwrap()
-                }).collect_vec()
-            },
-        };
-
-        let verses = verses.iter()
-            .map(|v| v.words.iter().map(|w| w.text.clone()).join(" "))
-            .collect::<Vec<_>>();
-
-        let verses_length = verses.len();
-        let clips = verses.into_iter()
-            .enumerate()
-            .map(|(i, v)| {
-                let frames = synth.synth_text_to_frames(v);
-                let progress = i as f32 / verses_length as f32;
-                app_handle.emit(TTS_EVENT_NAME, TtsEvent::GenerationProgress { id: id.clone(), progress }).unwrap();
-                frames
-            })
-            .map(|mut v| {
-                v.append(&mut silence.clone()); 
-                v 
-            })
-            .collect::<Vec<_>>();
-
-        let clip_times = clips.iter()
-            .map(|c| c.len() as f32 / synth.sample_rate() as f32)
-            .collect::<Vec<_>>();
-
-        let mut result = vec![];
-        result.append(&mut chapter_intro);
-        for mut clip in clips.into_iter()
-        {
-            result.append(&mut clip);
-        }
-
-        let sound_data = StaticSoundData {
-            sample_rate: synth.sample_rate(),
-            frames: result.into(),
-            settings: StaticSoundSettings::default(),
-            slice: None
-        };
-
-        let verse_data = clip_times.into_iter()
-            .map(|c| VerseAudioData { duration: c })
-            .collect::<Vec<_>>();
-
-        Self {
-            sound_data,
-            key,
-            id,
-            verse_data,
-            intro_duration
-        }
-    }
-}
-
-enum TtsSoundData
-{
-    Generating,
-    Generated(Arc<PassageAudio>)
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub struct TtsRequest
-{
-    pub id: String,
-    pub generating: bool,
-}
-
-pub struct TtsPlayer
-{
-    manager: Arc<Mutex<AudioManager::<DefaultBackend>>>,
-    voice_lib: Shared<VoiceLib>,
-    player: Option<TtsPlayerThread>,
-    app_handle: AppHandle,
-
-    source_ids: HashMap<PassageAudioKey, String>,
-    sources: Arc<Mutex<HashMap<String, TtsSoundData>>>,
-    settings: TtsSettings,
-}
-
-impl TtsPlayer 
-{
-    pub fn new(app_handle: AppHandle) -> Self
-    {
-        let voice_lib = Shared::new(VoiceLib::new());
-        let manager = AudioManager::<DefaultBackend>::new(AudioManagerSettings::default()).unwrap();
-
-        let app_handle_inner = app_handle.clone();
-        app_handle.listen("loaded-tts-save", move |json| {
-            let state = app_handle_inner.state::<Mutex<TtsPlayer>>();
-            let mut state = state.lock().unwrap();
-            let parsed: TtsSettings = serde_json::from_str(json.payload()).unwrap();
-            state.set_settings(parsed);
-        });
-
-        Self 
-        {
-            manager: Arc::new(Mutex::new(manager)),
-            voice_lib,
-            player: None,
-            app_handle,
-
-            source_ids: HashMap::new(),
-            sources: Arc::new(Mutex::new(HashMap::new())),
-            settings: TtsSettings::default(),
-        }
-    }
-
-    pub fn request_tts(&mut self, voices: &AppVoices, package: BiblioJsonPackageHandle, key: PassageAudioKey) -> TtsRequest
-    {
-        let mut sources_binding = self.sources.lock().unwrap();
-        
-        if let Some(id) = self.source_ids.get(&key)
-        {
-            TtsRequest
-            {
-                id: id.clone(),
-                generating: false,
-            }
-        }
-        else 
-        {
-            let id = utils::get_uuid();
-            self.source_ids.insert(key.clone(), id.clone());
-            sources_binding.insert(id.clone(), TtsSoundData::Generating);
-
-            let sources = self.sources.clone();
-            let synth = self.voice_lib.get().get_synth(voices, &key.voice);
-            let id_inner = id.clone();
-            let app_handle = self.app_handle.clone();
-
-            spawn(move || {
-
-                let audio = package.visit(|package| {
-                    PassageAudio::new(&synth, app_handle.clone(), package, key.clone(), id_inner.clone())
-                });
-
-                sources.lock().unwrap().insert(id_inner.clone(), TtsSoundData::Generated(Arc::new(audio)));
-                if let Err(e) = app_handle.emit(TTS_EVENT_NAME, TtsEvent::Generated { id: id_inner }) {
-                    println!("Error emitting event: {}", e);
-                }
-            });
-
-            TtsRequest
-            {
-                id,
-                generating: true
-            }
-        }
-    }
-
-    pub fn set(&mut self, id: &String)
-    {
-        self.stop();
-        let binding = self.sources.lock().unwrap();
-        if let Some(TtsSoundData::Generated(sound_data)) = binding.get(id)
-        {
-            self.player = Some(TtsPlayerThread::new(self.manager.clone(), self.app_handle.clone(), sound_data.clone(), id.clone(), self.settings.clone()));
-            self.player.as_mut().unwrap().set_settings(self.settings.clone());
-            self.app_handle.emit(TTS_EVENT_NAME, TtsEvent::Set { id: id.clone() }).unwrap();
-        }
-    }
-
-    pub fn play(&self)
-    {
-        if let Some(player) = &self.player
-        {
-            player.play();
-        }
-    }
-
-    pub fn pause(&self)
-    {
-        if let Some(player) = &self.player
-        {
-            player.pause();
-        }
-    }
-
-    pub fn stop(&mut self)
-    {
-        if let Some(player) = self.player.take()
-        {
-            player.stop();
-        }
-    }
-
-    pub fn is_playing(&self) -> bool
-    {
-        match &self.player
-        {
-            Some(player) => player.is_playing(),
-            None => false
-        }
-    }
-
-    pub fn get_duration(&self) -> Option<f32>
-    {
-        self.player.as_ref().map(|p| p.get_duration())
-    }
-
-    pub fn set_time(&self, time: f32)
-    {
-        match &self.player 
-        {
-            Some(player) => player.set_time(time),
-            None => {},
-        }
-    }
-
-    pub fn set_settings(&mut self, settings: TtsSettings)
-    {
-        self.settings = settings.clone();
-        if let Some(player) = &mut self.player
-        {
-            player.set_settings(settings.clone());
-        }
-    }
-
-    pub fn get_settings(&self) -> &TtsSettings
-    {
-        &self.settings
     }
 }

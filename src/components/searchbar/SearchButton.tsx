@@ -15,7 +15,6 @@ export default function SearchButton({
     on_click: onClick,
 }: SearchButtonProps): React.ReactElement
 {
-    const { settings } = use_settings();
     const theme = useTheme();
     const strings = use_search_bar_strings();
 
@@ -33,7 +32,7 @@ export default function SearchButton({
                     borderTopLeftRadius: 0,
                     borderBottomLeftRadius: 0,
                     borderWidth: (theme) => theme.spacing(1 / 8),
-                    borderColor: theme.palette.grey[700],
+                    borderColor: theme.palette.divider,
                     borderStyle: "solid",
                     width: (theme) => theme.spacing(BUTTON_SIZE),
                     height: (theme) => theme.spacing(BUTTON_SIZE),

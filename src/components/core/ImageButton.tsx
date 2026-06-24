@@ -1,24 +1,26 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import { Button, useTheme } from "@mui/material";
-import { use_settings } from "../providers/SettingsProvider";
-import { AppSettings } from "../../interop/settings";
 import { SxProps } from "@mui/material/styles";
 import { Theme } from "@mui/material/styles";
 import Tooltip from "./Tooltip";
 import { play_sfx, Sfx } from "@interop/sfx";
+import WrapIf from "./WrapIf";
 
 export const BUTTON_SIZE = 4;
 export const BUTTON_BORDER_RADIUS = 0.75;
 export const BUTTON_PADDING = 3 / 8;
 
+export type ButtonVariant = "default" | "inverted" | "info" | "error";
+
 export type ImageButtonProps = {
     image: string,
-    tooltip: string,
+    tooltip: string | null,
     disabled?: boolean,
     active?: boolean,
     on_click?: (event: React.MouseEvent<HTMLButtonElement>) => void,
     sx?: SxProps<Theme>,
     sfx?: Sfx | "none",
+    variant?: ButtonVariant
 }
 
 export default function ImageButton({
@@ -28,7 +30,8 @@ export default function ImageButton({
     active,
     on_click,
     sx,
-    sfx = "click"
+    sfx = "click",
+    variant = "default",
 }: ImageButtonProps): React.ReactElement
 {
     const theme = useTheme();
@@ -40,18 +43,72 @@ export default function ImageButton({
         }
 
         on_click?.(event);
-    }, [on_click, sfx])
+    }, [on_click, sfx]);
+
+    const background_color = useMemo(() => {
+        if (!variant || variant === "default")
+        {
+            return active ? 
+                theme.palette.secondary.main : 
+                theme.palette.primary.light;
+        }
+        else if (variant === "error")
+        {
+            return active ?
+                theme.palette.error.main :
+                theme.palette.error.light
+        }
+        else if (variant === "info")
+        {
+            return active ?
+                theme.palette.info.main :
+                theme.palette.info.light
+        }
+        else if (variant === "inverted")
+        {
+            return active ? 
+                theme.palette.background.default :
+                theme.palette.primary.main;
+        }
+        else
+        {
+            console.error(`Invalid variant ${variant}`);
+            return null as any;
+        }
+    }, [variant, active])
+
+    const image_color = useMemo(() => {
+        return theme.palette.getContrastText(background_color);
+    }, [background_color]);
+
+    const filter = useMemo(() => {
+        const hex = background_color.replace("#", "");
+        const r = parseInt(hex.substring(0, 2), 16);
+        const g = parseInt(hex.substring(2, 4), 16);
+        const b = parseInt(hex.substring(4, 6), 16);
+        
+        const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+        const is_image_dark = luminance > 0.5;
+
+        const filters: string[] = [];
+        if (!is_image_dark) filters.push("invert(1)");
+        if (disabled) filters.push("grayscale(1)", "opacity(0.8)");
+        return filters.join(" ") || "none";
+    }, [image_color, disabled])
 
     return (
-        <Tooltip
-            tooltip={tooltip}
+        <WrapIf 
+            cond={tooltip !== null}
+            wrapper={Tooltip}
+            props={{ tooltip: tooltip! }}
         >
             <span>
                 <Button
                     disabled={disabled}
                     onClick={handle_click}
                     sx={{
-                        backgroundColor: active ? theme.palette.secondary.main : theme.palette.primary.light,
+                        backgroundColor: background_color,
+                        color: image_color,
                         borderRadius: (theme) => theme.spacing(BUTTON_BORDER_RADIUS),
                         borderWidth: (theme) => theme.spacing(1 / 8),
                         borderColor: theme.palette.divider,
@@ -80,11 +137,12 @@ export default function ImageButton({
                             objectFit: "contain",
                             boxSizing: "border-box",
                             opacity: disabled ? 0.5 : 1,
-                            filter: disabled ? "grayscale(100%)" : "none"
+                            filter: filter,
+                            color: "white",
                         }}
                     />
                 </Button>
             </span>
-        </Tooltip>
+        </WrapIf>
     )
 }

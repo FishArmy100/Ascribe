@@ -4,7 +4,7 @@ use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Emitter, State};
 
-use crate::{bible::BiblioJsonPackageHandle, core::{app::AppState, settings::{SETTINGS_CHANGED_EVENT_NAME, SettingsChangedEvent}}, tts::{PassageAudioKey, PassageAudioKeyJson, TtsPlayer, voices::AppVoices}};
+use crate::{core::{app::AppState, settings::{SETTINGS_CHANGED_EVENT_NAME, SettingsChangedEvent}}, tts::{TtsAudioKey, gen_thread::TtsGenThread, player::TtsPlayer, voices::AppVoices}};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case", tag = "type")]
@@ -12,21 +12,22 @@ pub enum TtsCommand
 {
     Request
     {
-        key: PassageAudioKeyJson,
+        keys: Vec<TtsAudioKey>,
     },
-    Set
+
+    Load
     {
-        id: String,
+        keys: Vec<TtsAudioKey>,
     },
+
     Play,
     Pause,
-    Stop,
-    GetIsPlaying,
     SetTime
     {
         time: f32,
     },
-    GetDuration,
+
+    Stop,
 
     GetVoices,
     GetVoice { id: String },
@@ -39,51 +40,26 @@ pub enum TtsCommand
 
 #[tauri::command(rename_all = "snake_case")]
 pub fn run_tts_command(
-    player_state: State<'_, Mutex<TtsPlayer>>, 
-    voices: State<'_, AppVoices>,
-    package: State<'_, BiblioJsonPackageHandle>,  
+    voices: State<'_, AppVoices>, 
     app_state: State<'_, Mutex<AppState>>,
     app_handle: AppHandle,
-    command: TtsCommand
+    gen_thread: State<'_, TtsGenThread>,
+    player: State<'_, TtsPlayer>,
+    command: TtsCommand,
+
 ) -> Option<String>
 {
-    match command 
+    match command
     {
-        TtsCommand::Request { key } => {
-            let request = player_state.lock().unwrap()
-                .request_tts(&voices, package.inner().clone(), PassageAudioKey::from_json_key(key));
-            let request_str = serde_json::to_string(&request).unwrap();
-            Some(request_str)
-        },
-        TtsCommand::Set { id } => {
-            player_state.lock().unwrap().set(&id);
+        TtsCommand::Request { keys } => {
+            gen_thread.visit(|t| {
+                t.clear();
+                t.enqueue(keys.into_iter());
+            });
+
             None
         },
-        TtsCommand::Play => {
-            player_state.lock().unwrap().play();
-            None
-        },
-        TtsCommand::Pause => {
-            player_state.lock().unwrap().pause();
-            None
-        },
-        TtsCommand::Stop => {
-            player_state.lock().unwrap().stop();
-            None
-        },
-        TtsCommand::GetIsPlaying => {
-            let is_playing = player_state.lock().unwrap().is_playing();
-            let json = serde_json::to_string(&is_playing).unwrap();
-            return Some(json)
-        },
-        TtsCommand::SetTime { time } => 
-        {
-            player_state.lock().unwrap().set_time(time);
-            None
-        },
-        TtsCommand::GetDuration => return player_state.lock().unwrap().get_duration().map(|v| {
-            serde_json::to_string(&v).unwrap()
-        }),
+
         TtsCommand::GetVoices => {
             let response = voices.voices().collect_vec();
             Some(serde_json::to_string(&response).unwrap())
@@ -115,5 +91,40 @@ pub fn run_tts_command(
             let response = voices.default_voice_id();
             Some(serde_json::to_string(response).unwrap())
         }
+        TtsCommand::Load { keys } => {
+            let response = player.visit(|p| {
+                p.load(keys)
+            });
+
+            Some(serde_json::to_string(&response).unwrap())
+        },
+        TtsCommand::Play => {
+            player.visit(|p| {
+                p.play();
+            });
+
+            None
+        },
+        TtsCommand::Pause => {
+            player.visit(|p| {
+                p.pause();
+            });
+
+            None
+        },
+        TtsCommand::SetTime { time } => {
+            player.visit(|p| {
+                p.set_time(time);
+            });
+
+            None
+        },
+        TtsCommand::Stop => {
+            player.visit(|p| {
+                p.stop();
+            });
+
+            None
+        },
     }
 }

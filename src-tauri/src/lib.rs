@@ -1,6 +1,6 @@
 use std::sync::Mutex;
 use tauri::Manager;
-use crate::{bible::{BibleDisplaySettings, BiblioJsonPackageHandle, printing::printing_state::PrintBibleState}, core::{app::AppState, settings::{self, AppSettings}, view_history::{self, ViewHistory}}, sfx::SfxPlayer, tts::{TtsPlayer, init_espeak, voices::AppVoices}};
+use crate::{bible::{BibleDisplaySettings, BiblioJsonPackageHandle, printing::printing_state::PrintBibleState}, core::{app::AppState, settings::{self, AppSettings}, view_history::{self, ViewHistory}}, reader::BibleReaderBehavior, sfx::SfxPlayer, tts::{TtsAudioLibrary, gen_thread::TtsGenThread, init_espeak, player::TtsPlayer, voices::AppVoices}};
 
 pub mod core;
 pub mod bible;
@@ -9,6 +9,7 @@ pub mod repr;
 pub mod tts;
 pub mod commands;
 pub mod sfx;
+pub mod reader;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -33,19 +34,21 @@ pub fn run() {
             }
 
             init_espeak(app.path());
-            app.manage(Mutex::new(TtsPlayer::new(app.handle().clone())));
             app.manage(BiblioJsonPackageHandle::init(app.handle().clone()));
-            app.manage(AppVoices::load(app.path()));
             app.manage(SfxPlayer::new(app.path()));
             app.manage(PrintBibleState::new());
+            app.manage(AppVoices::load(app.path()));
+            app.manage(TtsGenThread::new(app.handle().clone()));
+            app.manage(TtsAudioLibrary::new(app.handle().clone()));
+            app.manage(TtsPlayer::new(app.handle().clone()));
 
             app.manage(Mutex::new(AppState {
                 settings: AppSettings::default(),
                 bible_display_settings: BibleDisplaySettings::default(),
                 view_history: ViewHistory::new(),
+                reader_behavior: BibleReaderBehavior::default(),
             }));
 
-            tts::add_sync_settings_listener(app.handle().clone());
             BibleDisplaySettings::add_on_package_init_listener(app.handle().clone());
 
             Ok(())
@@ -62,6 +65,7 @@ pub fn run() {
             core::app_language::run_app_language_command,
             sfx::run_sfx_command,
             bible::printing::printing_cmd::run_print_command,
+            reader::reader_cmd::run_reader_command,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

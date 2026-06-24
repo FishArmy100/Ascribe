@@ -12,6 +12,7 @@ import { PrintBibleFormatProvider } from "./PrintBibleFormatProvider";
 import { PrintBibleRangesProvider } from "./PrintBibleRangesProvider";
 import { KeyboardShortcutProvider } from "./KeyboardShortcutProvider";
 import ContextMenuProvider from "./ContextMenuProvider";
+import { BibleReaderProvider } from "./BibleReaderProvider";
 
 const BLOCKED_SHORTCUTS = [
     "ctrl+p",
@@ -21,6 +22,7 @@ const PROVIDER_NODES: ((children: React.ReactNode) => React.ReactNode)[] = [
     c => <AppSettingsProvider>{c}</AppSettingsProvider>,
     c => <BibleInfoProvider>{c}</BibleInfoProvider>,
     c => <BibleDisplaySettingsProvider>{c}</BibleDisplaySettingsProvider>,
+    c => <BibleReaderProvider>{c}</BibleReaderProvider>,
     c => <ViewHistoryProvider>{c}</ViewHistoryProvider>,
     c => <TtsPlayerProvider>{c}</TtsPlayerProvider>,
     c => <ModuleInfoProvider>{c}</ModuleInfoProvider>,

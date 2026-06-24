@@ -26,6 +26,7 @@ export default function Footer(): React.ReactElement
                 textAlign="center" 
                 variant="body2" 
                 fontStyle="italic"
+                color={theme.palette.primary.contrastText}
             >
                 {content}
             </Typography>

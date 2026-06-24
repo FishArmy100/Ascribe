@@ -1,7 +1,10 @@
+pub mod lang;
+
 use std::{str::FromStr, sync::{Arc, Mutex, MutexGuard}};
 
 use regex::Captures;
 use uuid::Uuid;
+pub use lang::*;
 
 pub fn load_capture<T>(captures: &Captures, name: &str) -> Option<T>
     where T: FromStr,
@@ -32,6 +35,14 @@ impl<T> Shared<T>
     pub fn inner(&self) -> &Arc<Mutex<T>>
     {
         &self.0
+    }
+}
+
+impl<T> Default for Shared<T> where T : Default
+{
+    fn default() -> Self 
+    {
+        Self(Default::default())
     }
 }
 

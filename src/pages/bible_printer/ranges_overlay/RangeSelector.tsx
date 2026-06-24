@@ -62,7 +62,7 @@ export default function RangeSelector({
 
     const strings = useMemo(() => ({
         from: __t("pages.bible_printer.labels.range_from", "From"),
-        to: __t("pages.bible_printer.labels.range_from", "To"),
+        to: __t("pages.bible_printer.labels.range_to", "To"),
         delete: __t("pages.bible_printer.tooltips.delete_range", "Delete this range"),
         duplicate: __t("pages.bible_printer.tooltips.duplicate_range", "Duplicate this range"),
     }), [i18n]);
@@ -208,6 +208,7 @@ export default function RangeSelector({
                             tooltip={strings.delete}
                             on_click={on_delete}
                             disabled={!can_delete}
+                            variant="error"
                         />
                     </Stack>
                 </Stack>

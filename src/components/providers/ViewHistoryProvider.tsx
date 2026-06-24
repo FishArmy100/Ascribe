@@ -31,6 +31,7 @@ export interface ViewHistoryContextType
     readonly retreat: () => Promise<void>,
     readonly push: (e: ViewHistoryEntry) => Promise<void>,
     readonly push_ref_id: (id: RefId) => Promise<void>,
+    readonly at: (index: number) => ViewHistoryEntry
 }
 
 const ViewHistoryContext = createContext<ViewHistoryContextType | null>(null);
@@ -64,7 +65,9 @@ export function ViewHistoryProvider({
 
     const get_index = () => current ? current.index : DEFAULT_VIEW_HISTORY_INFO.index;
 
-    const get_all = () => current ? current.all : DEFAULT_VIEW_HISTORY_INFO.all
+    const get_all = () => current ? current.all : DEFAULT_VIEW_HISTORY_INFO.all;
+
+    const at = (index: number) => current ? current.all[index] : DEFAULT_VIEW_HISTORY_INFO.all[0]
     
     const advance = async () => {
         return view_history.advance_backend_view_history();
@@ -83,7 +86,7 @@ export function ViewHistoryProvider({
     }
 
     return (
-        <ViewHistoryContext.Provider value={{ get_current, get_count, get_index, set_index, get_all, advance, retreat, push, push_ref_id }}>
+        <ViewHistoryContext.Provider value={{ get_current, get_count, get_index, set_index, get_all, advance, retreat, push, push_ref_id, at }}>
             {children}
         </ViewHistoryContext.Provider>
     )

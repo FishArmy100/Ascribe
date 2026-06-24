@@ -1,209 +1,149 @@
 // TtsPlayerProvider.tsx
-import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from "react";
-import { PassageAudioKey, TtsEvent, TtsSettings } from "../../interop/tts";
+import React, { createContext, useContext, useState, useEffect, useMemo } from "react";
 import * as tts from "../../interop/tts";
 
-export type PlayerState = "generating" | "playing" | "paused" | "idle" | "finished";
+export interface ITtsContextType 
+{
+    contains_key(key: tts.TtsAudioKey): boolean,
+    contains_keys(keys: tts.TtsAudioKey[]): number
+    request(key: tts.TtsAudioKey[]): Promise<void>,
+    load(keys: tts.TtsAudioKey[]): Promise<boolean>
+    get_generated_keys(): tts.TtsAudioKey[],
 
-interface TtsContextValue {
-    duration: number | null,
-    elapsed: number | null,
-    generation_progress: number | "ready" | null,
-    verse_index: number | null,
-    player_state: PlayerState,
-    request: (text: PassageAudioKey) => Promise<void>,
-    play: () => Promise<void>,
-    pause: () => Promise<void>,
-    stop: () => Promise<void>,
-    set_time: (time: number) => Promise<void>,
+    play(): void,
+    pause(): void,
+    stop(): void,
+    
+    set_time(time: number): void,
+    
+    is_loaded(): boolean,
+    state(): tts.PlayerState | null
 }
 
-const TtsContext = createContext<TtsContextValue | undefined>(undefined);
+const TtsContext = createContext<ITtsContextType | undefined>(undefined);
 
-export const TtsPlayerProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [playing_id, set_playing_id] = useState<string | null>(null);
-    const [duration, set_duration] = useState<number | null>(null);
-    const [elapsed, set_elapsed] = useState<number | null>(null);
-    const [generation_progress, set_generation_progress] = useState<number | "ready" | null>(null);
-    const [verse_index, set_verse_index] = useState<number | null>(null);
-    const [player_state, set_player_state] = useState<PlayerState>("idle");
+export type TtsPlayerProviderProps = {
+    children: React.ReactNode,
+}
 
-    // Use refs to access current state without causing re-renders
-    const state_ref = useRef({
-        playing_id,
-        generation_progress,
-        duration
-    });
-
-    // Keep ref in sync with state
-    useEffect(() => {
-        state_ref.current = {
-            playing_id,
-            generation_progress,
-            duration
-        };
-    }, [playing_id, generation_progress, duration]);
+export function TtsPlayerProvider({
+    children
+}: TtsPlayerProviderProps): React.ReactElement
+{
+    const [generated_keys, set_generated_keys] = useState<tts.TtsAudioKey[]>([]);
+    const [player_state, set_player_state] = useState<tts.PlayerState | null>(null);
+    const [is_player_loaded, set_is_player_loaded] = useState<boolean>(false);
 
     useEffect(() => {
-        
-        const unlisten = tts.listen_tts_event((e: TtsEvent) => {
-            // Access current state via ref
-            const current_state = state_ref.current;
-            
-            switch (e.type) {
-                case "generation_progress": {
-                    if (e.id === current_state.playing_id && current_state.generation_progress !== "ready") 
-                    {
-                        set_generation_progress(e.progress);
-                        set_player_state("generating");
-                    }
-                    break;
-                }
-                case "generated": {
-                    if (e.id === current_state.playing_id) 
-                    {
-                        set_generation_progress("ready");
-                        tts.backend_set_tts_id(e.id);
-                    }
-                    break;
-                }
-                case "set": {
-                    set_player_state("paused");
-                    tts.backend_get_tts_duration().then(d => {
-                        set_duration(d);
-                    });
-                    set_elapsed(0);
-                    break;
-                }
-                case "playing": {
-                    if (e.id === current_state.playing_id) 
-                    {
-                        set_elapsed(e.elapsed);
-                        if (e.verse_index !== null) 
-                        {
-                            set_verse_index(e.verse_index);
-                        }
-                    }
-                    break;
-                }
-                case "finished": {
-                    set_elapsed(1);
-                    set_verse_index(null);
-                    set_player_state("finished");
-                    break;
-                }
-                case "paused": {
-                    if (e.id === current_state.playing_id) 
-                    {
-                        set_player_state("paused");
-                    }
-                    break;
-                }
-                case "played": {
-                    if (e.id === current_state.playing_id) 
-                    {
-                        set_player_state("playing");
-                    }
-                    break;
-                }
-                case "stopped": {
-                    if (e.id === current_state.playing_id) 
-                    {
-                        set_playing_id(null);
-                        set_duration(null);
-                        set_elapsed(null);
-                        set_verse_index(null);
-                        set_player_state("idle");
-                        set_generation_progress(null);
-                    }
-                    break;
-                }
-                default:
-                    break;
-            }
-        });
+        function handle_verse_audio_updated(keys: tts.TtsAudioKey[]): void
+        {
+            set_generated_keys(keys);
+        }
+
+        function handle_player_state_updated(state: tts.PlayerState): void
+        {
+            set_player_state(state);
+        }
+
+        function handle_player_load_state_changed(event: tts.PlayerLoadStateChangedEvent): void
+        {
+            set_is_player_loaded(event.is_loaded);
+        }
+
+        const verse_audio_promise = tts.add_verse_audio_updated_listener(handle_verse_audio_updated);
+        const player_state_promise = tts.add_player_state_updated_listener(handle_player_state_updated);
+        const player_load_promise = tts.add_player_load_state_changed_listener(handle_player_load_state_changed);
 
         return () => {
-            unlisten.then(u => u());
-        };
-    }, []); // Empty dependency array - only register ONCE
-
-    const request = useCallback(async (text: PassageAudioKey) => {
-        await tts.backend_stop_tts();
-        const request = await tts.backend_request_tts(text);
-        set_playing_id(request.id);
-        set_duration(null);
-        set_elapsed(null);
-        set_verse_index(null);
-        set_player_state("idle");
-        set_generation_progress(null);
-
-        const ready = !request.generating;
-
-        if (ready) 
-        {
-            set_generation_progress("ready");
-            set_player_state("paused");
-            tts.backend_set_tts_id(request.id);
-        } 
-        else 
-        {
-            set_generation_progress(0);
-            set_player_state("generating");
+            verse_audio_promise.then(u => u());
+            player_state_promise.then(u => u());
+            player_load_promise.then(u => u());
         }
     }, []);
 
-    const play = useCallback(async () => {
-        if (generation_progress === "ready") 
-        {
-            await tts.backend_play_tts();
-        } 
-        else 
-        {
-            console.error("TTS player not ready");
-        }
-    }, [generation_progress]);
+    const generated_keys_set = useMemo(() => {
+        return new Set(generated_keys.map(stringify_audio_key));
+    }, [generated_keys]);
 
-    const pause = useCallback(async () => {
-        if (generation_progress === "ready") 
+    const value = useMemo((): ITtsContextType => ({
+        contains_key(key: tts.TtsAudioKey): boolean
         {
-            await tts.backend_pause_tts();
-        } 
-        else 
+            return generated_keys_set.has(stringify_audio_key(key));
+        },
+
+        contains_keys(keys: tts.TtsAudioKey[]): number
         {
-            console.error("TTS player not ready");
-        }
-    }, [generation_progress]);
+            return keys.filter(k => generated_keys_set.has(stringify_audio_key(k))).length;
+        },
 
-    const stop = useCallback(async () => {
-        if (generation_progress === "ready") 
+        get_generated_keys(): tts.TtsAudioKey[]
         {
-            await tts.backend_stop_tts();
-        }
-    }, [generation_progress]);
+            return [...generated_keys];
+        },
 
-    const value = useMemo(
-        () => ({
-            duration: duration,
-            elapsed: elapsed,
-            generation_progress: generation_progress,
-            verse_index: verse_index,
-            player_state: player_state,
-            request,
-            play,
-            pause,
-            stop,
-            set_time: tts.backend_set_tts_time,
-        }),
-        [duration, elapsed, generation_progress, verse_index, player_state, request, play, pause, stop]
-    );
+        async request(keys: tts.TtsAudioKey[]): Promise<void>
+        {
+            return tts.backend_request(keys);
+        },
 
-    return <TtsContext.Provider value={value}>{children}</TtsContext.Provider>;
-};
+        async load(keys: tts.TtsAudioKey[]): Promise<boolean>
+        {
+            return tts.backend_load(keys);
+        },
+
+        play(): void
+        {
+            tts.backend_play().catch(e => console.error("Error playing:", e));
+        },
+
+        pause(): void
+        {
+            tts.backend_pause().catch(e => console.error("Error pausing:", e));
+        },
+
+        stop(): void
+        {
+            tts.backend_stop().catch(e => console.error("Error stopping:", e));
+        },
+
+        set_time(time: number): void
+        {
+            tts.backend_set_time(time).catch(e => console.error("Error setting time:", e));
+        },
+
+        is_loaded(): boolean
+        {
+            return is_player_loaded;
+        },
+
+        state(): tts.PlayerState | null
+        {
+            return player_state;
+        },
+    }), [generated_keys, generated_keys_set, player_state, is_player_loaded]);
+
+    return (
+        <TtsContext.Provider value={value}>
+            {children}
+        </TtsContext.Provider>
+    )
+}
 
 export function use_tts_player() 
 {
     const ctx = useContext(TtsContext);
     if (!ctx) throw new Error("use_tts_player must be used within a TtsPlayerProvider");
     return ctx;
+}
+
+function stringify_audio_key(key: tts.TtsAudioKey): string 
+{
+    if (key.type === "string")
+    {
+        return `${key.voice}/${key.string}`;
+    }
+    else 
+    {
+        return `${key.voice}/${key.bible}/${key.verse.book}.${key.verse.chapter}.${key.verse.verse}`;
+    }
 }

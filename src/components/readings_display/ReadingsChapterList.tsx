@@ -6,6 +6,7 @@ import React, { useCallback } from "react";
 import * as utils from "@utils";
 import { use_view_history } from "@components/providers/ViewHistoryProvider";
 import { ViewHistoryEntry } from "@interop/view_history";
+import { play_sfx } from "@interop/sfx";
 
 export type ReadingsChapterListProps = {
     bible_id: string,
@@ -47,6 +48,7 @@ export default function ReadingsChapterList({
                 const text = format_readings_chapter(r, format_book);
                 const on_click = () => {
                     go_to_readings_chapter(r, push_view_history_entry);
+                    play_sfx("click")
                 }
                 return (
                     <Box

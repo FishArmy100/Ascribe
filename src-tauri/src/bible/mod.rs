@@ -5,9 +5,9 @@ pub mod fetching;
 pub mod ref_id_parsing;
 pub mod printing;
 
-use std::{collections::HashSet, sync::{Arc, Mutex, RwLock}, thread::spawn};
+use std::{collections::HashSet, num::NonZeroU32, sync::{Arc, Mutex, RwLock}, thread::spawn};
 
-use biblio_json::{self, Package, modules::{ModuleId, ModuleType, bible::BookInfo}};
+use biblio_json::{self, Package, core::{Atom, ChapterId, RefIdInner}, modules::{ModuleId, ModuleType, bible::{BibleModule, BookInfo}}};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Emitter, Listener, Manager, utils::platform::resource_dir};
@@ -66,11 +66,241 @@ impl BiblioJsonPackageHandle
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "snake_case")]
 pub struct BibleInfo 
 {
     pub id: ModuleId,
     pub display_name: String,
     pub books: Vec<BookInfo>,
+}
+
+impl BibleInfo
+{
+    pub fn new(bible: &BibleModule) -> Self 
+    {
+        Self 
+        {
+            id: bible.config.id.clone(),
+            display_name: bible.config.short_name.clone().unwrap_or(bible.config.name.clone()),
+            books: bible.source.book_infos.clone()
+        }
+    }
+
+    pub fn increment_chapter(&self, chapter: ChapterId) -> ChapterId
+    {
+        let book_index = self.books.iter().position(|b| b.osis_book == chapter.book);
+        
+        if book_index.is_none()
+        {
+            eprintln!("Book {:?} does not exist in bible {}", chapter.book, self.id);
+            return chapter;
+        }
+
+        let book_index = book_index.unwrap();
+        let book = &self.books[book_index];
+        
+        if (chapter.chapter.get() as usize) < book.chapters.len()
+        {
+            return ChapterId {
+                book: chapter.book.clone(),
+                chapter: NonZeroU32::new(chapter.chapter.get() + 1).unwrap()
+            }
+        }
+        else if book_index + 1 < self.books.len()
+        {
+            return ChapterId {
+                book: self.books[book_index + 1].osis_book.clone(),
+                chapter: NonZeroU32::new(1).unwrap(),
+            }
+        }
+        else
+        {
+            return ChapterId {
+                book: self.books[0].osis_book.clone(),
+                chapter: NonZeroU32::new(1).unwrap(),
+            }
+        }
+    }/// Returns the absolute chapter index (0-based) of a given chapter within this BibleInfo.
+    /// This is the offset from the very first chapter (Genesis 1).
+    pub fn get_chapter_offset(&self, chapter: ChapterId) -> usize 
+    {
+        let mut offset = 0;
+        for book in &self.books {
+            if book.osis_book == chapter.book {
+                return offset + (chapter.chapter.get() - 1) as usize;
+            }
+            offset += book.chapters.len();
+        }
+
+        log::error!("Book {:?} does not exist in bible {}", chapter.book, self.id);
+        0
+    }
+
+    /// Returns the signed offset (number of chapters) between two ChapterIds.
+    /// Positive if `b` is ahead of `a`, negative if `b` is behind `a`.
+    /// Wraps to the shortest path: e.g. the distance from Rev 22 to Gen 1 is +1.
+    pub fn get_chapter_distance(&self, a: ChapterId, b: ChapterId) -> i32 
+    {
+        let total = self.books.iter().map(|b| b.chapters.len()).sum::<usize>() as i32;
+        let offset_a = self.get_chapter_offset(a) as i32;
+        let offset_b = self.get_chapter_offset(b) as i32;
+
+        let mut diff = offset_b - offset_a;
+
+        // Wrap to the shortest path around the ring
+        if diff > total / 2 
+        {
+            diff -= total;
+        } 
+        else if diff < -total / 2 
+        {
+            diff += total;
+        }
+
+        diff
+    }
+
+    /// Returns the ChapterId reached by moving `offset` chapters forward (positive)
+    /// or backward (negative) from `chapter`, wrapping around the canon as needed.
+    /// e.g. bible.offset_chapter(ChapterId { book: Rev, chapter: 22 }, 1) == ChapterId { book: Gen, chapter: 1 }
+    pub fn offset_chapter(&self, chapter: ChapterId, offset: i32) -> ChapterId 
+    {
+        let total = self.books.iter().map(|b| b.chapters.len()).sum::<usize>() as i32;
+
+        // Get the absolute index of the starting chapter, then apply the offset
+        let raw = self.get_chapter_offset(chapter) as i32 + offset;
+
+        // Wrap into [0, total) — rem_euclid handles negative offsets correctly
+        let mut index = raw.rem_euclid(total) as usize;
+
+        // Walk the book list, subtracting each book's chapter count until
+        // the index falls within the current book
+        for book in &self.books 
+        {
+            if index < book.chapters.len() 
+            {
+                return ChapterId {
+                    book: book.osis_book.clone(),
+                    // SAFETY: index + 1 is always >= 1
+                    chapter: NonZeroU32::new((index + 1) as u32).unwrap(),
+                };
+            }
+            index -= book.chapters.len();
+        }
+
+        log::error!("Failed to find chapter at offset {} from {:?} {}", offset, chapter.book, chapter.chapter);
+        ChapterId { book: self.books[0].osis_book.clone(), chapter: NonZeroU32::MIN }
+    }
+    
+    pub fn split_ref_by_chapter(&self, ref_id: &RefIdInner) -> Vec<RefIdInner>
+    {
+        let (from, to) = match ref_id
+        {
+            RefIdInner::Single(_) => return vec![ref_id.clone()],
+            RefIdInner::Range { from, to } => (from, to),
+        };
+
+        let from_chapter = ChapterId {
+            book: from.book(),
+            chapter: from.chapter().unwrap_or(NonZeroU32::MIN),
+        };
+        let to_chapter = ChapterId {
+            book: to.book(),
+            chapter: to.chapter().unwrap_or(NonZeroU32::MIN),
+        };
+
+        if from_chapter == to_chapter
+        {
+            return vec![ref_id.clone()];
+        }
+
+        let mut result = Vec::new();
+        let mut current_chapter = from_chapter;
+
+        loop
+        {
+            let is_last = current_chapter == to_chapter;
+
+            if current_chapter == from_chapter
+            {
+                match from.chapter()
+                {
+                    None => result.push(RefIdInner::Single(Atom::Chapter {
+                        book: current_chapter.book,
+                        chapter: current_chapter.chapter,
+                    })),
+                    Some(_) =>
+                    {
+                        let from_is_chapter_start = from.verse()
+                            .map(|v| v.get() == 1)
+                            .unwrap_or(true);
+
+                        if from_is_chapter_start && from.word().is_none()
+                        {
+                            result.push(RefIdInner::Single(Atom::Chapter {
+                                book: current_chapter.book,
+                                chapter: current_chapter.chapter,
+                            }));
+                        }
+                        else
+                        {
+                            result.push(RefIdInner::Range {
+                                from: *from,
+                                to: Atom::Chapter {
+                                    book: current_chapter.book,
+                                    chapter: current_chapter.chapter,
+                                },
+                            });
+                        }
+                    }
+                }
+            }
+            else if is_last
+            {
+                match to.chapter()
+                {
+                    None => result.push(RefIdInner::Single(Atom::Chapter {
+                        book: current_chapter.book,
+                        chapter: current_chapter.chapter,
+                    })),
+                    Some(_) =>
+                    {
+                        let to_is_chapter_end = to.verse().is_none() && to.word().is_none();
+
+                        if to_is_chapter_end
+                        {
+                            result.push(RefIdInner::Single(Atom::Chapter {
+                                book: current_chapter.book,
+                                chapter: current_chapter.chapter,
+                            }));
+                        }
+                        else
+                        {
+                            result.push(RefIdInner::Range {
+                                from: Atom::Chapter {
+                                    book: current_chapter.book,
+                                    chapter: current_chapter.chapter,
+                                },
+                                to: *to,
+                            });
+                        }
+                    }
+                }
+                break;
+            }
+            else
+            {
+                result.push(RefIdInner::Single(Atom::Chapter {
+                    book: current_chapter.book,
+                    chapter: current_chapter.chapter,
+                }));
+            }
+
+            current_chapter = self.increment_chapter(current_chapter);
+        }
+
+        result
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

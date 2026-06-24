@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use crate::repr::html_text::HtmlTextJson;
 
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum StrongsLanguageJson
 {
@@ -52,7 +52,7 @@ impl From<&StrongsLanguageJson> for StrongsLang
     }
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub struct StrongsNumberJson
 {
