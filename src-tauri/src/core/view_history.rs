@@ -8,6 +8,8 @@ use crate::{core::app::AppState, repr::{ChapterIdJson, searching::WordSearchQuer
 
 pub const VIEW_HISTORY_CHANGED_EVENT_NAME: &str = "view-history-changed";
 
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub struct ViewHistory
 {
     entries: Vec<ViewHistoryEntry>,
@@ -16,6 +18,7 @@ pub struct ViewHistory
 
 impl ViewHistory
 {
+    // We can do this, because we know that the BibleDisplaySettings already default to the KJV which has Gen 1
     pub fn new() -> Self
     {
         let gen_1 = ChapterId {
@@ -84,6 +87,14 @@ impl ViewHistory
     pub fn get_current(&self) -> &ViewHistoryEntry
     {
         &self.entries[self.index]
+    }
+}
+
+impl Default for ViewHistory
+{
+    fn default() -> Self 
+    {
+        Self::new()
     }
 }
 
