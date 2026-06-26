@@ -1,0 +1,8 @@
+name = "The New Testament with Commentary Footnotes"
+short_name = "NT Footnotes"
+id = "nt_commentary_footnotes"
+description = 'Footnotes based on the "The New Testament with Commentary" Bible'
+bible = "kjv_eng"
+license = "https://ebible.org/Scriptures/details.php?id=engf35"
+language = "eng"
+data_source = "https://ebible.org/Scriptures/details.php?id=engf35"
