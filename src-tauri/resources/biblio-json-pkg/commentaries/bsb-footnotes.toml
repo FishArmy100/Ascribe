@@ -1,0 +1,8 @@
+name = "Berean Standard Bible Footnotes"
+short_name = "BSB Footnotes"
+id = "bsb_footnotes"
+description = 'Footnotes based on the "Berean Standard Bible" Bible'
+bible = "bsb_eng"
+license = "https://berean.bible/"
+language = "eng"
+data_source = "https://berean.bible/"

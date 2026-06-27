@@ -1,0 +1,6 @@
+name = "Tyndale Open Study Notes"
+short_name = "Tyndale Notes"
+id = "tyndale_open_study_notes"
+license = "https://creativecommons.org/licenses/by-sa/4.0/"
+language = "eng"
+data_source = "https://tyndaleopenresources.com/"

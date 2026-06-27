@@ -1,6 +1,6 @@
 name = "Santa Biblia — Reina Valera 1909"
 short_name = "SpaRV"
-id = "santa_biblia_reina_valera_1909"
+id = "rv_spa"
 license = "https://ebible.org/Scriptures/details.php?id=spaRV1909"
 language = "spa"
 

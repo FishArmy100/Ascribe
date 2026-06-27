@@ -1,7 +1,7 @@
 name = "Biblia Takatifu"
 short_name = "ULB"
 license = "https://ebible.org/Scriptures/details.php?id=swhulb"
-id = "biblia_takatifu_ulb"
+id = "ulb_sw"
 language = "sw"
 
 [books]

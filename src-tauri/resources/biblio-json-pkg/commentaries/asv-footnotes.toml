@@ -1,0 +1,8 @@
+name = "American Standard Version (1901) Footnotes"
+short_name = "ASV Footnotes"
+id = "asv_footnotes"
+description = 'Footnotes based on the "American Standard Version (1901)" Bible'
+bible = "asv_eng"
+license = "https://ebible.org/Scriptures/details.php?id=eng-asv"
+language = "eng"
+data_source = "https://ebible.org/Scriptures/details.php?id=eng-asv"
