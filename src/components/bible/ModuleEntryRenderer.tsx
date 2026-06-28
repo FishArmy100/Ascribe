@@ -65,7 +65,7 @@ export default function ModuleEntryRenderer({
     }
     else if (entry.type === "strongs_link")
     {
-        return <Typography>Not implemented yet</Typography>
+        return <Typography>Not implemented</Typography>
     }
     else if (entry.type === "xref_directed")
     {

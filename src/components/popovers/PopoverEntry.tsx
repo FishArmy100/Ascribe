@@ -1,11 +1,14 @@
+import ImageButton from "@components/core/ImageButton";
 import { play_sfx } from "@interop/sfx";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import { Collapse, ListItemButton, Stack, Typography, useTheme } from "@mui/material";
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
+import * as images from "@assets";
 
 export type PopoverEntryData = {
     title: string,
     body: React.ReactNode,
+    on_search?: () => void,
 }
 
 export type PopoverEntryProps = {
@@ -26,6 +29,16 @@ export default function PopoverEntry({
         on_click(t);
     }, [on_click]);
 
+    const on_search = useMemo(() => {
+        if (!data.on_search) 
+            return undefined;
+
+        return (e: React.MouseEvent) => {
+            e.stopPropagation();
+            data?.on_search?.();
+        }
+    }, [data.on_search])
+
     return (
         <>
             <ListItemButton 
@@ -41,7 +54,20 @@ export default function PopoverEntry({
                 }}
             >
                 <Typography component="p" variant="h6" fontWeight="bold" >{data.title}</Typography>
-                {is_expanded? <ExpandLess/> : <ExpandMore/>}
+                <Stack
+                    alignItems="center"
+                    direction="row"
+                >
+                    {is_expanded? <ExpandLess/> : <ExpandMore/>}
+                    {on_search && (
+                        <ImageButton 
+                            image={images.magnifying_glass} 
+                            tooltip={null}
+                            on_click={on_search}
+                            sx={{ transform: "scale(0.75)" }}
+                        />
+                    )}
+                </Stack>
             </ListItemButton>
             <Collapse in={is_expanded} timeout="auto" unmountOnExit>
                 <Stack
