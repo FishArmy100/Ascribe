@@ -12,6 +12,8 @@ import { use_bible_display_settings } from "@components/providers/BibleDisplaySe
 import { use_module_configs } from "@components/providers/ModuleConfigProvider";
 import { use_format_ref_id } from "@interop/bible/ref_id";
 import { use_view_history } from "@components/providers/ViewHistoryProvider";
+import { backend_push_search_to_view_history } from "@interop/searching";
+import { format_strongs } from "@interop/bible/strongs";
 
 export type WordPopoverProps = {
     bible_id: string | null,
@@ -56,9 +58,24 @@ export default function WordPopover({
     // do a .? here, just to make sure that in the rare case that it thinks everything is fetched properly, and it is still null
     const rendered_word = verse_render_data && word ? verse_render_data.words[word.word - 1]?.word ?? null : null;
     const entries = module_entries?.map((e): PopoverEntryData => {
+        let on_search: (() => void) | undefined = undefined;
+
+        if (e.type === "dictionary")
+        {
+            on_search = () => {
+                backend_push_search_to_view_history(e.term)
+            }
+        }
+        else if (e.type === "strongs_def")
+        {
+            on_search = () => {
+                backend_push_search_to_view_history(format_strongs(e.strongs_ref));
+            }
+        }
 
         return {
             title: get_module_entry_title(e, module_infos, configs, formatter),
+            on_search,
             body: (
                 <ModuleEntryRenderer
                     entry={e}
