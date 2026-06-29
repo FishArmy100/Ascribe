@@ -43,6 +43,8 @@ export default function VersePopover({
 
     const entries = module_entries?.map((e): PopoverEntryData => ({
         title: get_module_entry_title(e, module_infos, configs, format_ref_id),
+        module: e.module,
+        id: e.id,
         body: (
             <ModuleEntryRenderer
                 entry={e}

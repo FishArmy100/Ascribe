@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import PopoverEntry, { PopoverEntryData, PopoverEntryProps } from "./PopoverEntry";
 import { Box, Divider, Popover, Stack, Typography } from "@mui/material";
 import SmallerTextSection from "@components/SmallerTextSection";
+import { ModuleEntryRef } from "@interop/module_entry";
 
 
 export type PopoverBaseProps = {
@@ -23,7 +24,7 @@ export default function PopoverBase({
     const popover_ref = useRef<HTMLDivElement>(null);
     const [corrected_pos, set_corrected_pos] = useState<{ top: number; left: number } | null>(pos);
 
-    const [open_modules, set_open_modules] = useState<string[]>([]);
+    const [open_entries, set_open_entries] = useState<string[]>([]);
 
     useEffect(() => {
         if (!pos || !popover_ref.current) return;
@@ -65,9 +66,9 @@ export default function PopoverBase({
     }, [pos, entries]);
 
     const handle_close = useCallback(() => {
-        set_open_modules([]);
+        set_open_entries([]);
         on_close();
-    }, [on_close, set_open_modules]);
+    }, [on_close, set_open_entries]);
     
     return (
         <Popover
@@ -129,8 +130,8 @@ export default function PopoverBase({
                         {
                             <BasePopoverContent
                                 entries={entries}
-                                open_modules={open_modules}
-                                set_open_modules={set_open_modules}
+                                open_entries={open_entries}
+                                set_open_entries={set_open_entries}
                             />
                         }
                     </Stack>
@@ -193,24 +194,24 @@ function PopoverBaseTitle({
 
 type BasePopoverContentProps = {
     entries: PopoverEntryData[],
-    open_modules: string[],
-    set_open_modules: (m: string[]) => void,
+    open_entries: string[],
+    set_open_entries: (m: string[]) => void,
 }
 
 function BasePopoverContent({
     entries,
-    open_modules,
-    set_open_modules,
+    open_entries,
+    set_open_entries,
 }: BasePopoverContentProps): React.ReactElement
 {
-    const on_click = (name: string) => {
-        let copy = Array.from(open_modules)
-        if (!copy.remove(name))
+    const on_click = (ref: ModuleEntryRef) => {
+        let copy = Array.from(open_entries)
+        if (!copy.remove(ref.module + ref.id))
         {
-            copy.push(name)
+            copy.push(ref.module + ref.id)
         }
 
-        set_open_modules(copy)
+        set_open_entries(copy)
     }
 
     return (
@@ -223,7 +224,7 @@ function BasePopoverContent({
                         <PopoverEntry
                             data={entry}
                             key={i}
-                            is_expanded={open_modules.includes(entry.title)}
+                            is_expanded={open_entries.includes(entry.module + entry.id)}
                             on_click={on_click}
                         />
                     )

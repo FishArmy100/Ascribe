@@ -14,6 +14,7 @@ import { use_format_ref_id } from "@interop/bible/ref_id";
 import { use_view_history } from "@components/providers/ViewHistoryProvider";
 import { backend_push_search_to_view_history } from "@interop/searching";
 import { format_strongs } from "@interop/bible/strongs";
+import { play_sfx } from "@interop/sfx";
 
 export type WordPopoverProps = {
     bible_id: string | null,
@@ -76,6 +77,8 @@ export default function WordPopover({
         return {
             title: get_module_entry_title(e, module_infos, configs, formatter),
             on_search,
+            module: e.module,
+            id: e.id,
             body: (
                 <ModuleEntryRenderer
                     entry={e}
@@ -88,6 +91,7 @@ export default function WordPopover({
     const handle_title_clicked = useCallback(() => {
         if (rendered_word !== null)
         {
+            play_sfx("click");
             view_history.push({
                 type: "word_search",
                 query: {

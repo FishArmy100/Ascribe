@@ -4,17 +4,20 @@ import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import { Collapse, ListItemButton, Stack, Typography, useTheme } from "@mui/material";
 import React, { useCallback, useMemo } from "react";
 import * as images from "@assets";
+import { ModuleEntryRef } from "@interop/module_entry";
 
 export type PopoverEntryData = {
     title: string,
     body: React.ReactNode,
     on_search?: () => void,
+    module: string,
+    id: number,
 }
 
 export type PopoverEntryProps = {
     data: PopoverEntryData,
     is_expanded: boolean,
-    on_click: (t: string) => void,
+    on_click: (t: ModuleEntryRef) => void,
 }
 
 export default function PopoverEntry({
@@ -24,10 +27,13 @@ export default function PopoverEntry({
 }: PopoverEntryProps): React.ReactElement
 {
     const theme = useTheme();
-    const handle_click = useCallback((t: string) => {
+    const handle_click = useCallback(() => {
         play_sfx("open_tab");
-        on_click(t);
-    }, [on_click]);
+        on_click({
+            module: data.module,
+            id: data.id,
+        });
+    }, [on_click, data]);
 
     const on_search = useMemo(() => {
         if (!data.on_search) 
@@ -42,7 +48,7 @@ export default function PopoverEntry({
     return (
         <>
             <ListItemButton 
-                onClick={() => handle_click(data.title)}
+                onClick={handle_click}
                 sx={{
                     borderRadius: !is_expanded ? theme.spacing(1) : undefined,
                     borderColor: is_expanded ? theme.palette.divider : undefined,

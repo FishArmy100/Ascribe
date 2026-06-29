@@ -117,6 +117,11 @@ export type VerseWord = {
 export type ModuleEntry = 
     StrongsDefEntry | StrongsLinkEntry | CommentaryEntry | DictionaryEntry | XRefDirectedEntry | XRefMutualEntry | NotebookNoteEntry | NotebookHighlightEntry | ReadingsEntry | VerseEntry
 
+export type ModuleEntryRef = {
+    id: number,
+    module: string,
+}
+
 export function get_module_entry_title(entry: ModuleEntry, module_infos: ModuleInfoMap, configs: ModuleConfigContextType, ref_id_formatter: RefIdFormatter): string 
 {
     let info = module_infos[entry.module];

@@ -7,6 +7,7 @@ import SmallerTextSection from "@components/SmallerTextSection";
 import { StrongsDefEntry } from "@interop/module_entry";
 import { use_bible_display_settings } from "@components/providers/BibleDisplaySettingsProvider";
 import { use_view_history } from "@components/providers/ViewHistoryProvider";
+import { play_sfx } from "@interop/sfx";
 
 export type StrongsPopoverProps = {
     pos: { top: number, left: number } | null,
@@ -36,6 +37,7 @@ export default function StrongsPopover({
     const on_title_click = useCallback(() => {
         if (strongs !== null)
         {
+            play_sfx("click")
             view_history.push({
                 type: "word_search",
                 query: {
