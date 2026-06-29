@@ -80,9 +80,11 @@ export default function AudioPlayer({
         {
             let inner: RefIdInner | null = null;
             let index = view_history.get_index();
-            do {
+            do 
+            {
                 const entry = view_history.at(index);
-                if (entry.type === "chapter") {
+                if (entry.type === "chapter") 
+                {
                     inner = {
                         type: "single",
                         atom: {
@@ -91,7 +93,8 @@ export default function AudioPlayer({
                         }
                     };
                 }
-                else if (entry.type === "verse") {
+                else if (entry.type === "verse") 
+                {
                     inner = {
                         type: "range",
                         from: {
@@ -111,7 +114,8 @@ export default function AudioPlayer({
             }
             while (inner === null && index > 0);
 
-            if (inner === null) {
+            if (inner === null) 
+            {
                 inner = {
                     type: "single",
                     atom: {
