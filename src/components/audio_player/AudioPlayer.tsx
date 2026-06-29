@@ -29,6 +29,7 @@ import QueuePopup from "./reader_queue/QueuePopup";
 import stringify from "fast-json-stable-stringify";
 import TimerDisplay from "./TimerDisplay";
 import { use_timer } from "@utils/timer";
+import { RefIdInner } from "@interop/bible/ref_id";
 
 const FAST_FORWARD_TIME = 10;
 const REWIND_TIME = 10;
@@ -74,6 +75,62 @@ export default function AudioPlayer({
         set_reader_behavior(updated);
     }, [reader_behavior, set_reader_behavior]);
 
+    useEffect(() => {
+        if (reader_behavior.type === "current")
+        {
+            let inner: RefIdInner | null = null;
+            let index = view_history.get_index();
+            do {
+                const entry = view_history.at(index);
+                if (entry.type === "chapter") {
+                    inner = {
+                        type: "single",
+                        atom: {
+                            type: "chapter",
+                            ...entry.chapter
+                        }
+                    };
+                }
+                else if (entry.type === "verse") {
+                    inner = {
+                        type: "range",
+                        from: {
+                            type: "verse",
+                            ...entry.chapter,
+                            verse: entry.start,
+                        },
+                        to: {
+                            type: "verse",
+                            ...entry.chapter,
+                            verse: entry.end ?? entry.start,
+                        }
+                    };
+                }
+
+                index -= 1;
+            }
+            while (inner === null && index > 0);
+
+            if (inner === null) {
+                inner = {
+                    type: "single",
+                    atom: {
+                        type: "chapter",
+                        book: "Gen",
+                        chapter: 1
+                    }
+                }
+            }
+
+            const copy = deep_copy(reader_behavior);
+            copy.ref_id = inner;
+            if (stringify(reader_behavior.ref_id) !== stringify(copy.ref_id))
+            {
+                set_reader_behavior(copy);
+            }
+        }
+    }, [stringify(view_history.get_current()), set_reader_behavior, reader_behavior])
+
     const [is_playing, set_is_playing] = useState(false);
     const player_state = tts_player.state();
     const is_player_loaded = tts_player.is_loaded();
@@ -94,13 +151,11 @@ export default function AudioPlayer({
     const player_index_ref = useRef(player_index);
     useEffect(() => {
         player_index_ref.current = player_index;
-        console.log(`player_index = ${player_index}`)
     }, [player_index])
 
     useEffect(() => {
         if (player_state?.finished)
         {
-            console.log("NEXT")
             set_player_index(player_index_ref.current + 1);
         }
     }, [player_state?.finished, set_player_index, next_reading]);

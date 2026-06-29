@@ -146,7 +146,8 @@ export default function BehaviorTypeSelector({
                 }
             }))
         }
-        else if (type === "current") {
+        else if (type === "current") 
+        {
             let inner: RefIdInner | null = null;
             let index = view_history.get_index();
             do {
