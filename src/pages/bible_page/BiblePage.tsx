@@ -163,7 +163,16 @@ function BiblePage({
 
 	}, [current_chapter, bible_name, parallel_bible_name, selected_bibles.bible, show_strongs]);
 
+	const [awaiting_chapter_navigation, set_awaiting_chapter_navigation] = useState(false);
+	useEffect(() => {
+		set_awaiting_chapter_navigation(false);
+	}, [current_chapter]);
+
 	const handle_chapter_navigation = useCallback((type: "next" | "previous") => {
+		if (awaiting_chapter_navigation) 
+			return;
+
+		set_awaiting_chapter_navigation(true);
 		const current_page = view_history.get_current();
 		if (current_page.type !== "verse" && current_page.type !== "chapter") {
 			return;

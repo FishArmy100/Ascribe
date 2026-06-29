@@ -67,7 +67,7 @@ impl<'a> WordSearchLexer<'a>
             {
                 let word = self.consume_word();
 
-                match word.to_uppercase().as_str()
+                match word.as_str()
                 {
                     "OR" => WordSearchToken::Or,
                     "NOT" => WordSearchToken::Not,

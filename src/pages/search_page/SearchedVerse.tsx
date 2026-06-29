@@ -44,7 +44,7 @@ export default function SearchedVerse({
             start: verse.verse,
             end: null,
         })
-    }, [view_history]);
+    }, [view_history, verse]);
 
     return (
         <Box>
