@@ -98,6 +98,7 @@ export default function PopoverBase({
 
                         // animate the nudge so it doesn't feel abrupt
                         transition: "transform 160ms ease",
+                        border: t=> `${t.spacing(1 / 8)} solid ${t.palette.divider}`,
                     },
                 }
             }}
