@@ -18,6 +18,8 @@ export type TextSelectDropdownOption<T> = {
 export type TextSelectDropdownProps<T> = {
     button_sx?: SxProps<Theme>,
     option_sx?: SxProps<Theme>,
+    sx?: SxProps<Theme>,
+    panel_sx?: SxProps<Theme>,
     tooltip: string | null,
     options: TextSelectDropdownOption<T>[],
     selected: number,
@@ -31,6 +33,8 @@ export type TextSelectDropdownProps<T> = {
 function TextSelectDropdown<T>({
     button_sx,
     option_sx,
+    sx,
+    panel_sx,
     tooltip,
     options,
     selected,
@@ -38,7 +42,7 @@ function TextSelectDropdown<T>({
     variant,
     bold,
     width,
-    placement = "auto"
+    placement = "auto",
 }: TextSelectDropdownProps<T>): React.ReactElement
 {
     const [is_open, set_open] = useState(false);
@@ -136,7 +140,9 @@ function TextSelectDropdown<T>({
                 overflow: "auto",
                 left: theme.spacing(-DROPDOWN_PADDING),
                 padding: DROPDOWN_PADDING,
+                ...panel_sx,
             }}
+            sx={sx}
         >
             <Stack
                 direction="column"

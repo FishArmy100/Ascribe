@@ -315,7 +315,6 @@ export default function AudioPlayer({
     useEffect(() => {
         if (open)
         {
-            console.log("REQUESTING")
             player_ref.current.request(audio_keys);
         }
     }, [audio_keys, open]);
@@ -480,6 +479,14 @@ export default function AudioPlayer({
                                             readonly={false}
                                             sx={{
                                                 ml: theme.spacing(2)
+                                            }}
+                                            rail_sx={{
+                                                backgroundColor: theme.palette.background.default,
+                                                border: `${theme.spacing(1 / 8)} solid ${theme.palette.divider}`
+                                            }}
+                                            slider_sx={{
+                                                backgroundColor: theme.palette.primary.main,
+                                                border: `${theme.spacing(1 / 8)} solid ${theme.palette.divider}`
                                             }}
                                         />
                                         <Typography

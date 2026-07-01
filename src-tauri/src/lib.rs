@@ -85,6 +85,7 @@ pub fn run()
             sfx::run_sfx_command,
             bible::printing::printing_cmd::run_print_command,
             reader::reader_cmd::run_reader_command,
+            core::app::open_save_in_file_explorer,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

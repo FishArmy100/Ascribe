@@ -73,7 +73,7 @@ export default function SearchPage({
                 strongs_number: s,
                 position: { top: e.top, left: e.left }
             })
-    }, []);
+    }, [set_popover_data]);
 
     const handle_word_click = useCallback((e: { top: number, left: number }, bible_id: string, word: WordId) => {
         set_popover_data({
@@ -82,7 +82,15 @@ export default function SearchPage({
             word,
             position: e
         })
-    }, []);
+    }, [set_popover_data]);
+
+    const on_display_verse_popover = useCallback((e: { top: number, left: number }, verse: VerseId) => {
+        set_popover_data({
+            type: "verse",
+            verse,
+            position: e
+        })
+    }, [set_popover_data])
 
     let content;
 
@@ -122,6 +130,7 @@ export default function SearchPage({
                 verses={rendered_content.verses}
                 on_strongs_clicked={handle_strongs_click}
                 on_verse_word_clicked={handle_word_click}
+                on_display_verse_popover={on_display_verse_popover}
             />
             
             {rendered_content.hits.length > SEARCH_RESULT_DISPLAY_COUNT && <>
