@@ -29,6 +29,7 @@ pub struct WordRenderData
     pub highlight_color: Option<String>,
     pub has_data: bool,
     pub index: u32,
+    pub heb_sub: bool,
 }
 
 pub fn fetch_verse_render_data(package: &Package, verses: &[VerseId], bible: &ModuleId, shown_modules: &HashSet<ModuleId>) -> Vec<VerseRenderData>
@@ -75,6 +76,7 @@ pub fn fetch_verse_render_data(package: &Package, verses: &[VerseId], bible: &Mo
                 highlight_color: None,
                 has_data,
                 index: i as u32,
+                heb_sub: w.heb_sub.unwrap_or_default(),
             }
         }).collect_vec();
         

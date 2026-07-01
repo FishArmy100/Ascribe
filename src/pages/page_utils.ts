@@ -1,7 +1,9 @@
 import { use_bible_display_settings } from "@components/providers/BibleDisplaySettingsProvider";
 import { use_view_history, ViewHistoryContextType } from "@components/providers/ViewHistoryProvider";
 import * as bible from "@interop/bible";
+import { format_strongs } from "@interop/bible/strongs";
 import { HRefSrc } from "@interop/html_text";
+import { backend_push_module_word_search_to_view_history, backend_push_search_to_view_history } from "@interop/searching";
 import { useCallback, useEffect, useRef } from "react";
 
 export function use_handle_href_clicked_callback(): (href: HRefSrc) => void 
@@ -162,9 +164,9 @@ export function get_handle_ref_clicked_callback(
 				selector: { type: "entry", id: href.entry_id},
 			})
 		}
-		else 
+		else
 		{
-			console.error(`Href failed: ${JSON.stringify(href)}`);
+			backend_push_search_to_view_history(format_strongs(href.strongs))
 		}
 	};
 }

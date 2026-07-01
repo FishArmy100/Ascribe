@@ -381,8 +381,8 @@ checksum = "72b3254f16251a8381aa12e40e3c4d2f0199f8c6508fbecb9d91f575e0fbb8c6"
 
 [[package]]
 name = "biblio_json"
-version = "0.1.9"
-source = "git+https://github.com/FishArmy100/biblio_json?branch=ascribe#95e037ea73ba1c393531993c9d6c8fe108219bbf"
+version = "0.1.10"
+source = "git+https://github.com/FishArmy100/biblio_json?branch=ascribe#c78a22c0037e0a52062b2a30645982b9c9d85713"
 dependencies = [
  "bimap",
  "bincode",
