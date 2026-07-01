@@ -7,8 +7,6 @@ import Slider from "@components/core/Slider";
 import { use_deep_copy } from "@utils/index";
 import use_settings_page_strings from "./settings_page_strings";
 
-const UI_SCALE_SLIDER_TITLE: string = "Ui Scale";
-
 export default function UiScaleSlider(): React.ReactElement
 {
     const { settings, set_settings } = use_settings();

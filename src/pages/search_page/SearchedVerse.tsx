@@ -13,12 +13,14 @@ export type SearchedVerseProps = {
 
     on_strongs_clicked: StrongsClickedCallback,
     on_verse_word_clicked: VerseWordClickedCallback,
+    on_display_verse_popover: VerseClickedCallback,
 }
 
 export default function SearchedVerse({
     render_data,
     on_strongs_clicked,
     on_verse_word_clicked,
+    on_display_verse_popover,
 }: SearchedVerseProps): React.ReactElement
 {
     const theme = useTheme();
@@ -45,6 +47,14 @@ export default function SearchedVerse({
             end: null,
         })
     }, [view_history, verse]);
+
+    const handle_verse_title_context_menu = useCallback((e: React.MouseEvent) => {
+        const target = e.target as HTMLElement;
+        const rect = target.getBoundingClientRect();
+        const pos = { top: rect.top, left: rect.left };
+
+        on_display_verse_popover(pos, render_data.id)
+    }, [on_display_verse_popover])
 
     return (
         <Box>
@@ -77,6 +87,7 @@ export default function SearchedVerse({
                             }
                         }}
                         onClick={on_verse_clicked}
+                        onContextMenu={handle_verse_title_context_menu}
                     >
                         {verse_title}
                     </Box>

@@ -8,39 +8,56 @@ import LanguageSelectionDropdown from "./LanguageSelectionDropdown";
 import SfxVolumeSlider from "./SfxVolumeSlider";
 import SfxToggles from "./SfxToggles";
 import { Footer } from "@components/index";
+import AdvancedButtons from "./AdvancedButtons";
 
 export default function SettingsPage(): React.ReactElement
 {
     const theme = useTheme();
     return (
-        <Box>
+        <Box
+            width="100%"
+        >
             <SettingsPageToolbar />
-            <Stack
-                direction="column"
-                gap={theme.spacing(3)}
+            <Box
                 sx={{
-                    mt: 7,
-                    mr: 5,
-                    ml: 5,
-                    mb: `calc(100vh - ${theme.spacing(12)})`
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: "100%"
                 }}
             >
-                <Typography
-                    variant="h4"
-                    textAlign="center"
+                <Stack
+                    direction="column"
+                    gap={theme.spacing(3)}
+                    display="flex"
+                    justifyContent="center"
                     sx={{
-                        mb: 5,
+                        mt: 7,
+                        mr: 5,
+                        ml: 5,
+                        mb: `calc(100vh - ${theme.spacing(12)})`,
+                        width: `calc(min(80vw, ${theme.spacing(75)}))`,
                     }}
                 >
-                    Settings
-                </Typography>
-                <UiScaleSlider />
-                <SfxVolumeSlider />
-                <ThemeSelectorDropdown />
-                <FontSelectorDropdown />
-                <LanguageSelectionDropdown />
-                <SfxToggles />
-            </Stack>
+                    <Typography
+                        variant="h4"
+                        textAlign="center"
+                        fontWeight="bold"
+                        sx={{
+                            mb: 5,
+                        }}
+                    >
+                        Settings
+                    </Typography>
+                    <UiScaleSlider />
+                    <SfxVolumeSlider />
+                    <ThemeSelectorDropdown />
+                    <FontSelectorDropdown />
+                    <LanguageSelectionDropdown />
+                    <SfxToggles />
+                    <AdvancedButtons />
+                </Stack>
+            </Box>
             <Footer />
         </Box>
     )

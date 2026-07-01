@@ -6,7 +6,7 @@ use kira_pitcher::effect::pitch::PitcherBuilder;
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Emitter, Manager};
 
-use crate::{core::{app::AppState, settings::AppSettings, utils::Shared}, tts::{TtsSettings, TtsAudioKey, TtsAudioLibrary}};
+use crate::{core::{app::AppState, utils::Shared}, tts::{TtsSettings, TtsAudioKey, TtsAudioLibrary}};
 
 pub const PLAYER_STATE_UPDATED_EVENT_NAME: &str = "player-state-updated";
 

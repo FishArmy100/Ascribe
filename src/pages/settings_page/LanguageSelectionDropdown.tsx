@@ -73,6 +73,7 @@ export default function LanguageSelectionDropdown(): React.ReactElement
                 gap={theme.spacing(1)}
                 sx={{
                     alignItems: "center",
+                    justifyContent: "space-between",
                 }}
             >
                 <Typography 
@@ -91,8 +92,12 @@ export default function LanguageSelectionDropdown(): React.ReactElement
                                     tooltip={strings.button}
                                     language={i18n.locale()}
                                     active={is_open}
-                                    sx={{ width: "100%" }}  // stretch to fill the Box
+                                    sx={{ 
+                                        width: "100%",
+                                        alignItems: "center"
+                                    }}
                                     on_click={on_click}
+                                    dropdown_arrow
                                 />
                             </Box>
                         )
@@ -101,6 +106,9 @@ export default function LanguageSelectionDropdown(): React.ReactElement
                         boxSizing: "border-box",
                         width: "100%",
                         minWidth: "max-content", // panel grows to fit widest button
+                    }}
+                    sx={{
+                        width: "50%",
                     }}
                     is_open={is_open}
                     on_click={() => set_is_open(!is_open)}

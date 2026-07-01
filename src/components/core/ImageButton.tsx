@@ -10,7 +10,7 @@ export const BUTTON_SIZE = 4;
 export const BUTTON_BORDER_RADIUS = 0.75;
 export const BUTTON_PADDING = 3 / 8;
 
-export type ButtonVariant = "default" | "inverted" | "info" | "error";
+export type ImageButtonVariant = "default" | "inverted" | "info" | "error";
 
 export type ImageButtonProps = {
     image: string,
@@ -20,7 +20,7 @@ export type ImageButtonProps = {
     on_click?: (event: React.MouseEvent<HTMLButtonElement>) => void,
     sx?: SxProps<Theme>,
     sfx?: Sfx | "none",
-    variant?: ButtonVariant
+    variant?: ImageButtonVariant
 }
 
 export default function ImageButton({

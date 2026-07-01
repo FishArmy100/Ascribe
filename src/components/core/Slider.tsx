@@ -1,5 +1,6 @@
 
 import { Slider as MuiSlider, SxProps, Theme, useTheme } from "@mui/material"
+import { SystemStyleObject } from "@mui/system";
 import Tooltip from "./Tooltip"
 
 export type SliderProps = {
@@ -12,6 +13,8 @@ export type SliderProps = {
     on_commit?: (n: number) => void,
     readonly?: boolean,
     sx?: SxProps<Theme>,
+    slider_sx?: SystemStyleObject<Theme>,
+    rail_sx?: SystemStyleObject<Theme>
 }
 
 export default function Slider({
@@ -24,6 +27,8 @@ export default function Slider({
     on_commit,
     readonly,
     sx,
+    slider_sx,
+    rail_sx,
 }: SliderProps): React.ReactElement
 {
     const theme = useTheme();
@@ -43,8 +48,8 @@ export default function Slider({
 
                     "& .MuiSlider-thumb": {
                         backgroundColor: theme.palette.primary.light,
-                        width: theme.spacing(3),
-                        height: theme.spacing(3),
+                        width: theme.spacing(2.5),
+                        height: theme.spacing(2.5),
                         '&:focus, &:hover, &.Mui-focusVisible, &.Mui-active': {
                             boxShadow: 'none',
                         },
@@ -53,10 +58,14 @@ export default function Slider({
                         },
                     },
                     "& .MuiSlider-track": {
-                        backgroundColor: theme.palette.grey[100],
+                        // border: `${theme.spacing(1 / 8)} solid ${theme.palette.divider}`
+                        height: theme.spacing(0.5),
+                        ...slider_sx
                     },
                     "& .MuiSlider-rail": {
-                        backgroundColor: theme.palette.grey[100],
+                        backgroundColor: theme.palette.primary.main,
+                        height: theme.spacing(0.5),
+                        ...rail_sx
                     },
                     ...sx,
                 }}

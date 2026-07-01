@@ -1,7 +1,7 @@
 use std::{fs, io::ErrorKind};
 
 use serde::{Deserialize, Serialize};
-use tauri::{Runtime, path::{BaseDirectory, PathResolver}};
+use tauri::{Manager, Runtime, path::{BaseDirectory, PathResolver}};
 
 use crate::{bible::BibleDisplaySettings, core::view_history::ViewHistory, reader::BibleReaderBehavior};
 
@@ -26,6 +26,8 @@ impl AppState
     {
         let path = resolver.resolve(APP_SAVE_PATH, BaseDirectory::AppData)
             .map_err(|e| e.to_string())?;
+
+        dbg!(&path);
 
         if let Some(parent) = path.parent()
         {
@@ -58,4 +60,19 @@ impl AppState
             Err(e) => Err(e.to_string())
         }
     }
+}
+
+#[tauri::command(rename_all = "snake_case")]
+pub fn open_save_in_file_explorer<R>(app: tauri::AppHandle<R>) -> Option<String>
+    where R : Runtime
+{
+    let has_save = app.path().resolve(APP_SAVE_PATH, BaseDirectory::AppData).unwrap().as_path().exists();
+    if !has_save 
+    {
+        return Some("App save has not been created".into())
+    }
+
+    let path = app.path().resolve("", BaseDirectory::AppData).unwrap();
+    let path_str = path.to_str().unwrap();
+    open::that(path_str).err().map(|e| e.to_string())
 }

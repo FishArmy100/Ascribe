@@ -48,8 +48,8 @@ impl ViewHistory
     pub fn clear(&mut self)
     {
         let last = self.entries[self.index].clone();
-        self.entries.clear();
-        self.entries.push(last);
+        *self = Self::new();
+        self.push_entry(last);
         self.index = 0;
     }
 

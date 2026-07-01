@@ -1,4 +1,4 @@
-use std::{path::Path, sync::Arc};
+use std::path::Path;
 use biblio_json::modules::bible::Verse;
 use itertools::Itertools;
 use kira::{Frame, sound::static_sound::{StaticSoundData, StaticSoundSettings}};

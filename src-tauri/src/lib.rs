@@ -1,6 +1,6 @@
 use std::sync::{Arc, Mutex, atomic::{AtomicBool, Ordering}};
 use tauri::{Manager, WindowEvent};
-use crate::{bible::{BibleDisplaySettings, BiblioJsonPackageHandle, printing::printing_state::PrintBibleState}, core::{app::AppState, settings::{self, AppSettings}, view_history::{self, ViewHistory}}, reader::BibleReaderBehavior, sfx::SfxPlayer, tts::{TtsAudioLibrary, gen_thread::TtsGenThread, init_espeak, player::TtsPlayer, voices::AppVoices}};
+use crate::{bible::{BibleDisplaySettings, BiblioJsonPackageHandle, printing::printing_state::PrintBibleState}, core::{app::AppState, settings, view_history}, sfx::SfxPlayer, tts::{TtsAudioLibrary, gen_thread::TtsGenThread, init_espeak, player::TtsPlayer, voices::AppVoices}};
 
 pub mod core;
 pub mod bible;
@@ -85,6 +85,7 @@ pub fn run()
             sfx::run_sfx_command,
             bible::printing::printing_cmd::run_print_command,
             reader::reader_cmd::run_reader_command,
+            core::app::open_save_in_file_explorer,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

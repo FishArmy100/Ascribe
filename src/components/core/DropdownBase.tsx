@@ -20,6 +20,7 @@ export type DropdownBaseProps = {
     content_z_index?: number;
     panel_sx?: SxProps<Theme>;
     placement?: DropdownPlacement;
+    sx?: SxProps<Theme>,
 };
 
 function DropdownBase({
@@ -31,6 +32,7 @@ function DropdownBase({
     content_z_index = 1000,
     panel_sx,
     placement = "auto",
+    sx,
 }: DropdownBaseProps): React.ReactElement {
     const theme = useTheme();
     const containerRef = useRef<HTMLDivElement>(null);
@@ -119,6 +121,7 @@ function DropdownBase({
                         pointerEvents: "auto",
                     },
                 }),
+                ...sx,
             }}
         >
             {button_element}
@@ -173,6 +176,7 @@ export default React.memo(DropdownBase, (prev, next) => {
         prev.disable_hover === next.disable_hover &&
         prev.content_z_index === next.content_z_index &&
         prev.panel_sx === next.panel_sx &&
-        prev.placement === next.placement
+        prev.placement === next.placement &&
+        prev.sx === next.sx
     );
 });

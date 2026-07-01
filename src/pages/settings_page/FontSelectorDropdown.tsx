@@ -44,6 +44,7 @@ export default function FontSelectorDropdown(): React.ReactElement
                 gap={theme.spacing(1)}
                 sx={{
                     alignItems: "center",
+                    justifyContent: "space-between",
                 }}
             >
                 <Typography 
@@ -58,8 +59,23 @@ export default function FontSelectorDropdown(): React.ReactElement
                     tooltip={strings.select_font_tooltip}
                     selected={selected_index}
                     on_select={handle_dropdown_select}
-                    variant="h5"
+                    variant="h6"
                     bold
+                    button_sx={{
+                        justifyContent: "space-between",
+                        width: "100%"
+                    }}
+                    panel_sx={{
+                        width: "100%",
+                        minHeight: `35vh`
+                    }}
+                    option_sx={{
+                        width: "100%",
+                        textAlign: "left",
+                    }}
+                    sx={{
+                        width: "50%"
+                    }}
                 />
             </Stack>
         </Paper>
