@@ -4,7 +4,7 @@ use biblio_json::modules::ModuleId;
 use serde::{Deserialize, Serialize};
 use tauri::{Emitter, State};
 
-use crate::{bible::BiblioJsonPackageHandle, core::app::AppState, reader::{BibleReaderBehavior, ReaderNextResult, ReaderQueueResult, ReaderReading}};
+use crate::{bible::BiblioJsonPackageHandle, core::app::AppState, reader::{BibleReaderBehavior, ReaderNextResult, ReaderQueueResult}};
 
 pub const READER_CHANGED_EVENT_NAME: &str = "reader-changed";
 

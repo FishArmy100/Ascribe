@@ -1,9 +1,9 @@
-use std::{collections::HashMap, sync::{Arc, Mutex, RwLock}};
+use std::{collections::HashMap, sync::Arc};
 
-use biblio_json::{core::VerseId, modules::ModuleId};
+use biblio_json::modules::ModuleId;
 use kira::sound::static_sound::StaticSoundData;
 use serde::{Deserialize, Serialize};
-use tauri::{AppHandle, Emitter, Listener, Runtime, path::{BaseDirectory, PathResolver}};
+use tauri::{AppHandle, Emitter, Runtime, path::{BaseDirectory, PathResolver}};
 
 use crate::{core::utils::Shared, repr::VerseIdJson};
 

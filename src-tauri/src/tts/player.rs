@@ -1,7 +1,6 @@
-use kira::{AudioManager, AudioManagerSettings, sound::static_sound::StaticSoundHandle};
-use log::error;
+use kira::{AudioManager, AudioManagerSettings};
 use serde::{Deserialize, Serialize};
-use tauri::{AppHandle, Emitter, Manager};
+use tauri::{AppHandle, Emitter};
 
 use crate::{core::utils::Shared, tts::{TtsAudioKey, player_thread::{PlayerState, TtsPlayerThread}}};
 
