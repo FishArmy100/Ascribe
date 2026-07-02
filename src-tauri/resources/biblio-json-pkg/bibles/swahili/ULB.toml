@@ -4,6 +4,65 @@ license = "https://ebible.org/Scriptures/details.php?id=swhulb"
 id = "ulb_sw"
 language = "sw"
 
+description = """
+
+<h1>Unlocked Literal Bible (ULB) — Swahili</h1>
+<p>
+    <em>Tafsiri ya Kiswahili iliyoundwa kwa usahihi wa tafsiri na kazi ya uanafunzi</em>
+</p>
+
+<h2>Muhtasari</h2>
+<p>
+    <strong>Unlocked Literal Bible (ULB) ya Kiswahili</strong> ni tafsiri ya Biblia
+    iliyotayarishwa na <strong>unfoldingWord</strong> ili kutoa tafsiri ya karibu na
+    lugha za asili huku ikisalia kueleweka kwa wasomaji wa Kiswahili.
+    Imeandaliwa hasa kwa ajili ya tafsiri za Biblia, uinjilisti, na mafunzo.
+</p>
+
+<h2>Msingi wa Maandishi na Historia</h2>
+<ul>
+    <li><strong>Agano la Kale:</strong> Linategemea maandishi ya Kiebrania ya Masoretiki.</li>
+    <li><strong>Agano Jipya:</strong> Linategemea maandishi muhimu ya Kigiriki.</li>
+    <li><strong>Lengo:</strong> Kuhifadhi maana na muundo wa maandishi ya asili kadiri inavyowezekana.</li>
+    <li><strong>Mradi:</strong> Ni sehemu ya huduma ya tafsiri ya unfoldingWord.</li>
+</ul>
+
+<h2>Muundo</h2>
+<p>
+    ULB ina vitabu <strong>66</strong> vya Biblia ya Kiprotestanti:
+    vitabu <strong>39</strong> vya Agano la Kale na
+    vitabu <strong>27</strong> vya Agano Jipya.
+</p>
+
+<h2>Lugha na Mtindo</h2>
+<ul>
+    <li><strong>Lugha:</strong> Kiswahili sanifu.</li>
+    <li><strong>Mtindo:</strong> Tafsiri ya karibu na maandishi ya asili.</li>
+    <li><strong>Matumizi:</strong> Inafaa kwa tafsiri nyingine, mafundisho, na kujifunza Biblia.</li>
+    <li><strong>Vipengele:</strong> Mgawanyo wa sura na mistari ya kawaida.</li>
+</ul>
+
+<h2>Matumizi</h2>
+<p>
+    ULB hutumiwa sana katika miradi ya tafsiri ya Biblia duniani kote,
+    hasa katika mazingira ya lugha nyingi na kazi za umisheni.
+</p>
+
+<h2>Matoleo</h2>
+<ul>
+    <li><strong>Unlocked Literal Bible:</strong> Toleo linalosasishwa mara kwa mara na unfoldingWord.</li>
+</ul>
+
+<h2>Maelezo</h2>
+<ul>
+    <li><strong>Leseni:</strong> Inapatikana chini ya leseni huria ya unfoldingWord kwa matumizi na tafsiri.</li>
+    <li><strong>Nyenzo za ziada:</strong> Maelezo na vifaa vya kujifunzia vinaweza kuwa na masharti tofauti ya leseni.</li>
+</ul>
+
+"""
+
+book_aliases = "sw"
+
 [books]
 Gen = "Mwanzo"
 Exod = "Kutoka"

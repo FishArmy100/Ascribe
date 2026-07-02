@@ -4,6 +4,66 @@ id = "bbe_eng"
 license = "https://ebible.org/Scriptures/details.php?id=engBBE"
 language = "eng"
 
+description = """
+
+<h1>Bible in Basic English (BBE)</h1>
+<p>
+    <em>A translation using a simplified English vocabulary</em>
+</p>
+
+<h2>Overview</h2>
+<p>
+    The <strong>Bible in Basic English (BBE)</strong> is an English translation of the Christian Bible
+    completed in <strong>1949</strong>. It was translated primarily by
+    <strong>S. H. Hooke</strong> and collaborators using the
+    <strong>Basic English</strong> vocabulary developed by
+    <strong>Charles Kay Ogden</strong>. The translation was designed to make the Bible easier to read
+    for people learning English or those with limited vocabulary.
+</p>
+
+<h2>Textual Basis & History</h2>
+<ul>
+    <li><strong>Old Testament:</strong> Based primarily on the Hebrew Masoretic Text.</li>
+    <li><strong>New Testament:</strong> Based on the standard Greek critical texts available during the mid-20th century.</li>
+    <li><strong>Translation Goal:</strong> Uses a vocabulary of about <strong>1,000 Basic English words</strong>, with additional words where necessary for biblical concepts.</li>
+    <li><strong>Publication:</strong> First complete edition published in <strong>1949</strong>.</li>
+</ul>
+
+<h2>Structure</h2>
+<p>
+    The BBE contains the standard <strong>66-book Protestant canon</strong>:
+    <strong>39</strong> Old Testament books and <strong>27</strong> New Testament books.
+</p>
+
+<h2>Language & Style</h2>
+<ul>
+    <li><strong>Register:</strong> Modern, simplified English.</li>
+    <li><strong>Vocabulary:</strong> Limited to Basic English whenever practical.</li>
+    <li><strong>Readability:</strong> Intended for learners of English and new Bible readers.</li>
+    <li><strong>Features:</strong> Includes standard chapter and verse divisions.</li>
+</ul>
+
+<h2>Impact & Use</h2>
+<p>
+    The BBE remains popular among English learners, missionaries, and readers seeking a
+    straightforward presentation of the biblical text. Its emphasis on simplicity makes it
+    useful for devotional reading and language study.
+</p>
+
+<h2>Common Editions</h2>
+<ul>
+    <li><strong>1949 Edition:</strong> The original complete Bible.</li>
+    <li><strong>Digital Editions:</strong> Widely available through public domain Bible projects.</li>
+</ul>
+
+<h2>Notes</h2>
+<ul>
+    <li><strong>Public Domain:</strong> The BBE text is generally considered public domain.</li>
+    <li><strong>Study Helps:</strong> Notes and supplementary materials may be separately copyrighted.</li>
+</ul>
+
+"""
+
 book_aliases = "en"
 book_abbreviations = "en"
 

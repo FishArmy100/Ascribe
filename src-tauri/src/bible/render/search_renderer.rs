@@ -87,7 +87,36 @@ fn render_searched_hits(package: &Package, hits: &[VerseWordSearchHit], query_ro
         }
         else 
         {
-            let html = rd.words.iter().map(|w| render_word(w, query_root, hit, show_strongs)).join("<span class=\"bible-space\"> </span>");
+            let mut html = String::new();
+
+            for i in 0..rd.words.len()
+            {
+                if i != 0
+                {
+                    html.push_str("<span class=\"bible-space\"> </span>");
+                }
+
+                if rd.words[i].heb_sub && i == 0
+                {
+                    html.push_str("[[");
+                }
+                else if i != 0 && !rd.words[i - 1].heb_sub && rd.words[i].heb_sub
+                {
+                    html.push_str("[[");
+                }
+
+                html.push_str(&render_word(&rd.words[i], query_root, hit, show_strongs));
+
+                if i == rd.words.len() - 1 && rd.words[i].heb_sub
+                {
+                    html.push_str("]]");
+                }
+                else if i + 1 < rd.words.len() && !rd.words[i + 1].heb_sub && rd.words[i].heb_sub
+                {
+                    html.push_str("]]");
+                }
+            }
+
             RenderedVerseContent { 
                 failed: false, 
                 id: rd.id, 

@@ -4,6 +4,65 @@ id = "ylt_eng"
 license = "https://ebible.org/Scriptures/details.php?id=engylt"
 language = "eng"
 
+description = """
+
+<h1>Young's Literal Translation (YLT)</h1>
+<p>
+    <em>A highly literal English translation by Robert Young</em>
+</p>
+
+<h2>Overview</h2>
+<p>
+    The <strong>Young's Literal Translation (YLT)</strong> is an English translation of the Bible
+    first published in <strong>1862</strong> by
+    <strong>Robert Young</strong>, a Scottish publisher and biblical scholar.
+    It aims to preserve the grammatical forms and word order of the original Hebrew and Greek
+    as closely as possible.
+</p>
+
+<h2>Textual Basis & History</h2>
+<ul>
+    <li><strong>Old Testament:</strong> Based on the Hebrew Masoretic Text.</li>
+    <li><strong>New Testament:</strong> Based primarily on the Greek Textus Receptus.</li>
+    <li><strong>Translation Philosophy:</strong> Extremely literal, preserving verb tenses and original sentence structure whenever possible.</li>
+    <li><strong>Revisions:</strong> Revised editions appeared in <strong>1887</strong> and <strong>1898</strong>.</li>
+</ul>
+
+<h2>Structure</h2>
+<p>
+    The YLT contains the standard <strong>66-book Protestant canon</strong>:
+    <strong>39</strong> Old Testament books and <strong>27</strong> New Testament books.
+</p>
+
+<h2>Language & Style</h2>
+<ul>
+    <li><strong>Register:</strong> Formal and highly literal.</li>
+    <li><strong>Grammar:</strong> Attempts to preserve Hebrew and Greek verb tenses and syntax.</li>
+    <li><strong>Readability:</strong> Less natural English in favor of translation accuracy.</li>
+    <li><strong>Features:</strong> Includes standard chapter and verse divisions.</li>
+</ul>
+
+<h2>Impact & Use</h2>
+<p>
+    The YLT is valued by Bible students and scholars who wish to examine a translation that
+    closely reflects the original languages. It is frequently used alongside more idiomatic
+    English translations.
+</p>
+
+<h2>Common Editions</h2>
+<ul>
+    <li><strong>1862 Edition:</strong> First publication.</li>
+    <li><strong>1898 Revised Edition:</strong> Final revision by Robert Young.</li>
+</ul>
+
+<h2>Notes</h2>
+<ul>
+    <li><strong>Public Domain:</strong> The YLT text is public domain.</li>
+    <li><strong>Study Helps:</strong> Modern editions may include copyrighted notes and references.</li>
+</ul>
+
+"""
+
 book_aliases = "en"
 book_abbreviations = "en"
 

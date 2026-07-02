@@ -4,6 +4,64 @@ id = "bsb_eng"
 license = "https://berean.bible/"
 language = "eng"
 
+description = """
+
+<h1>Berean Standard Bible (BSB)</h1>
+<p>
+    <em>A modern English translation emphasizing accuracy and readability</em>
+</p>
+
+<h2>Overview</h2>
+<p>
+    The <strong>Berean Standard Bible (BSB)</strong> is a modern English translation
+    published in <strong>2020</strong> by the
+    <strong>Bible Hub</strong> translation committee.
+    It seeks to balance formal equivalence with natural English while remaining faithful
+    to the original biblical languages.
+</p>
+
+<h2>Textual Basis & History</h2>
+<ul>
+    <li><strong>Old Testament:</strong> Based primarily on the Hebrew Masoretic Text, with consultation of the Dead Sea Scrolls and Septuagint where appropriate.</li>
+    <li><strong>New Testament:</strong> Based on the Nestle-Aland Novum Testamentum Graece and other critical Greek texts.</li>
+    <li><strong>Translation Philosophy:</strong> A balance between literal accuracy and modern readability.</li>
+    <li><strong>Development:</strong> Produced through an international collaborative translation effort.</li>
+</ul>
+
+<h2>Structure</h2>
+<p>
+    The BSB contains the standard <strong>66-book Protestant canon</strong>:
+    <strong>39</strong> Old Testament books and <strong>27</strong> New Testament books.
+</p>
+
+<h2>Language & Style</h2>
+<ul>
+    <li><strong>Register:</strong> Contemporary English.</li>
+    <li><strong>Translation Style:</strong> Formal equivalence with attention to readability.</li>
+    <li><strong>Features:</strong> Includes headings, chapter and verse divisions, and extensive cross-references.</li>
+</ul>
+
+<h2>Impact & Use</h2>
+<p>
+    The BSB is widely used through Bible Hub and other digital platforms for study,
+    teaching, and personal reading. It is appreciated for combining accuracy with clear
+    modern English.
+</p>
+
+<h2>Common Editions</h2>
+<ul>
+    <li><strong>Berean Standard Bible:</strong> Current primary edition.</li>
+    <li><strong>Berean Study Bible:</strong> Earlier editions under the previous name.</li>
+</ul>
+
+<h2>Notes</h2>
+<ul>
+    <li><strong>License:</strong> Freely available for many uses under the Berean Bible licensing terms.</li>
+    <li><strong>Study Helps:</strong> Additional study resources may have separate licensing.</li>
+</ul>
+
+"""
+
 book_aliases = "en"
 book_abbreviations = "en"
 

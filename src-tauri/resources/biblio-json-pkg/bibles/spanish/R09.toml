@@ -4,6 +4,67 @@ id = "rv_spa"
 license = "https://ebible.org/Scriptures/details.php?id=spaRV1909"
 language = "spa"
 
+description = """
+
+<h1>Santa Biblia — Reina-Valera 1909 (RV1909)</h1>
+<p>
+    <em>Una revisión clásica de la traducción de Casiodoro de Reina y Cipriano de Valera</em>
+</p>
+
+<h2>Descripción general</h2>
+<p>
+    La <strong>Santa Biblia — Reina-Valera 1909</strong> es una revisión de la tradicional
+    traducción española iniciada por <strong>Casiodoro de Reina</strong> en <strong>1569</strong>
+    y revisada por <strong>Cipriano de Valera</strong> en <strong>1602</strong>.
+    La edición de <strong>1909</strong> modernizó la ortografía y realizó diversas mejoras
+    textuales, conservando el estilo clásico que caracteriza a la tradición Reina-Valera.
+</p>
+
+<h2>Base textual e historia</h2>
+<ul>
+    <li><strong>Antiguo Testamento:</strong> Basado principalmente en el Texto Masorético hebreo.</li>
+    <li><strong>Nuevo Testamento:</strong> Basado en el Textus Receptus griego.</li>
+    <li><strong>Historia:</strong> Forma parte de la larga tradición de revisiones Reina-Valera.</li>
+    <li><strong>Publicación:</strong> Revisada y publicada en <strong>1909</strong>.</li>
+</ul>
+
+<h2>Estructura</h2>
+<p>
+    Contiene los <strong>66 libros</strong> del canon protestante:
+    <strong>39</strong> del Antiguo Testamento y
+    <strong>27</strong> del Nuevo Testamento.
+</p>
+
+<h2>Idioma y estilo</h2>
+<ul>
+    <li><strong>Registro:</strong> Español clásico.</li>
+    <li><strong>Estilo:</strong> Formal y literario.</li>
+    <li><strong>Características:</strong> Conserva muchas expresiones tradicionales de la Reina-Valera.</li>
+    <li><strong>Formato:</strong> Incluye divisiones por capítulos y versículos.</li>
+</ul>
+
+<h2>Impacto y uso</h2>
+<p>
+    La Reina-Valera 1909 fue una de las traducciones protestantes en español más utilizadas
+    durante gran parte del siglo XX. Aún hoy es apreciada por quienes prefieren su lenguaje
+    tradicional y su importancia histórica.
+</p>
+
+<h2>Ediciones comunes</h2>
+<ul>
+    <li><strong>Edición de 1909:</strong> La revisión clásica anterior a la Reina-Valera 1960.</li>
+</ul>
+
+<h2>Notas</h2>
+<ul>
+    <li><strong>Dominio público:</strong> El texto de la Reina-Valera 1909 es de dominio público.</li>
+    <li><strong>Ayudas de estudio:</strong> Las notas y materiales añadidos por editoriales modernas pueden estar protegidos por derechos de autor.</li>
+</ul>
+
+"""
+
+book_aliases = "es"
+
 [books]
 Gen = "Génesis"
 Exod = "Éxodo"
