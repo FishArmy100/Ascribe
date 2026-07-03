@@ -17,7 +17,7 @@ export default function use_search_bar_strings()
         ),
         search_more: __t(
             "search_bar.tooltips.search_more",
-            "More search options",
+            "More search options (WIP)",
         )
     }), [i18n]);
 

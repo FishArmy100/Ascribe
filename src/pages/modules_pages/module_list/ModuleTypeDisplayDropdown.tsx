@@ -226,6 +226,7 @@ function DisplayOption({
                     label={
                         <Typography 
                             component="span" 
+                            fontWeight="bold"
                             sx={{ textWrap: "nowrap" }}
                         >
                             {label}
