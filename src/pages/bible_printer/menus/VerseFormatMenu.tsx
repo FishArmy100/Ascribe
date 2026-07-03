@@ -61,7 +61,10 @@ export default function VerseFormatMenu({
                 })}
             />
 
-            <OptionGroup label={strings.verse_spacing_group_label}>
+            <OptionGroup 
+                label={strings.verse_spacing_group_label}
+                label_props={{ background: theme.palette.background.paper }}
+            >
                 {/* Line Height */}
                 <LabeledNumberInput 
                     label_props={{ variant: "body1", bold: true, sx: {minWidth: theme.spacing(16)} }}

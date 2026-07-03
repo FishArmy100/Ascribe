@@ -24,6 +24,7 @@ export default function MarginEditor({
     return (
         <OptionGroup
             label={strings.edit_margin_label}
+            label_props={{ background: theme.palette.background.paper }}
         >
             <Stack
                 direction="column"

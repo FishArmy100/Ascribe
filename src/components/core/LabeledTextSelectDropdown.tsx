@@ -27,25 +27,34 @@ export default function LabeledTextSelectDropdown<T>({
 
     return (
         <FormControlLabel
-                labelPlacement="start"
-                label={
-                    <Tooltip tooltip={tooltip}>
-                        <Typography
-                            variant={label_props.variant}
-                            component="span"
-                            sx={{
-                                display: "flex",
-                                alignItems: 'center',
-                                mr: theme.spacing(1),
-                                fontWeight: label_props.bold ? "bold" : undefined,
-                                ...label_props.sx
-                            }}
-                        >
-                            {label}
-                        </Typography>
-                    </Tooltip>
-                }
-                control={
+            labelPlacement="start"
+            sx={{
+                width: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                m: 0,
+                gap: theme.spacing(1),
+            }}
+            label={
+                <Tooltip tooltip={tooltip}>
+                    <Typography
+                        variant={label_props.variant}
+                        component="span"
+                        sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            fontWeight: label_props.bold ? "bold" : undefined,
+                            flexGrow: 1,
+                            ...label_props.sx,
+                        }}
+                    >
+                        {label}
+                    </Typography>
+                </Tooltip>
+            }
+            control={
+                <Box sx={{ display: "flex", justifyContent: "flex-end", flexShrink: 0 }}>
                     <TextSelectDropdown<T>
                         tooltip={null}
                         selected={selected}
@@ -54,7 +63,8 @@ export default function LabeledTextSelectDropdown<T>({
                         variant={dropdown_props.variant}
                         bold={dropdown_props.bold}
                     />
-                }
-            />
+                </Box>
+            }
+        />
     )
 }

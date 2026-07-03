@@ -43,7 +43,10 @@ export default function TitleFormatMenu({
                     return f;
                 })}
             />
-            <OptionGroup label={strings.title_spacing_group_label}>
+            <OptionGroup 
+                label={strings.title_spacing_group_label}
+                label_props={{ background: theme.palette.background.paper }}
+            >
                 <Stack
                     direction="column"
                     gap={theme.spacing(2)}
@@ -76,7 +79,10 @@ export default function TitleFormatMenu({
                     />
                 </Stack>
             </OptionGroup>
-            <OptionGroup label={strings.text_align_dropdown_label}>
+            <OptionGroup 
+                label={strings.text_align_dropdown_label}
+                label_props={{ background: theme.palette.background.paper }}
+            >
                 <TextAlignSelector 
                     value={format.text_align}
                     on_change={a => change_value(f => {
@@ -85,7 +91,10 @@ export default function TitleFormatMenu({
                     })}
                 />
             </OptionGroup>
-            <OptionGroup label={strings.book_format_dropdown_label}>
+            <OptionGroup 
+                label={strings.book_format_dropdown_label}
+                label_props={{ background: theme.palette.background.paper }}
+            >
                 <BookFormatSelector
                     value={format.book_formatter}
                     on_change={b => change_value(f => {
@@ -94,7 +103,10 @@ export default function TitleFormatMenu({
                     })}
                 />
             </OptionGroup>
-            <OptionGroup label={strings.include_bible_label}>
+            <OptionGroup 
+                label={strings.include_bible_label}
+                label_props={{ background: theme.palette.background.paper }}
+            >
                 <LabeledCheckbox 
                     label_props={{ variant: "body1", bold: true }}
                     label={strings.include_bible_label}

@@ -3,7 +3,7 @@ import { PageNumbers, TextFormat } from "@interop/printing"
 import React, { useMemo } from "react"
 import { use_bible_printer_strings } from "./bible_printer_strings"
 import PageNumberTypeSelector from "./dropdowns/PageNumberTypeSelector"
-import { Box, Collapse, Divider } from "@mui/material"
+import { Box, Collapse, Divider, useTheme } from "@mui/material"
 import TextFormatEditor from "./TextFormatEditor"
 
 export type PageNumberEditorProps = {
@@ -33,10 +33,14 @@ export default function PageNumberEditor({
                 italic: false,
             }
         }
-    }, [value])
+    }, [value]);
+    const theme = useTheme();
 
     return (
-        <OptionGroup label={strings.page_number_editor_label}>
+        <OptionGroup 
+            label={strings.page_number_editor_label}
+            label_props={{ background: theme.palette.background.paper }}
+        >
             <Box
                 sx={{
                     display: "flex",

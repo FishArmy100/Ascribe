@@ -44,7 +44,10 @@ export default function VerseNumberEditor({
     }, [value])
 
     return (
-        <OptionGroup label={strings.verse_number_editor_label}>
+        <OptionGroup 
+            label={strings.verse_number_editor_label}
+            label_props={{ background: theme.palette.background.paper }}
+        >
             <Box
                 sx={{
                     display: "flex",

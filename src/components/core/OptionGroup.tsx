@@ -14,7 +14,7 @@ export type LabelPosition =
 export type OptionGroupProps = {
     label: string;
     children: React.ReactNode;
-    label_props?: { position: LabelPosition, background?: string }
+    label_props?: { position?: LabelPosition, background?: string }
 };
 
 export default function OptionGroup({
