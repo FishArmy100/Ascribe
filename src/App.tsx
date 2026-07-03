@@ -1,6 +1,5 @@
-import React, { useEffect } from "react";
+import React from "react";
 import BiblePage from "./pages/bible_page/BiblePage";
-import { List, RowComponentProps, useDynamicRowHeight, useListRef } from "react-window";
 import { use_view_history } from "@components/providers/ViewHistoryProvider";
 import SearchPage from "./pages/search_page/SearchPage";
 import SettingsPage from "./pages/settings_page/SettingsPage";
@@ -9,6 +8,7 @@ import { ModuleInspectorPage } from "./pages/modules_pages/module_inspector/Modu
 import ModuleWordSearchPage from "./pages/modules_pages/module_word_search/ModuleWordSearchPage";
 import BiblePrinterPage from "./pages/bible_printer/BiblePrinterPage";
 import { Box } from "@mui/material";
+import InfoPage from "./pages/info_page/InfoPage";
 
 export default function App(): React.ReactElement
 {
@@ -56,6 +56,10 @@ function AppInner(): React.ReactElement
 	else if (current.type === "bible_printer")
 	{
 		return <BiblePrinterPage />
+	}
+	else if (current.type === "info_page")
+	{
+		return <InfoPage />
 	}
 	else
 	{
