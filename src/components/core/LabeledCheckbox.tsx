@@ -1,5 +1,5 @@
 import { play_sfx, Sfx } from "@interop/sfx";
-import { Box, Checkbox, FormControlLabel, SxProps, Theme, Typography, TypographyVariant } from "@mui/material";
+import { Box, Checkbox, FormControlLabel, SxProps, Theme, Typography, TypographyVariant, useTheme } from "@mui/material";
 import React from "react";
 import Tooltip from "./Tooltip";
 
@@ -23,12 +23,23 @@ export default function LabeledCheckbox({
     sfx = "click",
 }: LabeledCheckboxProps): React.ReactElement
 {
+    const theme = useTheme();
+
     return (
         <Box>
             <Tooltip
                 tooltip={tooltip}
             >
                 <FormControlLabel
+                    labelPlacement="start"
+                    sx={{
+                        width: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        m: 0,
+                        gap: theme.spacing(1),
+                    }}
                     label={
                         <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
                             <Typography
@@ -45,18 +56,19 @@ export default function LabeledCheckbox({
                         </Box>
                     }
                     control={
-                        <Checkbox
-                            checked={value}
-                            onChange={e => {
-                                if (sfx !== "none") 
-                                    play_sfx(sfx);
-                                
-                                on_change(e.target.checked)
-                            }}
-                            sx={checkbox_props?.sx}
-                        />
+                        <Box sx={{ display: "flex", justifyContent: "flex-end", flexShrink: 0 }}>
+                            <Checkbox
+                                checked={value}
+                                onChange={e => {
+                                    if (sfx !== "none") 
+                                        play_sfx(sfx);
+                                    
+                                    on_change(e.target.checked)
+                                }}
+                                sx={checkbox_props?.sx}
+                            />
+                        </Box>
                     }
-                    labelPlacement="start"
                 />
             </Tooltip>
         </Box>

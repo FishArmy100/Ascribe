@@ -22,9 +22,13 @@ export default function StrongsFormatMenu({
     const deep_copy = use_deep_copy();
 
     const strings = use_bible_printer_strings();
+    const theme = useTheme();
 
     return (
-        <OptionGroup label={strings.strongs_option_group_label}>
+        <OptionGroup 
+            label={strings.strongs_option_group_label}
+            label_props={{ background: theme.palette.background.paper }}
+        >
             <LabeledCheckbox 
                 label_props={{ variant: "body1", bold: true, }}
                 label={strings.strongs_enabled_label}

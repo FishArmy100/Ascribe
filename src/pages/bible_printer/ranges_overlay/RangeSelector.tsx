@@ -167,7 +167,12 @@ export default function RangeSelector({
     }, [bible_infos, range.bible]);
 
     return (
-        <OptionGroup label={title}>
+        <OptionGroup 
+            label={title}
+            label_props={{
+                background: theme.palette.background.paper
+            }}
+        >
             <Stack
                 direction="column"
                 gap={theme.spacing(1)}

@@ -146,7 +146,8 @@ pub enum ViewHistoryEntry
         raw: Option<String>,
         page_index: u32,
     },
-    BiblePrinter
+    BiblePrinter,
+    InfoPage,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

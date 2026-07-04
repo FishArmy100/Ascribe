@@ -50,7 +50,10 @@ export default function PageFormatMenu({
                     return f;
                 })}
             />
-            <OptionGroup label={strings.page_size_dropdown_label}>
+            <OptionGroup 
+                label={strings.page_size_dropdown_label}
+                label_props={{ background: theme.palette.background.paper }}
+            >
                 <PageSizeSelector
                     value={format.page_size}
                     on_change={s => change_value(f => {
@@ -59,7 +62,10 @@ export default function PageFormatMenu({
                     })}
                 />
             </OptionGroup>
-            <OptionGroup label={strings.new_page_per_section_label}>
+            <OptionGroup 
+                label={strings.new_page_per_section_label}
+                label_props={{ background: theme.palette.background.paper }}
+            >
                 <LabeledCheckbox
                     label_props={{ variant: "body1", bold: true }}
                     label={strings.new_page_per_section_label}
@@ -71,7 +77,10 @@ export default function PageFormatMenu({
                     })}
                 />
             </OptionGroup>
-            <OptionGroup label={strings.render_footer_label}>
+            <OptionGroup 
+                label={strings.render_footer_label}
+                label_props={{ background: theme.palette.background.paper }}
+            >
                 <LabeledCheckbox
                     label_props={{ variant: "body1", bold: true }}
                     label={strings.render_footer_label}
@@ -101,8 +110,12 @@ export default function PageFormatMenu({
                     })}
                 />
                 <Collapse in={format.footer !== null}>
-                    <Divider />
-                    <Stack direction="column">
+                    <Divider sx={{ mb: theme.spacing(1) }}/>
+                    <Stack direction="column"
+                        sx={{
+                            padding: theme.spacing(1)
+                        }}
+                    >
                         <TextFormatEditor 
                             label={null}
                             value={format.footer?.text_format ?? DEFAULT_FOOTER_FORMAT.text_format}

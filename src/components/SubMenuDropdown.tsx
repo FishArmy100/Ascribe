@@ -5,7 +5,7 @@ import { useCallback, useMemo } from "react";
 import { use_app_i18n } from "./providers/LanguageProvider";
 import __t from "@fisharmy100/react-auto-i18n";
 
-type SubMenuType = "settings" | "module_inspector" | "bible_printer" | "other";
+type SubMenuType = "settings" | "module_inspector" | "bible_printer" | "info_page" | "other";
 
 export default function SubMenuDropdown(): React.ReactElement
 {
@@ -23,6 +23,10 @@ export default function SubMenuDropdown(): React.ReactElement
         else if (value === "bible_printer")
         {
             view_history.push({ type: "bible_printer" });
+        }
+        else if (value === "info_page")
+        {
+            view_history.push({ type: "info_page" });
         }
         else 
         {
@@ -47,6 +51,10 @@ export default function SubMenuDropdown(): React.ReactElement
         bible_printer: __t(
             "sub_menu_dropdown.tooltips.bible_printer",
             "Bible Printer"
+        ),
+        info_page: __t(
+            "sub_menu_dropdown.tooltips.info_page",
+            "Info Page",
         )
     }), [i18n]);
 
@@ -58,7 +66,8 @@ export default function SubMenuDropdown(): React.ReactElement
             options={[
                 { image: images.gear_complex, tooltip: tooltips.settings, value: "settings" },
                 { image: images.magnifying_glass_folder, tooltip: tooltips.module_inspector, value: "module_inspector", },
-                { image: images.printer, tooltip: tooltips.bible_printer, value: "bible_printer" }
+                { image: images.printer, tooltip: tooltips.bible_printer, value: "bible_printer" },
+                { image: images.info, tooltip: tooltips.info_page, value: "info_page" }
             ]}
         />
     )

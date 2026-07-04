@@ -56,6 +56,10 @@ export type BiblePrinterEntry = {
     type: "bible_printer"
 }
 
+export type InfoPageEntry = {
+    type: "info_page"
+}
+
 export type ViewHistoryEntry = 
     | ChapterHistoryEntry
     | VerseHistoryEntry
@@ -65,6 +69,7 @@ export type ViewHistoryEntry =
     | ModuleListEntry
     | ModuleWordSearchEntry
     | BiblePrinterEntry
+    | InfoPageEntry
 
 export type ViewHistoryInfo = {
     all: ViewHistoryEntry[],
