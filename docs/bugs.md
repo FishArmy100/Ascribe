@@ -7,3 +7,8 @@
 - Audio player behavior appears bugged
   - Continuous not being continuous (in Chapter Range mode)
   - Repeat count not playing the last chapter in the last round? (in Chapter Range mode)
+- Bible printer does not render verse punctuation
+- Label background not the correct color (in the printer page)
+  - Verse/Verse Text 
+  - Verse/Verse Alt Text
+  - Title/Text Format

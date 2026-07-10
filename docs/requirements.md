@@ -1,6 +1,6 @@
 # Ascribe Requirements
 
-Approximately all of the requirements for the Ascribe Bible Study application version 1.0, though may be up for change as of 2/23/2026
+Approximately all of the requirements for the Ascribe Bible Study application version 1.0, though may be up for change as of 7/9/2026. The current version of Ascribe currently ***DOES NOT*** implement all of these features.
 
 ## Table of Contents
 
@@ -47,6 +47,10 @@ Approximately all of the requirements for the Ascribe Bible Study application ve
   - [Strongs Picker](#strongs-picker)
   - [Custom Ctrl + F Popup](#custom-ctrl--f-popup)
   - [HTMLText Editor](#htmltext-editor)
+  - [Bible Printer](#bible-printer)
+    - [Format Settings](#format-settings)
+    - [Render View](#render-view)
+    - [Range Settings](#range-settings)
   - [Help Page?](#help-page)
     - [Help Page Layout](#help-page-layout)
     - [Help Page Sections](#help-page-sections)
@@ -99,7 +103,7 @@ The header comprises a sticky top bar with buttons, dropdowns, and sometimes a s
     - [x] Search Bar
     - [x] Previous Section
     - [x] Next Section
-    - [ ] Daily Readings
+    - [x] Daily Readings
     - [x] **Verse Render Settings**
     - [x] **Misc Dropdown**
   - [x] Settings Page
@@ -127,13 +131,14 @@ The header comprises a sticky top bar with buttons, dropdowns, and sometimes a s
   - [ ] Edit Highlight Page
     - [ ] Back Button
     - [ ] **Misc Dropdown**
-  - [ ] Help Page?
-    - [ ] Back Button
-    - [ ] **Misc Dropdown**
+  - [x] Info Page
+    - [x] Back Button
+    - [x] **Misc Dropdown**
 - [ ] **Misc Dropdown**
   - [x] Settings
   - [x] Modules
-  - [ ] Help Page?
+  - [x] Print Bible
+  - [x] Help Page
   - [ ] Highlight Editor
   - [ ] Sync Button? (possibly change location)
 - [ ] **Verse Render Settings**
@@ -142,6 +147,8 @@ The header comprises a sticky top bar with buttons, dropdowns, and sometimes a s
   - [ ] Footnotes
   - [x] Use Parallel
   - [x] Version Selector
+  - [ ] Poems
+  - [ ] Verse Headings
 
 ### Body
 
@@ -154,7 +161,13 @@ It also contains a footer with the text: "&copy; Ascribe (year)"
 - [ ] Main
   - [ ] For pages:
     - [ ] Bible page
+      - [ ] On Verse
+        - [x] Print Verse
+      - [ ] On Chapter
+        - [x] Print Chapter
     - [ ] Search page
+      - [ ] On Verse Label
+        - [x] Show verse popover
   - [ ] Actions
     - [ ] New highlight
     - [ ] New notebook
@@ -169,11 +182,12 @@ Core section of Ascribe, renders as a full page or partial page depending on if 
 
 - [ ] Required:
   - [x] KJV
-  - [ ] BBE
-  - [ ] YLT
+  - [x] BBE
+  - [x] YLT
+  - [x] BSB
   - [x] ASV
-  - [x] SpaRV
-  - [x] (a Swahili Version)
+  - [x] SpaRV (Spanish)
+  - [x] ULB (Swahili)
 - [ ] Nice to Have:
   - [ ] ESV
   - [ ] NKJV
@@ -282,64 +296,67 @@ Similar to the old version, with behavior, however with improved looks
 
 ### Audio Player Layout
 
-- [ ] Position
-  - [ ]  Docked at the bottom of the screen
-  - [ ]  Can be shrunk?
-- [ ] Primary Section
-  - [ ] How long the current chapter is
-    - [ ] Possibly change if the section is timed?
-    - [ ] Slider indicator
-    - [ ] Timer indicator
-  - [ ] Play pause button
-    - [ ] Shows loading symbol if is generating the audio
-    - [ ] Shows Pause if is playing
-    - [ ] Shows playing if is paused
-  - [ ] Various buttons
-    - [ ] Rewind
-    - [ ] Fast Forward
-    - [ ] Restart
-- [ ] Secondary section
-  - [ ] Behavior settings
-    - [ ] Dependent on what behavior is selected
-    - [ ] Main behavior dropdown
-    - [ ] Rest of the settings dependent on the behavior
-  - [ ] Volume slider
-  - [ ] Playback speed slider
-  - [ ] Display queue button
-  - [ ] Voice selection dropdown
-    - [ ] Limited based on the version of the Bible selected? (by language)
+- [x] Position
+  - [x]  Docked at the bottom of the screen
+  - [x]  Can be shrunk
+- [x] Player Section
+  - [x] How long the current chapter is
+    - [x] Slider indicator
+    - [x] Timer indicator
+  - [x] Play pause button
+    - [x] Shows loading symbol if is generating the audio
+    - [x] Shows Pause if is playing
+    - [x] Shows playing if is paused
+  - [x] Various buttons
+    - [x] Rewind
+    - [x] Fast Forward
+- [ ] Behavior Section
+  - [x] Behavior settings
+    - [x] Dependent on what behavior is selected
+    - [x] Main behavior dropdown
+    - [x] Rest of the settings dependent on the behavior
+  - [x] Volume slider
+  - [x] Playback speed slider
+  - [x] Display queue button
+  - [x] Voice selection dropdown
+    - [x] Limited based on the version of the Bible selected? (by language)
+- [x] Special settings section
+  - [x] Follow verses
+  - [x] Correct pitch (when the voice is sped up/down) 
 
 ### Behavior
 
-- [ ] Selection
-  - [ ] Section
-    - [ ] Start chapter
-    - [ ] End chapter
-  - [ ] Chapter
-    - [ ] Current chapter that the user is on
-  - [ ] Daily Readings
-    - [ ] Select which daily readings
-    - [ ] Will automatically be set to the current date when selected
-- [ ] Repeat
-  - [ ] Once
-  - [ ] Number
-    - [ ] Have a dropdown for how many times to repeat
-  - [ ] Timed
-    - [ ] Should have a dropdown for the amount of time
-    - [ ] Should display how much time remaining
-  - [ ] Infinite
+- [x] Selection
+  - [x] Section
+    - [x] Start chapter
+    - [x] End chapter
+  - [x] Current
+    - [x] Current chapter that the user is on
+  - [x] Daily Readings
+    - [x] Select which daily readings
+    - [x] Will automatically be set to the current date when selected
+  - [x] Continuous
+    - [x] Will continue playing sequential chapters until the repeat behavior specifies to stop
+- [x] Repeat
+  - [x] Once
+  - [x] Number
+    - [x] Have a dropdown for how many times to repeat
+  - [x] Timed
+    - [x] Should have a dropdown for the amount of time
+    - [x] Should display how much time remaining
+  - [x] Infinite
 
 <!-- ======================================================================================================== -->
 ## Settings Page
 
-- [ ] Sound Effects
-  - [ ] Volume
-    - [ ] Slider
-    - [ ] Reset/Mute button
-  - [ ] Enable/Disable
-    - [ ] Page turning
-    - [ ] Button clicking
-- [ ] Display
+- [x] Sound Effects
+  - [x] Volume
+    - [x] Slider
+    - [x] Reset/Mute button
+  - [x] Enable/Disable
+    - [x] Page turning
+    - [x] Button clicking
+- [x] Display
   - [x] Font selection
   - [x] UI scale slider
     - [x] Slider
@@ -368,9 +385,9 @@ Similar to the old version, with behavior, however with improved looks
   - [x] Light
   - [x] Dark
   - [ ] Custom theme list
-- [ ] Advanced
-  - [ ] Clear search history (see [Page History](#page-history))
-  - [ ] Open save location
+- [x] Advanced
+  - [x] Clear search history (see [Page History](#page-history))
+  - [x] Open save location
 
 <!-- ======================================================================================================== -->
 ## Module List Page
@@ -719,6 +736,121 @@ Is A WYSIWYG editor for the `biblio_json` HTML text format, used for notes and h
   - [ ] For all formats as normal
   - [ ] For all lists as normal
   - [ ] Ctrl+Z/Ctrl+Y
+
+<!-- ======================================================================================================== -->
+## Bible Printer
+
+A printer page with format options, and renderable sections. Will render a given set of Bible ranges using a editable format
+
+### Format Settings
+A popup in the printer page that displays how to render the selected ranges to a pdf
+
+- [x] Page
+  - [x] Margin
+    - [x] Tob
+    - [x] Bottom
+    - [x] Left
+    - [x] Right
+  - [x] Page Numbers
+    - [x] Type (dropdown)
+      - [x] None
+      - [x] Top Left
+      - [x] Top Right
+      - [x] Bottom Left
+      - [x] Bottom Right
+    - [x] Text
+      - [x] Font
+      - [x] Font Size
+      - [x] Bold
+      - [x] Italic
+  - [x] Page Size (dropdown)
+    - [x] A4
+    - [x] A3
+  - [x] New Page per section
+  - [x] Render Footer
+    - [x] Enable
+    - [x] Book Format (dropdown)
+      - [x] Full
+      - [x] Short
+    - [x] Text
+      - [x] Font
+      - [x] Font Size
+      - [x] Bold
+      - [x] Italic
+    - [x] Include Bible
+- [x] Verse
+  - [x] Text      
+    - [x] Font
+    - [x] Font Size
+    - [x] Bold
+    - [x] Italic
+  - [x] Alt Text
+    - [x] Font
+    - [x] Font Size
+    - [x] Bold
+    - [x] Italic
+  - [x] Verse Number Format
+    - [x] Type (dropdown)
+      - [x] Short
+      - [x] Long 
+      - [x] Number
+      - [x] Number Text
+      - [x] None
+    - [x] Text
+      - [x] Font
+      - [x] Font Size
+      - [x] Bold
+      - [x] Italic
+    - [x] Verse Spacing
+      - [x] Line Height
+      - [x] Word Spacing
+      - [x] Verse Spacing
+      - [x] Verse Indent
+- [x] Strongs
+  - [x] Enabled
+  - [x] Text
+    - [x] Font
+    - [x] Font Size
+    - [x] Bold
+    - [x] Italic
+- [x] Title
+  - [x] Text
+    - [x] Font
+    - [x] Font Size
+    - [x] Bold
+    - [x] Italic
+  - [x] Spacing
+    - [x] Title Spacing
+    - [x] Line Height
+  - [x] Text Align (dropdown)
+    - [x] Left
+    - [x] Center
+    - [x] Right
+  - [x] Book Format (dropdown)
+    - [x] Full
+    - [x] Short
+  - [x] Include Bible
+
+
+### Render View
+
+A preview of what the pdf will look like
+- [ ] View
+  - [ ] Scrollable content area for the generated text
+- [ ] Header
+- [ ] Footer
+  - [ ] Page Indicator
+    - [ ] Previous Page (disabled if on first page)
+    - [ ] Page Text
+    - [ ] Next Page (disabled if on last page)
+  - [ ] Zoom
+    - [ ] Zoom out (disabled if minimum zoom)
+    - [ ] Current zoom (in %)
+    - [ ] Zoom in (disabled if maximum zoom)
+
+### Range Settings
+
+A popup in the printer page that displays what ranges (of verses/chapters) that the user wants to print
 
 <!-- ======================================================================================================== -->
 ## Help Page?
