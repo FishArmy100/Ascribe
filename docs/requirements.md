@@ -1,6 +1,6 @@
 # Ascribe Requirements
 
-Approximately all of the requirements for the Ascribe Bible Study application version 1.0, though may be up for change as of 7/9/2026. The current version of Ascribe currently ***DOES NOT*** implement all of these features.
+Approximately all of the planned features and requirements for the Ascribe Bible Study application, though may be up for change as of 7/9/2026. The current version of Ascribe currently ***DOES NOT*** implement all of these features, but will at some point Lord willing.
 
 ## Table of Contents
 
@@ -51,9 +51,9 @@ Approximately all of the requirements for the Ascribe Bible Study application ve
     - [Format Settings](#format-settings)
     - [Render View](#render-view)
     - [Range Settings](#range-settings)
-  - [Help Page?](#help-page)
-    - [Help Page Layout](#help-page-layout)
-    - [Help Page Sections](#help-page-sections)
+  - [Info Page](#info-page)
+    - [Info Page Layout](#info-page-layout)
+    - [Info Page Sections](#info-page-sections)
 
 <!-- ======================================================================================================== -->
 
@@ -131,6 +131,11 @@ The header comprises a sticky top bar with buttons, dropdowns, and sometimes a s
   - [ ] Edit Highlight Page
     - [ ] Back Button
     - [ ] **Misc Dropdown**
+  - [ ] Bible Printer Page
+    - [x] Back Button
+    - [x] [Format Settings](#format-settings)
+    - [x] [Range Sections](#range-settings)
+    - [x] **Misc Dropdown**
   - [x] Info Page
     - [x] Back Button
     - [x] **Misc Dropdown**
@@ -138,7 +143,7 @@ The header comprises a sticky top bar with buttons, dropdowns, and sometimes a s
   - [x] Settings
   - [x] Modules
   - [x] Print Bible
-  - [x] Help Page
+  - [x] Info Page
   - [ ] Highlight Editor
   - [ ] Sync Button? (possibly change location)
 - [ ] **Verse Render Settings**
@@ -184,7 +189,6 @@ Core section of Ascribe, renders as a full page or partial page depending on if 
   - [x] KJV
   - [x] BBE
   - [x] YLT
-  - [x] BSB
   - [x] ASV
   - [x] SpaRV (Spanish)
   - [x] ULB (Swahili)
@@ -192,6 +196,7 @@ Core section of Ascribe, renders as a full page or partial page depending on if 
   - [ ] ESV
   - [ ] NKJV
   - [ ] NASB
+  - [x] BSB
 
 ### Interface
 
@@ -830,37 +835,65 @@ A popup in the printer page that displays how to render the selected ranges to a
     - [x] Full
     - [x] Short
   - [x] Include Bible
+- [x] Main Buttons
+  - [x] Apply
+  - [x] Cancel
+  - [x] Reset
 
 
 ### Render View
 
 A preview of what the pdf will look like
-- [ ] View
-  - [ ] Scrollable content area for the generated text
-- [ ] Header
-- [ ] Footer
-  - [ ] Page Indicator
-    - [ ] Previous Page (disabled if on first page)
-    - [ ] Page Text
-    - [ ] Next Page (disabled if on last page)
-  - [ ] Zoom
-    - [ ] Zoom out (disabled if minimum zoom)
-    - [ ] Current zoom (in %)
-    - [ ] Zoom in (disabled if maximum zoom)
+
+- [x] View
+  - [x] Scrollable content area for the generated text
+- [x] [Header](#header)
+- [x] Footer
+  - [x] Page Indicator
+    - [x] Previous Page (disabled if on first page)
+    - [x] Page Text
+    - [x] Next Page (disabled if on last page)
+  - [x] Zoom
+    - [x] Zoom out (disabled if minimum zoom)
+    - [x] Current zoom (in %)
+    - [x] Zoom in (disabled if maximum zoom)
 
 ### Range Settings
 
 A popup in the printer page that displays what ranges (of verses/chapters) that the user wants to print
 
+- [x] Main Buttons
+  - [x] Add range
+  - [x] Apply
+  - [x] Cancel
+- [ ] Range selector
+  - [x] Bible version dropdown
+  - [x] Chapter picker
+    - [x] Can select an individual chapter
+    - [x] Range will auto fill with the verses from the beginning to the end of the selected chapter
+  - [ ] Copy
+    - [x] Copies the range
+    - [ ] Places it under the copied range
+  - [x] Delete range
+  - [x] From
+    - [x] Book
+    - [x] Chapter
+    - [x] Verse
+  - [x] To
+    - [x] Book
+    - [x] Chapter
+    - [x] Verse
+  - [ ] Can be dragged/dropped
+
 <!-- ======================================================================================================== -->
-## Help Page?
+## Info Page
+
+Contains information relating to what Ascribe is for and how to use it. Also contains a short into concluded with a quote from Ecc 12:13-14
+
+### Info Page Layout
 
 TBD
 
-### Help Page Layout
-
-TBD
-
-### Help Page Sections
+### Info Page Sections
 
 TBD
