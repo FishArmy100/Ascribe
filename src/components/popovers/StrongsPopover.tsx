@@ -8,6 +8,7 @@ import { StrongsDefEntry } from "@interop/module_entry";
 import { use_bible_display_settings } from "@components/providers/BibleDisplaySettingsProvider";
 import { use_view_history } from "@components/providers/ViewHistoryProvider";
 import { play_sfx } from "@interop/sfx";
+import { use_handle_href_clicked_callback } from "@src/pages/page_utils";
 
 export type StrongsPopoverProps = {
     pos: { top: number, left: number } | null,
@@ -142,9 +143,7 @@ function StrongsDefEntryRenderer({
 }: StrongsDefEntryRendererProps): React.ReactElement
 {
 
-    const on_ref_click = (r: HRefSrc) => {
-        console.log(`Clicked href: ${JSON.stringify(r)}`);
-    }
+    const on_ref_click = use_handle_href_clicked_callback();
 
     return (
         <>

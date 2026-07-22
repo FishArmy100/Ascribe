@@ -35,7 +35,10 @@ export default function TextFormatEditor({
         <WrapIf 
             cond={label !== null}
             wrapper={OptionGroup}
-            props={{ label: label! }}
+            props={{ 
+                label: label!, 
+                label_props: { background: theme.palette.background.paper }
+            }}
         >
             {/* Font Selector */}
             <PrintFontSelector 

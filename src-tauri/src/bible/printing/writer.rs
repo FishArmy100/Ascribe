@@ -321,8 +321,12 @@ impl<'a> BiblePdfWriter<'a>
             &self.format.verse_format.text_format    
         };
         let word_face = word_format.get_font_face();
-        let word = &render_data.word;
-        let word_width = measure_text_width(word_face, word, word_format.font_size);
+        let word = format!("{}{}{}", 
+            render_data.begin_punc.as_ref().map_or("", String::as_ref), 
+            render_data.word, 
+            render_data.end_punc.as_ref().map_or("", String::as_ref), 
+        );
+        let word_width = measure_text_width(word_face, &word, word_format.font_size);
         
         if let Some(strongs_format) = &self.format.strongs_format
         {
