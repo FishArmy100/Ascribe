@@ -31,6 +31,7 @@ Mostly a bugfix patch, also adding a better publication pipeline for windows
   - [ ] Spell check/suggestions for search page?
   - [ ] Search across modules
   - [ ] Alternate search syntax (&, |)
+  - [ ] Printer Settings/Ranges save
 - [ ] Publication pipeline
   - [ ] One distribution command line pipeline
     - [ ] Error if not dry run?
