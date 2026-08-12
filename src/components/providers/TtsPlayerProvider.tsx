@@ -17,6 +17,7 @@ export interface ITtsContextType
     set_time(time: number): void,
     
     is_loaded(): boolean,
+    loaded_keys(): tts.TtsAudioKey[]
     state(): tts.PlayerState | null
 }
 
@@ -33,6 +34,8 @@ export function TtsPlayerProvider({
     const [generated_keys, set_generated_keys] = useState<tts.TtsAudioKey[]>([]);
     const [player_state, set_player_state] = useState<tts.PlayerState | null>(null);
     const [is_player_loaded, set_is_player_loaded] = useState<boolean>(false);
+    const [requested_keys, set_requested_keys] = useState<tts.TtsAudioKey[]>([]);
+    const [loaded_keys, set_loaded_keys] = useState<tts.TtsAudioKey[]>([]);
 
     useEffect(() => {
         function handle_verse_audio_updated(keys: tts.TtsAudioKey[]): void
@@ -48,6 +51,7 @@ export function TtsPlayerProvider({
         function handle_player_load_state_changed(event: tts.PlayerLoadStateChangedEvent): void
         {
             set_is_player_loaded(event.is_loaded);
+            set_loaded_keys(requested_keys);
         }
 
         const verse_audio_promise = tts.add_verse_audio_updated_listener(handle_verse_audio_updated);
@@ -83,6 +87,7 @@ export function TtsPlayerProvider({
 
         async request(keys: tts.TtsAudioKey[]): Promise<void>
         {
+            set_requested_keys(keys);
             return tts.backend_request(keys);
         },
 
@@ -114,6 +119,11 @@ export function TtsPlayerProvider({
         is_loaded(): boolean
         {
             return is_player_loaded;
+        },
+
+        loaded_keys(): tts.TtsAudioKey[] 
+        {
+            return loaded_keys;    
         },
 
         state(): tts.PlayerState | null

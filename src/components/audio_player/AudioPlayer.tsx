@@ -43,8 +43,8 @@ export default function AudioPlayer({
 }: AudioPlayerProps): React.ReactElement
 {
     const theme = useTheme();
-    const tts_player = use_tts_player();
     const { settings } = use_settings();
+    const tts_player = use_tts_player();
     const label_audio_section = use_audio_section_labeler();
     const { reader_behavior, set_reader_behavior, next_reading } = use_bible_reader();
     const { bible_display_settings } = use_bible_display_settings();
