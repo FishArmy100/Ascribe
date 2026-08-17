@@ -1,100 +1,119 @@
-import { use_bible_reader } from "@components/providers/BibleReaderProvider"
+import { ReaderQueue } from "@interop/reader"
+import use_play_state_controller, { PlayState } from "./play_state_controller"
+import use_behavior_state_controller, { TimerData } from "./behavior_state_controller"
+import { useCallback, useEffect, useMemo, useRef } from "react"
+import { use_current_bible } from "@interop/bible"
 import { use_settings } from "@components/providers/SettingsProvider"
-import { use_tts_player } from "@components/providers/TtsPlayerProvider"
-import { BibleReaderBehavior, ReaderReading } from "@interop/reader"
-import { TtsAudioKey } from "@interop/tts"
-import { use_deep_copy } from "@utils/index"
-import { useCallback, useEffect, useState } from "react"
 
+export type AudioPlayerController = {
+    play(): void,
+    pause(): void,
 
-export default function use_audio_player_controller(): AudioPlayerController
+    seek(time: number): void,
+    readonly can_seek: boolean,
+
+    readonly queue: ReaderQueue,
+    readonly index: number,
+    set_index(index: number): void,
+
+    readonly state: PlayState,
+    readonly timer_data: TimerData | null
+}
+
+export default function use_audio_player_controller(active: boolean): AudioPlayerController
 {
-    const { reader_behavior, set_reader_behavior, next_reading } = use_bible_reader();
-    const deep_copy = use_deep_copy();
-    const tts_player = use_tts_player();
+    const play_state_controller = use_play_state_controller(active);
+    const play_state_controller_ref = useRef(play_state_controller);
+    useEffect(() => {
+        play_state_controller_ref.current = play_state_controller;
+    }, [play_state_controller]);
 
-    const [play_state, set_play_state] = useState<PlayState>({
-        type: "idle"
-    });
+    const behavior_state_controller = use_behavior_state_controller();
+    const behavior_state_controller_ref = useRef(behavior_state_controller);
+    useEffect(() => {
+        behavior_state_controller_ref.current = behavior_state_controller;
+    }, [behavior_state_controller]);
 
-    const [behavior_state, set_behavior_state] = useState<BehaviorState>({
-        behavior: reader_behavior,
-        play_index: 0,
-        current_reading: null, 
-    });
+    const bible = use_current_bible();
+    const voice = use_settings().settings.tts_settings.current_voice;
 
     useEffect(() => {
-        set_behavior_state({
-            behavior: reader_behavior,
-            play_index: behavior_state.play_index,
-            current_reading: behavior_state.current_reading,
-        })
-    }, [reader_behavior])
-
-    return {
-        play: () => 
+        if (active && behavior_state_controller.current_reading)
         {
-            throw new Error("Function not implemented.")
-        },
-
-        pause: () => 
-        {
-            if ()
-        },
-
-        is_playing: (): boolean | null => 
-        {
-            
-        },
-
-        is_generating: (): boolean => 
-        {
-            throw new Error("Function not implemented.")
-        },
-
-        is_loading: (): boolean => 
-        {
-            throw new Error("Function not implemented.")
-        },
-
-        current_time: (): number | null => 
-        {
-            throw new Error("Function not implemented.")
-        },
-
-        current_duration: (): number | null => 
-        {
-            throw new Error("Function not implemented.")
-        },
-
-        seek: (time: number) => 
-        {
-            throw new Error("Function not implemented.")
-        },
-
-        can_seek: (): boolean => 
-        {
-            throw new Error("Function not implemented.")
-        },
-
-        get_behavior: (): BibleReaderBehavior => 
-        {
-            throw new Error("Function not implemented.")
-        },
-
-        set_behavior: (behavior: BibleReaderBehavior) => 
-        {
-            throw new Error("Function not implemented.")
-        },
-
-        get_reader_index: (): number => 
-        {
-            throw new Error("Function not implemented.")
-        },
-
-        set_reader_index: (index: number) =>  
-        {
-            throw new Error("Function not implemented.")
+            play_state_controller_ref.current.load(behavior_state_controller.current_reading, bible, voice);
         }
-    }
+        else 
+        {
+            play_state_controller_ref.current.stop();
+            behavior_state_controller_ref.current.timer_data?.reset();
+        }
+    }, [active, behavior_state_controller.current_reading]);
+
+    const play = useCallback(() => {
+        const state = play_state_controller_ref.current.state;
+        if (state.type === "paused")
+        {
+            play_state_controller_ref.current.play();
+        }
+
+        const timer = behavior_state_controller_ref.current.timer_data;
+        if (timer)
+        {
+            timer.play();
+        }
+    }, []);
+
+    const pause = useCallback(() => {
+        const state = play_state_controller_ref.current.state;
+        if (state.type === "playing")
+        {
+            play_state_controller_ref.current.play();
+        }
+
+        const timer = behavior_state_controller_ref.current.timer_data;
+        if (timer)
+        {
+            timer.pause();
+        }
+    }, []);
+
+    useEffect(() => {
+        if (play_state_controller.state.type === "finished")
+        {
+            const index = behavior_state_controller_ref.current.index;
+            behavior_state_controller_ref.current.set_index(index + 1);
+        }
+        else if (play_state_controller.state.type === "loaded" && !behavior_state_controller_ref.current.reading_behavior_finished)
+        {
+            play();
+        }
+    }, [play_state_controller.state]);
+
+    return useMemo((): AudioPlayerController => ({
+        play,
+        pause,
+
+        seek: play_state_controller.seek,
+        can_seek: play_state_controller.can_seek,
+        
+        queue: behavior_state_controller.queue,
+        index: behavior_state_controller.index,
+        set_index: behavior_state_controller.set_index,
+
+        state: play_state_controller.state,
+        timer_data: behavior_state_controller.timer_data,
+    }), [
+        play, 
+        pause, 
+
+        play_state_controller.seek, 
+        play_state_controller.can_seek, 
+
+        behavior_state_controller.queue, 
+        behavior_state_controller.index,
+        behavior_state_controller.set_index,
+
+        play_state_controller.state, 
+        behavior_state_controller.timer_data,
+    ])
 }

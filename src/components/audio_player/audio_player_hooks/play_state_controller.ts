@@ -4,27 +4,33 @@ import { TtsAudioKey } from "@interop/tts";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { use_audio_section_labeler } from "../audio_section_labeler";
 import { BibleInfo, get_chapter_verse_ids, VerseId } from "@interop/bible";
+import { use_deep_copy } from "@utils/index";
+import stringify from "fast-json-stable-stringify";
 
 export type PlayState = |{
     type: "generating",
+    progress: number,
     keys: TtsAudioKey[],
 } |{
     type: "loading",
     keys: TtsAudioKey[],
 } |{
+    type: "loaded",
+    keys: TtsAudioKey[],
+} |{
     type: "playing",
     time: number,
-    keys: TtsAudioKey[],
     duration: number,
+    keys: TtsAudioKey[],
 } |{
     type: "paused",
     time: number,
-    keys: TtsAudioKey[],
     duration: number,
+    keys: TtsAudioKey[],
 } |{
     type: "finished",
-    keys: TtsAudioKey[],
     duration: number,
+    keys: TtsAudioKey[],
 } 
 |{
     type: "idle",
@@ -33,23 +39,19 @@ export type PlayState = |{
 export type PlayStateController = {
     play(): void,
     pause(): void,
-    readonly is_playing: boolean | null,
+    stop(): void,
+    
+    readonly state: PlayState,
 
-    readonly is_generating: boolean,
-    readonly generation_progress: number | null,
-    readonly is_loading: boolean,
-
-    readonly current_time: number | null,
-    readonly current_duration: number | null,
     seek(time: number): void,
     readonly can_seek: boolean,
-    readonly is_finished: boolean,
 
     load(reading: ReaderReading, bible: BibleInfo, voice: string): void
 }
 
 export default function use_play_state_controller(active: boolean): PlayStateController
 {
+    const deep_copy = use_deep_copy();
     const tts_player = use_tts_player();
 
     const tts_player_ref = useRef(tts_player);
@@ -68,25 +70,28 @@ export default function use_play_state_controller(active: boolean): PlayStateCon
         if (active)
         {
             tts_player_ref.current.request(audio_keys);
-            set_play_state({ type: "generating", keys: audio_keys });
+            set_play_state({ type: "generating", keys: audio_keys, progress: 0 });
         }
     }, [audio_keys, open]);
 
-    const generation_progress = useMemo(() => {
-        const count = tts_player_ref.current.contains_keys(audio_keys);
-        if (count < audio_keys.length)
+    useEffect(() => {
+        if (play_state.type === "generating")
         {
-            if (audio_keys.length === 0)
+            const count = tts_player_ref.current.contains_keys(audio_keys);
+            if (count < audio_keys.length)
             {
-                return 0;
+                let progress = 0;
+                if (audio_keys.length !== 0)
+                {
+                    progress = count / audio_keys.length;
+                }
+
+                const copy = deep_copy(play_state);
+                copy.progress = progress;
+                set_play_state(copy);
             }
-            return count / audio_keys.length;
         }
-        else 
-        {
-            return null;
-        }
-    }, [audio_keys, tts_player]);
+    }, [audio_keys, tts_player])
 
     useEffect(() => {
         if (tts_player_ref.current.contains_keys(audio_keys) === audio_keys.length && active && audio_keys.length > 0)
@@ -97,24 +102,31 @@ export default function use_play_state_controller(active: boolean): PlayStateCon
     }, [audio_keys, active, tts_player.loaded_keys()]);
     
     useEffect(() => {
-        const state = tts_player.state();
-        if (state)
+        const tts_state = tts_player.state();
+        if (tts_state)
         {
-            if (state.finished)
+            if (tts_state.finished)
             {
                 set_play_state({
                     type: "finished",
                     keys: audio_keys,
-                    duration: state.duration,
+                    duration: tts_state.duration,
                 })
             }
-            else if (state.paused)
+            else if (tts_state.paused)
             {
                 set_play_state({
                     type: "paused",
                     keys: audio_keys,
-                    time: state.current_time,
-                    duration: state.duration
+                    time: tts_state.current_time,
+                    duration: tts_state.duration
+                })
+            }
+            else if (play_state.type === "loading" && stringify(tts_player_ref.current.loaded_keys()) === stringify(audio_keys))
+            {
+                set_play_state({
+                    type: "loaded",
+                    keys: audio_keys,
                 })
             }
             else 
@@ -122,8 +134,8 @@ export default function use_play_state_controller(active: boolean): PlayStateCon
                 set_play_state({
                     type: "playing",
                     keys: audio_keys,
-                    time: state.current_time,
-                    duration: state.duration
+                    time: tts_state.current_time,
+                    duration: tts_state.duration
                 })
             }
         }
@@ -143,39 +155,6 @@ export default function use_play_state_controller(active: boolean): PlayStateCon
             return null;
         }
     }, [play_state.type]);
-
-    const is_generating = useMemo(() => {
-        if (play_state.type === "generating")
-        {
-            return true;
-        }
-        else 
-        {
-            return false;
-        }
-    }, [play_state.type]);
-
-    const is_loading = useMemo(() => {
-        if (play_state.type === "loading")
-        {
-            return true;
-        }
-        else 
-        {
-            return false;
-        }
-    }, [play_state.type]);
-
-    const current_time = useMemo(() => {
-        if (play_state.type === "playing" || play_state.type === "paused")
-        {
-            return play_state.time;
-        }
-        else 
-        {
-            return null;
-        }
-    }, [play_state]);
 
     const current_duration = useMemo(() => {
         if (play_state.type === "playing" || play_state.type === "paused")
@@ -202,10 +181,18 @@ export default function use_play_state_controller(active: boolean): PlayStateCon
         }
     }, [is_playing]);
 
+    const stop = useCallback(() => {
+        tts_player_ref.current.stop();
+        set_play_state({
+            type: "idle",
+        })
+    }, [set_play_state]);
+
     const can_seek = useMemo(() => {
-        return play_state.type === "playing" || 
-               play_state.type === "paused"  || 
-               play_state.type === "finished"
+        return play_state.type === "playing"  || 
+               play_state.type === "paused"   || 
+               play_state.type === "finished" ||
+               play_state.type === "loaded"
     }, [play_state.type]);
 
     const seek = useCallback((time: number) => {
@@ -252,18 +239,13 @@ export default function use_play_state_controller(active: boolean): PlayStateCon
         }
 
         set_audio_keys([label_key, ...keys]);
-    }, [label_audio_key])
+    }, [label_audio_key]);
 
     return {
+        state: play_state,
         play,
         pause,
-        is_playing,
-        is_generating,
-        generation_progress,
-        is_loading,
-        current_time,
-        current_duration,
-        is_finished,
+        stop,
         load,
         can_seek,
         seek,
