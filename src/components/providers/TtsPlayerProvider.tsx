@@ -50,8 +50,16 @@ export function TtsPlayerProvider({
 
         function handle_player_load_state_changed(event: tts.PlayerLoadStateChangedEvent): void
         {
+            console.log(`Load state = ${event.is_loaded}`);
             set_is_player_loaded(event.is_loaded);
-            set_loaded_keys(requested_keys);
+            if (event.is_loaded)
+            {
+                set_loaded_keys(requested_keys);
+            }
+            else 
+            {
+                set_loaded_keys([]);
+            }
         }
 
         const verse_audio_promise = tts.add_verse_audio_updated_listener(handle_verse_audio_updated);

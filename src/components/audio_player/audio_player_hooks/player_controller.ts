@@ -1,4 +1,4 @@
-import { ReaderQueue } from "@interop/reader"
+import { BibleReaderBehavior, ReaderQueue, ReaderReading } from "@interop/reader"
 import use_play_state_controller, { PlayState } from "./play_state_controller"
 import use_behavior_state_controller, { TimerData } from "./behavior_state_controller"
 import { useCallback, useEffect, useMemo, useRef } from "react"
@@ -17,7 +17,11 @@ export type AudioPlayerController = {
     set_index(index: number): void,
 
     readonly state: PlayState,
-    readonly timer_data: TimerData | null
+    readonly timer_data: TimerData | null,
+
+    set_behavior(behavior: BibleReaderBehavior): void,
+    readonly behavior: BibleReaderBehavior,
+    readonly current_reading: ReaderReading | null,
 }
 
 export default function use_audio_player_controller(active: boolean): AudioPlayerController
@@ -77,6 +81,10 @@ export default function use_audio_player_controller(active: boolean): AudioPlaye
         }
     }, []);
 
+    const set_behavior = useCallback((behavior: BibleReaderBehavior) => {
+        behavior_state_controller_ref.current.set_behavior(behavior);
+    }, []);
+
     useEffect(() => {
         if (play_state_controller.state.type === "finished")
         {
@@ -102,6 +110,10 @@ export default function use_audio_player_controller(active: boolean): AudioPlaye
 
         state: play_state_controller.state,
         timer_data: behavior_state_controller.timer_data,
+
+        set_behavior,
+        behavior: behavior_state_controller.behavior,
+        current_reading: behavior_state_controller.current_reading,
     }), [
         play, 
         pause, 
@@ -115,5 +127,9 @@ export default function use_audio_player_controller(active: boolean): AudioPlaye
 
         play_state_controller.state, 
         behavior_state_controller.timer_data,
+
+        set_behavior,
+        behavior_state_controller.behavior,
+        behavior_state_controller.current_reading,
     ])
 }

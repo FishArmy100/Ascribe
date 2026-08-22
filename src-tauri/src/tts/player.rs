@@ -53,6 +53,7 @@ impl TtsPlayerInner
 
     pub fn load(&mut self, keys: Vec<TtsAudioKey>) -> bool
     {
+        println!("Loading backend tts keys...");
         if keys.len() > 0
         {
             self.player_thread = TtsPlayerThread::new(

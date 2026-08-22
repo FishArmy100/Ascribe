@@ -46,6 +46,9 @@ export type PlayStateController = {
     seek(time: number): void,
     readonly can_seek: boolean,
 
+    readonly autoplay: boolean,
+    set_autoplay(autoplay: boolean,): void,
+
     load(reading: ReaderReading, bible: BibleInfo, voice: string): void
 }
 
@@ -62,6 +65,8 @@ export default function use_play_state_controller(active: boolean): PlayStateCon
     const [play_state, set_play_state] = useState<PlayState>({
         type: "idle"
     });
+
+    const [autoplay, set_autoplay] = useState(false);
 
     const [audio_keys, set_audio_keys] = useState<TtsAudioKey[]>([]);
     const label_audio_key = use_audio_section_labeler();
@@ -94,10 +99,12 @@ export default function use_play_state_controller(active: boolean): PlayStateCon
     }, [audio_keys, tts_player])
 
     useEffect(() => {
+        console.log(`active = ${active}`)
         if (tts_player_ref.current.contains_keys(audio_keys) === audio_keys.length && active && audio_keys.length > 0)
         {
             tts_player_ref.current.load(audio_keys);
             set_play_state({ type: "loading", keys: audio_keys });
+            console.log("Loading keys")
         }
     }, [audio_keys, active, tts_player.loaded_keys()]);
     
@@ -129,14 +136,27 @@ export default function use_play_state_controller(active: boolean): PlayStateCon
                     keys: audio_keys,
                 })
             }
-            else 
+            else if (play_state.type === "loaded")
             {
-                set_play_state({
-                    type: "playing",
-                    keys: audio_keys,
-                    time: tts_state.current_time,
-                    duration: tts_state.duration
-                })
+                if (autoplay)
+                {
+                    tts_player_ref.current.play();
+                    set_play_state({
+                        type: "playing",
+                        keys: audio_keys,
+                        time: tts_state.current_time,
+                        duration: tts_state.duration
+                    })
+                }
+                else 
+                {
+                    set_play_state({
+                        type: "paused",
+                        keys: audio_keys,
+                        time: tts_state.current_time,
+                        duration: tts_state.duration
+                    })
+                }
             }
         }
     }, [tts_player.state()]);
@@ -203,10 +223,6 @@ export default function use_play_state_controller(active: boolean): PlayStateCon
         }
     }, [can_seek, current_duration]);
 
-    const is_finished = useMemo(() => {
-        return play_state.type === "finished"
-    }, [play_state.type]);
-
     const label_audio_section = use_audio_section_labeler();
     const load = useCallback((reading: ReaderReading, bible: BibleInfo, voice: string) => {
         tts_player_ref.current.stop();
@@ -249,5 +265,7 @@ export default function use_play_state_controller(active: boolean): PlayStateCon
         load,
         can_seek,
         seek,
+        autoplay,
+        set_autoplay,
     }
 }
