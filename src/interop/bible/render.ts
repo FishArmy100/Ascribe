@@ -29,7 +29,7 @@ export type RenderedVerseContent = {
     bible: string,
 }
 
-export async function fetch_backend_verse_render_data(verses: VerseId[], bible: string, shown_modules: string[]): Promise<VerseRenderData[]>
+export async function backend_fetch_verse_render_data(verses: VerseId[], bible: string, shown_modules: string[]): Promise<VerseRenderData[]>
 {
     return await invoke<string>("run_bible_command", {
         command: {

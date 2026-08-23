@@ -25,11 +25,12 @@ Mostly a bugfix patch, also adding a better publication pipeline for windows
     - [x] Verse/Verse Text 
     - [x] Verse/Verse Alt Text
     - [x] Title/Text Format
-  - [ ] Sound effect for some of the context menu's not playing
-    - [ ] inspect verse
+  - [x] Sound effect for some of the context menu's not playing
+    - [x] inspect verse
 - [ ] New Features
   - [ ] Translation comparison for verses
-  - [ ] Copy/Paste context menu for verses
+  - [x] Copy/Paste context menu for verses
+  - [ ] Open chapter/verse popover from their respective context menus
   - [ ] Spell check/suggestions for search page?
   - [ ] Search across modules
   - [ ] Alternate search syntax (&, |)

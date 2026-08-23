@@ -9,8 +9,9 @@ import { Theme } from "@mui/material/styles";
 import { SystemStyleObject } from "@mui/system";
 import { RenderedVerse } from "../../components/bible/RenderedVerse";
 import { use_settings } from "../../components/providers/SettingsProvider";
-import { use_chapter_context_menu_options, use_verse_context_menu_options } from "@components/context_menu/context_menus";
+import { use_chapter_context_menu_options } from "@components/context_menu/chapter_context_menu";
 import { use_show_context_menu } from "@components/providers/ContextMenuProvider";
+import { use_verse_context_menu_options } from "@components/context_menu/verse_context_menu";
 
 type ChapterContentProps = {
     verses: RenderedVerseContent[],
@@ -109,7 +110,7 @@ export default function ChapterContent({
 		set_show_focused_verses(v);
 	}, []);
 
-	const handle_chapter_click = (e: React.MouseEvent<HTMLElement>) => {
+	const handle_chapter_click = (e: React.MouseEvent) => {
 		const target = e.target as HTMLElement;
         const rect = target.getBoundingClientRect();
         const pos = { top: rect.top, left: rect.left };
@@ -117,7 +118,7 @@ export default function ChapterContent({
 		on_chapter_clicked(pos, chapter)
 	}
 
-	const handle_book_click = (e: React.MouseEvent<HTMLElement>) => {
+	const handle_book_click = (e: React.MouseEvent) => {
 		const target = e.target as HTMLElement;
         const rect = target.getBoundingClientRect();
         const pos = { top: rect.top, left: rect.left };
@@ -127,12 +128,12 @@ export default function ChapterContent({
 
 	const show_context_menu = use_show_context_menu();
 
-	const chapter_context_menu_options = use_chapter_context_menu_options(chapter, bible_info.id);
+	const chapter_context_menu_options = use_chapter_context_menu_options(chapter, bible_info.id, (_, e) => handle_chapter_click(e as React.MouseEvent));
 	const handle_chapter_context_menu = useCallback((e: React.MouseEvent) => {
 		show_context_menu(e, chapter_context_menu_options)
 	}, [chapter_context_menu_options, show_context_menu]);
 
-	const parallel_chapter_context_menu_options = use_chapter_context_menu_options(chapter, parallel_bible_info?.id ?? bible_info.id);
+	const parallel_chapter_context_menu_options = use_chapter_context_menu_options(chapter, parallel_bible_info?.id ?? bible_info.id, (_, e) => handle_chapter_click(e));
 	const handel_parallel_chapter_context_menu = useCallback((e: React.MouseEvent) => {
 		show_context_menu(e, parallel_chapter_context_menu_options);
 	}, [parallel_chapter_context_menu_options, show_context_menu])
@@ -271,9 +272,18 @@ const RowComponentBase = forwardRef<HTMLDivElement, RowComponentProps>((
 	) => {
 		const v = verses[index];
 		const pv = parallel_verses?.[index];
+
+		const handle_verse_context_option_clicked = useCallback((verse: bible.VerseId, e: React.MouseEvent) => {
+			const target = e.target as HTMLElement;
+			const rect = target.getBoundingClientRect();
+			const pos = { top: rect.top, left: rect.left };
+
+			e.stopPropagation();
+			on_verse_clicked(pos, verse);
+		}, [on_verse_clicked])
 		
-		const context_menu_options = use_verse_context_menu_options(v.id, v.bible);
-		const parallel_context_menu_options = use_verse_context_menu_options(pv?.id ?? v.id, pv?.bible ?? v.bible);
+		const context_menu_options = use_verse_context_menu_options(v.id, v.bible, handle_verse_context_option_clicked);
+		const parallel_context_menu_options = use_verse_context_menu_options(pv?.id ?? v.id, pv?.bible ?? v.bible, handle_verse_context_option_clicked);
 		const show_context_menu = use_show_context_menu();
 
 		const handle_context_menu = useCallback((e: React.MouseEvent) => {

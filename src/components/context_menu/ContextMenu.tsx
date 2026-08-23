@@ -1,13 +1,14 @@
 import Tooltip from "@components/core/Tooltip";
 import { play_sfx } from "@interop/sfx";
 import { Box, Divider, Popover, Stack, Typography, useTheme } from "@mui/material";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 export type ContextMenuOption = |{
     label: string,
     tooltip: string,
     on_click: (e: React.MouseEvent) => void,
     image?: string,
+    play_click_sfx?: boolean,
 }
 
 export type ContextMenuProps = {
@@ -64,13 +65,18 @@ export default function ContextMenu({
     const is_open = useMemo(() => {
         return pos !== null;
     }, [pos, options]);
+
+    const handle_non_select_close = useCallback(() => {
+        play_sfx("toggle_panel");
+        on_close();
+    }, [on_close])
     
     return (
         <Popover
             open={is_open}
             anchorPosition={corrected_pos ?? pos ?? undefined}
             anchorReference="anchorPosition"
-            onClose={on_close}
+            onClose={handle_non_select_close}
             disablePortal={false}
             anchorOrigin={{
                 vertical: "bottom",
@@ -141,6 +147,7 @@ function ContextMenuOption({
 }: ContextMenuOptionProps): React.ReactElement
 {
     const theme = useTheme();
+    const play_click_sfx = option.play_click_sfx === true || option.play_click_sfx === undefined;
 
     return (
         <Tooltip tooltip={option.tooltip}>
@@ -168,7 +175,10 @@ function ContextMenuOption({
                     variant="body2"
                     textAlign="left"
                     onClick={e => {
-                        play_sfx("click")
+                        if (play_click_sfx)
+                        {
+                            play_sfx("click")
+                        }
                         option.on_click(e);
                         on_close();
                     }}

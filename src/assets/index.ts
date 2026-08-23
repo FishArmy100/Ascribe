@@ -101,3 +101,4 @@ export { default as zoom_in } from "./images/light-magnifying-glass-plus.svg";
 export { default as zoom_out } from "./images/light-magnifying-glass-minus.svg";
 export { default as quotes } from "./images/light-quotes.svg";
 export { default as copy } from "./images/light-copy.svg";
+export { default as microscope } from "./images/light-microscope.svg";

@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { WordId } from "@interop/bible";
 import { fetch_backend_word_entries, get_module_entry_title, ModuleEntry } from "@interop/module_entry";
-import { fetch_backend_verse_render_data, VerseRenderData } from "@interop/bible/render";
+import { backend_fetch_verse_render_data, VerseRenderData } from "@interop/bible/render";
 import ModuleEntryRenderer from "@components/bible/ModuleEntryRenderer";
 import { HRefSrc } from "@interop/html_text";
 import PopoverBase from "./PopoverBase";
@@ -50,7 +50,7 @@ export default function WordPopover({
                 set_module_entries(filtered_entries);
             })
 
-            fetch_backend_verse_render_data([word.verse], bible_version.id, bible_display_settings.shown_modules).then(v => {
+            backend_fetch_verse_render_data([word.verse], bible_version.id, bible_display_settings.shown_modules).then(v => {
                 set_verse_render_data(v[0] ?? null);
             })
         }

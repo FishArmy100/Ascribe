@@ -10,7 +10,7 @@ import { useMemo } from "react";
 
 
 export * from "./book";
-export { fetch_backend_verse_render_data, backend_render_verses as backend_render_verse_words } from "./render";
+export { backend_fetch_verse_render_data as fetch_backend_verse_render_data, backend_render_verses as backend_render_verse_words } from "./render";
 
 export type ChapterId = {
     book: OsisBook,
