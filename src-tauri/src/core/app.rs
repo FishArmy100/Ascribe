@@ -7,7 +7,10 @@ use crate::{bible::BibleDisplaySettings, core::view_history::ViewHistory, reader
 
 use super::settings::AppSettings;
 
-const APP_SAVE_PATH: &str = "ascribe-data/app-save.json";
+const RELEASE_APP_SAVE_PATH: &str = "ascribe-data/app-save.json";
+const DEBUG_APP_SAVE_PATH: &str = "ascribe-data/app-save-debug.json";
+
+pub const APP_SAVE_PATH: &str = if cfg!(debug_assertions) { DEBUG_APP_SAVE_PATH } else { RELEASE_APP_SAVE_PATH };
 
 #[derive(Debug, Serialize, Deserialize, Default)]
 #[serde(rename_all = "snake_case")]
@@ -66,6 +69,8 @@ impl AppState
 pub fn open_save_in_file_explorer<R>(app: tauri::AppHandle<R>) -> Option<String>
     where R : Runtime
 {
+    let path = if cfg!(debug_assertions) { DEBUG_APP_SAVE_PATH } else { APP_SAVE_PATH };
+
     let has_save = app.path().resolve(APP_SAVE_PATH, BaseDirectory::AppData).unwrap().as_path().exists();
     if !has_save 
     {

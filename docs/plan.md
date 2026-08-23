@@ -25,6 +25,8 @@ Mostly a bugfix patch, also adding a better publication pipeline for windows
     - [x] Verse/Verse Text 
     - [x] Verse/Verse Alt Text
     - [x] Title/Text Format
+  - [ ] Sound effect for some of the context menu's not playing
+    - [ ] inspect verse
 - [ ] New Features
   - [ ] Translation comparison for verses
   - [ ] Copy/Paste context menu for verses

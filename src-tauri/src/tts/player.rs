@@ -110,11 +110,11 @@ impl TtsPlayerInner
         if let Some(thread) = self.player_thread.take()
         {
             thread.pause();
-        }
 
-        self.app.emit(
-            PLAYER_LOAD_STATE_CHANGED_EVENT_NAME,
-            PlayerLoadStateChangedEvent { is_loaded: false }
-        ).unwrap();
+            self.app.emit(
+                PLAYER_LOAD_STATE_CHANGED_EVENT_NAME,
+                PlayerLoadStateChangedEvent { is_loaded: false }
+            ).unwrap();
+        }
     }
 }

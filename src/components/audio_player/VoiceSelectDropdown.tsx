@@ -66,7 +66,7 @@ export default function VoiceSelectDropdown(): React.ReactElement
         {
             set_voice_id(desired_id);
         }
-    }, [selectable_voices, set_voice_id]);
+    }, []);
 
     const selected_index = useMemo(() => {
         const index = selectable_voices.findIndex(v => v.id === selected_voice.id);
