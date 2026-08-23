@@ -165,7 +165,7 @@ function format_progress_text(state: PlayState): string
     const duration = get_duration(state);
     const elapsed = get_elapsed(state);
 
-    let time = Math.floor(duration - elapsed * duration);
+    let time = Math.floor(duration - elapsed);
     let mins = Math.floor(time / 60).toString().padStart(2, '0');
     let secs = Math.floor(time % 60).toString().padStart(2, '0');
     return `${mins}:${secs}`;

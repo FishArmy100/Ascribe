@@ -23,7 +23,11 @@ export default function PlayButton({
     {
         return <GenerationProgressIndicator progress={state.progress} />
     }
-    else if (state.type === "paused" || state.type === "finished")
+    else if (state.type === "loading")
+    {
+        return <GenerationProgressIndicator progress={1} />
+    }
+    else if (state.type === "paused" || state.type === "finished" || state.type === "loaded")
     {
         return (
             <ImageButton

@@ -1,7 +1,7 @@
 import { BibleReaderBehavior, ReaderQueue, ReaderReading } from "@interop/reader"
 import use_play_state_controller, { PlayState } from "./play_state_controller"
 import use_behavior_state_controller, { TimerData } from "./behavior_state_controller"
-import { useCallback, useEffect, useMemo, useRef } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { use_current_bible } from "@interop/bible"
 import { use_settings } from "@components/providers/SettingsProvider"
 
@@ -41,6 +41,19 @@ export default function use_audio_player_controller(active: boolean): AudioPlaye
     const bible = use_current_bible();
     const voice = use_settings().settings.tts_settings.current_voice;
 
+    const [auto_play, set_auto_play] = useState(false);
+    useEffect(() => {
+        if (behavior_state_controller.reading_behavior_finished)
+        {
+            set_auto_play(false);
+            behavior_state_controller_ref.current.start_reading_behavior();
+        }
+    }, [behavior_state_controller.reading_behavior_finished])
+
+    useEffect(() => {
+        set_auto_play(false);
+    }, [behavior_state_controller.behavior]);
+
     useEffect(() => {
         if (active && behavior_state_controller.current_reading)
         {
@@ -51,11 +64,11 @@ export default function use_audio_player_controller(active: boolean): AudioPlaye
             play_state_controller_ref.current.stop();
             behavior_state_controller_ref.current.timer_data?.reset();
         }
-    }, [active, behavior_state_controller.current_reading]);
+    }, [active, behavior_state_controller.current_reading, bible, voice]);
 
     const play = useCallback(() => {
-        const state = play_state_controller_ref.current.state;
-        if (state.type === "paused")
+        set_auto_play(true);
+        if (play_state_controller.state.type === "paused" || play_state_controller.state.type === "loaded")
         {
             play_state_controller_ref.current.play();
         }
@@ -65,13 +78,13 @@ export default function use_audio_player_controller(active: boolean): AudioPlaye
         {
             timer.play();
         }
-    }, []);
+    }, [play_state_controller.state]);
 
     const pause = useCallback(() => {
         const state = play_state_controller_ref.current.state;
         if (state.type === "playing")
         {
-            play_state_controller_ref.current.play();
+            play_state_controller_ref.current.pause();
         }
 
         const timer = behavior_state_controller_ref.current.timer_data;
@@ -85,17 +98,27 @@ export default function use_audio_player_controller(active: boolean): AudioPlaye
         behavior_state_controller_ref.current.set_behavior(behavior);
     }, []);
 
+    const has_incremented_index = useRef(false);
     useEffect(() => {
-        if (play_state_controller.state.type === "finished")
+        if (play_state_controller.state.type === "finished" && !has_incremented_index.current)
         {
+            has_incremented_index.current = true;
             const index = behavior_state_controller_ref.current.index;
             behavior_state_controller_ref.current.set_index(index + 1);
+            console.log("Incrementing Index");
         }
-        else if (play_state_controller.state.type === "loaded" && !behavior_state_controller_ref.current.reading_behavior_finished)
+        else if (play_state_controller.state.type === "playing" && has_incremented_index.current)
+        {
+            has_incremented_index.current = false;
+        }
+    }, [play_state_controller.state]);
+
+    useEffect(() => {
+        if (play_state_controller.state.type === "loaded" && auto_play)
         {
             play();
         }
-    }, [play_state_controller.state]);
+    }, [play_state_controller.state, auto_play])
 
     return useMemo((): AudioPlayerController => ({
         play,

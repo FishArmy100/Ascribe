@@ -94,7 +94,7 @@ export default function use_behavior_state_controller(): BehaviorStateController
             }
         });
 
-        () => {
+        return () => {
             mounted = false;
         };
     }, [stringify(reader_behavior), index]);
@@ -123,7 +123,7 @@ export default function use_behavior_state_controller(): BehaviorStateController
     const start_reading_behavior = useCallback(() => {
         set_reading_behavior_finished(false);
         set_index(0);
-    }, [])
+    }, []);
 
     return {
         queue,

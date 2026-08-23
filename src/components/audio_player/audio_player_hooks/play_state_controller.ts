@@ -17,6 +17,7 @@ export type PlayState = |{
 } |{
     type: "loaded",
     keys: TtsAudioKey[],
+    duration: number,
 } |{
     type: "playing",
     time: number,
@@ -37,19 +38,16 @@ export type PlayState = |{
 }
 
 export type PlayStateController = {
-    play(): void,
-    pause(): void,
-    stop(): void,
+    play(): Promise<void>,
+    pause(): Promise<void>,
+    stop(): Promise<void>,
     
     readonly state: PlayState,
 
     seek(time: number): void,
     readonly can_seek: boolean,
 
-    readonly autoplay: boolean,
-    set_autoplay(autoplay: boolean,): void,
-
-    load(reading: ReaderReading, bible: BibleInfo, voice: string): void
+    load(reading: ReaderReading, bible: BibleInfo, voice: string): Promise<void>
 }
 
 export default function use_play_state_controller(active: boolean): PlayStateController
@@ -66,10 +64,12 @@ export default function use_play_state_controller(active: boolean): PlayStateCon
         type: "idle"
     });
 
-    const [autoplay, set_autoplay] = useState(false);
-
     const [audio_keys, set_audio_keys] = useState<TtsAudioKey[]>([]);
     const label_audio_key = use_audio_section_labeler();
+
+    useEffect(() => {
+        console.log(play_state)
+    }, [play_state])
     
     useEffect(() => {
         if (active)
@@ -83,7 +83,7 @@ export default function use_play_state_controller(active: boolean): PlayStateCon
         if (play_state.type === "generating")
         {
             const count = tts_player_ref.current.contains_keys(audio_keys);
-            if (count < audio_keys.length)
+            if (count <= audio_keys.length)
             {
                 let progress = 0;
                 if (audio_keys.length !== 0)
@@ -99,14 +99,17 @@ export default function use_play_state_controller(active: boolean): PlayStateCon
     }, [audio_keys, tts_player])
 
     useEffect(() => {
-        console.log(`active = ${active}`)
-        if (tts_player_ref.current.contains_keys(audio_keys) === audio_keys.length && active && audio_keys.length > 0)
+        if (
+            active && 
+            audio_keys.length > 0 &&
+            tts_player_ref.current.contains_keys(audio_keys) === audio_keys.length &&
+            (play_state.type === "generating" || play_state.type === "idle")
+        )
         {
             tts_player_ref.current.load(audio_keys);
             set_play_state({ type: "loading", keys: audio_keys });
-            console.log("Loading keys")
         }
-    }, [audio_keys, active, tts_player.loaded_keys()]);
+    }, [audio_keys, active, tts_player.loaded_keys, play_state]);
     
     useEffect(() => {
         const tts_state = tts_player.state();
@@ -120,29 +123,12 @@ export default function use_play_state_controller(active: boolean): PlayStateCon
                     duration: tts_state.duration,
                 })
             }
-            else if (tts_state.paused)
+            else if (play_state.type !== "loading" && play_state.type !== "loaded")
             {
-                set_play_state({
-                    type: "paused",
-                    keys: audio_keys,
-                    time: tts_state.current_time,
-                    duration: tts_state.duration
-                })
-            }
-            else if (play_state.type === "loading" && stringify(tts_player_ref.current.loaded_keys()) === stringify(audio_keys))
-            {
-                set_play_state({
-                    type: "loaded",
-                    keys: audio_keys,
-                })
-            }
-            else if (play_state.type === "loaded")
-            {
-                if (autoplay)
+                if (tts_state.paused)
                 {
-                    tts_player_ref.current.play();
                     set_play_state({
-                        type: "playing",
+                        type: "paused",
                         keys: audio_keys,
                         time: tts_state.current_time,
                         duration: tts_state.duration
@@ -151,7 +137,7 @@ export default function use_play_state_controller(active: boolean): PlayStateCon
                 else 
                 {
                     set_play_state({
-                        type: "paused",
+                        type: "playing",
                         keys: audio_keys,
                         time: tts_state.current_time,
                         duration: tts_state.duration
@@ -161,20 +147,19 @@ export default function use_play_state_controller(active: boolean): PlayStateCon
         }
     }, [tts_player.state()]);
 
-    const is_playing = useMemo((): boolean | null => {
-        if (play_state.type === "playing")
+    useEffect(() => {
+        if (play_state.type === "loading")
         {
-            return true;
+            if (stringify(tts_player.loaded_keys) === stringify(audio_keys))
+            {        
+                set_play_state({
+                    type: "loaded",
+                    keys: audio_keys,
+                    duration: tts_player_ref.current.state()?.duration ?? 0
+                })
+            }
         }
-        else if (play_state.type === "paused")
-        {
-            return false;
-        }
-        else 
-        {
-            return null;
-        }
-    }, [play_state.type]);
+    }, [tts_player.loaded_keys, play_state, audio_keys]);
 
     const current_duration = useMemo(() => {
         if (play_state.type === "playing" || play_state.type === "paused")
@@ -187,22 +172,45 @@ export default function use_play_state_controller(active: boolean): PlayStateCon
         }
     }, [play_state]);
 
-    const play = useCallback(() => {
-        if (is_playing === false)
+    const play = useCallback(async () => {
+        if (play_state.type === "paused")
         {
-            tts_player_ref.current.play();
+            set_play_state({
+                type: "playing",
+                duration: play_state.duration,
+                time: play_state.time,
+                keys: play_state.keys,
+            })
+            await tts_player_ref.current.play();
         }
-    }, [is_playing]);
-
-    const pause = useCallback(() => {
-        if (is_playing === true)
+        else if (play_state.type === "loaded")
         {
-            tts_player_ref.current.pause();
+            set_play_state({
+                type: "playing",
+                duration: play_state.duration,
+                time: 0,
+                keys: play_state.keys,
+            })
+            await tts_player_ref.current.play();
         }
-    }, [is_playing]);
+    }, [play_state]);
 
-    const stop = useCallback(() => {
-        tts_player_ref.current.stop();
+    const pause = useCallback(async () => {
+        if (play_state.type === "playing")
+        {
+            set_play_state({
+                type: "paused",
+                duration: play_state.duration,
+                time: play_state.time,
+                keys: play_state.keys,
+
+            })
+            await tts_player_ref.current.pause();
+        }
+    }, [play_state]);
+
+    const stop = useCallback(async () => {
+        await tts_player_ref.current.stop();
         set_play_state({
             type: "idle",
         })
@@ -215,17 +223,17 @@ export default function use_play_state_controller(active: boolean): PlayStateCon
                play_state.type === "loaded"
     }, [play_state.type]);
 
-    const seek = useCallback((time: number) => {
+    const seek = useCallback(async (time: number) => {
         if (can_seek)
         {
             time = Math.clamp(0, current_duration ?? 0, time);
-            tts_player.set_time(time);
+            await tts_player.set_time(time);
         }
     }, [can_seek, current_duration]);
 
     const label_audio_section = use_audio_section_labeler();
-    const load = useCallback((reading: ReaderReading, bible: BibleInfo, voice: string) => {
-        tts_player_ref.current.stop();
+    const load = useCallback(async (reading: ReaderReading, bible: BibleInfo, voice: string) => {
+        await stop();
         let verses: VerseId[];
         if (reading.type === "chapter")
         {
@@ -265,7 +273,5 @@ export default function use_play_state_controller(active: boolean): PlayStateCon
         load,
         can_seek,
         seek,
-        autoplay,
-        set_autoplay,
     }
 }

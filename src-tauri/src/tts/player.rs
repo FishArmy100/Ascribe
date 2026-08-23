@@ -53,7 +53,6 @@ impl TtsPlayerInner
 
     pub fn load(&mut self, keys: Vec<TtsAudioKey>) -> bool
     {
-        println!("Loading backend tts keys...");
         if keys.len() > 0
         {
             self.player_thread = TtsPlayerThread::new(
@@ -111,11 +110,11 @@ impl TtsPlayerInner
         if let Some(thread) = self.player_thread.take()
         {
             thread.pause();
-        }
 
-        self.app.emit(
-            PLAYER_LOAD_STATE_CHANGED_EVENT_NAME,
-            PlayerLoadStateChangedEvent { is_loaded: false }
-        ).unwrap();
+            self.app.emit(
+                PLAYER_LOAD_STATE_CHANGED_EVENT_NAME,
+                PlayerLoadStateChangedEvent { is_loaded: false }
+            ).unwrap();
+        }
     }
 }

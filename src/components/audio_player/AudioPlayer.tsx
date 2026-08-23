@@ -60,8 +60,6 @@ export default function AudioPlayer({
     const [show_queue, set_show_queue] = useState(false);
     const deep_copy = use_deep_copy();
 
-    const [player_index, set_player_index] = useState<number>(0);
-
     const handle_change_reader_behavior = useCallback((updater: (behavior: BibleReaderBehavior) => BibleReaderBehavior) => {
         const copy = deep_copy(controller_ref.current.behavior);
         const updated = updater(copy);
@@ -246,9 +244,7 @@ export default function AudioPlayer({
             <QueuePopup 
                 show={show_queue}
                 on_close={() => set_show_queue(false)}
-                index={player_index}
-                bible={bible_display_settings.bible_version}
-                on_select={set_player_index}
+                controller={controller}
             />
         </Box>
     )

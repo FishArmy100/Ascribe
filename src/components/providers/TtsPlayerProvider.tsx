@@ -1,6 +1,7 @@
 // TtsPlayerProvider.tsx
-import React, { createContext, useContext, useState, useEffect, useMemo } from "react";
+import React, { createContext, useContext, useState, useEffect, useMemo, useCallback, useRef } from "react";
 import * as tts from "../../interop/tts";
+import { use_deep_copy } from "@utils/index";
 
 export interface ITtsContextType 
 {
@@ -8,16 +9,16 @@ export interface ITtsContextType
     contains_keys(keys: tts.TtsAudioKey[]): number
     request(key: tts.TtsAudioKey[]): Promise<void>,
     load(keys: tts.TtsAudioKey[]): Promise<boolean>
-    get_generated_keys(): tts.TtsAudioKey[],
+    get_generated_keys(): readonly tts.TtsAudioKey[],
 
-    play(): void,
-    pause(): void,
-    stop(): void,
+    play(): Promise<void>,
+    pause(): Promise<void>,
+    stop(): Promise<void>,
     
-    set_time(time: number): void,
+    set_time(time: number): Promise<void>,
     
     is_loaded(): boolean,
-    loaded_keys(): tts.TtsAudioKey[]
+    readonly loaded_keys: readonly tts.TtsAudioKey[]
     state(): tts.PlayerState | null
 }
 
@@ -34,8 +35,17 @@ export function TtsPlayerProvider({
     const [generated_keys, set_generated_keys] = useState<tts.TtsAudioKey[]>([]);
     const [player_state, set_player_state] = useState<tts.PlayerState | null>(null);
     const [is_player_loaded, set_is_player_loaded] = useState<boolean>(false);
-    const [requested_keys, set_requested_keys] = useState<tts.TtsAudioKey[]>([]);
+    const loading_keys = useRef<tts.TtsAudioKey[]>([]);
     const [loaded_keys, set_loaded_keys] = useState<tts.TtsAudioKey[]>([]);
+
+    const update_loaded_keys = useCallback(() => {
+        set_loaded_keys(loading_keys.current);
+    }, [loading_keys, set_loaded_keys]);
+
+    const update_loaded_keys_ref = useRef(update_loaded_keys);
+    useEffect(() => {
+        update_loaded_keys_ref.current = update_loaded_keys;
+    }, [update_loaded_keys]);
 
     useEffect(() => {
         function handle_verse_audio_updated(keys: tts.TtsAudioKey[]): void
@@ -50,16 +60,8 @@ export function TtsPlayerProvider({
 
         function handle_player_load_state_changed(event: tts.PlayerLoadStateChangedEvent): void
         {
-            console.log(`Load state = ${event.is_loaded}`);
             set_is_player_loaded(event.is_loaded);
-            if (event.is_loaded)
-            {
-                set_loaded_keys(requested_keys);
-            }
-            else 
-            {
-                set_loaded_keys([]);
-            }
+            update_loaded_keys_ref.current();
         }
 
         const verse_audio_promise = tts.add_verse_audio_updated_listener(handle_verse_audio_updated);
@@ -88,57 +90,54 @@ export function TtsPlayerProvider({
             return keys.filter(k => generated_keys_set.has(stringify_audio_key(k))).length;
         },
 
-        get_generated_keys(): tts.TtsAudioKey[]
+        get_generated_keys(): readonly tts.TtsAudioKey[]
         {
-            return [...generated_keys];
+            return generated_keys;
         },
 
         async request(keys: tts.TtsAudioKey[]): Promise<void>
         {
-            set_requested_keys(keys);
             return tts.backend_request(keys);
         },
 
         async load(keys: tts.TtsAudioKey[]): Promise<boolean>
         {
+            loading_keys.current = keys;
             return tts.backend_load(keys);
         },
 
-        play(): void
+        async play(): Promise<void>
         {
-            tts.backend_play().catch(e => console.error("Error playing:", e));
+            return tts.backend_play().catch(e => console.error("Error playing:", e));
         },
 
-        pause(): void
+        async pause(): Promise<void>
         {
-            tts.backend_pause().catch(e => console.error("Error pausing:", e));
+            return tts.backend_pause().catch(e => console.error("Error pausing:", e));
         },
 
-        stop(): void
+        async stop(): Promise<void>
         {
-            tts.backend_stop().catch(e => console.error("Error stopping:", e));
+            return tts.backend_stop().catch(e => console.error("Error stopping:", e));
         },
 
-        set_time(time: number): void
+        async set_time(time: number): Promise<void>
         {
-            tts.backend_set_time(time).catch(e => console.error("Error setting time:", e));
+            return tts.backend_set_time(time).catch(e => console.error("Error setting time:", e));
         },
 
         is_loaded(): boolean
         {
             return is_player_loaded;
         },
-
-        loaded_keys(): tts.TtsAudioKey[] 
-        {
-            return loaded_keys;    
-        },
+        
+        loaded_keys,
 
         state(): tts.PlayerState | null
         {
             return player_state;
         },
-    }), [generated_keys, generated_keys_set, player_state, is_player_loaded]);
+    }), [generated_keys, generated_keys_set, player_state, is_player_loaded, loaded_keys]);
 
     return (
         <TtsContext.Provider value={value}>
