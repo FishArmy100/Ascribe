@@ -4,7 +4,7 @@ use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Emitter, State};
 
-use crate::{core::{app::AppState, settings::{SETTINGS_CHANGED_EVENT_NAME, SettingsChangedEvent}}, tts::{TtsAudioKey, gen_thread::TtsGenThread, player::TtsPlayer, voices::AppVoices}};
+use crate::{core::{app_state::AppState, settings::{AppSettings, SETTINGS_CHANGED_EVENT_NAME, SettingsChangedEvent}}, tts::{TtsAudioKey, TtsSettings, gen_thread::TtsGenThread, player::TtsPlayer, voices::AppVoices}};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case", tag = "type")]
@@ -41,7 +41,7 @@ pub enum TtsCommand
 #[tauri::command(rename_all = "snake_case")]
 pub fn run_tts_command(
     voices: State<'_, AppVoices>, 
-    app_state: State<'_, Mutex<AppState>>,
+    settings: AppState<'_, AppSettings>,
     app_handle: AppHandle,
     gen_thread: State<'_, TtsGenThread>,
     player: State<'_, TtsPlayer>,
@@ -73,18 +73,21 @@ pub fn run_tts_command(
             Some(serde_json::to_string(&response).unwrap())
         },
         TtsCommand::GetCurrentVoice => {
-            let app_state = app_state.lock().unwrap();
-            Some(serde_json::to_string(&app_state.settings.tts_settings.current_voice).unwrap())
+            settings.visit(|settings| {
+                Some(serde_json::to_string(&settings.tts_settings.current_voice).unwrap())
+            })
         },
         TtsCommand::SetCurrentVoice { id } => {
-            let mut app_state = app_state.lock().unwrap();
-            let old = app_state.settings.clone();
-            app_state.settings.tts_settings.current_voice = id;
+            settings.visit(|settings| {
+                let old = settings.clone();
+                settings.tts_settings.current_voice = id;
+    
+                app_handle.emit(SETTINGS_CHANGED_EVENT_NAME, SettingsChangedEvent {
+                    old: old,
+                    new: settings.clone(),
+                }).unwrap();
+            });
 
-            app_handle.emit(SETTINGS_CHANGED_EVENT_NAME, SettingsChangedEvent {
-                old: old,
-                new: app_state.settings.clone(),
-            }).unwrap();
             None
         },
         TtsCommand::GetDefaultVoiceId => {

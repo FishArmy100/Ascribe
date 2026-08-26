@@ -12,7 +12,7 @@ use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Emitter, Listener, Manager, utils::platform::resource_dir};
 
-use crate::core::app::AppState;
+use crate::core::app_state::AppStateInner;
 
 pub const BIBLIO_JSON_PACKAGE_INITIALIZED_EVENT_NAME: &str = "bible-package-initialized";
 pub const BIBLE_DISPLAY_SETTINGS_CHANGED_EVENT_NAME: &str = "bible-display-settings-changed";
@@ -355,19 +355,20 @@ impl BibleDisplaySettings
     {
         let handle_copy = handle.clone();
         handle_copy.listen(BIBLIO_JSON_PACKAGE_INITIALIZED_EVENT_NAME, move |_| {
-            let app_state = handle.state::<Mutex<AppState>>();
-            let mut state = app_state.lock().unwrap();
+            let display_settings = handle.state::<AppStateInner<BibleDisplaySettings>>();
 
             let package = handle.state::<BiblioJsonPackageHandle>();
 
-            let old = state.bible_display_settings.clone();
-            state.bible_display_settings = package.visit(|p| {
+            let old = display_settings.clone_inner();
+            let new = package.visit(|p| {
                 Self::new(p)
             });
 
+            display_settings.set_inner(new);
+
             handle.emit(BIBLE_DISPLAY_SETTINGS_CHANGED_EVENT_NAME, BibleDisplaySettingsChangedEvent {
                 old: old,
-                new: state.bible_display_settings.clone(),
+                new: display_settings.clone_inner(),
             }).unwrap();
         });
     }

@@ -4,7 +4,7 @@ use kira::{AudioManager, AudioManagerSettings, Decibels, DefaultBackend, Tween, 
 use serde::{Deserialize, Serialize};
 use tauri::{Runtime, State, path::{BaseDirectory, PathResolver}};
 
-use crate::core::{app::AppState, utils::Shared};
+use crate::core::{app_state::AppState, settings::AppSettings, utils::Shared};
 
 lazy_static::lazy_static!
 {
@@ -94,20 +94,21 @@ pub enum SfxCommand
 #[tauri::command(rename_all = "snake_case")]
 pub fn run_sfx_command(
     player: State<'_, SfxPlayer>,
-    state: State<'_, Mutex<AppState>>,
+    settings: AppState<'_, AppSettings>,
     command: SfxCommand,
 )
 {
     match command
     {
         SfxCommand::Play { name } => {
-            let state = state.lock().unwrap();
-            let sfx_settings = &state.settings.sfx_settings;
-            if sfx_settings.enabled.get(&name).is_some_and(|v| *v)
-            {
-                let volume = state.settings.sfx_settings.volume;
-                player.play(&name, volume)
-            }
+            settings.visit(|settings| {
+                let sfx_settings = &settings.sfx_settings;
+                if sfx_settings.enabled.get(&name).is_some_and(|v| *v)
+                {
+                    let volume = settings.sfx_settings.volume;
+                    player.play(&name, volume)
+                }
+            });
         },
     }
 }

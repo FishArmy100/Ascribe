@@ -5,7 +5,7 @@ use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use tauri::{Emitter, State};
 
-use crate::{bible::{BIBLE_DISPLAY_SETTINGS_CHANGED_EVENT_NAME, BibleDisplaySettings, BibleInfo, BibleDisplaySettingsChangedEvent, BiblioJsonPackageHandle, fetching::PackageEx, render::{RenderSearchArgs, fetch_verse_render_data, render_verses, render_word_search_verses}}, core::app::AppState, repr::{module_config::ModuleConfigJson, readings_date::ReadingsDateJson, searching::{ModuleSearchHitJson, WordSearchQueryJson}, *}, searching::{module_searching::WordSearchMode, word_search_engine::WordSearchQuery}};
+use crate::{bible::{BIBLE_DISPLAY_SETTINGS_CHANGED_EVENT_NAME, BibleDisplaySettings, BibleDisplaySettingsChangedEvent, BibleInfo, BiblioJsonPackageHandle, fetching::PackageEx, render::{RenderSearchArgs, fetch_verse_render_data, render_verses, render_word_search_verses}}, core::app_state::AppState, repr::{module_config::ModuleConfigJson, readings_date::ReadingsDateJson, searching::{ModuleSearchHitJson, WordSearchQueryJson}, *}, searching::{module_searching::WordSearchMode, word_search_engine::WordSearchQuery}};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -128,7 +128,7 @@ pub enum BibleCommand
 #[tauri::command(rename_all = "snake_case")]
 pub fn run_bible_command(
     app_handle: tauri::AppHandle, 
-    app_state: State<'_, Mutex<AppState>>, 
+    display_settings: AppState<'_, BibleDisplaySettings>,
     package: State<'_, BiblioJsonPackageHandle>, 
     command: BibleCommand
 ) -> Option<String>
@@ -157,17 +157,16 @@ pub fn run_bible_command(
             Some(serde_json::to_string(&package.is_initialized()).unwrap())
         },
         BibleCommand::GetBibleDisplaySettings => {
-            let state = app_state.lock().unwrap();
-            Some(serde_json::to_string(&state.bible_display_settings).unwrap())
+            let display_settings = display_settings.clone_inner();
+            Some(serde_json::to_string(&display_settings).unwrap())
         },
         BibleCommand::SetBibleDisplaySettings { version_state } => {
-            let mut state = app_state.lock().unwrap();
-            let old = state.bible_display_settings.clone();
-            state.bible_display_settings = version_state;
+            let old = display_settings.clone_inner();
+            display_settings.set_inner(version_state.clone());
 
             app_handle.emit(BIBLE_DISPLAY_SETTINGS_CHANGED_EVENT_NAME, BibleDisplaySettingsChangedEvent {
                 old: old,
-                new: state.bible_display_settings.clone(),
+                new: version_state,
             }).unwrap();
             None
         },
@@ -240,7 +239,8 @@ pub fn run_bible_command(
             Some(serde_json::to_string(&response).unwrap())
         },
         BibleCommand::RunModuleWordSearch { query, modules, mode, page_size, page_index } => {
-            let bible = app_state.lock().unwrap().bible_display_settings.bible_version.clone();
+            let display_settings = display_settings.clone_inner();
+            let bible = display_settings.bible_version.clone();
             let query: WordSearchQuery = query.into();
 
             let start = page_size as usize * page_index as usize;
@@ -297,8 +297,8 @@ pub fn run_bible_command(
             Some(serde_json::to_string(&response).unwrap())
         }
         BibleCommand::FetchModuleEntries { module, page_size, page_index } => {
-            let bible = app_state.lock().unwrap().bible_display_settings.bible_version.clone();
-
+            let display_settings = display_settings.clone_inner();
+            let bible = display_settings.bible_version.clone();
             let start = (page_index * page_size) as usize;
 
             let response = package.visit(|package| {
@@ -318,7 +318,8 @@ pub fn run_bible_command(
             Some(serde_json::to_string(&response).unwrap())
         }
         BibleCommand::FetchModulePages { module, page_size } => {
-            let bible = app_state.lock().unwrap().bible_display_settings.bible_version.clone();
+            let display_settings = display_settings.clone_inner();
+            let bible = display_settings.bible_version.clone();
             let response = package.visit(|package| {
                 let Some(module) = package.get_mod(&module) else {
                     return vec![]

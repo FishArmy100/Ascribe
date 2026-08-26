@@ -1,6 +1,6 @@
-use std::sync::{Arc, Mutex, atomic::{AtomicBool, Ordering}};
+use std::sync::{Arc, atomic::{AtomicBool, Ordering}};
 use tauri::{Manager, WindowEvent};
-use crate::{bible::{BibleDisplaySettings, BiblioJsonPackageHandle, printing::printing_state::PrintBibleState}, core::{app::AppState, settings, view_history}, sfx::SfxPlayer, tts::{TtsAudioLibrary, gen_thread::TtsGenThread, init_espeak, player::TtsPlayer, voices::AppVoices}};
+use crate::{bible::{BibleDisplaySettings, BiblioJsonPackageHandle}, core::{app::AppSaveState, settings, view_history}, sfx::SfxPlayer, tts::{TtsAudioLibrary, gen_thread::TtsGenThread, init_espeak, player::TtsPlayer, voices::AppVoices}};
 
 pub mod core;
 pub mod bible;
@@ -37,17 +37,17 @@ pub fn run()
             }
 
             init_espeak(app.path());
-            app.manage(BiblioJsonPackageHandle::init(app.handle().clone()));
             app.manage(SfxPlayer::new(app.path()));
-            app.manage(PrintBibleState::new());
+
+            // TTS
             app.manage(AppVoices::load(app.path()));
             app.manage(TtsGenThread::new(app.handle().clone()));
             app.manage(TtsAudioLibrary::new(app.handle().clone()));
             app.manage(TtsPlayer::new(app.handle().clone()));
-
-            app.manage(Mutex::new(AppState::load(app.path()).unwrap()));
-
+            
+            AppSaveState::load(app.handle().clone()).unwrap();
             BibleDisplaySettings::add_on_package_init_listener(app.handle().clone());
+            app.manage(BiblioJsonPackageHandle::init(app.handle().clone()));
 
             Ok(())
         })
@@ -64,10 +64,7 @@ pub fn run()
                 is_closing.store(true, Ordering::SeqCst);
 
                 let app = window.app_handle();
-                let state = app.state::<Mutex<AppState>>();
-                let binding = state.lock().unwrap();
-                binding.save(app.path()).unwrap();
-                drop(binding);
+                AppSaveState::save(app.clone()).unwrap();
 
                 window.close().unwrap();
             }

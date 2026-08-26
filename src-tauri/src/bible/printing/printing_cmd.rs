@@ -6,7 +6,7 @@ use rfd::FileDialog;
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Emitter, State};
 
-use crate::{bible::{BiblioJsonPackageHandle, printing::{PrintBibleArgs, PrintBibleFormat, PrintBibleRange, print_bible, printing_state::PrintBibleState}}, repr::PrintBibleRangeJson};
+use crate::{bible::{BiblioJsonPackageHandle, printing::{PrintBibleArgs, PrintBibleFormat, PrintBibleRange, PrintBibleSettings, print_bible}}, core::app_state::AppState, repr::PrintBibleRangeJson};
 
 pub const PRINT_BIBLE_FORMAT_CHANGED_EVENT_NAME: &str = "print-bible-format-changed";
 
@@ -79,7 +79,7 @@ pub enum DownloadResult
 pub fn run_print_command(
     command: PrintingCommand,
     package: State<'_, BiblioJsonPackageHandle>,
-    state: State<'_, PrintBibleState>,
+    state: AppState<'_, PrintBibleSettings>,
     app_handle: AppHandle,
 ) -> Option<String>
 {
@@ -87,7 +87,7 @@ pub fn run_print_command(
     {
         PrintingCommand::Preview => {
             let ranges = state.visit(|s| s.ranges.iter().map(PrintBibleRangeJson::from).collect_vec());
-            let result = generate_pdf(&ranges, &state, &package);
+            let result = generate_pdf(&ranges, state, &package);
 
             let bytes = match result
             {
@@ -129,7 +129,7 @@ pub fn run_print_command(
         },
         PrintingCommand::Download => {
             let ranges = state.visit(|s| s.ranges.iter().map(PrintBibleRangeJson::from).collect_vec());
-            let result = generate_pdf(&ranges, &state, &package);
+            let result = generate_pdf(&ranges, state, &package);
 
             let bytes = match result
             {
@@ -204,7 +204,7 @@ pub fn run_print_command(
 
 fn generate_pdf(
     ranges: &Vec<PrintBibleRangeJson>, 
-    state: &PrintBibleState, 
+    state: AppState<'_, PrintBibleSettings>, 
     package: &BiblioJsonPackageHandle
 ) -> Result<Vec<u8>, String>
 {

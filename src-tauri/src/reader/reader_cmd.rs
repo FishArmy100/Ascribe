@@ -1,10 +1,8 @@
-use std::sync::Mutex;
-
 use biblio_json::modules::ModuleId;
 use serde::{Deserialize, Serialize};
 use tauri::{Emitter, State};
 
-use crate::{bible::BiblioJsonPackageHandle, core::app::AppState, reader::{BibleReaderBehavior, ReaderNextResult, ReaderQueueResult}};
+use crate::{bible::BiblioJsonPackageHandle, core::app_state::AppState, reader::{BibleReaderBehavior, ReaderNextResult, ReaderQueueResult}};
 
 pub const READER_CHANGED_EVENT_NAME: &str = "reader-changed";
 
@@ -44,35 +42,39 @@ pub fn run_reader_command(
     command: ReaderCommand,
     package: State<'_, BiblioJsonPackageHandle>,
     app_handle: tauri::AppHandle,
-    state: State<'_, Mutex<AppState>>
+    reader_behavior: AppState<'_, BibleReaderBehavior>
 ) -> Result<Option<String>, String>
 {
     match command
     {
         ReaderCommand::Get => {
-            let state = state.lock().map_err(|e| e.to_string())?;
-            let json = serde_json::to_string(&state.reader_behavior)
-                .map_err(|e| e.to_string())?;
-            Ok(Some(json))
+            let response = reader_behavior.visit(|b| {
+                serde_json::to_string(b)
+                    .map_err(|e| e.to_string())
+            })?;
+
+            Ok(Some(response))
         },
         ReaderCommand::Set { behavior } => {
-            let mut state = state.lock().map_err(|e| e.to_string())?;
-            let old = state.reader_behavior.clone();
-            state.reader_behavior = behavior.clone();
+            reader_behavior.visit(|reader_behavior| {
+                let old = reader_behavior.clone();
+                *reader_behavior = behavior.clone();
 
-            app_handle
-                .emit(READER_CHANGED_EVENT_NAME, ReaderChangedEvent {
-                    old,
-                    new: behavior,
-                })
-                .map_err(|e| e.to_string())?;
+                app_handle
+                    .emit(READER_CHANGED_EVENT_NAME, ReaderChangedEvent {
+                        old,
+                        new: behavior,
+                    })
+                    .map_err(|e| e.to_string())
+            })?;
 
             Ok(None)
         },
         ReaderCommand::Next { bible, index, time } => {
-            let state = state.lock().map_err(|e| e.to_string())?;
-            let result = package.visit(|p| {
-                state.reader_behavior.next(index, time, &bible, p)
+            let result = reader_behavior.visit(|rb| {
+                package.visit(|p| {
+                    rb.next(index, time, &bible, p)
+                })
             });
             
             match result
@@ -84,9 +86,10 @@ pub fn run_reader_command(
             }
         }
         ReaderCommand::GetQueue { bible, index, offset } => {
-            let state = state.lock().map_err(|e| e.to_string())?;
-            let result = package.visit(|p| {
-                state.reader_behavior.get_queue(index, offset, &bible, p)
+            let result = reader_behavior.visit(|rb| {
+                package.visit(|p| {
+                    rb.get_queue(index, offset, &bible, p)
+                })
             });
             
             match result

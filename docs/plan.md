@@ -30,11 +30,11 @@ Mostly a bugfix patch, also adding a better publication pipeline for windows
 - [ ] New Features
   - [ ] Translation comparison for verses
   - [x] Copy/Paste context menu for verses
-  - [ ] Open chapter/verse popover from their respective context menus
+  - [x] Open chapter/verse popover from their respective context menus
   - [ ] Spell check/suggestions for search page?
   - [ ] Search across modules
-  - [ ] Alternate search syntax (&, |)
-  - [ ] Printer Settings/Ranges save
+  - [x] Alternate search syntax (&, |)
+  - [x] Printer Settings/Ranges save
 - [ ] Publication pipeline
   - [ ] One distribution command line pipeline
     - [ ] Error if not dry run?

@@ -4,11 +4,11 @@ use biblio_json::{core::{OsisBook, chapter_id::ChapterId}, modules::{EntryId, Mo
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Emitter, State};
 
-use crate::{core::app::AppState, repr::{ChapterIdJson, searching::WordSearchQueryJson}};
+use crate::{core::app_state::AppState, repr::{ChapterIdJson, searching::WordSearchQueryJson}};
 
 pub const VIEW_HISTORY_CHANGED_EVENT_NAME: &str = "view-history-changed";
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub struct ViewHistory
 {
@@ -196,55 +196,50 @@ pub enum ViewHistoryCommand
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn run_view_history_command(app_handle: AppHandle, app_state: State<'_, Mutex<AppState>>, command: ViewHistoryCommand) -> Option<String>
+pub fn run_view_history_command(
+    app_handle: AppHandle, 
+    view_history: AppState<'_, ViewHistory>, 
+    command: ViewHistoryCommand
+) -> Option<String>
 {
     match command
     {
         ViewHistoryCommand::Push { entry } => {
-            let mut binding = app_state.lock().unwrap();
-
-            update_view_history(&mut binding.view_history, &app_handle, move |vh| {
+            update_view_history(view_history, &app_handle, move |vh| {
                 vh.push_entry(entry);
             });
 
             None
         },
         ViewHistoryCommand::Clear => {
-            let mut binding = app_state.lock().unwrap();
-
-            update_view_history(&mut binding.view_history, &app_handle, |vh| {
+            update_view_history(view_history, &app_handle, |vh| {
                 vh.clear();
             });
 
             None
         },
         ViewHistoryCommand::Retreat => {
-            let mut binding = app_state.lock().unwrap();
-
-            update_view_history(&mut binding.view_history, &app_handle, |vh| {
+            update_view_history(view_history, &app_handle, |vh| {
                 vh.retreat();
             });
 
             None
         },
         ViewHistoryCommand::Advance => {
-            let mut binding = app_state.lock().unwrap();
-
-            update_view_history(&mut binding.view_history, &app_handle, |vh| {
+            update_view_history(view_history, &app_handle, |vh| {
                 vh.advance();
             });
 
             None
         },
         ViewHistoryCommand::GetInfo => {
-            let binding = app_state.lock().unwrap();
-            let info = ViewHistoryInfo::from_history(&binding.view_history);
-            Some(serde_json::to_string(&info).unwrap())
+            view_history.visit(|view_history| {
+                let info = ViewHistoryInfo::from_history(view_history);
+                Some(serde_json::to_string(&info).unwrap())
+            })
         },
         ViewHistoryCommand::SetIndex { index } => {
-            let mut binding = app_state.lock().unwrap();
-            
-            update_view_history(&mut binding.view_history, &app_handle, |vh| {
+            update_view_history(view_history, &app_handle, |vh| {
                 vh.set_index(index as usize);
             });
 
@@ -253,14 +248,16 @@ pub fn run_view_history_command(app_handle: AppHandle, app_state: State<'_, Mute
     }
 }
 
-pub fn update_view_history(view_history: &mut ViewHistory, app_handle: &AppHandle, f: impl FnOnce(&mut ViewHistory))
+pub fn update_view_history(view_history: AppState<'_, ViewHistory>, app_handle: &AppHandle, f: impl FnOnce(&mut ViewHistory))
 {
-    let old = ViewHistoryInfo::from_history(&view_history);
-    f(view_history);
-    let new = ViewHistoryInfo::from_history(&view_history);
+    view_history.visit(|view_history| {
+        let old = ViewHistoryInfo::from_history(&view_history);
+        f(view_history);
+        let new = ViewHistoryInfo::from_history(&view_history);
 
-    app_handle.emit(VIEW_HISTORY_CHANGED_EVENT_NAME, ViewHistoryChangedEvent {
-        old,
-        new,
-    }).unwrap();
+        app_handle.emit(VIEW_HISTORY_CHANGED_EVENT_NAME, ViewHistoryChangedEvent {
+            old,
+            new,
+        }).unwrap();
+    })
 }

@@ -1,9 +1,9 @@
-use std::{collections::HashMap, sync::Mutex};
+use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
-use tauri::{Emitter, State};
+use tauri::Emitter;
 
-use crate::{core::{app::AppState, app_language::get_default_language, theme::AppTheme}, sfx::SfxSettings, tts::TtsSettings};
+use crate::{core::{app_language::get_default_language, app_state::AppState, theme::AppTheme}, sfx::SfxSettings, tts::TtsSettings};
 
 pub const SETTINGS_CHANGED_EVENT_NAME: &str = "settings-changed";
 
@@ -81,7 +81,7 @@ impl Default for AppSettings
 
 #[tauri::command(rename_all = "snake_case")]
 pub fn run_settings_command(
-    state: State<'_, Mutex<AppState>>, 
+    state: AppState<'_, AppSettings>, 
     app_handle: tauri::AppHandle,
 
     command: &str, 
@@ -91,17 +91,18 @@ pub fn run_settings_command(
     match command 
     {
         "get" => {
-            Some(state.lock().unwrap().settings.clone())
+            Some(state.visit(|s| s.clone()))
         },
         "set" => {
-            let mut state = state.lock().unwrap();
-            let old = state.settings.clone();
-            state.settings = value.unwrap();
+            state.visit(|settings| {
+                let old = settings.clone();
+                *settings = value.unwrap();
 
-            app_handle.emit(SETTINGS_CHANGED_EVENT_NAME, SettingsChangedEvent {
-                old: old,
-                new: state.settings.clone(),
-            }).unwrap();
+                app_handle.emit(SETTINGS_CHANGED_EVENT_NAME, SettingsChangedEvent {
+                    old,
+                    new: settings.clone(),
+                }).unwrap();
+            });
             None
         },
         _ => panic!("Unknown settings sub command {}", command)
