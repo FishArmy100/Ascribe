@@ -1,4 +1,4 @@
-use std::{collections::HashMap, sync::Mutex};
+use std::collections::HashMap;
 
 use kira::{AudioManager, AudioManagerSettings, Decibels, DefaultBackend, Tween, Tweenable, sound::static_sound::StaticSoundData};
 use serde::{Deserialize, Serialize};

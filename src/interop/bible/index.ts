@@ -426,7 +426,6 @@ export function get_chapter_verse_ids(bible: BibleInfo, chapter: ChapterId): Ver
         }
     })
 }
-
 export type SelectedVersions = {
     bible: BibleInfo,
     parallel: BibleInfo | null,

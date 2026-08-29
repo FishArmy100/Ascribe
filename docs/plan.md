@@ -14,8 +14,8 @@ Mostly a bugfix patch, also adding a better publication pipeline for windows
 
 - [ ] Bugfixes
   - [x] Strongs number inspector cant click on strongs numbers
-  - [ ] Whenever loading the bible page, will immediately switch to whatever should be playing in the audio player
-    - [ ] Also seems to break chapter navigation
+  - [x] Whenever loading the bible page, will immediately switch to whatever should be playing in the audio player
+    - [x] Also seems to break chapter navigation
   - [x] Search button does not have a sound effect
   - [ ] Audio player behavior appears bugged
     - [ ] Continuous not being continuous (in Chapter Range mode)
@@ -27,6 +27,8 @@ Mostly a bugfix patch, also adding a better publication pipeline for windows
     - [x] Title/Text Format
   - [x] Sound effect for some of the context menu's not playing
     - [x] inspect verse
+  - [x] Some daily readings not rendering properly in the readings display
+  - [x] Some daily readings not being properly parsed into their chapter components in the audio player
 - [ ] New Features
   - [ ] Translation comparison for verses
   - [x] Copy/Paste context menu for verses

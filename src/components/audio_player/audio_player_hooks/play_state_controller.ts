@@ -66,10 +66,6 @@ export default function use_play_state_controller(active: boolean): PlayStateCon
 
     const [audio_keys, set_audio_keys] = useState<TtsAudioKey[]>([]);
     const label_audio_key = use_audio_section_labeler();
-
-    useEffect(() => {
-        console.log(play_state)
-    }, [play_state])
     
     useEffect(() => {
         if (active)

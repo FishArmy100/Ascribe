@@ -1,10 +1,8 @@
-use std::sync::Mutex;
-
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Emitter, State};
 
-use crate::{core::{app_state::AppState, settings::{AppSettings, SETTINGS_CHANGED_EVENT_NAME, SettingsChangedEvent}}, tts::{TtsAudioKey, TtsSettings, gen_thread::TtsGenThread, player::TtsPlayer, voices::AppVoices}};
+use crate::{core::{app_state::AppState, settings::{AppSettings, SETTINGS_CHANGED_EVENT_NAME, SettingsChangedEvent}}, tts::{TtsAudioKey, gen_thread::TtsGenThread, player::TtsPlayer, voices::AppVoices}};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case", tag = "type")]

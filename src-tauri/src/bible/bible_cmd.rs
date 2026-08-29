@@ -1,6 +1,6 @@
-use std::{collections::HashSet, num::NonZeroU32, sync::Mutex};
+use std::{collections::HashSet, num::NonZeroU32};
 
-use biblio_json::{core::{OsisBook, StrongsLang, StrongsNumber, VerseId, lang::Language}, modules::{EntryId, Module, ModuleId}};
+use biblio_json::{core::{OsisBook, RefIdInner, StrongsLang, StrongsNumber, VerseId, lang::Language}, modules::{EntryId, Module, ModuleId}};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use tauri::{Emitter, State};
@@ -122,7 +122,7 @@ pub enum BibleCommand
     GetLanguageDefaultBible
     {
         language: String
-    }
+    },
 }
 
 #[tauri::command(rename_all = "snake_case")]

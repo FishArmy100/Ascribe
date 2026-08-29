@@ -4,13 +4,11 @@ pub mod word_search_parsing;
 pub mod context;
 pub mod module_searching;
 
-use std::sync::Mutex;
-
 use biblio_json::{core::OsisBook, modules::{ModuleId, bible::BibleModule}};
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, State};
 
-use crate::{bible::{BibleDisplaySettings, BiblioJsonPackageHandle, book::ResolveBookNameError}, core::{app_state::AppState, settings::AppSettings, view_history::{ViewHistory, ViewHistoryEntry, update_view_history}}, repr::{ChapterIdJson, VerseIdJson}, searching::{search_type::SearchType, word_search_engine::WordQueryParseError}};
+use crate::{bible::{BibleDisplaySettings, BiblioJsonPackageHandle, book::ResolveBookNameError}, core::{app_state::AppState, view_history::{ViewHistory, ViewHistoryEntry, update_view_history}}, repr::{ChapterIdJson, VerseIdJson}, searching::{search_type::SearchType, word_search_engine::WordQueryParseError}};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]

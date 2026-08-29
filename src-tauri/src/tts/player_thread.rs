@@ -1,4 +1,4 @@
-use std::{sync::{Mutex, mpsc}, thread::{self, JoinHandle}, time::Duration};
+use std::{sync::mpsc, thread::{self, JoinHandle}, time::Duration};
 
 use itertools::Itertools;
 use kira::{AudioManager, Decibels, Mapping, PlaybackRate, Tween, Tweenable, Value, modulator::tweener::{TweenerBuilder, TweenerHandle}, sound::{PlaybackState, static_sound::{StaticSoundData, StaticSoundHandle}}, track::{TrackBuilder, TrackHandle}};

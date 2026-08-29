@@ -209,7 +209,7 @@ function get_chapters_between_atoms(start: Atom, end: Atom, bible_info: BibleInf
 
         if (start_verse !== null)
         {
-            const end = bible_info.books.find(b => b.osis_book === start_book)?.chapters[start_chapter];
+            const end = bible_info.books.find(b => b.osis_book === start_book)?.chapters[start_chapter - 1];
             if (end === undefined)
                 return [];
 

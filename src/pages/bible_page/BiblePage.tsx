@@ -186,7 +186,7 @@ function BiblePage({
 			type: "chapter",
 			chapter,
 		});
-	}, [view_history, selected_bibles.bible]);
+	}, [view_history, selected_bibles.bible, awaiting_chapter_navigation]);
 
 	const handle_previous_chapter = useCallback(
 		() => handle_chapter_navigation("previous"),

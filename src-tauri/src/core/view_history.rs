@@ -1,8 +1,8 @@
-use std::{num::NonZeroU32, sync::Mutex};
+use std::num::NonZeroU32;
 
 use biblio_json::{core::{OsisBook, chapter_id::ChapterId}, modules::{EntryId, ModuleId}};
 use serde::{Deserialize, Serialize};
-use tauri::{AppHandle, Emitter, State};
+use tauri::{AppHandle, Emitter};
 
 use crate::{core::app_state::AppState, repr::{ChapterIdJson, searching::WordSearchQueryJson}};
 

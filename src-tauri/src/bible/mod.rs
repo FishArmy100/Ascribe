@@ -5,7 +5,7 @@ pub mod fetching;
 pub mod ref_id_parsing;
 pub mod printing;
 
-use std::{collections::HashSet, num::NonZeroU32, sync::{Arc, Mutex, RwLock}, thread::spawn};
+use std::{collections::HashSet, num::NonZeroU32, sync::{Arc, RwLock}, thread::spawn};
 
 use biblio_json::{self, Package, core::{Atom, ChapterId, RefIdInner}, modules::{ModuleId, ModuleType, bible::{BibleModule, BookInfo}}};
 use itertools::Itertools;
@@ -204,9 +204,15 @@ impl BibleInfo
             book: from.book(),
             chapter: from.chapter().unwrap_or(NonZeroU32::MIN),
         };
+
+        // If this is a book, it should be the last chapter of the book
         let to_chapter = ChapterId {
             book: to.book(),
-            chapter: to.chapter().unwrap_or(NonZeroU32::MIN),
+            chapter: to.chapter()
+                .unwrap_or(self.books.iter()
+                    .find(|b| b.osis_book == to.book())
+                    .map(|b| NonZeroU32::new(b.chapters.len() as u32).unwrap())
+                    .unwrap_or(NonZeroU32::MIN)),
         };
 
         if from_chapter == to_chapter
@@ -214,90 +220,97 @@ impl BibleInfo
             return vec![ref_id.clone()];
         }
 
-        let mut result = Vec::new();
-        let mut current_chapter = from_chapter;
-
-        loop
+        let Some(start_chapter_verse_count) = self.books.iter()
+            .find(|b| b.osis_book == from_chapter.book)
+            .and_then(|b| b.chapters.get(from_chapter.chapter.get() as usize - 1))
+            .and_then(|c| NonZeroU32::new(*c))
+        else  
         {
-            let is_last = current_chapter == to_chapter;
-
-            if current_chapter == from_chapter
-            {
-                match from.chapter()
-                {
-                    None => result.push(RefIdInner::Single(Atom::Chapter {
-                        book: current_chapter.book,
-                        chapter: current_chapter.chapter,
-                    })),
-                    Some(_) =>
-                    {
-                        let from_is_chapter_start = from.verse()
-                            .map(|v| v.get() == 1)
-                            .unwrap_or(true);
-
-                        if from_is_chapter_start && from.word().is_none()
-                        {
-                            result.push(RefIdInner::Single(Atom::Chapter {
-                                book: current_chapter.book,
-                                chapter: current_chapter.chapter,
-                            }));
-                        }
-                        else
-                        {
-                            result.push(RefIdInner::Range {
-                                from: *from,
-                                to: Atom::Chapter {
-                                    book: current_chapter.book,
-                                    chapter: current_chapter.chapter,
-                                },
-                            });
-                        }
-                    }
+            return vec![];    
+        };
+            
+        let start = match from {
+            Atom::Book { book } => RefIdInner::Single(Atom::Chapter { 
+                book: *book, 
+                chapter: from_chapter.chapter 
+            }),
+            Atom::Chapter { book, chapter } => RefIdInner::Single(Atom::Chapter { 
+                book: *book, 
+                chapter: *chapter
+            }),
+            Atom::Verse { book, chapter, verse } => RefIdInner::Range {
+                from: Atom::Verse { 
+                    book: *book, 
+                    chapter: *chapter,
+                    verse: *verse,
+                },
+                to: Atom::Verse { 
+                    book: *book, 
+                    chapter: *chapter,
+                    verse: start_chapter_verse_count,
                 }
-            }
-            else if is_last
-            {
-                match to.chapter()
-                {
-                    None => result.push(RefIdInner::Single(Atom::Chapter {
-                        book: current_chapter.book,
-                        chapter: current_chapter.chapter,
-                    })),
-                    Some(_) =>
-                    {
-                        let to_is_chapter_end = to.verse().is_none() && to.word().is_none();
-
-                        if to_is_chapter_end
-                        {
-                            result.push(RefIdInner::Single(Atom::Chapter {
-                                book: current_chapter.book,
-                                chapter: current_chapter.chapter,
-                            }));
-                        }
-                        else
-                        {
-                            result.push(RefIdInner::Range {
-                                from: Atom::Chapter {
-                                    book: current_chapter.book,
-                                    chapter: current_chapter.chapter,
-                                },
-                                to: *to,
-                            });
-                        }
-                    }
+            },
+            Atom::Word { book, chapter, verse, .. } => RefIdInner::Range {
+                from: Atom::Verse { 
+                    book: *book, 
+                    chapter: *chapter,
+                    verse: *verse,
+                },
+                to: Atom::Verse { 
+                    book: *book, 
+                    chapter: *chapter,
+                    verse: start_chapter_verse_count,
                 }
-                break;
-            }
-            else
-            {
-                result.push(RefIdInner::Single(Atom::Chapter {
-                    book: current_chapter.book,
-                    chapter: current_chapter.chapter,
-                }));
-            }
+            },
+        };
 
-            current_chapter = self.increment_chapter(current_chapter);
+        let end = match to {
+            Atom::Book { book } => RefIdInner::Single(Atom::Chapter { 
+                book: *book, 
+                chapter: to_chapter.chapter 
+            }),
+            Atom::Chapter { book, chapter } => RefIdInner::Single(Atom::Chapter { 
+                book: *book, 
+                chapter: *chapter
+            }),
+            Atom::Verse { book, chapter, verse } => RefIdInner::Range {
+                from: Atom::Verse { 
+                    book: *book, 
+                    chapter: *chapter,
+                    verse: NonZeroU32::MIN,
+                },
+                to: Atom::Verse { 
+                    book: *book, 
+                    chapter: *chapter,
+                    verse: *verse,
+                }
+            },
+            Atom::Word { book, chapter, verse, .. } => RefIdInner::Range {
+                from: Atom::Verse { 
+                    book: *book, 
+                    chapter: *chapter,
+                    verse: NonZeroU32::MIN,
+                },
+                to: Atom::Verse { 
+                    book: *book, 
+                    chapter: *chapter,
+                    verse: *verse,
+                }
+            },
+        };
+
+        let mut result = vec![];
+
+        result.push(start);
+
+        let dist = self.get_chapter_distance(from_chapter, to_chapter);
+        for i in 1..dist
+        {
+            let ch = self.offset_chapter(from_chapter, i);
+            result.push(RefIdInner::Single(Atom::Chapter { book: ch.book, chapter: ch.chapter }));
         }
+
+        result.push(end);
 
         result
     }
