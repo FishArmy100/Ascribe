@@ -4,7 +4,7 @@ import { fetch_backend_word_entries, get_module_entry_title, ModuleEntry } from 
 import { backend_fetch_verse_render_data, VerseRenderData } from "@interop/bible/render";
 import ModuleEntryRenderer from "@components/bible/ModuleEntryRenderer";
 import { HRefSrc } from "@interop/html_text";
-import PopoverBase from "./PopoverBase";
+import EntryPopoverBase from "./EntryPopoverBase";
 import { PopoverEntryData } from "./PopoverEntry";
 import { use_module_infos } from "@components/providers/ModuleInfoProvider";
 import { use_bible_infos } from "@components/providers/BibleInfoProvider";
@@ -107,7 +107,7 @@ export default function WordPopover({
         }
     }, [view_history, rendered_word]);
  
-    return <PopoverBase
+    return <EntryPopoverBase
         title={rendered_word ? `"${rendered_word}"` : ""}
         on_title_click={handle_title_clicked}
         pos={pos}

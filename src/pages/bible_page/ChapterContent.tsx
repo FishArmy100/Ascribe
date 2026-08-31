@@ -13,7 +13,12 @@ import { use_chapter_context_menu_options } from "@components/context_menu/chapt
 import { use_show_context_menu } from "@components/providers/ContextMenuProvider";
 import { use_verse_context_menu_options } from "@components/context_menu/verse_context_menu";
 
-type ChapterContentProps = {
+export type TranslationComparisonCallback = (pos: {
+	top: number;
+	left: number;
+}, v: bible.VerseId) => void;
+
+export type ChapterContentProps = {
     verses: RenderedVerseContent[],
     button_space: number,
     chapter: bible.ChapterId,
@@ -23,6 +28,7 @@ type ChapterContentProps = {
 	on_verse_clicked: VerseClickedCallback,
 	on_chapter_clicked: ChapterClickedCallback,
 	on_book_clicked: BookClickedCallback,
+	on_compare_translation: TranslationComparisonCallback,
     parallel_verses?: RenderedVerseContent[] | null,
     parallel_bible_info?: bible.BibleInfo | null,
     focused_range: { start: number, end: number } | null,
@@ -39,6 +45,7 @@ export default function ChapterContent({
 	on_verse_clicked,
 	on_chapter_clicked,
 	on_book_clicked,
+	on_compare_translation,
     parallel_verses,
     parallel_bible_info,
     focused_range,
@@ -234,6 +241,7 @@ export default function ChapterContent({
 					on_strongs_clicked={on_strongs_clicked}
 					on_verse_word_clicked={on_verse_word_clicked}
 					on_verse_clicked={on_verse_clicked}
+					on_compare_translation={on_compare_translation}
 					is_audio_focused={audio_index === index}
                 />
             ))}
@@ -252,6 +260,7 @@ type RowComponentProps = {
 	on_strongs_clicked: StrongsClickedCallback,
 	on_verse_word_clicked: VerseWordClickedCallback,
 	on_verse_clicked: VerseClickedCallback,
+	on_compare_translation: TranslationComparisonCallback,
 };
 
 // --- forwardRef so parent can attach a ref ---
@@ -267,6 +276,7 @@ const RowComponentBase = forwardRef<HTMLDivElement, RowComponentProps>((
 		on_strongs_clicked,
 		on_verse_word_clicked,
 		on_verse_clicked,
+		on_compare_translation,
     },
     ref
 	) => {
@@ -280,10 +290,30 @@ const RowComponentBase = forwardRef<HTMLDivElement, RowComponentProps>((
 
 			e.stopPropagation();
 			on_verse_clicked(pos, verse);
-		}, [on_verse_clicked])
+		}, [on_verse_clicked]);
+
+		const handle_translation_comparison_option_clicked = useCallback((verse: bible.VerseId, e: React.MouseEvent) => {
+			const target = e.target as HTMLElement;
+			const rect = target.getBoundingClientRect();
+			const pos = { top: rect.top, left: rect.left };
+
+			e.stopPropagation();
+			on_compare_translation(pos, verse);
+		}, [on_compare_translation])
 		
-		const context_menu_options = use_verse_context_menu_options(v.id, v.bible, handle_verse_context_option_clicked);
-		const parallel_context_menu_options = use_verse_context_menu_options(pv?.id ?? v.id, pv?.bible ?? v.bible, handle_verse_context_option_clicked);
+		const context_menu_options = use_verse_context_menu_options({
+			verse: v.id, 
+			bible: v.bible, 
+			on_inspect: handle_verse_context_option_clicked,
+			on_compare_translation: handle_translation_comparison_option_clicked
+		});
+
+		const parallel_context_menu_options = use_verse_context_menu_options({
+			verse: pv?.id ?? v.id,
+			bible: pv?.bible ?? v.bible,
+			on_inspect: handle_verse_context_option_clicked,
+			on_compare_translation: handle_translation_comparison_option_clicked
+		});
 		const show_context_menu = use_show_context_menu();
 
 		const handle_context_menu = useCallback((e: React.MouseEvent) => {

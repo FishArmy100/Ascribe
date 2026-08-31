@@ -5,7 +5,7 @@ import SmallerTextSection from "@components/SmallerTextSection";
 import { ModuleEntryRef } from "@interop/module_entry";
 
 
-export type PopoverBaseProps = {
+export type EntryPopoverBaseProps = {
     title: string | null,
     on_title_click?: (() => void),
     pos: {top: number, left: number} | null,
@@ -13,13 +13,13 @@ export type PopoverBaseProps = {
     entries: PopoverEntryData[],
 }
 
-export default function PopoverBase({
+export default function EntryPopoverBase({
     title,
     on_title_click,
     pos,
     on_close,
     entries,
-}: PopoverBaseProps): React.ReactElement
+}: EntryPopoverBaseProps): React.ReactElement
 {
     const popover_ref = useRef<HTMLDivElement>(null);
     const [corrected_pos, set_corrected_pos] = useState<{ top: number; left: number } | null>(pos);

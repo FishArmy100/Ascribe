@@ -5,7 +5,7 @@ import { fetch_backend_verse_entries, get_module_entry_title, ModuleEntry } from
 import React, { useEffect, useState } from "react";
 import { PopoverEntryData } from "./PopoverEntry";
 import ModuleEntryRenderer from "@components/bible/ModuleEntryRenderer";
-import PopoverBase from "./PopoverBase";
+import EntryPopoverBase from "./EntryPopoverBase";
 import { use_module_configs } from "@components/providers/ModuleConfigProvider";
 import { use_format_ref_id } from "@interop/bible/ref_id";
 import { use_bible_display_settings } from "@components/providers/BibleDisplaySettingsProvider";
@@ -55,7 +55,7 @@ export default function VersePopover({
 
     const title = verse ? format_verse_id(verse, bible_display_settings.bible_version) : "";
     
-    return <PopoverBase
+    return <EntryPopoverBase
         title={title}
         pos={pos}
         on_close={on_close}

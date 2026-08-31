@@ -8,8 +8,19 @@ import __t from "@fisharmy100/react-auto-i18n";
 import * as images from "@assets";
 import { backend_fetch_verse_render_data } from "@interop/bible/render";
 
+export type VerseContextMenuOptionsProps = {
+    verse: VerseId, 
+    bible: string, 
+    on_inspect: (verse: VerseId, e: React.MouseEvent) => void,
+    on_compare_translation: (verse: VerseId, e: React.MouseEvent) => void,
+}
 
-export function use_verse_context_menu_options(verse: VerseId, bible: string, on_inspect: (verse: VerseId, e: React.MouseEvent) => void): ContextMenuOption[]
+export function use_verse_context_menu_options({
+    verse,
+    bible,
+    on_inspect,
+    on_compare_translation,
+}: VerseContextMenuOptionsProps): ContextMenuOption[]
 {
     const { set_ranges } = use_bible_print_ranges();
     const view_history = use_view_history();
@@ -44,6 +55,14 @@ export function use_verse_context_menu_options(verse: VerseId, bible: string, on
             "Copy \"{{$verse}}\"",
             { verse: format_verse(verse, bible) }
         ),
+        translation_comparison_label: __t(
+            "context_menu.labels.trans_comp",
+            "Compare"
+        ),
+        translation_comparison_tooltip: __t(
+            "context_menu.tooltips.trans_comp",
+            "Compare between all available translations"
+        ),
     }), [format_verse, i18n]);
 
     const copy_verse = useCallback(async () => {
@@ -54,6 +73,15 @@ export function use_verse_context_menu_options(verse: VerseId, bible: string, on
 
     return useMemo((): ContextMenuOption[] => {
         return [
+            {
+                label: strings.translation_comparison_label,
+                tooltip: strings.translation_comparison_tooltip,
+                image: images.open_book,
+                on_click: e => {
+                    on_compare_translation(verse, e);
+                },
+                play_click_sfx: false,
+            },
             {
                 label: strings.inspect_verse_label,
                 tooltip: strings.inspect_verse_tooltip(verse, bible),

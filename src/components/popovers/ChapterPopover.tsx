@@ -5,7 +5,7 @@ import { fetch_backend_chapter_entries, get_module_entry_title, ModuleEntry } fr
 import React, { useEffect, useState } from "react";
 import { PopoverEntryData } from "./PopoverEntry";
 import ModuleEntryRenderer from "@components/bible/ModuleEntryRenderer";
-import PopoverBase from "./PopoverBase";
+import EntryPopoverBase from "./EntryPopoverBase";
 import { use_format_ref_id } from "@interop/bible/ref_id";
 import { use_module_configs } from "@components/providers/ModuleConfigProvider";
 import { use_bible_infos } from "@components/providers/BibleInfoProvider";
@@ -56,7 +56,7 @@ export default function ChapterPopover({
 
     const title = chapter ? `${get_book_display_name(bible_display_settings.bible_version, chapter.book)} ${chapter.chapter}` : "";
     
-    return <PopoverBase
+    return <EntryPopoverBase
         title={title}
         pos={pos}
         on_close={on_close}

@@ -239,6 +239,14 @@ function BiblePage({
 		})
 	}, []);
 
+	const handle_translation_comparison_click = useCallback((e: { top: number, left: number }, verse: bible.VerseId) => {
+		set_popover_data({
+			type: "trans_comp",
+			verse,
+			position: e
+		})
+	}, []);
+
 	const handle_ref_clicked = get_handle_ref_clicked_callback(set_bible_display_settings, bible_display_settings, view_history, () => {
 		set_popover_data(null)
 	});
@@ -289,6 +297,7 @@ function BiblePage({
 						on_verse_clicked={handle_verse_click}
 						on_chapter_clicked={handle_chapter_click}
 						on_book_clicked={handle_book_click}
+						on_compare_translation={handle_translation_comparison_click}
 					/>
 				) : (
 					<LoadingSpinner />
