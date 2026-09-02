@@ -30,7 +30,7 @@ Mostly a bugfix patch, also adding a better publication pipeline for windows
   - [x] Some daily readings not rendering properly in the readings display
   - [x] Some daily readings not being properly parsed into their chapter components in the audio player
 - [ ] New Features
-  - [ ] Translation comparison for verses
+  - [x] Translation comparison for verses
   - [x] Copy/Paste context menu for verses
   - [x] Open chapter/verse popover from their respective context menus
   - [ ] Spell check/suggestions for search page?
