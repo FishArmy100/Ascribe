@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MsixPackagingToolTemplate
+    xmlns="http://schemas.microsoft.com/appx/msixpackagingtool/template/2018">
+
+    <Settings
+        EnforceMicrosoftStoreVersioningRequirements="true" />
+
+    <SaveLocation
+        PackagePath="./packaging/ascribe-{{VERSION}}.msix" />
+
+    <Installer
+        Path="./src-tauri/target/release/bundle/msi/Ascribe_{{version}}_x64_en-US.msi" />
+
+    <PackageInformation
+        PackageName="FishArmy100.Ascribe"
+        PackageDisplayName="Ascribe"
+        PublisherName="CN={{038274C5-2AEA-40BD-898E-A5A464510D67}}"
+        PublisherDisplayName="FishArmy100"
+        Version="0.1.0.0" />
+
+</MsixPackagingToolTemplate>
