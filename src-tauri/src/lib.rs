@@ -10,6 +10,7 @@ pub mod tts;
 pub mod commands;
 pub mod sfx;
 pub mod reader;
+pub mod meta;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() 
