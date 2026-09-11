@@ -1,6 +1,6 @@
 set dotenv-load
 
-VERSION := "0.1.0"
+VERSION := "0.1.1"
 YEAR := `date +%Y`
 LANGUAGES := "spa_Latn swh_Latn"
 
@@ -41,6 +41,10 @@ update-version:
     sed 's/"version": "[^"]*"/"version": "{{VERSION}}"/' ./package.json > ./package.json.temp
     mv ./package.json.temp ./package.json
 
+    
+    sed 's/"version": "[^"]*"/"version": "{{VERSION}}"/' ./src-tauri/tauri.conf.json > ./src-tauri/tauri.conf.json.temp
+    mv ./src-tauri/tauri.conf.json.temp ./src-tauri/tauri.conf.json
+
     sed 's/^version = ".*"$/version = "{{VERSION}}"/' ./src-tauri/cargo.toml > ./src-tauri/cargo.toml.temp
     mv ./src-tauri/cargo.toml.temp ./src-tauri/cargo.toml 
 
@@ -80,10 +84,14 @@ translate:
         -b azure                                            \
         --azureKey $AZURE_KEY
 
-build: npm-install update-version gen-meta translate 
+build translate="true": npm-install update-version gen-meta
+    #!/usr/bin/env bash
+    if ["{{translate}}" = "true"]; then 
+        just translate 
+    fi 
     npm run tauri build
 
-msix: build gen-config
+msix translate="true": (build translate) gen-config
     powershell.exe -NoProfile -Command "MsixPackagingTool.exe create-package --template packaging/ConversionTemplate.xml -v"
 
 full-build: msix 
