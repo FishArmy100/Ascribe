@@ -1,4 +1,4 @@
-use std::{sync::{Mutex, mpsc}, thread::{self, JoinHandle}, time::Duration};
+use std::{sync::mpsc, thread::{self, JoinHandle}, time::Duration};
 
 use itertools::Itertools;
 use kira::{AudioManager, Decibels, Mapping, PlaybackRate, Tween, Tweenable, Value, modulator::tweener::{TweenerBuilder, TweenerHandle}, sound::{PlaybackState, static_sound::{StaticSoundData, StaticSoundHandle}}, track::{TrackBuilder, TrackHandle}};
@@ -6,7 +6,7 @@ use kira_pitcher::effect::pitch::PitcherBuilder;
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Emitter, Manager};
 
-use crate::{core::{app::AppState, utils::Shared}, tts::{TtsSettings, TtsAudioKey, TtsAudioLibrary}};
+use crate::{core::{app_state::AppStateInner, settings::AppSettings, utils::Shared}, tts::{TtsAudioKey, TtsAudioLibrary, TtsSettings}};
 
 pub const PLAYER_STATE_UPDATED_EVENT_NAME: &str = "player-state-updated";
 
@@ -375,5 +375,7 @@ impl TtsPlayerThreadInner
 
 fn get_tts_settings(app: &AppHandle) -> TtsSettings
 {
-    app.state::<Mutex<AppState>>().lock().unwrap().settings.tts_settings.clone()
+    app.state::<AppStateInner<AppSettings>>().visit(|settings| {
+        settings.tts_settings.clone()
+    })
 }

@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { Button, useTheme } from "@mui/material";
 import { use_settings } from "../providers/SettingsProvider";
 import * as images from "../../assets";
 import { BUTTON_BORDER_RADIUS, BUTTON_PADDING, BUTTON_SIZE } from "../core/ImageButton";
 import Tooltip from "../core/Tooltip";
 import use_search_bar_strings from "./search_bar_strings";
+import { play_sfx } from "@interop/sfx";
 
 
 export type SearchButtonProps = {
@@ -12,18 +13,23 @@ export type SearchButtonProps = {
 }
 
 export default function SearchButton({
-    on_click: onClick,
+    on_click,
 }: SearchButtonProps): React.ReactElement
 {
     const theme = useTheme();
     const strings = use_search_bar_strings();
+
+    const handle_click = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+        play_sfx("click")
+        on_click?.(e);
+    }, [on_click]) 
 
     return (
         <Tooltip
             tooltip={strings.search_tooltip}
         >
             <Button
-                onClick={onClick}
+                onClick={handle_click}
                 sx={{
                     backgroundColor: theme.palette.primary.light,
                     

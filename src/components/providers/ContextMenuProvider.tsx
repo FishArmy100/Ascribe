@@ -1,4 +1,5 @@
 import ContextMenu, { ContextMenuOption } from "@components/context_menu/ContextMenu"
+import { play_sfx } from "@interop/sfx";
 import React, { createContext, useCallback, useContext, useState } from "react"
 
 export type ShowContextMenuContextType = (e: React.MouseEvent, options: (ContextMenuOption | "divider")[]) => void;
@@ -19,6 +20,8 @@ export default function ContextMenuProvider({
     const handle_context_click = useCallback((e: React.MouseEvent, options: (ContextMenuOption | "divider")[]) => {
         e.preventDefault();
         e.stopPropagation();
+
+        play_sfx("toggle_panel");
 
         const pos = {
             top: e.clientY,

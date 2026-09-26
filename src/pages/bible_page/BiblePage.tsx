@@ -186,7 +186,7 @@ function BiblePage({
 			type: "chapter",
 			chapter,
 		});
-	}, [view_history, selected_bibles.bible]);
+	}, [view_history, selected_bibles.bible, awaiting_chapter_navigation]);
 
 	const handle_previous_chapter = useCallback(
 		() => handle_chapter_navigation("previous"),
@@ -235,6 +235,14 @@ function BiblePage({
 		set_popover_data({
 			type: "book",
 			book,
+			position: e
+		})
+	}, []);
+
+	const handle_translation_comparison_click = useCallback((e: { top: number, left: number }, verse: bible.VerseId) => {
+		set_popover_data({
+			type: "trans_comp",
+			verse,
 			position: e
 		})
 	}, []);
@@ -289,6 +297,7 @@ function BiblePage({
 						on_verse_clicked={handle_verse_click}
 						on_chapter_clicked={handle_chapter_click}
 						on_book_clicked={handle_book_click}
+						on_compare_translation={handle_translation_comparison_click}
 					/>
 				) : (
 					<LoadingSpinner />

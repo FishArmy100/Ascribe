@@ -4,13 +4,11 @@ pub mod word_search_parsing;
 pub mod context;
 pub mod module_searching;
 
-use std::sync::Mutex;
-
 use biblio_json::{core::OsisBook, modules::{ModuleId, bible::BibleModule}};
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, State};
 
-use crate::{bible::{BiblioJsonPackageHandle, book::ResolveBookNameError}, core::{app::AppState, view_history::{ViewHistoryEntry, update_view_history}}, repr::{ChapterIdJson, VerseIdJson}, searching::{search_type::SearchType, word_search_engine::WordQueryParseError}};
+use crate::{bible::{BibleDisplaySettings, BiblioJsonPackageHandle, book::ResolveBookNameError}, core::{app_state::AppState, view_history::{ViewHistory, ViewHistoryEntry, update_view_history}}, repr::{ChapterIdJson, VerseIdJson}, searching::{search_type::SearchType, word_search_engine::WordQueryParseError}};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -84,12 +82,12 @@ impl SearchParseError
 pub fn push_search_to_view_history(
     input_str: &str, 
     package: State<'_, BiblioJsonPackageHandle>, 
-    app_state: State<'_, Mutex<AppState>>,
+    settings: AppState<'_, BibleDisplaySettings>,
+    view_history: AppState<'_, ViewHistory>,
     handle: AppHandle,
 ) -> Option<String>
 {
-    let mut app_state = app_state.lock().unwrap();
-    let current_bible = app_state.bible_display_settings.bible_version.clone();
+    let current_bible = settings.visit(|s| s.bible_version.clone());
     
     let bible_module = package.visit(|p| {
         p.get_mod(&current_bible)
@@ -113,7 +111,7 @@ pub fn push_search_to_view_history(
     match parsed
     {
         SearchType::Chapter { book, chapter } => {
-            update_view_history(&mut app_state.view_history, &handle, |vh| {
+            update_view_history(view_history, &handle, |vh| {
                 vh.push_entry(ViewHistoryEntry::Chapter { chapter: ChapterIdJson {
                     book,
                     chapter,
@@ -121,7 +119,7 @@ pub fn push_search_to_view_history(
             });
         },
         SearchType::Verse { book, chapter, verse } => {
-            update_view_history(&mut app_state.view_history, &handle, |vh| {
+            update_view_history(view_history, &handle, |vh| {
                 vh.push_entry(ViewHistoryEntry::Verse { 
                     chapter: ChapterIdJson {
                         book,
@@ -133,7 +131,7 @@ pub fn push_search_to_view_history(
             });
         },
         SearchType::VerseRange { book, chapter, verse_start, verse_end } => {
-            update_view_history(&mut app_state.view_history, &handle, |vh| {
+            update_view_history(view_history, &handle, |vh| {
                 vh.push_entry(ViewHistoryEntry::Verse { 
                     chapter: ChapterIdJson {
                         book,
@@ -145,7 +143,7 @@ pub fn push_search_to_view_history(
             });
         },
         SearchType::WordSearch(query) => {
-            update_view_history(&mut app_state.view_history, &handle, |vh| {
+            update_view_history(view_history, &handle, |vh| {
                 vh.push_entry(ViewHistoryEntry::WordSearch { 
                     query: query.into(),
                     raw: Some(input_str.into()),
@@ -163,12 +161,12 @@ pub fn push_module_word_search_to_view_history(
     searched_modules: Vec<ModuleId>,
 
     package: State<'_, BiblioJsonPackageHandle>, 
-    app_state: State<'_, Mutex<AppState>>,
+    settings: AppState<'_, BibleDisplaySettings>,
+    view_history: AppState<'_, ViewHistory>,
     handle: AppHandle,
 ) -> Option<String>
 {
-    let mut app_state = app_state.lock().unwrap();
-    let current_bible = app_state.bible_display_settings.bible_version.clone();
+    let current_bible = settings.visit(|s| s.bible_version.clone());
     
     let bible_module = package.visit(|p| {
         p.get_mod(&current_bible)
@@ -192,7 +190,7 @@ pub fn push_module_word_search_to_view_history(
     match parsed
     {
         SearchType::Chapter { book, chapter } => {
-            update_view_history(&mut app_state.view_history, &handle, |vh| {
+            update_view_history(view_history, &handle, |vh| {
                 vh.push_entry(ViewHistoryEntry::Chapter { chapter: ChapterIdJson {
                     book,
                     chapter,
@@ -200,7 +198,7 @@ pub fn push_module_word_search_to_view_history(
             });
         },
         SearchType::Verse { book, chapter, verse } => {
-            update_view_history(&mut app_state.view_history, &handle, |vh| {
+            update_view_history(view_history, &handle, |vh| {
                 vh.push_entry(ViewHistoryEntry::Verse { 
                     chapter: ChapterIdJson {
                         book,
@@ -212,7 +210,7 @@ pub fn push_module_word_search_to_view_history(
             });
         },
         SearchType::VerseRange { book, chapter, verse_start, verse_end } => {
-            update_view_history(&mut app_state.view_history, &handle, |vh| {
+            update_view_history(view_history, &handle, |vh| {
                 vh.push_entry(ViewHistoryEntry::Verse { 
                     chapter: ChapterIdJson {
                         book,
@@ -224,7 +222,7 @@ pub fn push_module_word_search_to_view_history(
             });
         },
         SearchType::WordSearch(query) => {
-            update_view_history(&mut app_state.view_history, &handle, |vh| {
+            update_view_history(view_history, &handle, |vh| {
                 vh.push_entry(ViewHistoryEntry::ModuleWordSearch { 
                     query: query.into(),
                     raw: Some(input_str.into()),

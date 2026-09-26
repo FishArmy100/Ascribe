@@ -6,18 +6,15 @@ import ImageButton, { BUTTON_PADDING, BUTTON_SIZE } from "@components/core/Image
 import { use_app_i18n } from "@components/providers/LanguageProvider";
 import __t from "@fisharmy100/react-auto-i18n";
 import use_image_filter from "@utils/use_image_filter";
+import { TimerData } from "./audio_player_hooks/behavior_state_controller";
 
 export type TimerDisplayProps = {
-    total_seconds: number,
-    elapsed_seconds: number,
-    show: boolean,
+    timer: TimerData | null,
     on_reset: () => void,
 }
 
 export default function TimerDisplay({
-    total_seconds,
-    elapsed_seconds,
-    show,
+    timer,
     on_reset,
 }: TimerDisplayProps): React.ReactElement
 {
@@ -42,7 +39,7 @@ export default function TimerDisplay({
             }}
         >
             <AnimatePresence>
-                {show && (
+                {timer && (
                     <motion.div
                         initial={{ y: "100%" }}
                         animate={{ y: 0 }}
@@ -81,7 +78,7 @@ export default function TimerDisplay({
                                     color: theme.palette.primary.contrastText,
                                 }}
                             >
-                                {format_progress_text(elapsed_seconds, total_seconds)}
+                                {format_progress_text(timer.elapsed, timer.duration)}
                             </Typography>
                             <ImageButton 
                                 image={images.arrows_rotate}

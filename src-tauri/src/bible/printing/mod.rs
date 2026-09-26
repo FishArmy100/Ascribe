@@ -1,5 +1,4 @@
 pub mod printing_cmd;
-pub mod printing_state;
 pub mod print_bible_format;
 pub mod writer;
 pub mod fonts;
@@ -8,12 +7,32 @@ use biblio_json::core::VerseRangeIter;
 use biblio_json::modules::Module;
 use biblio_json::{Package, core::VerseId, modules::ModuleId};
 use itertools::Itertools;
+use serde::{Deserialize, Serialize};
 
 use crate::bible::printing::print_bible_format::PrintBibleFormat;
 use crate::bible::printing::writer::BiblePdfWriter;
 use crate::bible::render::{VerseRenderData, fetch_verse_render_data};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PrintBibleSettings
+{
+    pub ranges: Vec<PrintBibleRange>,
+    pub format: PrintBibleFormat
+}
+
+impl Default for PrintBibleSettings
+{
+    fn default() -> Self 
+    {
+        Self 
+        {
+            ranges: vec![],
+            format: PrintBibleFormat::default()
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PrintBibleRange
 {
     pub bible: ModuleId,

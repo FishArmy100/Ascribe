@@ -6,10 +6,11 @@ import * as utils from "../../utils"
 import { use_bible_display_settings } from "../../components/providers/BibleDisplaySettingsProvider";
 import { LangCode } from "@fisharmy100/react-auto-i18n";
 import { Atom, get_atom_chapter, get_atom_verse, get_atom_word, RefIdInner } from "./ref_id";
+import { useMemo } from "react";
 
 
 export * from "./book";
-export { fetch_backend_verse_render_data, backend_render_verses as backend_render_verse_words } from "./render";
+export { backend_fetch_verse_render_data as fetch_backend_verse_render_data, backend_render_verses as backend_render_verse_words } from "./render";
 
 export type ChapterId = {
     book: OsisBook,
@@ -61,6 +62,16 @@ export function use_format_verse_id(): (id: VerseId, bible: string | null, optio
 
         return formatted;
     };
+}
+
+export function use_current_bible(): BibleInfo
+{
+    const { bible_display_settings } = use_bible_display_settings();
+    const { bible_infos } = use_bible_infos();
+    
+    return useMemo(() => {
+        return bible_infos[bible_display_settings.bible_version]
+    }, [bible_display_settings, bible_infos])
 }
 
 export type CompType = -1 | 0 | 1;
@@ -225,6 +236,34 @@ export function get_book_info(bible: BibleInfo, book: OsisBook): BookInfo
     return info;
 }
 
+export function contains_book(bible: BibleInfo, book: OsisBook): boolean
+{
+    return bible.books.find(b => b.osis_book === book) !== undefined;
+}
+
+export function contains_chapter(bible: BibleInfo, chapter: ChapterId): boolean
+{
+    const book = bible.books.find(b => b.osis_book === chapter.book);
+    if (!book)
+        return false;
+
+    return book.chapters.length >= chapter.chapter;
+}
+
+export function contains_verse(bible: BibleInfo, verse: VerseId): boolean
+{
+    const book = bible.books.find(b => b.osis_book === verse.book);
+    if (!book)
+        return false;
+
+    if (book.chapters.length < verse.chapter)
+    {
+        return false;
+    }
+
+    return book.chapters[verse.chapter - 1] >= verse.verse;
+}
+
 export function increment_chapter(bible: BibleInfo, chapter: ChapterId): ChapterId
 {
     let book_index = bible.books.findIndex(b => b.osis_book === chapter.book);
@@ -387,7 +426,6 @@ export function get_chapter_verse_ids(bible: BibleInfo, chapter: ChapterId): Ver
         }
     })
 }
-
 export type SelectedVersions = {
     bible: BibleInfo,
     parallel: BibleInfo | null,

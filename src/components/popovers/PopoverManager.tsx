@@ -8,6 +8,7 @@ import VersePopover from "./VersePopover";
 import ChapterPopover from "./ChapterPopover";
 import BookPopover from "./BookPopover";
 import { play_sfx } from "@interop/sfx";
+import TranslationComparisonPopover from "./TranslationComparisonPopover";
 
 export type PopoverData = ({
     type: "strongs",
@@ -25,6 +26,9 @@ export type PopoverData = ({
 }| {
     type: "book",
     book: OsisBook,
+}| {
+    type: "trans_comp",
+    verse: VerseId,
 }) & { 
     position: { top: number, left: number },
 }
@@ -85,6 +89,12 @@ export default function PopoverManager({
         <BookPopover
             book={data && data.type === "book" ? data.book : null}
             pos={data && data.type === "book" ? data.position : null}
+            on_ref_clicked={on_ref_clicked}
+            on_close={on_close}
+        />
+        <TranslationComparisonPopover 
+            pos={data && data.type === "trans_comp" ? data.position : null}
+            verse={data && data.type === "trans_comp" ? data.verse : null}
             on_ref_clicked={on_ref_clicked}
             on_close={on_close}
         />

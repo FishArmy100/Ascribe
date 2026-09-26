@@ -63,6 +63,14 @@ impl<'a> WordSearchLexer<'a>
                 self.input.next();
                 WordSearchToken::Star
             }
+            Some('|') => {
+                self.input.next();
+                WordSearchToken::Or
+            }
+            Some('!') => {
+                self.input.next();
+                WordSearchToken::Not
+            }
             Some(_) =>
             {
                 let word = self.consume_word();

@@ -1,29 +1,49 @@
 use std::{fs, io::ErrorKind};
 
 use serde::{Deserialize, Serialize};
-use tauri::{Manager, Runtime, path::{BaseDirectory, PathResolver}};
+use tauri::{AppHandle, Manager, Runtime, path::BaseDirectory};
 
-use crate::{bible::BibleDisplaySettings, core::view_history::ViewHistory, reader::BibleReaderBehavior};
+use crate::{bible::{BibleDisplaySettings, printing::PrintBibleSettings}, core::{app_state::AppStateInner, view_history::ViewHistory}, reader::BibleReaderBehavior};
 
 use super::settings::AppSettings;
 
-const APP_SAVE_PATH: &str = "ascribe-data/app-save.json";
+const RELEASE_APP_SAVE_PATH: &str = "ascribe-data/app-save.json";
+const DEBUG_APP_SAVE_PATH: &str = "ascribe-data/app-save-debug.json";
+
+pub const APP_SAVE_PATH: &str = if cfg!(debug_assertions) { DEBUG_APP_SAVE_PATH } else { RELEASE_APP_SAVE_PATH };
 
 #[derive(Debug, Serialize, Deserialize, Default)]
 #[serde(rename_all = "snake_case")]
-pub struct AppState
+pub struct AppSaveState
 {
     pub settings: AppSettings,
+    #[serde(default)]
+    pub print_bible_settings: PrintBibleSettings,
     pub bible_display_settings: BibleDisplaySettings,
     pub view_history: ViewHistory,
     pub reader_behavior: BibleReaderBehavior,
 }
 
-impl AppState
+impl AppSaveState
 {
-    pub fn save<R>(&self, resolver: &PathResolver<R>) -> Result<(), String>
-        where R : Runtime
+    pub fn save(app: AppHandle) -> Result<(), String>
     {
+        let settings = app.state::<AppStateInner<AppSettings>>().clone_inner();
+        let print_bible_settings = app.state::<AppStateInner<PrintBibleSettings>>().clone_inner();
+        let bible_display_settings = app.state::<AppStateInner<BibleDisplaySettings>>().clone_inner();
+        let view_history = app.state::<AppStateInner<ViewHistory>>().clone_inner();
+        let reader_behavior = app.state::<AppStateInner<BibleReaderBehavior>>().clone_inner();
+
+        let state = Self {
+            settings,
+            print_bible_settings,
+            bible_display_settings,
+            view_history,
+            reader_behavior,
+        };
+
+        let resolver = app.path();
+
         let path = resolver.resolve(APP_SAVE_PATH, BaseDirectory::AppData)
             .map_err(|e| e.to_string())?;
 
@@ -35,30 +55,38 @@ impl AppState
                 .map_err(|e| e.to_string())?;
         }
 
-        let json = serde_json::to_string(self)
+        let json = serde_json::to_string(&state)
             .map_err(|e| e.to_string())?;
 
         fs::write(path, json).map_err(|e| e.to_string())
     }
 
-    pub fn load<R>(resolver: &PathResolver<R>) -> Result<Self, String>
-        where R : Runtime
+    pub fn load(app: AppHandle) -> Result<(), String>
     {
+        let resolver = app.path();
         let path = resolver.resolve(APP_SAVE_PATH, BaseDirectory::AppData)
             .map_err(|e| e.to_string())?;
 
-        match fs::read(path)
+        let state = match fs::read(path)
         {
             Ok(data) => {
                 let json = String::from_utf8(data).map_err(|e| e.to_string())?;
-                let state = serde_json::from_str::<AppState>(&json)
+                let state = serde_json::from_str::<AppSaveState>(&json)
                     .map_err(|e| e.to_string())?;
 
                 Ok(state)
             },
             Err(e) if e.kind() == ErrorKind::NotFound => Ok(Self::default()),
             Err(e) => Err(e.to_string())
-        }
+        }?;
+
+        app.manage(AppStateInner::new(state.settings));
+        app.manage(AppStateInner::new(state.print_bible_settings));
+        app.manage(AppStateInner::new(state.bible_display_settings));
+        app.manage(AppStateInner::new(state.view_history));
+        app.manage(AppStateInner::new(state.reader_behavior));
+
+        Ok(())
     }
 }
 
