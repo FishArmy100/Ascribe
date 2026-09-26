@@ -8,12 +8,31 @@ MSI_PATH := "./src-tauri/target/release/bundle/msi/Ascribe_" + VERSION + "_x64_e
 MSIX_PATH := "./packaging/ascribe-" + VERSION + ".msix"
 PACKAGE_NAME := "FishArmy100.Ascribe"
 PACKAGE_DISPLAY_NAME := "Ascribe"
-PUBLISHER_NAME := "{{$PUBLISHER}}"
+PUBLISHER_NAME := "$PUBLISHER"
 PUBLISHER_DISPLAY_NAME := "FishArmy100"
+
+# Cleans the rust backend
+clean-tauri:
+    cd src-tauri && cargo clean
+
+# Cleans npm
+clean-npm:
+    rm -rf node_modules
+    rm -rf dist
+
+# Cleans the packaging file
+clean-package:
+    rm -rf packaging
+
+# Completely cleans the entire project
+clean: clean-tauri clean-npm clean-package
+
+help:
+    just --list
 
 gen-config:
     #!/usr/bin/env bash
-    cat > "./packaging/ConversionTemplate.xml" << EOF
+    mkdir -p "./packaging" && cat > "./packaging/ConversionTemplate.xml" << EOF
     <?xml version="1.0" encoding="utf-8"?>
     <MsixPackagingToolTemplate
         xmlns="http://schemas.microsoft.com/appx/msixpackagingtool/template/2018">
@@ -91,7 +110,10 @@ build translate="true": npm-install update-version gen-meta
     fi 
     npm run tauri build
 
-msix translate="true": (build translate) gen-config
+msix-runner:
     powershell.exe -NoProfile -Command "MsixPackagingTool.exe create-package --template packaging/ConversionTemplate.xml -v"
 
-full-build: msix 
+msix translate="true": (build translate) gen-config msix-runner
+    
+
+full-build translate="true": (msix translate) 
