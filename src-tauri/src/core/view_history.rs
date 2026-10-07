@@ -1,16 +1,52 @@
-use std::num::NonZeroU32;
+use std::{collections::HashMap, num::NonZeroU32};
 
 use biblio_json::{core::{OsisBook, chapter_id::ChapterId}, modules::{EntryId, ModuleId}};
+use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Emitter};
 
-use crate::{core::app_state::AppState, repr::{ChapterIdJson, searching::WordSearchQueryJson}};
+use crate::{core::{app_state::AppState, utils::get_uuid}, repr::{ChapterIdJson, searching::WordSearchQueryJson}};
 
 pub const VIEW_HISTORY_CHANGED_EVENT_NAME: &str = "view-history-changed";
+
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub struct WindowPos
+{
+    pub x: f32,
+    pub y: f32,
+}
+
+impl WindowPos
+{
+    pub fn new(x: f32, y: f32) -> Self 
+    {
+        Self 
+        {
+            x,
+            y
+        }
+    }
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub struct ViewHistory
+{
+    windows: HashMap<String, WindowHistory>
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct WindowHistory
+{
+    id: String,
+    pos: WindowPos,
+    tabs: Vec<TabHistory>,
+    selected_tab: usize,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TabHistory
 {
     entries: Vec<ViewHistoryEntry>,
     index: usize,
@@ -18,7 +54,7 @@ pub struct ViewHistory
 
 impl ViewHistory
 {
-    // We can do this, because we know that the BibleDisplaySettings already default to the KJV which has Gen 1
+    // We can do this, because we know that the BibleDisplaySettings already defaults to the KJV which has Gen 1
     pub fn new() -> Self
     {
         let gen_1 = ChapterId {
@@ -30,63 +66,24 @@ impl ViewHistory
             chapter: gen_1.into(),
         };
 
-        Self {
-            entries: vec![entry],
-            index: 0,
-        }
-    }
-
-    pub fn push_entry(&mut self, entry: ViewHistoryEntry)
-    {
-        if *self.get_current() == entry { return; }
-
-        self.entries = self.entries.split_at(self.index + 1).0.into();
-        self.entries.push(entry);
-        self.index = self.entries.len() - 1;
-    }
-
-    pub fn clear(&mut self)
-    {
-        let last = self.entries[self.index].clone();
-        *self = Self::new();
-        self.push_entry(last);
-        self.index = 0;
-    }
-
-    pub fn index(&self) -> usize
-    {
-        self.index
-    }
-
-    pub fn set_index(&mut self, index: usize)
-    {
-        self.index = index.clamp(0, self.count() - 1);
-    }
-
-    pub fn count(&self) -> usize
-    {
-        self.entries.len()
-    }
-
-    pub fn retreat(&mut self)
-    {
-        if self.index > 0
+        let mut windows = HashMap::new();
+        let window_id = get_uuid();
+        windows.insert(window_id.clone(), WindowHistory {
+            id: window_id.clone(),
+            pos: WindowPos::new(0.0, 0.0),
+            tabs: vec![
+                TabHistory {
+                    entries: vec![entry],
+                    index: 0,
+                }
+            ],
+            selected_tab: 0,
+        });
+        
+        Self 
         {
-            self.index -= 1;
+            windows
         }
-    }
-
-    pub fn advance(&mut self)
-    {
-        if self.index < self.count() - 1
-        {
-            self.index += 1;
-        }
-    }
-
-    pub fn get_current(&self) -> &ViewHistoryEntry
-    {
-        &self.entries[self.index]
     }
 }
 
@@ -151,22 +148,39 @@ pub enum ViewHistoryEntry
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct WindowHistoryInfo
+{
+    pub id: String,
+    pub pos: WindowPos,
+    pub tabs: Vec<ViewHistoryEntry>,
+    pub selected: u32,
+    pub is_last: bool,
+    pub is_first: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ViewHistoryInfo
 {
-    pub all: Vec<ViewHistoryEntry>,
-    pub index: u32,
-    pub count: u32,
+    pub windows: Vec<WindowHistoryInfo>
 }
 
 impl ViewHistoryInfo
 {
-    pub fn from_history(history: &ViewHistory) -> Self 
+    pub fn new(history: &ViewHistory) -> Self 
     {
-        Self {
-            all: history.entries.clone(),
-            index: history.index() as u32,
-            count: history.count() as u32,
-        }
+        let windows = history.windows.values().map(|w| WindowHistoryInfo {
+            id: w.id.clone(),
+            pos: w.pos,
+            tabs: w.tabs.iter()
+                .map(|t| t.entries.first())
+                .filter_map(|e| e.cloned())
+                .collect_vec(),
+            selected: w.selected_tab as u32,
+            is_first: w.tabs[w.selected_tab].index == 0,
+            is_last: w.tabs[w.selected_tab].index >= w.tabs[w.selected_tab].entries.len() - 1,
+        }).collect_vec();
+
+        Self { windows }
     }
 }
 
@@ -181,18 +195,62 @@ pub struct ViewHistoryChangedEvent
 #[serde(rename_all = "snake_case", tag = "type")]
 pub enum ViewHistoryCommand 
 {
-    Push
+    NewWindow
     {
         entry: ViewHistoryEntry
     },
-    Clear,
-    Retreat,
-    Advance,
-    GetInfo,
-    SetIndex
+    NewTab
     {
-        index: u32,
-    }
+        window_id: String,
+        entry: ViewHistoryEntry,
+    },
+    PushEntry
+    {
+        window_id: String,
+        tab_index: u32,
+        entry: ViewHistoryEntry,
+    },
+    Back
+    {
+        window_id: String,
+        tab_index: u32,
+    },
+    Forward
+    {
+        window_id: String,
+        tab_index: u32,
+    },
+    CloseWindow
+    {
+        window_id: String,
+    },
+    CloseTab
+    {
+        window_id: String,
+        tab_index: u32,
+    },
+    SwapTabs
+    {
+        window_start: String,
+        tab_start: u32,
+        window_end: String,
+        tab_end: u32,
+    },
+    PushModWordSearch
+    {
+        window_id: String,
+        tab_index: u32,
+        search: String,
+    },
+    PushSearch
+    {
+        window_id: String,
+        tab_index: u32,
+        search: String, 
+        searched_modules: Vec<ModuleId>,
+    },
+    GetInfo,
+    ClearAll,
 }
 
 #[tauri::command(rename_all = "snake_case")]
@@ -202,58 +260,15 @@ pub fn run_view_history_command(
     command: ViewHistoryCommand
 ) -> Option<String>
 {
-    match command
-    {
-        ViewHistoryCommand::Push { entry } => {
-            update_view_history(view_history, &app_handle, move |vh| {
-                vh.push_entry(entry);
-            });
-
-            None
-        },
-        ViewHistoryCommand::Clear => {
-            update_view_history(view_history, &app_handle, |vh| {
-                vh.clear();
-            });
-
-            None
-        },
-        ViewHistoryCommand::Retreat => {
-            update_view_history(view_history, &app_handle, |vh| {
-                vh.retreat();
-            });
-
-            None
-        },
-        ViewHistoryCommand::Advance => {
-            update_view_history(view_history, &app_handle, |vh| {
-                vh.advance();
-            });
-
-            None
-        },
-        ViewHistoryCommand::GetInfo => {
-            view_history.visit(|view_history| {
-                let info = ViewHistoryInfo::from_history(view_history);
-                Some(serde_json::to_string(&info).unwrap())
-            })
-        },
-        ViewHistoryCommand::SetIndex { index } => {
-            update_view_history(view_history, &app_handle, |vh| {
-                vh.set_index(index as usize);
-            });
-
-            None
-        }
-    }
+    todo!()
 }
 
 pub fn update_view_history(view_history: AppState<'_, ViewHistory>, app_handle: &AppHandle, f: impl FnOnce(&mut ViewHistory))
 {
     view_history.visit(|view_history| {
-        let old = ViewHistoryInfo::from_history(&view_history);
+        let old = ViewHistoryInfo::new(&view_history);
         f(view_history);
-        let new = ViewHistoryInfo::from_history(&view_history);
+        let new = ViewHistoryInfo::new(&view_history);
 
         app_handle.emit(VIEW_HISTORY_CHANGED_EVENT_NAME, ViewHistoryChangedEvent {
             old,
