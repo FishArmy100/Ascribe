@@ -1,4 +1,4 @@
-use std::{collections::HashMap, num::NonZeroU32};
+use std::{collections::HashMap, num::NonZeroU32, todo, vec};
 
 use biblio_json::{core::{OsisBook, chapter_id::ChapterId}, modules::{EntryId, ModuleId}};
 use itertools::Itertools;
@@ -15,16 +15,18 @@ pub struct WindowPos
 {
     pub x: f32,
     pub y: f32,
+    pub screen_id: u32,
 }
 
 impl WindowPos
 {
-    pub fn new(x: f32, y: f32) -> Self 
+    pub fn new(x: f32, y: f32, screen_id: u32) -> Self 
     {
         Self 
         {
             x,
-            y
+            y,
+            screen_id,
         }
     }
 }
@@ -42,14 +44,14 @@ pub struct WindowHistory
     id: String,
     pos: WindowPos,
     tabs: Vec<TabHistory>,
-    selected_tab: usize,
+    selected_tab: u32,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TabHistory
 {
     entries: Vec<ViewHistoryEntry>,
-    index: usize,
+    index: u32,
 }
 
 impl ViewHistory
@@ -57,23 +59,14 @@ impl ViewHistory
     // We can do this, because we know that the BibleDisplaySettings already defaults to the KJV which has Gen 1
     pub fn new() -> Self
     {
-        let gen_1 = ChapterId {
-            book: OsisBook::Gen,
-            chapter: NonZeroU32::new(1).unwrap(),
-        };
-        
-        let entry = ViewHistoryEntry::Chapter {
-            chapter: gen_1.into(),
-        };
-
         let mut windows = HashMap::new();
         let window_id = get_uuid();
         windows.insert(window_id.clone(), WindowHistory {
             id: window_id.clone(),
-            pos: WindowPos::new(0.0, 0.0),
+            pos: WindowPos::new(0.0, 0.0, 0),
             tabs: vec![
                 TabHistory {
-                    entries: vec![entry],
+                    entries: vec![DEFAULT_ENTRY],
                     index: 0,
                 }
             ],
@@ -85,7 +78,174 @@ impl ViewHistory
             windows
         }
     }
+
+    
+    pub fn new_window(&mut self, pos: WindowPos, entry: ViewHistoryEntry) -> String 
+    {
+        let id = get_uuid();
+        self.windows.insert(id.clone(), WindowHistory { 
+            id: id.clone(), 
+            pos, 
+            tabs: vec![TabHistory {
+                entries: vec![entry],
+                index: 0,
+            }], 
+            selected_tab: 0,
+        });
+
+        id
+    }
+
+    pub fn new_tab(&mut self, window: &str, entry: ViewHistoryEntry) -> Option<u32>
+    {
+        let window = self.windows.get_mut(window)?;
+        window.tabs.push(TabHistory {
+            entries: vec![entry],
+            index: 0,
+        });
+
+        Some(window.tabs.len() as u32)
+    }
+
+    pub fn set_selected_tab(&mut self, window: &str, tab_index: u32) -> bool
+    {
+        let Some(window) = self.windows.get_mut(window) else {
+            return false;
+        };
+
+        if window.tabs.len() <= tab_index as usize
+        {
+            return false;
+        }
+
+        window.selected_tab = tab_index;
+        true
+    }
+
+    pub fn push_entry(&mut self, window: &str, tab_index: u32, entry: ViewHistoryEntry) -> bool
+    {
+        let Some(window) = self.windows.get_mut(window) else {
+            return false;
+        };
+        
+        let Some(tab) = window.tabs.get_mut(tab_index as usize) else {
+            return false;
+        };
+
+        tab.entries = tab.entries.iter()
+            .take(tab_index as usize + 1)
+            .cloned()
+            .collect();
+        tab.entries.push(entry);
+        true
+    }
+
+    pub fn back(&mut self, window: &str, tab_index: u32) -> bool
+    {
+        let Some(window) = self.windows.get_mut(window) else {
+            return false;
+        };
+        
+        let Some(tab) = window.tabs.get_mut(tab_index as usize) else {
+            return false;
+        };
+
+        if tab.index > 0
+        {
+            tab.index -= 1;
+            true
+        }
+        else 
+        {
+            false    
+        }
+    }
+
+    pub fn forward(&mut self, window: &str, tab_index: u32) -> bool
+    {
+        let Some(window) = self.windows.get_mut(window) else {
+            return false;
+        };
+        
+        let Some(tab) = window.tabs.get_mut(tab_index as usize) else {
+            return false;
+        };
+
+        if tab.index < tab.entries.len() as u32 - 1
+        {
+            tab.index += 1;
+            true
+        }
+        else 
+        {
+            false    
+        }
+    }
+
+    pub fn close_window(&mut self, window: &str) -> bool
+    {
+        self.windows.remove(window).is_some()
+    }
+
+    pub fn close_tab(&mut self, window: &str, tab_index: u32) -> bool
+    {
+        let Some(window) = self.windows.get_mut(window) else {
+            return false;
+        };
+
+        if !(tab_index < window.tabs.len() as u32)
+        {
+            return false;
+        }
+
+        window.tabs.remove(tab_index as usize);
+        true
+    }
+
+    pub fn swap_tabs(&mut self, start_window: &str, start_tab: u32, end_window: &str, end_tab: u32) -> bool
+    {
+        let [Some(start_window), Some(end_window)] = self.windows.get_disjoint_mut([start_window, end_window]) else {
+            return false;
+        };
+
+        let Some(start_tab) = start_window.tabs.get_mut(start_tab as usize) else {
+            return false;
+        };
+
+        let Some(end_tab) = end_window.tabs.get_mut(end_tab as usize) else {
+            return false;
+        };
+
+        std::mem::swap(start_tab, end_tab);
+        true
+    }
+
+    pub fn clear_all(&mut self)
+    {
+        for window in self.windows.values_mut()
+        {
+            for tab in &mut window.tabs
+            {
+                let last = tab.entries.last().unwrap_or(&DEFAULT_ENTRY).clone();
+                tab.entries = vec![last];
+                tab.index = 0;
+            }
+        }
+    }
 }
+
+const DEFAULT_ENTRY: ViewHistoryEntry =  {
+    let gen_1 = ChapterId {
+        book: OsisBook::Gen,
+        chapter: NonZeroU32::new(1).unwrap(),
+    };
+        
+    let entry = ViewHistoryEntry::Chapter {
+        chapter: ChapterIdJson { book: gen_1.book, chapter: gen_1.chapter },
+    };
+
+    entry
+};
 
 impl Default for ViewHistory
 {
@@ -153,7 +313,7 @@ pub struct WindowHistoryInfo
     pub id: String,
     pub pos: WindowPos,
     pub tabs: Vec<ViewHistoryEntry>,
-    pub selected: u32,
+    pub selected_tab: u32,
     pub is_last: bool,
     pub is_first: bool,
 }
@@ -172,12 +332,11 @@ impl ViewHistoryInfo
             id: w.id.clone(),
             pos: w.pos,
             tabs: w.tabs.iter()
-                .map(|t| t.entries.first())
-                .filter_map(|e| e.cloned())
+                .map(|t| t.entries[t.index as usize].clone())
                 .collect_vec(),
-            selected: w.selected_tab as u32,
-            is_first: w.tabs[w.selected_tab].index == 0,
-            is_last: w.tabs[w.selected_tab].index >= w.tabs[w.selected_tab].entries.len() - 1,
+            selected_tab: w.selected_tab as u32,
+            is_first: w.tabs[w.selected_tab as usize].index == 0,
+            is_last: w.tabs[w.selected_tab as usize].index >= w.tabs[w.selected_tab as usize].entries.len() as u32 - 1,
         }).collect_vec();
 
         Self { windows }
@@ -197,12 +356,18 @@ pub enum ViewHistoryCommand
 {
     NewWindow
     {
-        entry: ViewHistoryEntry
+        entry: ViewHistoryEntry,
+        pos: WindowPos,
     },
     NewTab
     {
         window_id: String,
         entry: ViewHistoryEntry,
+    },
+    SetSelectedTab 
+    {
+        window_id: String,
+        tab_index: u32,
     },
     PushEntry
     {
@@ -260,19 +425,116 @@ pub fn run_view_history_command(
     command: ViewHistoryCommand
 ) -> Option<String>
 {
-    todo!()
+    match command
+    {
+        ViewHistoryCommand::NewWindow { pos, entry } => {
+            let id = update_view_history(view_history, &app_handle, |view_history| {
+                view_history.new_window(pos, entry)
+            });
+            
+            Some(serde_json::to_string(&id).unwrap())
+        },
+        ViewHistoryCommand::NewTab { window_id, entry } => {
+            let index = update_view_history(view_history, &app_handle, |view_history| {
+                view_history.new_tab(&window_id, entry)
+            });
+            
+            Some(serde_json::to_string(&index).unwrap())
+        },
+        ViewHistoryCommand::SetSelectedTab { window_id, tab_index } => {
+            let result = update_view_history(view_history, &app_handle, |view_history| {
+                view_history.set_selected_tab(&window_id, tab_index)
+            });
+            
+            Some(serde_json::to_string(&result).unwrap())
+        },
+        ViewHistoryCommand::PushEntry { window_id, tab_index, entry } => {
+            let result = update_view_history(view_history, &app_handle, |view_history| {
+                view_history.push_entry(&window_id, tab_index, entry)
+            });
+            
+            Some(serde_json::to_string(&result).unwrap())
+        },
+        ViewHistoryCommand::Back { window_id, tab_index } => {
+            let result = update_view_history(view_history, &app_handle, |view_history| {
+                view_history.back(&window_id, tab_index)
+            });
+            
+            Some(serde_json::to_string(&result).unwrap())
+        },
+        ViewHistoryCommand::Forward { window_id, tab_index } => {
+            let result = update_view_history(view_history, &app_handle, |view_history| {
+                view_history.forward(&window_id, tab_index)
+            });
+            
+            Some(serde_json::to_string(&result).unwrap())
+        },
+        ViewHistoryCommand::CloseWindow { window_id } => {
+            let result = update_view_history(view_history, &app_handle, |view_history| {
+                view_history.close_window(&window_id)
+            });
+            
+            Some(serde_json::to_string(&result).unwrap())
+        },
+        ViewHistoryCommand::CloseTab { window_id, tab_index } => {
+            let result = update_view_history(view_history, &app_handle, |view_history| {
+                view_history.close_tab(&window_id, tab_index)
+            });
+            
+            Some(serde_json::to_string(&result).unwrap())
+        },
+        ViewHistoryCommand::SwapTabs { window_start, tab_start, window_end, tab_end } => {
+            let result = update_view_history(view_history, &app_handle, |view_history| {
+                view_history.swap_tabs(&window_start, tab_start, &window_end, tab_end)
+            });
+            
+            Some(serde_json::to_string(&result).unwrap())
+        },
+        ViewHistoryCommand::PushModWordSearch { window_id, tab_index, search } => {
+            let result = update_view_history(view_history, &app_handle, |view_history| {
+                "Todo".to_string()
+            });
+            
+            Some(serde_json::to_string(&result).unwrap())
+        },
+        ViewHistoryCommand::PushSearch { window_id, tab_index, search, searched_modules } => {
+            let result = update_view_history(view_history, &app_handle, |view_history| {
+                "Todo".to_string()
+            });
+            
+            Some(serde_json::to_string(&result).unwrap())
+        },
+        ViewHistoryCommand::GetInfo => {
+            let info = view_history.visit(|view_history| {
+                ViewHistoryInfo::new(view_history)
+            });
+
+            Some(serde_json::to_string(&info).unwrap())
+        },
+        ViewHistoryCommand::ClearAll => {
+            update_view_history(view_history, &app_handle, |view_history| {
+                view_history.clear_all();
+            });
+            
+            None
+        },
+    }
 }
 
-pub fn update_view_history(view_history: AppState<'_, ViewHistory>, app_handle: &AppHandle, f: impl FnOnce(&mut ViewHistory))
+pub fn update_view_history<F, R>(view_history: AppState<'_, ViewHistory>, app_handle: &AppHandle, f: F) -> R
+where
+    F : FnOnce(&mut ViewHistory) -> R
 {
     view_history.visit(|view_history| {
         let old = ViewHistoryInfo::new(&view_history);
-        f(view_history);
+        let ret = f(view_history);
         let new = ViewHistoryInfo::new(&view_history);
 
         app_handle.emit(VIEW_HISTORY_CHANGED_EVENT_NAME, ViewHistoryChangedEvent {
             old,
             new,
         }).unwrap();
+
+        ret
     })
 }
