@@ -1,11 +1,11 @@
-use std::{collections::HashMap, num::NonZeroU32, todo, vec};
+use std::{collections::HashMap, num::NonZeroU32};
 
 use biblio_json::{core::{OsisBook, chapter_id::ChapterId}, modules::{EntryId, ModuleId}};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
-use tauri::{AppHandle, Emitter};
+use tauri::{AppHandle, Emitter, State};
 
-use crate::{core::{app_state::AppState, utils::get_uuid}, repr::{ChapterIdJson, searching::WordSearchQueryJson}};
+use crate::{bible::{BibleDisplaySettings, BiblioJsonPackageHandle}, core::{app_state::AppState, utils::get_uuid}, repr::{ChapterIdJson, searching::WordSearchQueryJson}, searching::search_type::SearchType};
 
 pub const VIEW_HISTORY_CHANGED_EVENT_NAME: &str = "view-history-changed";
 
@@ -220,6 +220,16 @@ impl ViewHistory
         true
     }
 
+    pub fn set_window_pos(&mut self, window: &str, pos: WindowPos) -> bool
+    {
+        let Some(window) = self.windows.get_mut(window) else {
+            return false;
+        };
+
+        window.pos = pos;
+        true
+    }
+
     pub fn clear_all(&mut self)
     {
         for window in self.windows.values_mut()
@@ -406,13 +416,18 @@ pub enum ViewHistoryCommand
         window_id: String,
         tab_index: u32,
         search: String,
+        searched_modules: Vec<ModuleId>,
     },
     PushSearch
     {
         window_id: String,
         tab_index: u32,
         search: String, 
-        searched_modules: Vec<ModuleId>,
+    },
+    SetWindowPos
+    {
+        window_id: String,
+        pos: WindowPos,
     },
     GetInfo,
     ClearAll,
@@ -422,7 +437,10 @@ pub enum ViewHistoryCommand
 pub fn run_view_history_command(
     app_handle: AppHandle, 
     view_history: AppState<'_, ViewHistory>, 
-    command: ViewHistoryCommand
+    package: State<'_, BiblioJsonPackageHandle>, 
+    settings: AppState<'_, BibleDisplaySettings>,
+
+    command: ViewHistoryCommand,
 ) -> Option<String>
 {
     match command
@@ -490,19 +508,143 @@ pub fn run_view_history_command(
             
             Some(serde_json::to_string(&result).unwrap())
         },
-        ViewHistoryCommand::PushModWordSearch { window_id, tab_index, search } => {
-            let result = update_view_history(view_history, &app_handle, |view_history| {
-                "Todo".to_string()
+        ViewHistoryCommand::PushModWordSearch { window_id, tab_index, search, searched_modules } => {
+            let current_bible = settings.visit(|s| s.bible_version.clone());
+
+            let bible_module = package.visit(|p| {
+                p.get_mod(&current_bible)
+                    .unwrap()
+                    .as_bible()
+                    .unwrap()
+                    .clone()
             });
+
+            let parsed = package.visit(|p| {
+                SearchType::parse(&search, &bible_module, p).map_err(|e| {
+                    Some(e.to_string(&bible_module))
+                })
+            });
+
+            let parsed = match parsed {
+                Ok(ok) => ok,
+                Err(err) => return err
+            };
+            
+            let result = match parsed
+            {
+                SearchType::Chapter { book, chapter } => {
+                    update_view_history(view_history, &app_handle, |vh| {
+                        vh.push_entry(&window_id, tab_index, ViewHistoryEntry::Chapter { chapter: ChapterIdJson {
+                            book,
+                            chapter,
+                        }})
+                    })
+                },
+                SearchType::Verse { book, chapter, verse } => {
+                    update_view_history(view_history, &app_handle, |vh| {
+                        vh.push_entry(&window_id, tab_index, ViewHistoryEntry::Verse { 
+                            chapter: ChapterIdJson {
+                                book,
+                                chapter,
+                            }, 
+                            start: verse, 
+                            end: None 
+                        })
+                    })
+                },
+                SearchType::VerseRange { book, chapter, verse_start, verse_end } => {
+                    update_view_history(view_history, &app_handle, |vh| {
+                        vh.push_entry(&window_id, tab_index, ViewHistoryEntry::Verse { 
+                            chapter: ChapterIdJson {
+                                book,
+                                chapter,
+                            }, 
+                            start: verse_start, 
+                            end: Some(verse_end)
+                        })
+                    })
+                },
+                SearchType::WordSearch(query) => {
+                    update_view_history(view_history, &app_handle, |vh| {
+                        vh.push_entry(&window_id, tab_index, ViewHistoryEntry::ModuleWordSearch { 
+                            query: query.into(),
+                            raw: Some(search.into()),
+                            page_index: 0,
+                            searched_modules,
+                        })
+                    })
+                },
+            };
             
             Some(serde_json::to_string(&result).unwrap())
+
         },
-        ViewHistoryCommand::PushSearch { window_id, tab_index, search, searched_modules } => {
-            let result = update_view_history(view_history, &app_handle, |view_history| {
-                "Todo".to_string()
+        ViewHistoryCommand::PushSearch { window_id, tab_index, search } => {
+            let current_bible = settings.visit(|s| s.bible_version.clone());
+            let bible_module = package.visit(|p| {
+                p.get_mod(&current_bible)
+                    .unwrap()
+                    .as_bible()
+                    .unwrap()
+                    .clone()
             });
-            
-            Some(serde_json::to_string(&result).unwrap())
+
+            let parsed = package.visit(|p| {
+                SearchType::parse(&search, &bible_module, p).map_err(|e| {
+                    Some(e.to_string(&bible_module))
+                })
+            });
+
+            let parsed = match parsed {
+                Ok(ok) => ok,
+                Err(err) => return err
+            };
+
+            match parsed
+            {
+                SearchType::Chapter { book, chapter } => {
+                    update_view_history(view_history, &app_handle, |vh| {
+                        vh.push_entry(&window_id, tab_index, ViewHistoryEntry::Chapter { chapter: ChapterIdJson {
+                            book,
+                            chapter,
+                        }})
+                    });
+                },
+                SearchType::Verse { book, chapter, verse } => {
+                    update_view_history(view_history, &app_handle, |vh| {
+                        vh.push_entry(&window_id, tab_index, ViewHistoryEntry::Verse { 
+                            chapter: ChapterIdJson {
+                                book,
+                                chapter,
+                            }, 
+                            start: verse, 
+                            end: None 
+                        });
+                    });
+                },
+                SearchType::VerseRange { book, chapter, verse_start, verse_end } => {
+                    update_view_history(view_history, &app_handle, |vh| {
+                        vh.push_entry(&window_id, tab_index, ViewHistoryEntry::Verse { 
+                            chapter: ChapterIdJson {
+                                book,
+                                chapter,
+                            }, 
+                            start: verse_start, 
+                            end: Some(verse_end)
+                        });
+                    });
+                },
+                SearchType::WordSearch(query) => {
+                    update_view_history(view_history, &app_handle, |vh| {
+                        vh.push_entry(&window_id, tab_index, ViewHistoryEntry::WordSearch { 
+                            query: query.into(),
+                            raw: Some(search.into()),
+                            page_index: 0,
+                        });
+                    });
+                },
+            }
+            None
         },
         ViewHistoryCommand::GetInfo => {
             let info = view_history.visit(|view_history| {
@@ -517,6 +659,13 @@ pub fn run_view_history_command(
             });
             
             None
+        },
+        ViewHistoryCommand::SetWindowPos { window_id, pos } => {
+            let result = update_view_history(view_history, &app_handle, |view_history| {
+                view_history.set_window_pos(&window_id, pos)
+            });
+
+            Some(serde_json::to_string(&result).unwrap())
         },
     }
 }

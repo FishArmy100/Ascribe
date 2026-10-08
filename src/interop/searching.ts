@@ -4,16 +4,6 @@ import { StrongsNumber } from "./bible/strongs";
 import { RenderedVerseContent } from "./bible/render";
 import { ModuleEntry } from "./module_entry";
 
-export async function backend_push_search_to_view_history(str: string): Promise<string | null>
-{
-    return await invoke("push_search_to_view_history", { input_str: str });
-}
-
-export async function backend_push_module_word_search_to_view_history(str: string, searched_modules: string[]): Promise<string | null>
-{
-    return await invoke("push_module_word_search_to_view_history", { input_str: str, searched_modules: searched_modules })
-}
-
 export type ModuleSearchHit = {
     entry: ModuleEntry,
     module: string,

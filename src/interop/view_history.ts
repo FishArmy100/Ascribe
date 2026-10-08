@@ -71,10 +71,23 @@ export type ViewHistoryEntry =
     | BiblePrinterEntry
     | InfoPageEntry
 
+export type WindowPos = {
+    x: number,
+    y: number,
+    screen_id: number,
+}
+
+export type WindowHistoryInfo = {
+    id: string,
+    pos: WindowPos,
+    tabs: ViewHistoryEntry[],
+    selected_tab: number,
+    is_last: boolean,
+    is_first: boolean,
+}
+
 export type ViewHistoryInfo = {
-    all: ViewHistoryEntry[],
-    index: number,
-    count: number,
+    windows: WindowHistoryInfo[],
 };
 
 export type ViewHistoryChangedEvent = {
@@ -82,62 +95,172 @@ export type ViewHistoryChangedEvent = {
     new: ViewHistoryInfo,
 };
 
-export async function push_backend_view_history_entry(entry: ViewHistoryEntry): Promise<void>
+export async function backend_vh_new_window(entry: ViewHistoryEntry, pos: WindowPos): Promise<string>
 {
-    return await invoke('run_view_history_command', {
+    const s = await invoke<string>("run_view_history_command", {
         command: {
-            type: 'push',
+            type: "new_window",
+            entry,
+            pos,
+        }
+    });
+    return JSON.parse(s);
+}
+
+export async function backend_vh_new_tab(window_id: string, entry: ViewHistoryEntry): Promise<number>
+{
+    const s = await invoke<string>("run_view_history_command", {
+        command: {
+            type: "new_tab",
+            window_id,
             entry,
         }
     });
+    return JSON.parse(s);
 }
 
-export async function clear_backend_view_history(): Promise<void>
+export async function backend_vh_set_selected_tab(window_id: string, tab_index: number): Promise<boolean>
 {
-    return await invoke('run_view_history_command', {
+    const s = await invoke<string>("run_view_history_command", {
         command: {
-            type: 'clear',
+            type: "new_tab",
+            window_id,
+            tab_index,
+        }
+    });
+    return JSON.parse(s);
+}
+
+export async function backend_vh_push_entry(window_id: string, tab_index: number, entry: ViewHistoryEntry): Promise<boolean>
+{
+    const s = await invoke<string>("run_view_history_command", {
+        command: {
+            type: "push_entry",
+            window_id,
+            tab_index,
+            entry,
+        }
+    });
+    return JSON.parse(s);
+}
+
+export async function backend_vh_back(window_id: string, tab_index: number): Promise<boolean>
+{
+    const s = await invoke<string>("run_view_history_command", {
+        command: {
+            type: "back",
+            window_id,
+            tab_index,
+        }
+    });
+    return JSON.parse(s);
+}
+
+export async function backend_vh_forward(window_id: string, tab_index: number): Promise<boolean>
+{
+    const s = await invoke<string>("run_view_history_command", {
+        command: {
+            type: "forward",
+            window_id,
+            tab_index,
+        }
+    });
+    return JSON.parse(s);
+}
+
+export async function backend_vh_close_window(window_id: string): Promise<boolean>
+{
+    const s = await invoke<string>("run_view_history_command", {
+        command: {
+            type: "close_window",
+            window_id,
+        }
+    });
+    return JSON.parse(s);
+}
+
+export async function backend_vh_close_tab(window_id: string, tab_index: number): Promise<boolean>
+{
+    const s = await invoke<string>("run_view_history_command", {
+        command: {
+            type: "close_tab",
+            window_id,
+            tab_index,
+        }
+    });
+    return JSON.parse(s);
+}
+
+export async function backend_vh_swap_tabs(window_start: string, tab_start: number, window_end: string, tab_end: string): Promise<boolean>
+{
+    const s = await invoke<string>("run_view_history_command", {
+        command: {
+            type: "swap_tabs",
+            window_start,
+            tab_start,
+            window_end,
+            tab_end,
+        }
+    });
+    return JSON.parse(s);
+}
+
+export async function backend_vh_push_mod_word_search(window_id: string, tab_index: number, search: string, searched_modules: string[]): Promise<boolean>
+{
+    const s = await invoke<string>("run_view_history_command", {
+        command: {
+            type: "push_mod_word_search",
+            window_id,
+            tab_index,
+            search,
+            searched_modules,
+        }
+    });
+    return JSON.parse(s);
+}
+
+export async function backend_vh_push_search(window_id: string, tab_index: number, search: string): Promise<boolean>
+{
+    const s = await invoke<string>("run_view_history_command", {
+        command: {
+            type: "push_search",
+            window_id,
+            tab_index,
+            search,
+        }
+    });
+    return JSON.parse(s);
+}
+
+export async function backend_vh_get_info(): Promise<ViewHistoryInfo>
+{
+    const s = await invoke<string>("run_view_history_command", {
+        command: {
+            type: "get_info",
+        }
+    });
+    return JSON.parse(s);
+}
+
+export async function backend_vh_clear_all(): Promise<void>
+{
+    await invoke<string>("run_view_history_command", {
+        command: {
+            type: "get_info",
         }
     });
 }
 
-export async function advance_backend_view_history(): Promise<void>
+export async function backend_vh_set_window_pos(window_id: string, pos: WindowPos): Promise<boolean>
 {
-    return await invoke('run_view_history_command', {
+    const s = await invoke<string>("run_view_history_command", {
         command: {
-            type: 'advance',
+            type: "set_window_pos",
+            window_id,
+            pos,
         }
     });
-}
-
-export async function retreat_backend_view_history(): Promise<void>
-{
-    return await invoke('run_view_history_command', {
-        command: {
-            type: 'retreat',
-        }
-    });
-}
-
-export async function get_backend_view_history_info(): Promise<ViewHistoryInfo>
-{
-    return await invoke<string>('run_view_history_command', {
-        command: {
-            type: 'get_info',
-        }
-    }).then(view_history_info => {
-        return JSON.parse(view_history_info);
-    });
-}
-
-export async function set_backend_view_history_index(index: number): Promise<void>
-{
-    return await invoke("run_view_history_command", {
-        command: {
-            type: "set_index",
-            index: index,
-        }
-    })
+    return JSON.parse(s);
 }
 
 export function listen_view_history_changed(listener: (e: ViewHistoryChangedEvent) => void): Promise<UnlistenFn>
