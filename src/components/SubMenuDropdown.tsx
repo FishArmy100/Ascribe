@@ -14,19 +14,19 @@ export default function SubMenuDropdown(): React.ReactElement
     const handle_selected = useCallback((value: SubMenuType) => {
         if (value === "settings")
         {
-            view_history.push({ type: "settings" });
+            view_history.push_entry({ type: "settings" });
         }
         else if (value === "module_inspector")
         {
-            view_history.push({ type: "module_list" });
+            view_history.push_entry({ type: "module_list" });
         }
         else if (value === "bible_printer")
         {
-            view_history.push({ type: "bible_printer" });
+            view_history.push_entry({ type: "bible_printer" });
         }
         else if (value === "info_page")
         {
-            view_history.push({ type: "info_page" });
+            view_history.push_entry({ type: "info_page" });
         }
         else 
         {

@@ -49,7 +49,7 @@ export default function ModuleWordSearchPaginator({
     const handle_page_clicked = useCallback((page: number) => {
         const copy = deep_copy(entry);
         copy.page_index = page;
-        view_history.push(copy)
+        view_history.push_entry(copy)
     }, [view_history, entry]);
 
     if (pages.length === 1) return <></>

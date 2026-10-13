@@ -31,7 +31,7 @@ export default function ModuleInspectorPaginator({
     const handle_page_clicked = useCallback((page: number) => {
         const copy = deep_copy(entry);
         copy.selector = { type: "page", index: page }
-        view_history.push(copy)
+        view_history.push_entry(copy)
     }, [view_history, entry]);
 
     useEffect(() => {

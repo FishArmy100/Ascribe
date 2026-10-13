@@ -108,7 +108,7 @@ function BiblePage({
 				}
 			}]);
 
-			view_history.push({
+			view_history.push_entry({
 				type: "bible_printer",
 			});
 		}
@@ -128,7 +128,7 @@ function BiblePage({
 				}
 			}]);
 
-			view_history.push({
+			view_history.push_entry({
 				type: "bible_printer",
 			});
 		}
@@ -182,7 +182,7 @@ function BiblePage({
 			? bible.increment_chapter(selected_bibles.bible, current_page.chapter)
 			: bible.decrement_chapter(selected_bibles.bible, current_page.chapter);
 
-		view_history.push({
+		view_history.push_entry({
 			type: "chapter",
 			chapter,
 		});

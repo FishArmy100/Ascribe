@@ -58,14 +58,14 @@ export default function ModuleListPageToolbar({
             <ImageButton
                 image={images.arrow_turn_left}
                 tooltip={strings.previous_page}
-                disabled={view_history.get_index() === 0}
-                on_click={() => view_history.retreat()}
+                disabled={view_history.can_go_back}
+                on_click={() => view_history.back()}
             />
             <ImageButton
                 image={images.arrow_turn_right}
                 tooltip={strings.next_page}
-                disabled={view_history.get_index() >= view_history.get_count() - 1}
-                on_click={() => view_history.advance()}
+                disabled={view_history.can_go_forward}
+                on_click={() => view_history.forward()}
             />
             
             <SubMenuDropdown />

@@ -24,7 +24,7 @@ export default function ReadingsChapterList({
         return get_book_display_name(bible_id, book);
     }, [get_book_display_name, bible_id]);
 
-    const { push: push_view_history_entry } = use_view_history()
+    const { push_entry: push_view_history_entry } = use_view_history()
 
     const chapters = readings.map(r => get_reading_chapters(r.id, bible_infos[bible_id])).flatMap(cs => cs);
 

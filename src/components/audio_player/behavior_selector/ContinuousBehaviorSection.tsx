@@ -20,13 +20,10 @@ export default function ContinuousBehaviorSection({
     const view_history = use_view_history();
 
     const get_current_chapter = useCallback((): ChapterId => {
-        let index = view_history.get_index();
-        while (index > 0) {
-            const entry = view_history.at(index);
-            if (entry.type === "chapter" || entry.type === "verse") {
-                return entry.chapter;
-            }
-            index -= 1;
+        let entry = view_history.get_current();
+        if (entry.type === "chapter" || entry.type === "verse") 
+        {
+            return entry.chapter;
         }
         return { book: "Gen", chapter: 1 };
     }, [view_history]);

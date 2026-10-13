@@ -20,7 +20,7 @@ export default function InfoPageToolbar(): React.ReactElement
     }), [i18n]);
 
     const handle_back_clicked = useCallback(() => {
-        view_history.retreat()
+        view_history.back()
     }, [view_history]);
 
     return (

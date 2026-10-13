@@ -12,7 +12,6 @@ import { use_bible_display_settings } from "@components/providers/BibleDisplaySe
 import { use_module_configs } from "@components/providers/ModuleConfigProvider";
 import { use_format_ref_id } from "@interop/bible/ref_id";
 import { use_view_history } from "@components/providers/ViewHistoryProvider";
-import { backend_push_search_to_view_history } from "@interop/searching";
 import { format_strongs } from "@interop/bible/strongs";
 import { play_sfx } from "@interop/sfx";
 
@@ -64,13 +63,13 @@ export default function WordPopover({
         if (e.type === "dictionary")
         {
             on_search = () => {
-                backend_push_search_to_view_history(e.term)
+                view_history.push_search(e.term)
             }
         }
         else if (e.type === "strongs_def")
         {
             on_search = () => {
-                backend_push_search_to_view_history(format_strongs(e.strongs_ref));
+                view_history.push_search(format_strongs(e.strongs_ref));
             }
         }
 
@@ -92,7 +91,7 @@ export default function WordPopover({
         if (rendered_word !== null)
         {
             play_sfx("click");
-            view_history.push({
+            view_history.push_entry({
                 type: "word_search",
                 query: {
                     ranges: [],

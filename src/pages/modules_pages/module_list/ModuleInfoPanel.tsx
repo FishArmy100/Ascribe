@@ -40,7 +40,7 @@ export default function ModuleInfoPanel({
             return;
         }
 
-        view_history.push({
+        view_history.push_entry({
             type: "module_inspector",
             module: info.id,
             selector: null,

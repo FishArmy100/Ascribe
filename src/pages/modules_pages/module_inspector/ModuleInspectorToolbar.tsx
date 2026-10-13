@@ -6,7 +6,6 @@ import { Divider } from "@mui/material";
 import React from "react";
 import * as images from "@assets";
 import ClosestBibleViewHistoryButton from "@components/ClosestBibleViewHistoryButton";
-import { backend_push_module_word_search_to_view_history } from "@interop/searching";
 import use_module_pages_strings from "../module_pages_strings";
 
 export type ModuleInspectorPageToolbarProps = {
@@ -33,7 +32,7 @@ export default function ModuleInspectorToolbar({
                 value={""} 
                 placeholder={strings.search_placeholder}
                 on_search={async (term: string) => { 
-                    const error = await backend_push_module_word_search_to_view_history(term, [module]);
+                    const error = await view_history.push_mod_word_search(term, [module]);
                     if (error !== null)
                     {
                         return {
@@ -57,14 +56,14 @@ export default function ModuleInspectorToolbar({
             <ImageButton
                 image={images.arrow_turn_left}
                 tooltip={strings.previous_page}
-                disabled={view_history.get_index() === 0}
-                on_click={() => view_history.retreat()}
+                disabled={view_history.can_go_back}
+                on_click={() => view_history.back()}
             />
             <ImageButton
                 image={images.arrow_turn_right}
                 tooltip={strings.next_page}
-                disabled={view_history.get_index() >= view_history.get_count() - 1}
-                on_click={() => view_history.advance()}
+                disabled={view_history.can_go_forward}
+                on_click={() => view_history.forward()}
             />
                 
             <SubMenuDropdown />

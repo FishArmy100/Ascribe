@@ -684,7 +684,6 @@ pub fn run_view_history_command(
                 },
             };
             
-            
             if !result
             {
                 Some(serde_json::to_string("Failed to find window").unwrap())

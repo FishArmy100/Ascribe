@@ -108,7 +108,7 @@ export function use_verse_context_menu_options({
                         to: verse,
                     }]);
 
-                    view_history.push({
+                    view_history.push_entry({
                         type: "bible_printer",
                     })
                 },

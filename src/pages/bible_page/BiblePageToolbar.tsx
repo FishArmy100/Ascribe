@@ -2,7 +2,6 @@ import { Divider } from "@mui/material";
 import { ChapterPicker, ImageButton, SearchBar, TopBar, VersionSelector } from "../../components";
 import { use_view_history } from "../../components/providers/ViewHistoryProvider";
 import { ViewHistoryEntry } from "../../interop/view_history";
-import { backend_push_search_to_view_history } from "../../interop/searching";
 import * as bible from "../../interop/bible"
 import * as images from "../../assets";
 import React, { useCallback, useEffect } from "react";
@@ -25,7 +24,7 @@ export const BiblePageToolbar = React.memo(function BiblePageToolbar({
 	const placeholder = get_placeholder_text(view_history.get_current(), selected_bible);
 
 	const on_select_callback = useCallback((c: bible.ChapterId) => {
-		view_history.push({
+		view_history.push_entry({
 			type: 'chapter',
 			chapter: c,
 		})
@@ -45,7 +44,7 @@ export const BiblePageToolbar = React.memo(function BiblePageToolbar({
 			/>
 			<SearchBar 
 				on_search={async (term) => {
-					const error = await backend_push_search_to_view_history(term);
+					const error = await view_history.push_search(term);
 
 					return {
 						is_error: error !== null,
@@ -61,14 +60,14 @@ export const BiblePageToolbar = React.memo(function BiblePageToolbar({
 			<ImageButton
 				image={images.arrow_turn_left}
 				tooltip={strings.nav_back_tooltip}
-				disabled={view_history.get_index() === 0}
-				on_click={() => view_history.retreat()}
+				disabled={view_history.can_go_back}
+				on_click={() => view_history.back()}
 			/>
 			<ImageButton
 				image={images.arrow_turn_right}
 				tooltip={strings.nav_forward_tooltip}
-				disabled={view_history.get_index() >= view_history.get_count() - 1}
-				on_click={() => view_history.advance()}
+				disabled={view_history.can_go_forward}
+				on_click={() => view_history.forward()}
 			/>
 			<ImageButton
 				image={images.volume_high}

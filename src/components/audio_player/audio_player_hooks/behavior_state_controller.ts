@@ -171,45 +171,36 @@ function use_readings_timer(reader_behavior: BibleReaderBehavior): TimerData | n
 function use_current_section_reading(): RefIdInner
 {
     const view_history = use_view_history();
-    const { bible_infos } = use_bible_infos();
-    const { bible_display_settings } = use_bible_display_settings();
-    const bible = bible_infos[bible_display_settings.bible_version];
 
     let inner: RefIdInner | null = null;
-    let index = view_history.get_index();
-    do 
-    {
-        const entry = view_history.at(index);
-        if (entry.type === "chapter") 
-        {
-            inner = {
-                type: "single",
-                atom: {
-                    type: "chapter",
-                    ...entry.chapter
-                }
-            };
-        }
-        else if (entry.type === "verse") 
-        {
-            inner = {
-                type: "range",
-                from: {
-                    type: "verse",
-                    ...entry.chapter,
-                    verse: entry.start,
-                },
-                to: {
-                    type: "verse",
-                    ...entry.chapter,
-                    verse: entry.end ?? entry.start,
-                }
-            };
-        }
 
-        index -= 1;
+    const entry = view_history.get_current();
+    if (entry.type === "chapter") 
+    {
+        inner = {
+            type: "single",
+            atom: {
+                type: "chapter",
+                ...entry.chapter
+            }
+        };
     }
-    while (inner === null && index > 0);
+    else if (entry.type === "verse") 
+    {
+        inner = {
+            type: "range",
+            from: {
+                type: "verse",
+                ...entry.chapter,
+                verse: entry.start,
+            },
+            to: {
+                type: "verse",
+                ...entry.chapter,
+                verse: entry.end ?? entry.start,
+            }
+        };
+    }
 
     if (inner === null) 
     {

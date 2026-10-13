@@ -320,7 +320,7 @@ function Anchor(props: AnchorProps): React.ReactElement
                 }}
                 onClick={() => {
                     play_sfx("click")
-                    view_history.push(props.entry)
+                    view_history.push_entry(props.entry)
                 }}
             >
                 {props.children}

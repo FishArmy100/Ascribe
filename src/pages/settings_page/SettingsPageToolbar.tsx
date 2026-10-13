@@ -12,7 +12,7 @@ export default function SettingsPageToolbar(): React.ReactElement
     const view_history = use_view_history();
 
     const handle_back_clicked = useCallback(() => {
-        view_history.retreat()
+        view_history.back()
     }, [view_history]);
 
     const strings = use_settings_page_strings();

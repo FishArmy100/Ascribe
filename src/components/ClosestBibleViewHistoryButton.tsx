@@ -10,19 +10,8 @@ export default function ClosestBibleViewHistoryButton(): React.ReactElement
 {
     const view_history = use_view_history();
 
-    const enabled = useMemo(() => {
-        return view_history.get_all().find(e => e.type === "chapter" || e.type === "verse" || e.type === "word_search") !== undefined
-    }, [view_history])
-
     const handle_click = useCallback(() => {
-        const entries = [...view_history.get_all()].reverse();
-        let reversedIndex = entries.findIndex(e => e.type === "chapter" || e.type === "verse" || e.type === "word_search");
-        const index = reversedIndex !== -1 ? entries.length - 1 - reversedIndex : -1;
-        
-        if (index !== -1)
-        {
-            view_history.set_index(index)
-        }
+        view_history.to_last_bible_entry();
     }, [view_history]);
 
     const i18n = use_app_i18n();
@@ -38,7 +27,6 @@ export default function ClosestBibleViewHistoryButton(): React.ReactElement
             image={images.book_arrow_up}
             tooltip={tooltip}
             on_click={handle_click}
-            disabled={!enabled}
         />
     )
 }

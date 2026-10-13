@@ -70,7 +70,7 @@ export function use_chapter_context_menu_options(chapter: ChapterId, bible: stri
                         },
                     }]);
 
-                    view_history.push({
+                    view_history.push_entry({
                         type: "bible_printer",
                     })
                 }

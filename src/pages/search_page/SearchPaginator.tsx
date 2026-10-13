@@ -51,7 +51,7 @@ export default function SearchPaginator({
         play_sfx("click")
         const entry_copy = deep_copy(entry);
         entry_copy.page_index = i;
-        view_history.push(entry_copy);
+        view_history.push_entry(entry_copy);
     }, [deep_copy, entry, view_history])
 
     return (

@@ -1,37 +1,35 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { ViewHistoryEntry, ViewHistoryInfo } from "../../interop/view_history";
-import * as view_history from "../../interop/view_history";
+import * as vh from "../../interop/view_history";
 import { get_atom_chapter, get_atom_verse, RefId } from "@interop/bible/ref_id";
-import { use_bible_display_settings } from "./BibleDisplaySettingsProvider";
 import { use_deep_copy } from "@utils/index";
 import { get_backend_bible_display_settings, OsisBook, set_backend_bible_display_settings } from "@interop/bible";
 
-const DEFAULT_VIEW_HISTORY_INFO: ViewHistoryInfo = {
-    all: [
-        {
-            type: 'chapter',
-            chapter: {
-                book: 'Gen',
-                chapter: 1,
-            }
-        }
-    ],
-    index: 0,
-    count: 1,
-}
-
 export interface ViewHistoryContextType 
 {
-    readonly get_current: () => ViewHistoryEntry,
-    readonly get_count: () => number,
-    readonly get_all: () => ViewHistoryEntry[],
-    readonly get_index: () => number,
-    readonly set_index: (index: number) => Promise<void>,
-    readonly advance: () => Promise<void>,
-    readonly retreat: () => Promise<void>,
-    readonly push: (e: ViewHistoryEntry) => Promise<void>,
-    readonly push_ref_id: (id: RefId) => Promise<void>,
-    readonly at: (index: number) => ViewHistoryEntry
+    new_window(entry: ViewHistoryEntry, pos: vh.WindowPos): Promise<string>
+    new_tab(entry: ViewHistoryEntry): Promise<number>
+    set_selected_tab(tab_index: number): Promise<boolean>
+    push_entry(entry: ViewHistoryEntry): Promise<boolean>
+    back(): Promise<boolean>
+    forward(): Promise<boolean>
+    close_window(): Promise<boolean>
+    close_tab(tab_index: number): Promise<boolean>
+    swap_tabs(window_start: string, tab_start: number, window_end: string, tab_end: string): Promise<boolean>
+    push_mod_word_search(search: string, searched_modules: string[]): Promise<string | null>
+    push_search(search: string): Promise<string | null>
+    clear_all(): Promise<void>
+    set_window_pos(pos: vh.WindowPos): Promise<boolean>,
+    push_ref_id(id: RefId): Promise<void>,
+    to_last_bible_entry(): Promise<boolean>,
+    readonly window_id: string,
+    readonly tab_index: number,
+    readonly can_go_back: boolean,
+    readonly can_go_forward: boolean,
+
+    get_info(): ViewHistoryInfo,
+    get_current(): ViewHistoryEntry
+
 }
 
 const ViewHistoryContext = createContext<ViewHistoryContextType | null>(null);
@@ -45,12 +43,21 @@ export function ViewHistoryProvider({
 }: ViewHistoryProviderProps): React.ReactElement
 {
     const [current, set_current] = useState<ViewHistoryInfo | null>(null);
+    const [window_id, set_window_id] = useState<string | null>(null);
+    const tab_index = useMemo(() => {
+        return current!.windows.find(w => w.id == window_id)!.selected_tab;
+    }, [current, window_id]);
+
+    const get_current = useCallback(() => {
+        return current!.windows.find(w => w.id == window_id)!.tabs[tab_index]
+    }, [window_id, tab_index, current]);
+
     const push_ref_id = use_push_ref_id();
 
     useEffect(() => {
-        view_history.get_backend_view_history_info().then(set_current);
+        vh.backend_vh_get_info().then(set_current);
 
-        const unlisten = view_history.listen_view_history_changed(event => {
+        const unlisten = vh.listen_view_history_changed(event => {
             set_current(event.new);
         });
 
@@ -58,35 +65,34 @@ export function ViewHistoryProvider({
             unlisten.then(f => f());
         }
     }, []);
-
-    const get_current = (): ViewHistoryEntry => current ? current.all[current.index] : DEFAULT_VIEW_HISTORY_INFO.all[0];
-
-    const get_count = () => current ? current.count : DEFAULT_VIEW_HISTORY_INFO.count;
-
-    const get_index = () => current ? current.index : DEFAULT_VIEW_HISTORY_INFO.index;
-
-    const get_all = () => current ? current.all : DEFAULT_VIEW_HISTORY_INFO.all;
-
-    const at = (index: number) => current ? current.all[index] : DEFAULT_VIEW_HISTORY_INFO.all[0]
     
-    const advance = async () => {
-        return view_history.advance_backend_view_history();
-    }
-
-    const retreat = async () => {
-        return view_history.retreat_backend_view_history();
-    }
-
-    const push = async (e: ViewHistoryEntry) => {
-        return view_history.push_backend_view_history_entry(e);
-    }
-
-    const set_index = async (index: number) => {
-        return view_history.set_backend_view_history_index(index);
-    }
+    const provider_value = useMemo((): ViewHistoryContextType => ({
+        new_window: vh.backend_vh_new_window,
+        new_tab: (entry) => vh.backend_vh_new_tab(window_id!, entry),
+        set_selected_tab: (idx) => vh.backend_vh_set_selected_tab(window_id!, idx),
+        push_entry: (entry) => vh.backend_vh_push_entry(window_id!, tab_index, entry),
+        back: () => vh.backend_vh_back(window_id!, tab_index),
+        forward: () => vh.backend_vh_forward(window_id!, tab_index),
+        close_window: () => vh.backend_vh_close_window(window_id!),
+        close_tab: (idx) => vh.backend_vh_close_tab(window_id!, idx),
+        swap_tabs: vh.backend_vh_swap_tabs,
+        push_mod_word_search: (search, mods) => vh.backend_vh_push_mod_word_search(window_id!, tab_index, search, mods),
+        push_search: (search) => vh.backend_vh_push_search(window_id!, tab_index, search),
+        clear_all: vh.backend_vh_clear_all,
+        set_window_pos: (pos) => vh.backend_vh_set_window_pos(window_id!, pos),
+        get_info: () => current!,
+        push_ref_id: (id) => push_ref_id(window_id!, tab_index, id),
+        window_id: window_id!,
+        tab_index,
+        
+        get_current,
+        to_last_bible_entry: () => vh.backend_vh_to_last_bible_page(window_id!, tab_index),
+        can_go_back: current!.windows.find(w => w.id == window_id)!.is_first,
+        can_go_forward: current!.windows.find(w => w.id == window_id)!.is_first,
+    }), [current, get_current, window_id, tab_index]);
 
     return (
-        <ViewHistoryContext.Provider value={{ get_current, get_count, get_index, set_index, get_all, advance, retreat, push, push_ref_id, at }}>
+        <ViewHistoryContext.Provider value={provider_value}>
             {children}
         </ViewHistoryContext.Provider>
     )
@@ -99,11 +105,11 @@ export function use_view_history(): ViewHistoryContextType
     return ctx;
 }
 
-function use_push_ref_id(): (id: RefId) => Promise<void>
+function use_push_ref_id(): (window_id: string, tab_index: number, id: RefId) => Promise<void>
 {
     const deep_copy = use_deep_copy();
     
-    return async (ref: RefId) => {
+    return async (window_id: string, tab_index: number, ref: RefId) => {
         const bible = ref.bible;
 
         const bible_version_state = await get_backend_bible_display_settings();
@@ -147,7 +153,7 @@ function use_push_ref_id(): (id: RefId) => Promise<void>
 
             if (verse_start !== null)
             {
-                await view_history.push_backend_view_history_entry({
+                await vh.backend_vh_push_entry(window_id, tab_index, {
                     type: "verse",
                     chapter: { book, chapter },
                     start: verse_start,
@@ -156,7 +162,7 @@ function use_push_ref_id(): (id: RefId) => Promise<void>
             }
             else 
             {
-                await view_history.push_backend_view_history_entry({
+                await vh.backend_vh_push_entry(window_id, tab_index, {
                     type: "chapter",
                     chapter: { book, chapter },
                 })
@@ -170,7 +176,7 @@ function use_push_ref_id(): (id: RefId) => Promise<void>
 
             if (verse !== null)
             {
-                await view_history.push_backend_view_history_entry({
+                await vh.backend_vh_push_entry(window_id, tab_index, {
                     type: "verse",
                     chapter: { book, chapter },
                     start: verse,
@@ -179,7 +185,7 @@ function use_push_ref_id(): (id: RefId) => Promise<void>
             }
             else 
             {
-                await view_history.push_backend_view_history_entry({
+                await vh.backend_vh_push_entry(window_id, tab_index, {
                     type: "chapter",
                     chapter: { book, chapter },
                 })

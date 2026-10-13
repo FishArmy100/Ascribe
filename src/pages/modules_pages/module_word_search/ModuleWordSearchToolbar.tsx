@@ -7,7 +7,7 @@ import React, { useMemo } from "react";
 import * as images from "@assets";
 import ClosestBibleViewHistoryButton from "@components/ClosestBibleViewHistoryButton";
 import { ModuleWordSearchEntry } from "@interop/view_history";
-import { backend_push_module_word_search_to_view_history, pretty_print_word_search_query } from "@interop/searching";
+import { pretty_print_word_search_query } from "@interop/searching";
 import { use_bible_infos } from "@components/providers/BibleInfoProvider";
 import use_module_pages_strings from "../module_pages_strings";
 
@@ -44,7 +44,7 @@ export default function ModuleWordSearchToolbar({
                 flexItem 
             />
             <SearchBar value={search_value} on_search={async (term: string) => { 
-                const error = await backend_push_module_word_search_to_view_history(term, entry.searched_modules);
+                const error = await view_history.push_mod_word_search(term, entry.searched_modules);
                 if (error !== null)
                 {
                     return {
@@ -67,14 +67,14 @@ export default function ModuleWordSearchToolbar({
             <ImageButton
                 image={images.arrow_turn_left}
                 tooltip={strings.previous_page}
-                disabled={view_history.get_index() === 0}
-                on_click={() => view_history.retreat()}
+                disabled={view_history.can_go_back}
+                on_click={() => view_history.back()}
             />
             <ImageButton
                 image={images.arrow_turn_right}
                 tooltip={strings.next_page}
-                disabled={view_history.get_index() >= view_history.get_count() - 1}
-                on_click={() => view_history.advance()}
+                disabled={view_history.can_go_forward}
+                on_click={() => view_history.forward()}
             />
                 
             <SubMenuDropdown />

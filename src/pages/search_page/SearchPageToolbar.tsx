@@ -25,7 +25,7 @@ export const SearchPageToolbar = React.memo(function SearchPageToolbar({
     const strings = use_search_page_strings();
 
     const on_select_callback = useCallback((c: bible.ChapterId) => {
-        view_history.push({
+        view_history.push_entry({
             type: 'chapter',
             chapter: c,
         })
@@ -43,7 +43,7 @@ export const SearchPageToolbar = React.memo(function SearchPageToolbar({
                     />
                 <SearchBar 
                     on_search={async (term) => {
-                        const error = await searching.backend_push_search_to_view_history(term);
+                        const error = await view_history.push_search(term);
 
                         return {
                             is_error: error !== null,
@@ -59,14 +59,14 @@ export const SearchPageToolbar = React.memo(function SearchPageToolbar({
                 <ImageButton
                     image={images.arrow_turn_left}
                     tooltip={strings.previous_page}
-                    disabled={view_history.get_index() === 0}
-                    on_click={() => view_history.retreat()}
+                    disabled={view_history.can_go_back}
+                    on_click={() => view_history.back}
                 />
                 <ImageButton
                     image={images.arrow_turn_right}
                     tooltip={strings.next_page}
-                    disabled={view_history.get_index() >= view_history.get_count() - 1}
-                    on_click={() => view_history.advance()}
+                    disabled={view_history.can_go_forward}
+                    on_click={() => view_history.forward()}
                 />
                 <Divider 
                     orientation="vertical" 

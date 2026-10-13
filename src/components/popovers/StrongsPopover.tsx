@@ -39,7 +39,7 @@ export default function StrongsPopover({
         if (strongs !== null)
         {
             play_sfx("click")
-            view_history.push({
+            view_history.push_entry({
                 type: "word_search",
                 query: {
                     ranges: [],

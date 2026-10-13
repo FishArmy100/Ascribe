@@ -146,7 +146,7 @@ function DictionaryEntryPanel({
     const title = entry.term.charAt(0).toLocaleUpperCase() + entry.term.substring(1);
 
     const handle_title_clicked = useCallback(() => {
-        view_history.push({
+        view_history.push_entry({
             type: "word_search",
             query: {
                 ranges: [],
@@ -263,7 +263,7 @@ function StrongsDefsEntryPanel({
     const view_history = use_view_history();
 
     const on_title_click = useCallback(() => {
-        view_history.push({
+        view_history.push_entry({
             type: "word_search",
             query: {
                 ranges: [],

@@ -113,23 +113,21 @@ export default function BehaviorTypeSelector({
                 }
             }))
         }
-        else if (type === "chapter_range") {
+        else if (type === "chapter_range") 
+        {
             let chapter: ChapterId | null = null;
-            let index = view_history.get_index();
-            do {
-                const entry = view_history.at(index);
-                if (entry.type === "chapter") {
-                    chapter = entry.chapter;
-                }
-                else if (entry.type === "verse") {
-                    chapter = entry.chapter;
-                }
-
-                index -= 1;
+            const entry = view_history.get_current();
+            if (entry.type === "chapter") 
+            {
+                chapter = entry.chapter;
             }
-            while (chapter === null && index > 0);
+            else if (entry.type === "verse") 
+            {
+                chapter = entry.chapter;
+            }
 
-            if (chapter === null) {
+            if (chapter === null) 
+            {
                 chapter = {
                     book: "Gen",
                     chapter: 1,
@@ -149,37 +147,31 @@ export default function BehaviorTypeSelector({
         else if (type === "current") 
         {
             let inner: RefIdInner | null = null;
-            let index = view_history.get_index();
-            do {
-                const entry = view_history.at(index);
-                if (entry.type === "chapter") {
-                    inner = {
-                        type: "single",
-                        atom: {
-                            type: "chapter",
-                            ...entry.chapter
-                        }
-                    };
-                }
-                else if (entry.type === "verse") {
-                    inner = {
-                        type: "range",
-                        from: {
-                            type: "verse",
-                            ...entry.chapter,
-                            verse: entry.start,
-                        },
-                        to: {
-                            type: "verse",
-                            ...entry.chapter,
-                            verse: entry.end ?? entry.start,
-                        }
-                    };
-                }
-
-                index -= 1;
+            const entry = view_history.get_current();
+            if (entry.type === "chapter") {
+                inner = {
+                    type: "single",
+                    atom: {
+                        type: "chapter",
+                        ...entry.chapter
+                    }
+                };
             }
-            while (inner === null && index > 0);
+            else if (entry.type === "verse") {
+                inner = {
+                    type: "range",
+                    from: {
+                        type: "verse",
+                        ...entry.chapter,
+                        verse: entry.start,
+                    },
+                    to: {
+                        type: "verse",
+                        ...entry.chapter,
+                        verse: entry.end ?? entry.start,
+                    }
+                };
+            }
 
             if (inner === null) {
                 inner = {
@@ -203,21 +195,18 @@ export default function BehaviorTypeSelector({
         }
         else if (type === "continuous") {
             let chapter: ChapterId | null = null;
-            let index = view_history.get_index();
-            do {
-                const entry = view_history.at(index);
-                if (entry.type === "chapter") {
-                    chapter = entry.chapter;
-                }
-                else if (entry.type === "verse") {
-                    chapter = entry.chapter;
-                }
-
-                index -= 1;
+            const entry = view_history.get_current();
+            if (entry.type === "chapter") 
+            {
+                chapter = entry.chapter;
             }
-            while (chapter === null && index > 0);
+            else if (entry.type === "verse") 
+            {
+                chapter = entry.chapter;
+            }
 
-            if (chapter === null) {
+            if (chapter === null) 
+            {
                 chapter = {
                     book: "Gen",
                     chapter: 1,

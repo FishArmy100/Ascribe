@@ -3,7 +3,6 @@ import { use_view_history, ViewHistoryContextType } from "@components/providers/
 import * as bible from "@interop/bible";
 import { format_strongs } from "@interop/bible/strongs";
 import { HRefSrc } from "@interop/html_text";
-import { backend_push_module_word_search_to_view_history, backend_push_search_to_view_history } from "@interop/searching";
 import { useCallback, useEffect, useRef } from "react";
 
 export function use_handle_href_clicked_callback(): (href: HRefSrc) => void 
@@ -79,7 +78,7 @@ export function get_handle_ref_clicked_callback(
 					if (start_verse !== null) 
 					{
 						const chapter = id.from.chapter;
-						view_history.push({
+						view_history.push_entry({
 							type: "verse",
 							chapter: { book, chapter },
 							start: start_verse,
@@ -88,7 +87,7 @@ export function get_handle_ref_clicked_callback(
 					}
 					else 
 					{
-						view_history.push({
+						view_history.push_entry({
 							type: "chapter",
 							chapter: { book, chapter: 1 }
 						});
@@ -99,7 +98,7 @@ export function get_handle_ref_clicked_callback(
 					const atom = id.from;
 					const book = atom.book;
 					if (atom.type === "book") {
-						view_history.push({
+						view_history.push_entry({
 							type: "chapter",
 							chapter: { book, chapter: 1 }
 						});
@@ -107,7 +106,7 @@ export function get_handle_ref_clicked_callback(
 					else if (atom.type === "chapter") 
 					{
 						const chapter = atom.chapter;
-						view_history.push({
+						view_history.push_entry({
 							type: "chapter",
 							chapter: { book, chapter }
 						});
@@ -117,7 +116,7 @@ export function get_handle_ref_clicked_callback(
 						const chapter = atom.chapter;
 						const verse = atom.verse;
 
-						view_history.push({
+						view_history.push_entry({
 							type: "verse",
 							chapter: { book, chapter },
 							start: verse,
@@ -130,14 +129,14 @@ export function get_handle_ref_clicked_callback(
 			{
 				const book = id.atom.book;
 				if (id.atom.type === "book") {
-					view_history.push({
+					view_history.push_entry({
 						type: "chapter",
 						chapter: { book, chapter: 1 }
 					});
 				}
 				else if (id.atom.type === "chapter") {
 					const chapter = id.atom.chapter;
-					view_history.push({
+					view_history.push_entry({
 						type: "chapter",
 						chapter: { book, chapter }
 					});
@@ -147,7 +146,7 @@ export function get_handle_ref_clicked_callback(
 					const chapter = id.atom.chapter;
 					const verse = id.atom.verse;
 
-					view_history.push({
+					view_history.push_entry({
 						type: "verse",
 						chapter: { book, chapter },
 						start: verse,
@@ -158,7 +157,7 @@ export function get_handle_ref_clicked_callback(
 		}
 		else if (href.type === "module_ref")
 		{
-			view_history.push({
+			view_history.push_entry({
 				type: "module_inspector",
 				module: href.module,
 				selector: { type: "entry", id: href.entry_id},
@@ -166,7 +165,7 @@ export function get_handle_ref_clicked_callback(
 		}
 		else
 		{
-			backend_push_search_to_view_history(format_strongs(href.strongs))
+			view_history.push_search(format_strongs(href.strongs))
 		}
 	};
 }

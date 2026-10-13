@@ -1,9 +1,9 @@
 import ConfirmPopup from "@components/ConfirmPopup";
 import TextButton from "@components/core/TextButton";
 import { use_app_i18n } from "@components/providers/LanguageProvider";
+import { use_view_history } from "@components/providers/ViewHistoryProvider";
 import __t from "@fisharmy100/react-auto-i18n";
 import { backend_open_save_path } from "@interop/index";
-import { clear_backend_view_history } from "@interop/view_history";
 import { Paper, Stack, Typography, useTheme } from "@mui/material";
 import React, { useMemo, useState } from "react";
 
@@ -11,6 +11,7 @@ export default function AdvancedButtons(): React.ReactElement
 {
     const theme = useTheme();
     const i18n = use_app_i18n();
+    const view_history = use_view_history();
     const strings = useMemo(() => ({
         title: __t(
             "pages.settings_page.advanced_buttons.title",
@@ -106,7 +107,7 @@ export default function AdvancedButtons(): React.ReactElement
                 on_cancel={() => set_show_confirm_clear_view_history(false)}
                 on_confirm={() => {
                     set_show_confirm_clear_view_history(true);
-                    clear_backend_view_history()
+                    view_history.clear_all();
                 }}
             />
         </>

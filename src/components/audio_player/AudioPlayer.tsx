@@ -70,55 +70,40 @@ export default function AudioPlayer({
         if (controller.behavior.type === "current")
         {
             let inner: RefIdInner | null = null;
-            let index = view_history.get_index();
-            do 
-            {
-                const entry = view_history.at(index);
-                if (entry.type === "chapter") 
-                {
-                    inner = {
-                        type: "single",
-                        atom: {
-                            type: "chapter",
-                            ...entry.chapter
-                        }
-                    };
-                }
-                else if (entry.type === "verse") 
-                {
-                    inner = {
-                        type: "range",
-                        from: {
-                            type: "verse",
-                            ...entry.chapter,
-                            verse: entry.start,
-                        },
-                        to: {
-                            type: "verse",
-                            ...entry.chapter,
-                            verse: entry.end ?? entry.start,
-                        }
-                    };
-                }
-
-                index -= 1;
-            }
-            while (inner === null && index > 0);
-
-            if (inner === null) 
+            const entry = view_history.get_current();
+            if (entry.type === "chapter") 
             {
                 inner = {
                     type: "single",
                     atom: {
                         type: "chapter",
-                        book: "Gen",
-                        chapter: 1
+                        ...entry.chapter
                     }
-                }
+                };
+            }
+            else if (entry.type === "verse") 
+            {
+                inner = {
+                    type: "range",
+                    from: {
+                        type: "verse",
+                        ...entry.chapter,
+                        verse: entry.start,
+                    },
+                    to: {
+                        type: "verse",
+                        ...entry.chapter,
+                        verse: entry.end ?? entry.start,
+                    }
+                };
+            }
+            else
+            {
+                view_history.to_last_bible_entry();
+                return;
             }
 
             const copy = deep_copy(controller.behavior);
-            copy.ref_id = inner;
             if (stringify(controller.behavior.ref_id) !== stringify(copy.ref_id))
             {
                 controller.set_behavior(copy);

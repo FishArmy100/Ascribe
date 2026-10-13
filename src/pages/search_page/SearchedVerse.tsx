@@ -40,7 +40,7 @@ export default function SearchedVerse({
 
     const on_verse_clicked = useCallback(() => {
         play_sfx("click");
-        view_history.push({
+        view_history.push_entry({
             type: "verse",
             chapter: { book: verse.book, chapter: verse.chapter },
             start: verse.verse,

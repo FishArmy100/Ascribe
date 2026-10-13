@@ -205,7 +205,7 @@ export async function backend_vh_swap_tabs(window_start: string, tab_start: numb
     return JSON.parse(s);
 }
 
-export async function backend_vh_push_mod_word_search(window_id: string, tab_index: number, search: string, searched_modules: string[]): Promise<boolean>
+export async function backend_vh_push_mod_word_search(window_id: string, tab_index: number, search: string, searched_modules: string[]): Promise<string | null>
 {
     const s = await invoke<string>("run_view_history_command", {
         command: {
@@ -219,7 +219,7 @@ export async function backend_vh_push_mod_word_search(window_id: string, tab_ind
     return JSON.parse(s);
 }
 
-export async function backend_vh_push_search(window_id: string, tab_index: number, search: string): Promise<boolean>
+export async function backend_vh_push_search(window_id: string, tab_index: number, search: string): Promise<string | null>
 {
     const s = await invoke<string>("run_view_history_command", {
         command: {
@@ -258,6 +258,18 @@ export async function backend_vh_set_window_pos(window_id: string, pos: WindowPo
             type: "set_window_pos",
             window_id,
             pos,
+        }
+    });
+    return JSON.parse(s);
+}
+
+export async function backend_vh_to_last_bible_page(window_id: string, tab_index: number): Promise<boolean>
+{
+    const s = await invoke<string>("run_view_history_command", {
+        command: {
+            type: "to_last_bible_page",
+            window_id,
+            tab_index,
         }
     });
     return JSON.parse(s);
