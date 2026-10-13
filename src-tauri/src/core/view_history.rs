@@ -242,6 +242,32 @@ impl ViewHistory
             }
         }
     }
+
+    pub fn to_last_bible_entry(&mut self, window: &str, tab_index: u32) -> bool
+    {
+        let Some(window) = self.windows.get_mut(window) else {
+            return false;
+        };
+        
+        let Some(tab) = window.tabs.get_mut(tab_index as usize) else {
+            return false;
+        };
+
+        if let Some(index) = tab.entries.iter().enumerate().rev().find_map(|(i, e)| match e {
+            ViewHistoryEntry::Chapter { .. } => Some(i),
+            ViewHistoryEntry::Verse { .. } => Some(i),
+            _ => None
+        })
+        {
+            tab.index = index as u32;
+        }
+        else 
+        {
+            tab.entries.insert(0, DEFAULT_ENTRY);
+        }
+
+        true
+    }
 }
 
 const DEFAULT_ENTRY: ViewHistoryEntry =  {
@@ -431,6 +457,11 @@ pub enum ViewHistoryCommand
     },
     GetInfo,
     ClearAll,
+    ToLastBibleEntry
+    {
+        window_id: String,
+        tab_index: u32,
+    },
 }
 
 #[tauri::command(rename_all = "snake_case")]
@@ -575,8 +606,16 @@ pub fn run_view_history_command(
                     })
                 },
             };
+
+            if !result
+            {
+                Some(serde_json::to_string("Failed to find window").unwrap())
+            }
+            else
+            {
+                None
+            }
             
-            Some(serde_json::to_string(&result).unwrap())
 
         },
         ViewHistoryCommand::PushSearch { window_id, tab_index, search } => {
@@ -600,7 +639,7 @@ pub fn run_view_history_command(
                 Err(err) => return err
             };
 
-            match parsed
+            let result = match parsed
             {
                 SearchType::Chapter { book, chapter } => {
                     update_view_history(view_history, &app_handle, |vh| {
@@ -608,7 +647,7 @@ pub fn run_view_history_command(
                             book,
                             chapter,
                         }})
-                    });
+                    })
                 },
                 SearchType::Verse { book, chapter, verse } => {
                     update_view_history(view_history, &app_handle, |vh| {
@@ -619,8 +658,8 @@ pub fn run_view_history_command(
                             }, 
                             start: verse, 
                             end: None 
-                        });
-                    });
+                        })
+                    })
                 },
                 SearchType::VerseRange { book, chapter, verse_start, verse_end } => {
                     update_view_history(view_history, &app_handle, |vh| {
@@ -631,8 +670,8 @@ pub fn run_view_history_command(
                             }, 
                             start: verse_start, 
                             end: Some(verse_end)
-                        });
-                    });
+                        })
+                    })
                 },
                 SearchType::WordSearch(query) => {
                     update_view_history(view_history, &app_handle, |vh| {
@@ -640,11 +679,20 @@ pub fn run_view_history_command(
                             query: query.into(),
                             raw: Some(search.into()),
                             page_index: 0,
-                        });
-                    });
+                        })
+                    })
                 },
+            };
+            
+            
+            if !result
+            {
+                Some(serde_json::to_string("Failed to find window").unwrap())
             }
-            None
+            else
+            {
+                None
+            }
         },
         ViewHistoryCommand::GetInfo => {
             let info = view_history.visit(|view_history| {
@@ -663,6 +711,13 @@ pub fn run_view_history_command(
         ViewHistoryCommand::SetWindowPos { window_id, pos } => {
             let result = update_view_history(view_history, &app_handle, |view_history| {
                 view_history.set_window_pos(&window_id, pos)
+            });
+
+            Some(serde_json::to_string(&result).unwrap())
+        },
+        ViewHistoryCommand::ToLastBibleEntry { window_id, tab_index } => {
+            let result = update_view_history(view_history, &app_handle, |view_history| {
+                view_history.to_last_bible_entry(&window_id, tab_index)
             });
 
             Some(serde_json::to_string(&result).unwrap())

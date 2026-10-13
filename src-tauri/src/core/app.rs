@@ -55,8 +55,7 @@ impl AppSaveState
                 .map_err(|e| e.to_string())?;
         }
 
-        let json = serde_json::to_string(&state)
-            .map_err(|e| e.to_string())?;
+        let json = to_json_str(&state)?;
 
         fs::write(path, json).map_err(|e| e.to_string())
     }
@@ -103,4 +102,19 @@ pub fn open_save_in_file_explorer<R>(app: tauri::AppHandle<R>) -> Option<String>
     let path = app.path().resolve("", BaseDirectory::AppData).unwrap();
     let path_str = path.to_str().unwrap();
     open::that(path_str).err().map(|e| e.to_string())
+}
+
+fn to_json_str<T>(value: &T) -> Result<String, String>
+    where T : ?Sized + Serialize
+{
+    if cfg!(debug_assertions)
+    {
+        serde_json::to_string_pretty(value)
+            .map_err(|e| e.to_string())
+    }
+    else 
+    {
+        serde_json::to_string(value)
+            .map_err(|e| e.to_string())
+    }
 }
