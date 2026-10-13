@@ -11,6 +11,7 @@ pub mod commands;
 pub mod sfx;
 pub mod reader;
 pub mod meta;
+pub mod migration;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() 
