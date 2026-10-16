@@ -43,4 +43,6 @@ ttf-parser = "0.25.1"
 rfd = "0.17.2"
 isolang = { version = "2.4.0", features = ["english_names"] }
 jaq-core = "3.1.1"
+jaq-json = "2.0.3"
+jaq-std = "3.0.3"
 
