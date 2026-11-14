@@ -1,6 +1,6 @@
 use std::sync::{Arc, atomic::{AtomicBool, Ordering}};
 use tauri::{Manager, WindowEvent};
-use crate::{bible::{BibleDisplaySettings, BiblioJsonPackageHandle}, core::{app::AppSaveState, settings, view_history}, sfx::SfxPlayer, tts::{TtsAudioLibrary, gen_thread::TtsGenThread, init_espeak, player::TtsPlayer, voices::AppVoices}};
+use crate::{bible::{BibleDisplaySettings, BiblioJsonPackageHandle}, core::{app::AppSaveState, app_state::{AppState, AppStateInner}, settings, view_history::{self, ViewHistory}, window}, sfx::SfxPlayer, tts::{TtsAudioLibrary, gen_thread::TtsGenThread, init_espeak, player::TtsPlayer, voices::AppVoices}};
 
 pub mod core;
 pub mod bible;
@@ -15,9 +15,7 @@ pub mod migration;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() 
-{
-    let is_closing = Arc::new(AtomicBool::new(false));
-    
+{   
     tauri::Builder::default()
         .setup(|app| {
             
@@ -29,14 +27,6 @@ pub fn run()
 
 				app.handle().plugin(log_plugin)?;
 			}
-			
-			#[cfg(debug_assertions)]
-            {
-                use tauri::Manager;
-
-                let window = app.get_webview_window("main").unwrap();
-                window.open_devtools();
-            }
 
             init_espeak(app.path());
             app.manage(SfxPlayer::new(app.path()));
@@ -51,24 +41,29 @@ pub fn run()
             BibleDisplaySettings::add_on_package_init_listener(app.handle().clone());
             app.manage(BiblioJsonPackageHandle::init(app.handle().clone()));
 
+            let view_history = app.handle().state::<AppStateInner<ViewHistory>>();
+            view_history.visit(|view_history| {
+                for window in view_history.get_windows()
+                {
+                    let _window = window::spawn_window(app.handle(), window.to_owned()).unwrap();
+                    #[cfg(debug_assertions)]
+                    {
+                        _window.open_devtools();
+                    }
+                }
+            });
+
             Ok(())
         })
         .on_window_event(move |window, event| {
             if let WindowEvent::CloseRequested { api, .. } = event 
             {
-                // If we're already in the process of closing, allow it
-                if is_closing.load(Ordering::SeqCst) 
-                {
-                    return;
-                }
-
                 api.prevent_close();
-                is_closing.store(true, Ordering::SeqCst);
 
                 let app = window.app_handle();
                 AppSaveState::save(app.clone()).unwrap();
 
-                window.close().unwrap();
+                window.destroy().unwrap();
             }
         })
         .plugin(tauri_plugin_opener::init())

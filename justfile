@@ -11,6 +11,9 @@ PACKAGE_DISPLAY_NAME := "Ascribe"
 PUBLISHER_NAME := "$PUBLISHER"
 PUBLISHER_DISPLAY_NAME := "FishArmy100"
 
+run:
+    npm run tauri dev
+
 # Cleans the rust backend
 clean-tauri:
     cd src-tauri && cargo clean

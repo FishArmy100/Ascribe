@@ -6,3 +6,4 @@ pub mod color;
 pub mod theme;
 pub mod app_language;
 pub mod app_state;
+pub mod window;

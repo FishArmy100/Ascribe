@@ -15,18 +15,20 @@ pub struct WindowPos
 {
     pub x: f32,
     pub y: f32,
-    pub screen_id: u32,
+    pub width: f32,
+    pub height: f32
 }
 
 impl WindowPos
 {
-    pub fn new(x: f32, y: f32, screen_id: u32) -> Self 
+    pub fn new(x: f32, y: f32, width: f32, height: f32) -> Self 
     {
         Self 
         {
             x,
             y,
-            screen_id,
+            width,
+            height,
         }
     }
 }
@@ -63,7 +65,7 @@ impl ViewHistory
         let window_id = get_uuid();
         windows.insert(window_id.clone(), WindowHistory {
             id: window_id.clone(),
-            pos: WindowPos::new(0.0, 0.0, 0),
+            pos: WindowPos::new(0.0, 0.0, 800.0, 600.0),
             tabs: vec![
                 TabHistory {
                     entries: vec![DEFAULT_ENTRY],
@@ -79,6 +81,10 @@ impl ViewHistory
         }
     }
 
+    pub fn get_windows(&self) -> impl Iterator<Item = &str>
+    {
+        self.windows.values().map(|v| v.id.as_str())
+    }
     
     pub fn new_window(&mut self, pos: WindowPos, entry: ViewHistoryEntry) -> String 
     {

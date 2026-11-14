@@ -4,6 +4,7 @@ import * as vh from "../../interop/view_history";
 import { get_atom_chapter, get_atom_verse, RefId } from "@interop/bible/ref_id";
 import { use_deep_copy } from "@utils/index";
 import { get_backend_bible_display_settings, OsisBook, set_backend_bible_display_settings } from "@interop/bible";
+import { WINDOW_ID } from "@utils/window";
 
 export interface ViewHistoryContextType 
 {
@@ -22,14 +23,12 @@ export interface ViewHistoryContextType
     set_window_pos(pos: vh.WindowPos): Promise<boolean>,
     push_ref_id(id: RefId): Promise<void>,
     to_last_bible_entry(): Promise<boolean>,
-    readonly window_id: string,
     readonly tab_index: number,
     readonly can_go_back: boolean,
     readonly can_go_forward: boolean,
 
     get_info(): ViewHistoryInfo,
-    get_current(): ViewHistoryEntry
-
+    get_current(): ViewHistoryEntry,
 }
 
 const ViewHistoryContext = createContext<ViewHistoryContextType | null>(null);
@@ -43,14 +42,14 @@ export function ViewHistoryProvider({
 }: ViewHistoryProviderProps): React.ReactElement
 {
     const [current, set_current] = useState<ViewHistoryInfo | null>(null);
-    const [window_id, set_window_id] = useState<string | null>(null);
     const tab_index = useMemo(() => {
-        return current!.windows.find(w => w.id == window_id)!.selected_tab;
-    }, [current, window_id]);
+        return current?.windows.find(w => w.id == WINDOW_ID)?.selected_tab ?? 0;
+    }, [current]);
 
-    const get_current = useCallback(() => {
-        return current!.windows.find(w => w.id == window_id)!.tabs[tab_index]
-    }, [window_id, tab_index, current]);
+    const get_current = useCallback((): ViewHistoryEntry => {
+        const default_entry: ViewHistoryEntry = { type: "chapter", chapter: { book: "Gen", chapter: 1 } };
+        return current?.windows.find(w => w.id == WINDOW_ID)?.tabs[tab_index] ?? default_entry
+    }, [tab_index, current]);
 
     const push_ref_id = use_push_ref_id();
 
@@ -68,28 +67,27 @@ export function ViewHistoryProvider({
     
     const provider_value = useMemo((): ViewHistoryContextType => ({
         new_window: vh.backend_vh_new_window,
-        new_tab: (entry) => vh.backend_vh_new_tab(window_id!, entry),
-        set_selected_tab: (idx) => vh.backend_vh_set_selected_tab(window_id!, idx),
-        push_entry: (entry) => vh.backend_vh_push_entry(window_id!, tab_index, entry),
-        back: () => vh.backend_vh_back(window_id!, tab_index),
-        forward: () => vh.backend_vh_forward(window_id!, tab_index),
-        close_window: () => vh.backend_vh_close_window(window_id!),
-        close_tab: (idx) => vh.backend_vh_close_tab(window_id!, idx),
+        new_tab: (entry) => vh.backend_vh_new_tab(WINDOW_ID, entry),
+        set_selected_tab: (idx) => vh.backend_vh_set_selected_tab(WINDOW_ID, idx),
+        push_entry: (entry) => vh.backend_vh_push_entry(WINDOW_ID, tab_index, entry),
+        back: () => vh.backend_vh_back(WINDOW_ID, tab_index),
+        forward: () => vh.backend_vh_forward(WINDOW_ID, tab_index),
+        close_window: () => vh.backend_vh_close_window(WINDOW_ID),
+        close_tab: (idx) => vh.backend_vh_close_tab(WINDOW_ID, idx),
         swap_tabs: vh.backend_vh_swap_tabs,
-        push_mod_word_search: (search, mods) => vh.backend_vh_push_mod_word_search(window_id!, tab_index, search, mods),
-        push_search: (search) => vh.backend_vh_push_search(window_id!, tab_index, search),
+        push_mod_word_search: (search, mods) => vh.backend_vh_push_mod_word_search(WINDOW_ID, tab_index, search, mods),
+        push_search: (search) => vh.backend_vh_push_search(WINDOW_ID, tab_index, search),
         clear_all: vh.backend_vh_clear_all,
-        set_window_pos: (pos) => vh.backend_vh_set_window_pos(window_id!, pos),
+        set_window_pos: (pos) => vh.backend_vh_set_window_pos(WINDOW_ID, pos),
         get_info: () => current!,
-        push_ref_id: (id) => push_ref_id(window_id!, tab_index, id),
-        window_id: window_id!,
+        push_ref_id: (id) => push_ref_id(WINDOW_ID, tab_index, id),
         tab_index,
         
         get_current,
-        to_last_bible_entry: () => vh.backend_vh_to_last_bible_page(window_id!, tab_index),
-        can_go_back: current!.windows.find(w => w.id == window_id)!.is_first,
-        can_go_forward: current!.windows.find(w => w.id == window_id)!.is_first,
-    }), [current, get_current, window_id, tab_index]);
+        to_last_bible_entry: () => vh.backend_vh_to_last_bible_page(WINDOW_ID, tab_index),
+        can_go_back: current?.windows.find(w => w.id == WINDOW_ID)?.is_first ?? false,
+        can_go_forward: current?.windows.find(w => w.id == WINDOW_ID)?.is_first ?? false,
+    }), [current, get_current, WINDOW_ID, tab_index]);
 
     return (
         <ViewHistoryContext.Provider value={provider_value}>

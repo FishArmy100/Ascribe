@@ -10,16 +10,6 @@
     "frontendDist": "../dist"
   },
   "app": {
-    "windows": [
-      {
-        "title": "Ascribe",
-        "width": 800,
-        "height": 600,
-        "resizable": true,
-        "minWidth": 600,
-        "minHeight": 400
-      }
-    ],
     "security": {
       "csp": null
     } 
