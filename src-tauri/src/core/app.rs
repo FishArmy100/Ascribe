@@ -61,6 +61,10 @@ impl AppSaveState
 
         let json = to_json_str(&state)?;
 
+        if cfg!(debug_assertions)
+        {
+            log::info!("Loading app to \"{}\"", path.display());
+        }
         fs::write(path, json).map_err(|e| e.to_string())
     }
 
@@ -69,6 +73,11 @@ impl AppSaveState
         let resolver = app.path();
         let path = resolver.resolve(APP_SAVE_PATH, BaseDirectory::AppData)
             .map_err(|e| e.to_string())?;
+
+        if cfg!(debug_assertions)
+        {
+            log::info!("Loading app from \"{}\"", path.display());
+        }
 
         let state = match fs::read(path)
         {

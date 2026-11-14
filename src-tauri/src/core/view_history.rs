@@ -139,10 +139,11 @@ impl ViewHistory
         };
 
         tab.entries = tab.entries.iter()
-            .take(tab_index as usize + 1)
+            .take(tab.index as usize + 1)
             .cloned()
             .collect();
         tab.entries.push(entry);
+        tab.index = tab.entries.len() as u32 - 1;
         true
     }
 
