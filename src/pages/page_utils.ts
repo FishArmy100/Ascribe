@@ -1,9 +1,12 @@
 import { use_bible_display_settings } from "@components/providers/BibleDisplaySettingsProvider";
 import { use_view_history, ViewHistoryContextType } from "@components/providers/ViewHistoryProvider";
+import { TAB_BAR_HEIGHT } from "@components/TabBar/TabBar";
 import * as bible from "@interop/bible";
 import { format_strongs } from "@interop/bible/strongs";
 import { HRefSrc } from "@interop/html_text";
 import { useCallback, useEffect, useRef } from "react";
+
+export const PAGE_HEADER_SPACING: number = TAB_BAR_HEIGHT + 7;
 
 export function use_handle_href_clicked_callback(): (href: HRefSrc) => void 
 {

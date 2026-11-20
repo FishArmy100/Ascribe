@@ -3,6 +3,7 @@ import React from "react"
 import { AppSettings } from "../interop/settings"
 import { use_settings } from "./providers/SettingsProvider"
 import { BUTTON_SIZE } from "./core/ImageButton";
+import { TAB_BAR_HEIGHT } from "./TabBar/TabBar";
 
 export function use_top_bar_size(theme: Theme): number 
 {
@@ -46,6 +47,9 @@ export default function TopBar({
             position="fixed" 
             color="primary" 
             role="banner"
+            sx={{
+                top: t => t.spacing(TAB_BAR_HEIGHT)
+            }}
         >
             <Toolbar 
                 variant="dense"

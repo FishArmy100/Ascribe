@@ -8,6 +8,7 @@ import { ViewHistoryEntry } from "@interop/view_history";
 import { use_view_history } from "@components/providers/ViewHistoryProvider";
 import { backend_open } from "@interop/index";
 import { play_sfx } from "@interop/sfx";
+import { PAGE_HEADER_SPACING } from "../page_utils";
 
 
 export default function InfoPage(): React.ReactElement
@@ -236,7 +237,7 @@ export default function InfoPage(): React.ReactElement
             <InfoPageToolbar />
             <Box 
                 sx={{ 
-                    mt: 6, 
+                    mt: PAGE_HEADER_SPACING, 
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",

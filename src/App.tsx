@@ -9,6 +9,7 @@ import ModuleWordSearchPage from "./pages/modules_pages/module_word_search/Modul
 import BiblePrinterPage from "./pages/bible_printer/BiblePrinterPage";
 import { Box } from "@mui/material";
 import InfoPage from "./pages/info_page/InfoPage";
+import TabBar from "@components/TabBar/TabBar";
 
 export default function App(): React.ReactElement
 {
@@ -20,6 +21,7 @@ export default function App(): React.ReactElement
 				e.stopPropagation();
 			}}
 		>
+			<TabBar />
 			<AppInner />
 		</Box>
 	)

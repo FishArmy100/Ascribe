@@ -11,7 +11,7 @@ import { BibleInfo, VerseId, WordId } from "@interop/bible";
 import { use_bible_infos } from "@components/providers/BibleInfoProvider";
 import { use_bible_display_settings } from "@components/providers/BibleDisplaySettingsProvider";
 import rfdc from "rfdc";
-import { get_handle_ref_clicked_callback } from "../page_utils";
+import { get_handle_ref_clicked_callback, PAGE_HEADER_SPACING } from "../page_utils";
 import { StrongsNumber } from "@interop/bible/strongs";
 import { use_view_history } from "@components/providers/ViewHistoryProvider";
 import SearchPaginator from "./SearchPaginator";
@@ -190,8 +190,8 @@ export default function SearchPage({
             <SearchPageToolbar entry={entry}/>
             <Box
                 sx={{
+                    mt: theme.spacing(PAGE_HEADER_SPACING),
                     mb: `calc(100vh - (${theme.spacing(14)}))`,
-                    mt: theme.spacing(7),
                 }}
             >
                 {content}

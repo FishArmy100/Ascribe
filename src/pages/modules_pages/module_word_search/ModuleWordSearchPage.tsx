@@ -8,7 +8,7 @@ import { HRefSrc } from "@interop/html_text";
 import { LoadingSpinner } from "../../LoadingSpinner";
 import { Footer } from "@components/index";
 import ModuleWordSearchPaginator from "./ModuleWordSearchPageinator";
-import { use_handle_href_clicked_callback } from "../../page_utils";
+import { PAGE_HEADER_SPACING, use_handle_href_clicked_callback } from "../../page_utils";
 import { run_backend_module_search_query } from "@interop/searching";
 import { use_module_infos } from "@components/providers/ModuleInfoProvider";
 import { search_string } from "@utils/index";
@@ -97,7 +97,7 @@ const ModuleWordSearchPageContent = React.memo(function ModuleInspectorPageConte
                 <Stack
                     gap={2}
                     sx={{
-                        mt: 7,
+                        mt: PAGE_HEADER_SPACING,
                         ml: 2,
                         mr: 2,
                         mb: `calc(100vh - (${theme.spacing(14)}))`,

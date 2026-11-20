@@ -14,7 +14,7 @@ import PopoverManager, { PopoverData } from "@components/popovers/PopoverManager
 import { ChapterHistoryEntry, VerseHistoryEntry } from "@interop/view_history";
 import { NavigationButton } from "./NavigationButton";
 import { LoadingSpinner } from "../LoadingSpinner";
-import { get_handle_ref_clicked_callback } from "../page_utils";
+import { get_handle_ref_clicked_callback, PAGE_HEADER_SPACING } from "../page_utils";
 import { BiblePageToolbar } from "./BiblePageToolbar";
 import { use_shortcut } from "@components/providers/KeyboardShortcutProvider";
 import { backend_set_print_ranges } from "@interop/printing";
@@ -275,7 +275,7 @@ function BiblePage({
 
 			<Box
 				sx={{
-					mt: 5,
+					mt: PAGE_HEADER_SPACING,
 					mb: `calc(100vh - (${theme.spacing(14)}))`,
 					display: "flex",
 					justifyContent: "center",
