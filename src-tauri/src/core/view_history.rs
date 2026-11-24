@@ -85,6 +85,11 @@ impl ViewHistory
     {
         self.windows.values().map(|v| v.id.as_str())
     }
+
+    pub fn window_count(&self) -> usize
+    {
+        self.windows.len()
+    }
     
     pub fn new_window(&mut self, pos: WindowPos, entry: ViewHistoryEntry) -> String 
     {
@@ -96,6 +101,24 @@ impl ViewHistory
                 entries: vec![entry],
                 index: 0,
             }], 
+            selected_tab: 0,
+        });
+
+        id
+    }
+
+    pub fn new_empty_window(&mut self) -> String
+    {
+        let id = get_uuid();
+        self.windows.insert(id.clone(), WindowHistory {
+            id: id.clone(),
+            pos: WindowPos::new(0.0, 0.0, 800.0, 600.0),
+            tabs: vec![
+                TabHistory {
+                    entries: vec![DEFAULT_ENTRY],
+                    index: 0,
+                }
+            ],
             selected_tab: 0,
         });
 

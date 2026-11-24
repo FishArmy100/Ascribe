@@ -6,7 +6,7 @@ import { use_module_infos } from "@components/providers/ModuleInfoProvider"
 import { fetch_backend_entry_index, fetch_backend_module_entries, ModuleEntry } from "@interop/module_entry"
 import { LoadingSpinner } from "../../LoadingSpinner"
 import { ModuleEntryInfoPanel } from "../ModuleEntryInfoPanel"
-import { get_handle_ref_clicked_callback, PAGE_HEADER_SPACING } from "../../page_utils"
+import { get_handle_ref_clicked_callback } from "../../page_utils"
 import { use_bible_display_settings } from "@components/providers/BibleDisplaySettingsProvider"
 import { use_view_history } from "@components/providers/ViewHistoryProvider"
 import ModuleInspectorPaginator from "./ModuleInspectorPaginator"
@@ -122,7 +122,6 @@ const ModuleInspectorPageContent = React.memo(function ModuleInspectorPageConten
                 <Stack
                     gap={2}
                     sx={{
-                        mt: PAGE_HEADER_SPACING,
                         ml: 2,
                         mr: 2,
                         mb: `calc(100vh - (${theme.spacing(14)}))`,

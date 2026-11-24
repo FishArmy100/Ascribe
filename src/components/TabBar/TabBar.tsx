@@ -1,5 +1,5 @@
 import ImageButton, { BUTTON_PADDING, BUTTON_SIZE } from "@components/core/ImageButton";
-import { AppBar, Box, useTheme } from "@mui/material";
+import { AppBar, Box, Stack, useTheme } from "@mui/material";
 import React, { useCallback, useMemo } from "react";
 import * as images from "@assets";
 import { use_app_i18n } from "@components/providers/LanguageProvider";
@@ -32,13 +32,12 @@ export default function TabBar({
     return (
         <AppBar 
             position="fixed" 
-            color="primary" 
             role="banner"
             sx={{
-                backgroundColor: "green",
                 borderBottomWidth: theme.spacing(BORDER_WIDTH),
                 borderBottomColor: theme.palette.divider,
                 borderBottomStyle: "solid",
+                backgroundColor: theme.palette.background.default,
             }}
         >
             <Box
@@ -46,19 +45,49 @@ export default function TabBar({
                 sx={{
                     width: "100vw",
                     height: theme.spacing(TAB_BAR_HEIGHT - BORDER_WIDTH),
-                    boxSizing: "border-box",
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
                 }}
+            /> {/* Draggable region */}
+            <Stack
+                data-tauri-drag-region
+                sx={{
+                    width: "fit-content",
+                    height: theme.spacing(TAB_BAR_HEIGHT - BORDER_WIDTH),
+                    boxSizing: "border-box",
+                    position: "absolute",
+                    top: 0,
+                    right: 0,
+                }}
+                direction="row"
             >
+                <ImageButton 
+                    image={images.minimize_window}
+                    on_click={on_close}
+                    tooltip={tooltips.close}
+                    sx={{
+                        margin: theme.spacing(BUTTON_PADDING)
+                    }}
+                />
+                <ImageButton 
+                    image={images.maximize_window}
+                    on_click={on_close}
+                    tooltip={tooltips.close}
+                    sx={{
+                        margin: theme.spacing(BUTTON_PADDING)
+                    }}
+                />
                 <ImageButton 
                     image={images.x_mark}
                     variant="error"
                     on_click={on_close}
                     tooltip={tooltips.close}
                     sx={{
-                        ml: "auto"
+                        margin: theme.spacing(BUTTON_PADDING)
                     }}
                 />
-            </Box>
+            </Stack>
         </AppBar>
     )
 }

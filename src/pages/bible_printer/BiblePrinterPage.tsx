@@ -7,7 +7,6 @@ import { LoadingSpinner } from "../LoadingSpinner";
 import { use_bible_print_format } from "@components/providers/PrintBibleFormatProvider";
 import { use_bible_print_ranges } from "@components/providers/PrintBibleRangesProvider";
 import LoadingOverlay from "@components/core/LoadingOverlay";
-import { PAGE_HEADER_SPACING } from "../page_utils";
 
 export default function BiblePrinterPage(): React.ReactElement
 {
@@ -52,7 +51,6 @@ export default function BiblePrinterPage(): React.ReactElement
             <BiblePrinterPageToolbar on_download={handle_download}/>
             <Box 
                 sx={{ 
-                    mt: PAGE_HEADER_SPACING, 
                     display: "flex",
                     width: "100vw",
                     height: `calc(100vh - ${theme.spacing(5)})`,

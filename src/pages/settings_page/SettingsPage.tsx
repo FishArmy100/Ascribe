@@ -9,7 +9,6 @@ import SfxVolumeSlider from "./SfxVolumeSlider";
 import SfxToggles from "./SfxToggles";
 import { Footer } from "@components/index";
 import AdvancedButtons from "./AdvancedButtons";
-import { PAGE_HEADER_SPACING } from "../page_utils";
 
 export default function SettingsPage(): React.ReactElement
 {
@@ -33,7 +32,6 @@ export default function SettingsPage(): React.ReactElement
                     display="flex"
                     justifyContent="center"
                     sx={{
-                        mt: PAGE_HEADER_SPACING,
                         mr: 5,
                         ml: 5,
                         mb: `calc(100vh - ${theme.spacing(12)})`,

@@ -2,7 +2,7 @@ import { ModuleInspectorEntry } from "@interop/view_history"
 import { Box, Stack, useTheme } from "@mui/material"
 import React, { useEffect, useState } from "react"
 import ModuleListPageToolbar from "./ModuleListPageToolbar"
-import { get_handle_ref_clicked_callback, PAGE_HEADER_SPACING } from "../../page_utils"
+import { get_handle_ref_clicked_callback } from "../../page_utils"
 import { use_bible_display_settings } from "@components/providers/BibleDisplaySettingsProvider"
 import { use_view_history } from "@components/providers/ViewHistoryProvider"
 import { use_module_infos } from "@components/providers/ModuleInfoProvider"
@@ -101,7 +101,6 @@ export default function ModuleListPage(): React.ReactElement
             <Stack
                 gap={2}
                 sx={{
-                    mt: PAGE_HEADER_SPACING,
                     ml: 2,
                     mr: 2,
 					mb: `calc(100vh - (${theme.spacing(14)}))`,

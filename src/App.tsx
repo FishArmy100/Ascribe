@@ -10,19 +10,27 @@ import BiblePrinterPage from "./pages/bible_printer/BiblePrinterPage";
 import { Box } from "@mui/material";
 import InfoPage from "./pages/info_page/InfoPage";
 import TabBar from "@components/TabBar/TabBar";
+import { PAGE_HEADER_SPACING } from "./pages/page_utils";
 
 export default function App(): React.ReactElement
 {
 	return (
-		<Box
-			display="contents"
-			onContextMenu={e => {
-				e.preventDefault();
-				e.stopPropagation();
-			}}
-		>
+		<Box>
 			<TabBar />
-			<AppInner />
+			<Box
+				sx={{
+					position: "fixed",
+					top: t => t.spacing(PAGE_HEADER_SPACING),
+					bottom: 0,
+					left: 0,
+					paddingTop: t => t.spacing(2),
+					width: "100%",
+					overflowY: "auto",
+					overflowX: "hidden",
+				}}
+			>
+				<AppInner />
+			</Box>
 		</Box>
 	)
 }

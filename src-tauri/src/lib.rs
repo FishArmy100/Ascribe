@@ -1,5 +1,5 @@
 use tauri::{Manager, WindowEvent};
-use crate::{bible::{BibleDisplaySettings, BiblioJsonPackageHandle}, core::{app::AppSaveState, app_state::AppStateInner, settings, view_history::{self, ViewHistory}, window}, sfx::SfxPlayer, tts::{TtsAudioLibrary, gen_thread::TtsGenThread, init_espeak, player::TtsPlayer, voices::AppVoices}};
+use crate::{bible::{BibleDisplaySettings, BiblioJsonPackageHandle}, core::{app::AppSaveState, app_state::AppStateInner, settings, view_history::{self, ViewHistory, update_view_history}, window}, sfx::SfxPlayer, tts::{TtsAudioLibrary, gen_thread::TtsGenThread, init_espeak, player::TtsPlayer, voices::AppVoices}};
 
 pub mod core;
 pub mod bible;
@@ -41,18 +41,23 @@ pub fn run()
             app.manage(BiblioJsonPackageHandle::init(app.handle().clone()));
 
             let view_history = app.handle().state::<AppStateInner<ViewHistory>>();
+
             view_history.visit(|view_history| {
                 for window_id in view_history.get_windows()
                 {
-                    let _window = window::spawn_window(app.handle(), window_id.to_owned()).unwrap();
-                    #[cfg(debug_assertions)]
-                    {
-                        _window.open_devtools();
-                    }
+                    window::spawn_window(app.handle(), window_id.to_owned()).unwrap();
                 }
             });
 
             window::add_update_widows_event_handler(app.handle().clone());
+
+            update_view_history(view_history, app.handle(), |view_history| {
+                if view_history.window_count() == 0
+                {
+                    view_history.new_empty_window();
+                }
+            });
+
 
             Ok(())
         })

@@ -10,12 +10,19 @@ pub fn spawn_window(app: &AppHandle, id: String) -> tauri::Result<WebviewWindow>
 {
     let url = WebviewUrl::App("index.html".into());
     
-    WebviewWindowBuilder::new(app, id, url)
+    let window = WebviewWindowBuilder::new(app, id, url)
         .title(DEFAULT_TITLE)
         .inner_size(1000.0, 700.0)
         .resizable(true)
         .decorations(false)
-        .build()
+        .build()?;
+
+    if cfg!(debug_assertions)
+    {
+        window.open_devtools();
+    }
+
+    Ok(window)
 }
 
 pub fn add_update_widows_event_handler(handle: AppHandle)

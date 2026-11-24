@@ -103,3 +103,5 @@ export { default as quotes } from "./images/light-quotes.svg";
 export { default as copy } from "./images/light-copy.svg";
 export { default as microscope } from "./images/light-microscope.svg";
 export { default as open_book } from "./images/light-book-open-cover.svg";
+export { default as minimize_window } from "./images/light-window-minimize.svg";
+export { default as maximize_window } from "./images/light-window-maximize.svg";
