@@ -71,15 +71,8 @@ export type ViewHistoryEntry =
     | BiblePrinterEntry
     | InfoPageEntry
 
-export type WindowPos = {
-    x: number,
-    y: number,
-    screen_id: number,
-}
-
 export type WindowHistoryInfo = {
     id: string,
-    pos: WindowPos,
     tabs: ViewHistoryEntry[],
     selected_tab: number,
     is_last: boolean,
@@ -95,13 +88,12 @@ export type ViewHistoryChangedEvent = {
     new: ViewHistoryInfo,
 };
 
-export async function backend_vh_new_window(entry: ViewHistoryEntry, pos: WindowPos): Promise<string>
+export async function backend_vh_new_window(entry: ViewHistoryEntry): Promise<string>
 {
     const s = await invoke<string>("run_view_history_command", {
         command: {
             type: "new_window",
             entry,
-            pos,
         }
     });
     return JSON.parse(s);
@@ -249,18 +241,6 @@ export async function backend_vh_clear_all(): Promise<void>
             type: "get_info",
         }
     });
-}
-
-export async function backend_vh_set_window_pos(window_id: string, pos: WindowPos): Promise<boolean>
-{
-    const s = await invoke<string>("run_view_history_command", {
-        command: {
-            type: "set_window_pos",
-            window_id,
-            pos,
-        }
-    });
-    return JSON.parse(s);
 }
 
 export async function backend_vh_to_last_bible_page(window_id: string, tab_index: number): Promise<boolean>

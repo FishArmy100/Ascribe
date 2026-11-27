@@ -2,9 +2,11 @@ use itertools::Itertools;
 use log::error;
 use tauri::{AppHandle, Listener, Manager, WebviewUrl, WebviewWindow, WebviewWindowBuilder};
 
-use crate::core::view_history::{VIEW_HISTORY_CHANGED_EVENT_NAME, ViewHistoryChangedEvent};
+use crate::core::view_history::event::{VIEW_HISTORY_CHANGED_EVENT_NAME, ViewHistoryChangedEvent};
 
 const DEFAULT_TITLE: &str = "Ascribe";
+pub const MIN_WINDOW_WIDTH: f64 = 600.0;
+pub const MIN_WINDOW_HEIGHT: f64 = 400.0;
 
 pub fn spawn_window(app: &AppHandle, id: String) -> tauri::Result<WebviewWindow>
 {
@@ -13,6 +15,7 @@ pub fn spawn_window(app: &AppHandle, id: String) -> tauri::Result<WebviewWindow>
     let window = WebviewWindowBuilder::new(app, id, url)
         .title(DEFAULT_TITLE)
         .inner_size(1000.0, 700.0)
+        .min_inner_size(MIN_WINDOW_WIDTH, MIN_WINDOW_HEIGHT)
         .resizable(true)
         .decorations(false)
         .build()?;

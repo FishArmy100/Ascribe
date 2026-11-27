@@ -1,17 +1,22 @@
 import ImageButton, { BUTTON_PADDING, BUTTON_SIZE } from "@components/core/ImageButton";
-import { AppBar, Box, Stack, useTheme } from "@mui/material";
-import React, { useCallback, useMemo } from "react";
+import { AppBar, Box, Divider, Stack, useTheme } from "@mui/material";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import * as images from "@assets";
 import { use_app_i18n } from "@components/providers/LanguageProvider";
 import __t from "@fisharmy100/react-auto-i18n";
 import { use_view_history } from "@components/providers/ViewHistoryProvider";
+import { getCurrentWindow } from "@tauri-apps/api/window";
+import { UnlistenFn } from "@tauri-apps/api/event";
+import WindowControlButtons from "./WindowControlButtons";
+import AscribeIcon from "./AscribeIcon";
+import TabBarTabs from "./TabBarTabs";
 
 export type TabBarProps = {
 
 }
 
-const BORDER_WIDTH: number = 1 / 8
-export const TAB_BAR_HEIGHT: number = BUTTON_SIZE + BUTTON_PADDING * 2 + BORDER_WIDTH;
+export const TAB_BAR_BORDER_WIDTH: number = 1 / 8
+export const TAB_BAR_HEIGHT: number = BUTTON_SIZE + BUTTON_PADDING * 2 + TAB_BAR_BORDER_WIDTH;
 
 export default function TabBar({
 
@@ -19,75 +24,46 @@ export default function TabBar({
 {
     const theme = useTheme();
 
-    const view_history = use_view_history();
-    const on_close = useCallback(() => {
-        view_history.close_window();
-    }, []);
-    
-    const i18n = use_app_i18n();
-    const tooltips = useMemo(() => ({
-        close: __t("tab_bar.tooltips.close", "Close window"),
-    }), [i18n]);
-
     return (
         <AppBar 
             position="fixed" 
             role="banner"
             sx={{
-                borderBottomWidth: theme.spacing(BORDER_WIDTH),
-                borderBottomColor: theme.palette.divider,
-                borderBottomStyle: "solid",
                 backgroundColor: theme.palette.background.default,
+                top: 0,
+                left: 0,
             }}
         >
+            {/* Draggable region */}
             <Box
                 data-tauri-drag-region
                 sx={{
                     width: "100vw",
-                    height: theme.spacing(TAB_BAR_HEIGHT - BORDER_WIDTH),
+                    height: theme.spacing(TAB_BAR_HEIGHT),
+                    position: "absolute",
+                    top: 0,
+                    left: 0
+                }}
+            />
+            <Box
+                sx={{
                     position: "absolute",
                     top: 0,
                     left: 0,
+                    display: "flex",
+                    width: theme.spacing(TAB_BAR_HEIGHT),
+                    height: theme.spacing(TAB_BAR_HEIGHT),
+                    alignItems: "center",
+                    justifyContent: "center",
                 }}
-            /> {/* Draggable region */}
-            <Stack
-                data-tauri-drag-region
-                sx={{
-                    width: "fit-content",
-                    height: theme.spacing(TAB_BAR_HEIGHT - BORDER_WIDTH),
-                    boxSizing: "border-box",
-                    position: "absolute",
-                    top: 0,
-                    right: 0,
-                }}
-                direction="row"
             >
-                <ImageButton 
-                    image={images.minimize_window}
-                    on_click={on_close}
-                    tooltip={tooltips.close}
-                    sx={{
-                        margin: theme.spacing(BUTTON_PADDING)
-                    }}
-                />
-                <ImageButton 
-                    image={images.maximize_window}
-                    on_click={on_close}
-                    tooltip={tooltips.close}
-                    sx={{
-                        margin: theme.spacing(BUTTON_PADDING)
-                    }}
-                />
-                <ImageButton 
-                    image={images.x_mark}
-                    variant="error"
-                    on_click={on_close}
-                    tooltip={tooltips.close}
-                    sx={{
-                        margin: theme.spacing(BUTTON_PADDING)
-                    }}
-                />
-            </Stack>
+                <AscribeIcon />
+            </Box>
+            <TabBarTabs 
+                width={`calc(100vw - ${theme.spacing(BUTTON_SIZE * 4 + BUTTON_PADDING * 9 + 10)})`} 
+                left={theme.spacing(BUTTON_SIZE + BUTTON_PADDING * 2)} 
+            />
+            <WindowControlButtons />
         </AppBar>
     )
 }

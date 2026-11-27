@@ -8,7 +8,7 @@ import { WINDOW_ID } from "@utils/window";
 
 export interface ViewHistoryContextType 
 {
-    new_window(entry: ViewHistoryEntry, pos: vh.WindowPos): Promise<string>
+    new_window(entry: ViewHistoryEntry): Promise<string>
     new_tab(entry: ViewHistoryEntry): Promise<number>
     set_selected_tab(tab_index: number): Promise<boolean>
     push_entry(entry: ViewHistoryEntry): Promise<boolean>
@@ -20,7 +20,6 @@ export interface ViewHistoryContextType
     push_mod_word_search(search: string, searched_modules: string[]): Promise<string | null>
     push_search(search: string): Promise<string | null>
     clear_all(): Promise<void>
-    set_window_pos(pos: vh.WindowPos): Promise<boolean>,
     push_ref_id(id: RefId): Promise<void>,
     to_last_bible_entry(): Promise<boolean>,
     readonly tab_index: number,
@@ -78,7 +77,6 @@ export function ViewHistoryProvider({
         push_mod_word_search: (search, mods) => vh.backend_vh_push_mod_word_search(WINDOW_ID, tab_index, search, mods),
         push_search: (search) => vh.backend_vh_push_search(WINDOW_ID, tab_index, search),
         clear_all: vh.backend_vh_clear_all,
-        set_window_pos: (pos) => vh.backend_vh_set_window_pos(WINDOW_ID, pos),
         get_info: () => current!,
         push_ref_id: (id) => push_ref_id(WINDOW_ID, tab_index, id),
         tab_index,

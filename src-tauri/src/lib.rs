@@ -1,5 +1,5 @@
 use tauri::{Manager, WindowEvent};
-use crate::{bible::{BibleDisplaySettings, BiblioJsonPackageHandle}, core::{app::AppSaveState, app_state::AppStateInner, settings, view_history::{self, ViewHistory, update_view_history}, window}, sfx::SfxPlayer, tts::{TtsAudioLibrary, gen_thread::TtsGenThread, init_espeak, player::TtsPlayer, voices::AppVoices}};
+use crate::{bible::{BibleDisplaySettings, BiblioJsonPackageHandle}, core::{app::AppSaveState, app_state::AppStateInner, settings, view_history::{self, ViewHistory, event::update_view_history}, window}, sfx::SfxPlayer, tts::{TtsAudioLibrary, gen_thread::TtsGenThread, init_espeak, player::TtsPlayer, voices::AppVoices}};
 
 pub mod core;
 pub mod bible;
@@ -76,7 +76,7 @@ pub fn run()
         .invoke_handler(tauri::generate_handler![
             settings::run_settings_command,
             bible::bible_cmd::run_bible_command,
-            view_history::run_view_history_command,
+            view_history::command::run_view_history_command,
             tts::tts_cmd::run_tts_command,
             commands::open,
             core::app_language::run_app_language_command,
